@@ -41,10 +41,10 @@ const HeroSection = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <a
-              href="#contact"
+              href="https://www.youtube.com/@MagicworldsTV"
               className="inline-flex items-center justify-center gap-2 flame-gradient px-8 py-4 rounded-full font-semibold text-lg text-primary-foreground hover:opacity-90 transition-all ember-glow"
             >
-              Report an Issue
+              Start Leaning!
               <ArrowRight className="w-5 h-5" />
             </a>
             <a
@@ -61,7 +61,7 @@ const HeroSection = () => {
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <Users className="w-5 h-5 text-flame-orange" />
                 <span className="font-display text-2xl md:text-3xl font-bold">
-                  12K+
+                  250+
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
@@ -72,18 +72,18 @@ const HeroSection = () => {
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <Flag className="w-5 h-5 text-flame-orange" />
                 <span className="font-display text-2xl md:text-3xl font-bold">
-                  850+
+                  0
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
-                Issues Resolved
+                Individuals Teached
               </span>
             </div>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <ThumbsUp className="w-5 h-5 text-flame-orange" />
                 <span className="font-display text-2xl md:text-3xl font-bold">
-                  45K+
+                  0
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
