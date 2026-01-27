@@ -45,9 +45,7 @@ const ContactSection = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-1">Our Location</h3>
                 <p className="text-muted-foreground">
-                  123 Community Drive
-                  <br />
-                  Springfield, IL 62701
+                  London, United Kingdom
                 </p>
               </div>
             </div>
@@ -59,9 +57,7 @@ const ContactSection = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-1">Email Us</h3>
                 <p className="text-muted-foreground">
-                  hello@flamescharity.org
-                  <br />
-                  support@flamescharity.org
+                  mflynn1999@gmail.com
                 </p>
               </div>
             </div>
@@ -73,7 +69,7 @@ const ContactSection = () => {
               <div>
                 <h3 className="font-semibold text-lg mb-1">Call Us</h3>
                 <p className="text-muted-foreground">
-                  +1 (555) 123-4567
+                  +44 7762 293742
                   <br />
                   Mon-Fri, 9am-5pm
                 </p>
