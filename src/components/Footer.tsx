@@ -38,8 +38,8 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="text-center md:text-right text-muted-foreground text-sm">
-            <p>hello@flamescharity.org</p>
-            <p>+1 (555) 123-4567</p>
+            <p>mflynn1999@gmail.com</p>
+            <p>+44 7762 293742</p>
           </div>
         </div>
 
