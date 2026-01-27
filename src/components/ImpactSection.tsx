@@ -1,25 +1,25 @@
-import community1 from "@/assets/community-1.jpg";
-import community2 from "@/assets/community-2.jpg";
-import community3 from "@/assets/community-3.jpg";
+import community1 from "@/assets/jobs.png";
+import community2 from "@/assets/money.png";
+import community3 from "@/assets/legal.png";
 
 const impactItems = [
   {
     image: community1,
-    title: "Food Security Initiatives",
+    title: "FLAME JOBS",
     description:
-      "Our volunteers distribute essential supplies to over 500 families weekly.",
+      "Live daily every 6:15GMT",
   },
   {
     image: community2,
-    title: "Community Voting Events",
+    title: "MAGIC MONEY",
     description:
-      "Citizens gather to prioritize local issues and allocate resources fairly.",
+      "Live daily every 6:15GMT",
   },
   {
     image: community3,
-    title: "Neighborhood Improvement",
+    title: "FLAME LEGAL",
     description:
-      "Together we've transformed 30+ public spaces into thriving green areas.",
+      "Live daily every 6:15GMT",
   },
 ];
 
