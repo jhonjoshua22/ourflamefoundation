@@ -48,7 +48,7 @@ const Footer = () => {
             © {currentYear} Flames Charity Organization. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs mt-2">
-            Empowering communities to report, surface, and vote on local issues.
+            Empowering communities to learn, surface, and vote on local issues.
           </p>
         </div>
       </div>
