@@ -1,5 +1,5 @@
 import { ArrowRight, Users, Flag, ThumbsUp } from "lucide-react";
-import heroImage from "@/assets/hero-professionals.jpg";
+import heroImage from "@/assets/hero-professionals.png";
 
 const HeroSection = () => {
   return (
