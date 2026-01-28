@@ -98,67 +98,46 @@ const ImpactSection = () => {
             Making a <span className="flame-text">Difference</span> Together
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            See how our community-driven approach is solving real problems and
-            creating lasting change in neighborhoods across the region.
+            See how our community-driven approach is solving real problems.
           </p>
         </div>
 
-        {/* Photo Grid - 2 columns, with last item centered */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {impactItems.slice(0, 2).map((item, index) => (
+        {/* Updated Grid: Shows all images, 3 per row on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {impactItems.map((item, index) => (
             <div
               key={index}
-              className="group relative overflow-hidden rounded-2xl card-hover"
+              className="group relative overflow-hidden rounded-2xl border bg-background card-hover"
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              {/* Removed 'aspect-[4/3]' to prevent cropping. 
+                  Using 'object-contain' ensures the full width/height is seen.
+              */}
+              <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* Text Overlay Details */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
               <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <h3 className="font-display text-xl font-bold mb-2">
+                <h3 className="font-display text-xl font-bold mb-2 text-white">
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-gray-200 text-sm">
                   {item.description}
                 </p>
               </div>
-              {/* Always visible overlay for title */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
-                <h3 className="font-display text-xl font-bold">{item.title}</h3>
+
+              {/* Title label that hides on hover */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent group-hover:opacity-0 transition-opacity duration-300">
+                <h3 className="font-display text-lg font-bold text-white">{item.title}</h3>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Third item centered below */}
-        <div className="max-w-lg mx-auto mt-8">
-          <div className="group relative overflow-hidden rounded-2xl card-hover">
-            <div className="aspect-[4/3] overflow-hidden">
-              <img
-                src={impactItems[2].image}
-                alt={impactItems[2].title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <h3 className="font-display text-xl font-bold mb-2">
-                {impactItems[2].title}
-              </h3>
-              <p className="text-muted-foreground text-sm">
-                {impactItems[2].description}
-              </p>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background/90 to-transparent group-hover:opacity-0 transition-opacity duration-300">
-              <h3 className="font-display text-xl font-bold">
-                {impactItems[2].title}
-              </h3>
-            </div>
-          </div>
         </div>
       </div>
     </section>
