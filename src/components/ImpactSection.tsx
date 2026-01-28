@@ -1,6 +1,15 @@
 import community1 from "@/assets/jobs.png";
-import community2 from "@/assets/money.png";
+import community2 from "@/assets/money.jpeg";
 import community3 from "@/assets/legal.png";
+import community4 from "@/assets/double.jpeg";
+import community5 from "@/assets/superpets.jpeg";
+import community6 from "@/assets/holidays.jpeg";
+import community7 from "@/assets/health.jpeg";
+import community8 from "@/assets/pitch.jpeg";
+import community9 from "@/assets/malesinger.jpeg";
+import community10 from "@/assets/femalesinger.jpeg";
+import community11 from "@/assets/film.jpeg";
+import community12 from "@/assets/bookcontract.jpeg";
 
 const impactItems = [
   {
@@ -11,13 +20,67 @@ const impactItems = [
   },
   {
     image: community2,
-    title: "MAGIC MONEY",
+    title: "MAGIC MONEY TRAINING",
     description:
       "Live daily every 6:15GMT",
   },
   {
     image: community3,
     title: "FLAME LEGAL",
+    description:
+      "Live daily every 6:15GMT",
+  },
+    {
+    image: community4,
+    title: "DOUBLE YOUR MONEY TRAINING",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: community5,
+    title: "SUPERPETS TRAINING",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: community6,
+    title: "FREE HOLIDAYS",
+    description:
+      "Live daily every 6:15GMT",
+  },
+    {
+    image: community7,
+    title: "HAPPY HEALTH TRAINING",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: community8,
+    title: "PITCH YOUR IDEA",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: community9,
+    title: "TOP SINGER COMPETITION MALE",
+    description:
+      "Live daily every 6:15GMT",
+  },
+    {
+    image: community10,
+    title: "TOP SINGER COMPETITION FEMALE",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: community11,
+    title: "FILM AUDITION",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: community12,
+    title: "BOOK CONTRACT PROCESS",
     description:
       "Live daily every 6:15GMT",
   },
