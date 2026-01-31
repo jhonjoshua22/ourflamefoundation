@@ -45,10 +45,10 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} Flames Charity Organization. All rights reserved.
+            © {currentYear} Our Flame Foundation. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs mt-2">
-            Empowering communities to learn, surface, and vote on local issues.
+            Empowering communities to learn, surface, and vote on local issues. = Improving families lives via expert support & modern tools, funded by pro investors.
           </p>
         </div>
       </div>
