@@ -73,16 +73,23 @@ const ContactSection = () => {
                   <br />
                   24/7 Please leave a message 
                 </p>
-
-                <div className="flex gap-4 pt-2 border-t border-border/50">
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-6 bg-card rounded-2xl border border-border">
+              <div className="p-3 rounded-xl flame-gradient">
+                <Send className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Follow Us</h3>
+                <div className="flex gap-5">
                   <a href="https://www.facebook.com/MagikWorlds/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-flame-orange transition-colors">
-                    <Facebook className="w-5 h-5" />
+                    <Facebook className="w-6 h-6" />
                   </a>
                   <a href="https://x.com/MagicWorlds3" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-flame-orange transition-colors">
-                    <Twitter className="w-5 h-5" />
+                    <Twitter className="w-6 h-6" />
                   </a>
                   <a href="https://www.youtube.com/@MagicworldsTV" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-flame-orange transition-colors">
-                    <Youtube className="w-5 h-5" />
+                    <Youtube className="w-6 h-6" />
                   </a>
                 </div>
               </div>
