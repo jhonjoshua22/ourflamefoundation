@@ -98,7 +98,7 @@ const impactItems = [
   },
     {
     image: clothes,
-    title: "MO CLOTHES,
+    title: "MO CLOTHES",
     description:
       "Live daily every 6:15GMT",
   },
