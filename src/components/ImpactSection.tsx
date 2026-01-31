@@ -1,15 +1,21 @@
 import community1 from "@/assets/jobs.png";
 import community2 from "@/assets/money.jpeg";
 import community3 from "@/assets/legal.png";
-import community4 from "@/assets/double.jpeg";
 import community5 from "@/assets/superpets.jpeg";
 import community6 from "@/assets/holidays.jpeg";
 import community7 from "@/assets/health.jpeg";
 import community8 from "@/assets/pitch.jpeg";
 import community9 from "@/assets/malesinger.jpeg";
-import community10 from "@/assets/femalesinger.jpeg";
 import community11 from "@/assets/film.jpeg";
 import community12 from "@/assets/bookcontract.jpeg";
+import joshua from "@/assets/joshua.png";
+import moyasis from "@/assets/moyasis.jpeg";
+import emeka from "@/assets/emeka.png";
+import food from "@/assets/food.jpeg";
+import childsdream from "@/assets/childsdream.jpeg";
+import motel from "@/assets/motel.jpeg";
+import clothes from "@/assets/clothes.jpeg";
+import play2world from "@/assets/play2world.jpeg";
 
 const impactItems = [
   {
@@ -27,12 +33,6 @@ const impactItems = [
   {
     image: community3,
     title: "FLAME LEGAL",
-    description:
-      "Live daily every 6:15GMT",
-  },
-    {
-    image: community4,
-    title: "DOUBLE YOUR MONEY TRAINING",
     description:
       "Live daily every 6:15GMT",
   },
@@ -66,12 +66,6 @@ const impactItems = [
     description:
       "Live daily every 6:15GMT",
   },
-    {
-    image: community10,
-    title: "TOP SINGER COMPETITION FEMALE",
-    description:
-      "Live daily every 6:15GMT",
-  },
   {
     image: community11,
     title: "FILM AUDITION",
@@ -81,6 +75,54 @@ const impactItems = [
   {
     image: community12,
     title: "BOOK CONTRACT PROCESS",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: childsdream,
+    title: "EVERY CHILD'S DREAM 2026",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: motel,
+    title: "MO MOTELS",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: food,
+    title: "MO FOOD",
+    description:
+      "Live daily every 6:15GMT",
+  },
+    {
+    image: clothes,
+    title: "MO CLOTHES,
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: play2world,
+    title: "PLAY2WORLD",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: joshua,
+    title: "JOSHUA'S PRODUCTS",
+    description:
+      "Live daily every 6:15GMT",
+  },
+    {
+    image: emeka,
+    title: "EMEKA'S PRODUCTS",
+    description:
+      "Live daily every 6:15GMT",
+  },
+  {
+    image: moyasis,
+    title: "MOYASIS' PRODUCTS",
     description:
       "Live daily every 6:15GMT",
   },
