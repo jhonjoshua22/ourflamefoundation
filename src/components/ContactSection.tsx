@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { Mail, MapPin, Phone, Send, Facebook, Twitter, Youtube} from "lucide-react";
 import { useState } from "react";
 
 const ContactSection = () => {
