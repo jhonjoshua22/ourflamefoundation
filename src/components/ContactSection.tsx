@@ -30,7 +30,7 @@ const ContactSection = () => {
             Contact <span className="flame-text">Us</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Have an issue to report or want to get involved? We'd love to hear
+            Have an issue you need help with or want to get involved to provide support? We'd love to hear
             from you. Reach out and let's make a difference together.
           </p>
         </div>
@@ -43,9 +43,9 @@ const ContactSection = () => {
                 <MapPin className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-1">Our Location</h3>
+                <h3 className="font-semibold text-lg mb-1">Our Locations</h3>
                 <p className="text-muted-foreground">
-                  London, United Kingdom
+                  Igniting across UK, Philippines, India, Pakistan, Bangladesh, Georgia & more!
                 </p>
               </div>
             </div>
@@ -71,8 +71,20 @@ const ContactSection = () => {
                 <p className="text-muted-foreground">
                   +44 7762 293742
                   <br />
-                  Mon-Fri, 9am-5pm
+                  24/7 Please leave a message 
                 </p>
+
+                <div className="flex gap-4 pt-2 border-t border-border/50">
+                  <a href="https://www.facebook.com/MagikWorlds/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-flame-orange transition-colors">
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                  <a href="https://x.com/MagicWorlds3" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-flame-orange transition-colors">
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                  <a href="https://www.youtube.com/@MagicworldsTV" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-flame-orange transition-colors">
+                    <Youtube className="w-5 h-5" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
