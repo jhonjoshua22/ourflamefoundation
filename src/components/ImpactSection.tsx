@@ -9,13 +9,13 @@ import community9 from "@/assets/malesinger.jpeg";
 import community11 from "@/assets/film.jpeg";
 import community12 from "@/assets/bookcontract.jpeg";
 import joshua from "@/assets/joshua.png";
-import moyasis from "@/assets/moyasis.jpeg";
+import moyasis from "@/assets/moyasis.png";
 import emeka from "@/assets/emeka.png";
-import food from "@/assets/food.jpeg";
-import childsdream from "@/assets/childsdream.jpeg";
-import motel from "@/assets/motel.jpeg";
-import clothes from "@/assets/clothes.jpeg";
-import play2world from "@/assets/play2world.jpeg";
+import food from "@/assets/food.png";
+import childsdream from "@/assets/childsdream.png";
+import motel from "@/assets/motel.png";
+import clothes from "@/assets/clothes.png";
+import play2world from "@/assets/play2world.png";
 
 const impactItems = [
   {
