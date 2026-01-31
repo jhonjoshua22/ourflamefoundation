@@ -1,13 +1,12 @@
-import { Flame, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Flame, Facebook, Twitter, Youtube } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
+    { icon: Facebook, href: "https://www.facebook.com/MagikWorlds/", label: "Facebook" },
+    { icon: Twitter, href: "https://x.com/MagicWorlds3", label: "Twitter" },
+    { icon: Youtube, href: "https://www.youtube.com/@MagicworldsTV", label: "Youtube" },
   ];
 
   return (
