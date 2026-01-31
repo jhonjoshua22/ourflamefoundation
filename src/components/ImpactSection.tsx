@@ -92,7 +92,7 @@ const ImpactSection = () => {
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <span className="inline-block text-flame-orange font-semibold uppercase tracking-wider text-sm mb-4">
-            Our Impact
+            Our Hot topics 2026
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
             Making a <span className="flame-text">Difference</span> Together
