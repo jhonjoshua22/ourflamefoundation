@@ -24,7 +24,7 @@ const HeroSection = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6">
             <span className="w-2 h-2 rounded-full bg-flame-orange animate-pulse" />
             <span className="text-sm font-medium text-flame-orange">
-              Empowering Communities Since 2024
+              Empowering Communities Since 2002
             </span>
           </div>
 
@@ -34,9 +34,7 @@ const HeroSection = () => {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-            Join professionals from all walks of life—engineers, business
-            leaders, and advocates—to report, surface, and vote on local
-            issues that matter to your community.
+            We aim to help families locally & globally improve their lives dramatically via expert support for all of modern life's challenges eg money via work, health via sport & diet, fun via arts & much more! Our superpower is our neurodiversity.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -51,7 +49,7 @@ const HeroSection = () => {
               href="#impact"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-lg border border-border hover:bg-muted transition-colors"
             >
-              See Our Impact
+              See Our Hot Topics
             </a>
           </div>
 
@@ -61,33 +59,33 @@ const HeroSection = () => {
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <Users className="w-5 h-5 text-flame-orange" />
                 <span className="font-display text-2xl md:text-3xl font-bold">
-                  250+
+                  50 000+ 
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
-                Active Members
+                Followers
               </span>
             </div>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <Flag className="w-5 h-5 text-flame-orange" />
                 <span className="font-display text-2xl md:text-3xl font-bold">
-                  0
+                  100 000+
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
-                Individuals Teached
+                People Supported
               </span>
             </div>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                 <ThumbsUp className="w-5 h-5 text-flame-orange" />
                 <span className="font-display text-2xl md:text-3xl font-bold">
-                  0
+                  3.5M
                 </span>
               </div>
               <span className="text-sm text-muted-foreground">
-                Community Votes
+                Support Target 2026
               </span>
             </div>
           </div>
