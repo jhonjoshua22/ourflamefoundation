@@ -26,7 +26,7 @@ export default async function handler(req: any, res: any) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.0-pro",
+      model: "models/chat-bison-001",
     });
 
     const result = await model.generateContent(message);
