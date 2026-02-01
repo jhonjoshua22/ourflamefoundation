@@ -1,13 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 
+type ChatMessage = {
+  id: string;
+  role: "user" | "model";
+  content: string;
+  timestamp: number;
+};
+
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      id: "1",
+      id: "init",
       role: "model",
       content: "Hello! I'm your Flame Assistant. How can I help you today? 🔥",
       timestamp: Date.now(),
@@ -24,17 +31,20 @@ const Chatbot = () => {
     e?.preventDefault();
     if (!input.trim() || isTyping) return;
 
-    const userMessage = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-      timestamp: Date.now(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    const currentInput = input;
+    const userText = input;
     setInput("");
     setIsTyping(true);
+
+    // Add user message immediately
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        role: "user",
+        content: userText,
+        timestamp: Date.now(),
+      },
+    ]);
 
     try {
       const res = await fetch("/api/chat", {
@@ -42,28 +52,39 @@ const Chatbot = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: currentInput }),
+        body: JSON.stringify({ message: userText }),
       });
 
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "API request failed");
+      }
+
       const data = await res.json();
+
+      if (!data.reply) {
+        throw new Error("Empty reply from server");
+      }
 
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
           role: "model",
-          content: data.reply || "Sorry, I couldn't respond.",
+          content: data.reply,
           timestamp: Date.now(),
         },
       ]);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Chatbot error:", error);
+
       setMessages((prev) => [
         ...prev,
         {
-          id: "err",
+          id: "error-" + Date.now(),
           role: "model",
-          content: "I'm having trouble connecting right now.",
+          content:
+            "⚠️ I'm having trouble connecting right now. Please try again in a moment.",
           timestamp: Date.now(),
         },
       ]);
@@ -80,16 +101,23 @@ const Chatbot = () => {
           {/* Header */}
           <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
             <div>
-              <h1 className="text-white font-bold text-sm">Flame Assistant</h1>
-              <p className="text-[10px] text-zinc-500">Powered by Gemini 🔥</p>
+              <h1 className="text-white font-bold text-sm">
+                Flame Assistant
+              </h1>
+              <p className="text-[10px] text-zinc-500">
+                Powered by Gemini 🔥
+              </p>
             </div>
-            <button onClick={() => setIsOpen(false)}>
-              <X className="w-5 h-5 text-zinc-400 hover:text-white" />
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-zinc-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-[#0a0a0a]">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -128,12 +156,12 @@ const Chatbot = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
-                className="w-full bg-white text-black pl-4 pr-12 py-3 rounded-xl text-sm"
+                className="w-full bg-white text-black border border-zinc-700 pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-sm"
               />
               <button
                 type="submit"
                 disabled={isTyping || !input.trim()}
-                className="absolute right-2 p-2 text-orange-600 disabled:opacity-30"
+                className="absolute right-2 p-2 text-orange-600 hover:text-orange-500 disabled:opacity-30"
               >
                 <Send className="w-5 h-5" />
               </button>
@@ -142,15 +170,20 @@ const Chatbot = () => {
         </div>
       )}
 
-      {/* Toggle */}
+      {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="bg-orange-600 p-4 rounded-full shadow-lg text-white"
       >
-        {isOpen ? <X className="w-7 h-7" /> : <MessageCircle className="w-7 h-7" />}
+        {isOpen ? (
+          <X className="w-7 h-7" />
+        ) : (
+          <MessageCircle className="w-7 h-7" />
+        )}
       </button>
     </div>
   );
 };
 
 export default Chatbot;
+
