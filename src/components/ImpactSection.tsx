@@ -16,6 +16,11 @@ import childsdream from "@/assets/childsdream.png";
 import motel from "@/assets/motel.png";
 import clothes from "@/assets/clothes.png";
 import play2world from "@/assets/play2world.png";
+import education from "@/assets/education.png";
+import football from "@/assets/football.png";
+import art from "@/assets/art.png";
+import writer from "@/assets/writer.png";
+import badminton from "@/assets/badminton.png";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
 
@@ -41,6 +46,14 @@ const otherServiceItems = [
   { image: joshua, title: "JOSHUA'S PRODUCTS", description: "Live daily every 6:15GMT" },
   { image: emeka, title: "EMEKA'S PRODUCTS", description: "Live daily every 6:15GMT" },
   { image: moyasis, title: "MOYASIS' PRODUCTS", description: "Live daily every 6:15GMT" },
+];
+
+const ourWorldItems = [
+  { image: football, title: "FOOTBALL WORLD", description: "Live daily every 6:15GMT" },
+  { image: art, title: "ART WORLD", description: "Live daily every 6:15GMT" },
+  { image: writer, title: "WRITER WORLD", description: "Live daily every 6:15GMT" },
+  { image: education, title: "EDUCATION WORLD", description: "Live daily every 6:15GMT" },
+  { image: badminton, title: "BADMINTON WORLD", description: "Live daily every 6:15GMT" },
 ];
 
 const ImpactSection = () => {
@@ -89,7 +102,7 @@ const ImpactSection = () => {
             Making a <span className="flame-text">Difference</span> Together
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Explore our lessons and services. Click any item to view our playlists.
+            Explore our lessons, worlds and other services. Click any item to view our playlists.
           </p>
         </div>
 
@@ -105,6 +118,17 @@ const ImpactSection = () => {
           </div>
         </div>
 
+        <div className="mb-20">
+          <h3 className="text-2xl font-bold mb-8 text-flame-orange border-l-4 border-flame-orange pl-4">
+            Our Worlds
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {ourWorldItems.map((item, index) => (
+              <ItemCard key={`world-${index}`} item={item} />
+            ))}
+          </div>
+        </div>
+
         {/* --- OTHER SERVICES SECTION --- */}
         <div>
           <h3 className="text-2xl font-bold mb-8 text-flame-orange border-l-4 border-flame-orange pl-4">
@@ -116,6 +140,8 @@ const ImpactSection = () => {
             ))}
           </div>
         </div>
+
+        
       </div>
     </section>
   );
