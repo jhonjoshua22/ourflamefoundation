@@ -10,26 +10,23 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // Using the specific key name you requested
     const apiKey = process.env.GEMINI_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: "Missing GEMINI_KEY in Vercel environment" });
+      return res.status(500).json({ error: "Missing GEMINI_KEY" });
     }
+
+    // Initialize with explicit version 'v1' to avoid the 404/v1beta error
+    const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // We are passing the version through the getGenerativeModel config
+    const model = genAI.getGenerativeModel(
+      { model: "gemini-1.5-flash" },
+      { apiVersion: 'v1' } 
+    );
 
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const { message } = body;
-
-    if (!message) {
-      return res.status(400).json({ error: "Message missing" });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Use the clean model string
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-    });
 
     const result = await model.generateContent(message);
     const response = await result.response;
