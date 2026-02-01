@@ -3,14 +3,17 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export const config = { runtime: "nodejs" };
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed. Use POST." });
+  if (req.method !== "POST") 
+    return res.status(405).json({ error: "Method not allowed. Use POST." });
 
   try {
-    if (!process.env.GEMINI_KEY) return res.status(500).json({ error: "Missing GEMINI_KEY" });
+    if (!process.env.GEMINI_KEY) 
+      return res.status(500).json({ error: "Missing GEMINI_KEY" });
 
     const { message } = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-    if (!message) return res.status(400).json({ error: "Message missing" });
+    if (!message) 
+      return res.status(400).json({ error: "Message missing" });
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
 
@@ -19,9 +22,12 @@ export default async function handler(req: any, res: any) {
     });
 
     const result = await model.generateContent({
-      prompt: {
-        text: message
-      }
+      prompt: [
+        {
+          author: "user",
+          content: message
+        }
+      ]
     });
 
     return res.status(200).json({ reply: result.response.text() });
@@ -30,4 +36,5 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: "Gemini request failed", details: err.message || String(err) });
   }
 }
+
 
