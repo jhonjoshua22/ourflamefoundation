@@ -23,7 +23,7 @@ const Chatbot = () => {
     if (!input.trim() || isTyping) return;
 
     // Grab the key from Vercel
-    const apiKey = import.meta.env.VITE_GEMINI_KEY;
+    const apiKey = import.meta.env.VITE_GEMINI_KEY || (window as any).process?.env?.VITE_GEMINI_KEY;
     
     // Add user message to UI
     const userMessage = {
