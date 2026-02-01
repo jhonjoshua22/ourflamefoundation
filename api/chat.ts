@@ -1,39 +1,22 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const config = { runtime: "nodejs" };
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") 
-    return res.status(405).json({ error: "Method not allowed. Use POST." });
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    if (!process.env.GEMINI_KEY) 
-      return res.status(500).json({ error: "Missing GEMINI_KEY" });
+    const { message, history } = req.body;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const { message } = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-
-    if (!message) 
-      return res.status(400).json({ error: "Message missing" });
-
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
-
-    const model = genAI.getGenerativeModel({
-      model: "models/chat-bison-001",
-    });
-
-    const result = await model.generateContent({
-      prompt: [
-        {
-          author: "user",
-          content: message
-        }
-      ]
-    });
-
-    return res.status(200).json({ reply: result.response.text() });
-  } catch (err: any) {
-    console.error("Gemini API Error:", err.message || err);
-    return res.status(500).json({ error: "Gemini request failed", details: err.message || String(err) });
+    // History is sent from the frontend to give the bot memory
+    const chat = model.startChat({ history: history || [] });
+    const result = await chat.sendMessage(message);
+    const response = await result.response;
+    
+    return res.status(200).json({ reply: response.text() });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
   }
 }
 
