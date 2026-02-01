@@ -1,70 +1,84 @@
-import { useState } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// This tells the app: "Go to Vercel and grab the secret key I hid there"
+// Securely pulls your key from Vercel's Environment Variables
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "model", text: "Hi! I'm your Flame Assistant. How can I help? 🔥" }
+    { role: "model", text: "Hi! I'm your Flame Assistant. How can I help you today? 🔥" }
   ]);
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
   const handleChat = async () => {
-    if (!input.trim()) return;
-    
-    // Add what YOU typed to the screen
-    const newMessages = [...messages, { role: "user", text: input }];
-    setMessages(newMessages);
+    if (!input.trim() || isTyping) return;
+
+    const userMessage = { role: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsTyping(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "You are the Flame Foundation Assistant. Be encouraging and help with Jobs, Money, and Love."
+      });
+
       const result = await model.generateContent(input);
       const response = await result.response;
-      
-      // Add what the AI replied to the screen
-      setMessages([...newMessages, { role: "model", text: response.text() }]);
+      setMessages((prev) => [...prev, { role: "model", text: response.text() }]);
     } catch (error) {
-      setMessages([...newMessages, { role: "model", text: "Error: Check Vercel Keys!" }]);
+      setMessages((prev) => [...prev, { role: "model", text: "Sorry, I'm having trouble connecting. Check Vercel API keys!" }]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {isOpen && (
-        <div className="mb-4 w-80 h-[400px] bg-white border border-gray-200 rounded-2xl shadow-xl flex flex-col overflow-hidden">
-          <div className="bg-orange-500 p-4 text-white flex justify-between">
-            <span className="font-bold">Flame AI</span>
-            <button onClick={() => setIsOpen(false)}><X /></button>
+        <div className="mb-4 w-[320px] md:w-[380px] h-[500px] bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+          <div className="bg-orange-600 p-4 flex justify-between items-center text-white">
+            <span className="font-bold">Flame Assistant</span>
+            <button onClick={() => setIsOpen(false)}><X className="w-5 h-5" /></button>
           </div>
-          <div className="flex-1 p-4 overflow-y-auto text-sm space-y-2">
-            {messages.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>
-                <span className={`inline-block p-2 rounded-lg ${m.role === "user" ? "bg-orange-100" : "bg-gray-100"}`}>
-                  {m.text}
-                </span>
+          <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 text-sm">
+            {messages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] p-3 rounded-xl ${msg.role === "user" ? "bg-orange-500 text-white" : "bg-white border text-gray-800"}`}>
+                  {msg.text}
+                </div>
               </div>
             ))}
+            {isTyping && <Loader2 className="w-5 h-5 animate-spin text-orange-500" />}
           </div>
-          <div className="p-4 border-t flex gap-2">
+          <div className="p-4 border-t bg-white flex gap-2">
             <input 
-              className="flex-1 border p-2 rounded" 
               value={input} 
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleChat()}
+              onKeyDown={(e) => e.key === "Enter" && handleChat()}
+              placeholder="Type here..."
+              className="flex-1 border rounded-lg px-3 py-2 outline-none text-sm focus:border-orange-500"
             />
-            <button onClick={handleChat} className="bg-orange-500 text-white p-2 rounded"><Send size={18}/></button>
+            <button onClick={handleChat} className="bg-orange-600 text-white p-2 rounded-lg hover:bg-orange-700">
+              <Send className="w-4 h-4" />
+            </button>
           </div>
         </div>
       )}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="bg-orange-500 p-4 rounded-full text-white shadow-lg"
-      >
-        <MessageCircle size={28} />
+      <button onClick={() => setIsOpen(!isOpen)} className="bg-orange-600 p-4 rounded-full shadow-lg text-white hover:scale-105 transition-all">
+        {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
     </div>
   );
