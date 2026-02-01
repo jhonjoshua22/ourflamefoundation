@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize with the correct object format for your SDK version
+// Initialize with your key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export default async function handler(req: any, res: any) {
@@ -10,12 +10,12 @@ export default async function handler(req: any, res: any) {
     const { message, history } = req.body;
 
     /**
-     * FIX: We specify the apiVersion inside the getGenerativeModel call 
-     * or use the stable model name 'gemini-1.5-flash'.
+     * SOLUTION: Use Gemini 2.0 Flash. 
+     * Google has retired 1.5-flash for many regions in 2026.
+     * We don't specify an apiVersion because the SDK handles the 2.0 
+     * routing automatically.
      */
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-    }, { apiVersion: 'v1' }); // This forces the stable endpoint
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const chat = model.startChat({
       history: history || [],
@@ -26,7 +26,15 @@ export default async function handler(req: any, res: any) {
     
     return res.status(200).json({ reply: response.text() });
   } catch (error: any) {
-    console.error("Gemini Error:", error.message);
-    return res.status(500).json({ reply: `AI Error: ${error.message}` });
+    console.error("DEBUG:", error.message);
+    
+    // FALLBACK: If 2.0 fails, we try the 'latest' alias which always points to a live model
+    try {
+        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+        const result = await fallbackModel.generateContent(message);
+        return res.status(200).json({ reply: result.response.text() });
+    } catch (fallbackError: any) {
+        return res.status(500).json({ reply: `Final Error: ${fallbackError.message}` });
+    }
   }
 }
