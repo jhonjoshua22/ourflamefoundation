@@ -16,7 +16,7 @@ export default async function handler(req: any, res: any) {
     const { message, history } = req.body;
     
     // Explicitly use the stable model name
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     const chat = model.startChat({
       history: history || [],
