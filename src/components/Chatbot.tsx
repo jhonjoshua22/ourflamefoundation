@@ -69,7 +69,8 @@ const Chatbot = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChat()}
               placeholder="Type here..."
-              className="flex-1 border rounded-lg px-3 py-2 outline-none text-sm focus:border-orange-500"
+              /* ADDED text-black HERE */
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 outline-none text-sm text-black focus:border-orange-500 bg-white"
             />
             <button onClick={handleChat} className="bg-orange-600 text-white p-2 rounded-lg hover:bg-orange-700">
               <Send className="w-4 h-4" />
