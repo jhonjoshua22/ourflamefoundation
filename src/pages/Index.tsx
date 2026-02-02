@@ -4,7 +4,8 @@ import ImpactSection from "@/components/ImpactSection";
 import ProcessSection from "@/components/ProcessSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
-import Chatbot from "@/components/Chatbot";
+import Chatbot from "@/components/Chatbot"; 
+import AboutUsSection from "@/components/AboutUsSection";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <ImpactSection />
+      <AboutUsSection />
       <ProcessSection />
       <ContactSection />
       <Footer />
