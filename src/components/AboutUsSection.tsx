@@ -35,7 +35,6 @@ const AboutUsSection = () => {
   ];
 
   const cleanSeries = [
-    { name: "Magic Money Login", url: "http://34.14.136.156:8080/login", highlight: true },
     { name: "Clean Software", url: "https://cleansoftware.vercel.app/" },
     { name: "Clean Education", url: "https://cleaneducation.vercel.app/" },
     { name: "Clean Pharma", url: "https://cleanpharma.vercel.app/" },
@@ -45,6 +44,7 @@ const AboutUsSection = () => {
 
   const partners = [
     { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
+    { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
     { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
   ];
 
@@ -60,8 +60,9 @@ const AboutUsSection = () => {
             <span className="inline-block text-flame-orange font-semibold uppercase tracking-wider text-sm mb-4">
               Vision and Infrastructure
             </span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-8 leading-tight">
-              Our <span className="flame-text">Flame Promises</span>
+            {/* Header set to Orange */}
+            <h2 className="font-display text-4xl md:text-5xl font-bold mb-8 leading-tight text-flame-orange">
+              Our Flame Promises
             </h2>
             
             <div className="space-y-6 mb-12">
@@ -78,7 +79,10 @@ const AboutUsSection = () => {
             </div>
 
             <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 shadow-inner">
-              <h4 className="text-xl font-bold mb-4 uppercase tracking-tight">The Flame Foundation</h4>
+              {/* Box Header set to Orange */}
+              <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange">
+                The Flame Foundation
+              </h4>
               <p className="text-sm text-muted-foreground leading-relaxed italic mb-4">
                 Incorporated in 2002 with a lineage tracing back to the dawn of sentience, our mission transitioned into hyper-growth product development in 2020.
               </p>
@@ -91,7 +95,8 @@ const AboutUsSection = () => {
           {/* Right Column: Links & Services */}
           <div className="lg:sticky lg:top-32 space-y-8">
             <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
-              <h3 className="text-2xl font-bold mb-2">The Clean Series</h3>
+              {/* Link Section Header set to Orange */}
+              <h3 className="text-2xl font-bold mb-2 text-flame-orange">The Clean Series</h3>
               <p className="text-muted-foreground mb-6 text-sm">
                 A suite of specialized tools designed to resolve community challenges through internal collaboration and technology.
               </p>
@@ -120,7 +125,10 @@ const AboutUsSection = () => {
             </div>
 
             <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
-              <h3 className="text-2xl font-bold mb-6 text-primary font-display">Exclusive Partners</h3>
+              {/* Partner Section Header set to Orange */}
+              <h3 className="text-2xl font-bold mb-6 text-flame-orange font-display">
+                Strategic Partnerships
+              </h3>
               <div className="grid gap-3">
                 {partners.map((link) => (
                   <div key={link.name} className="relative group/item">
