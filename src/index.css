@@ -104,6 +104,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer utilities {
   .animate-flicker {
     animation: flicker 3s ease-in-out infinite;
