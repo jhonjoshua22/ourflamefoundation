@@ -10,7 +10,7 @@ const NewsEventsSection = () => {
       description: "An empowering event for women owning their menopause journey.",
       date: "October 12, 2025",
       location: "Beverly Hills, CA",
-      image: "glow",
+      image: glow,
       type: "Event",
     },
     {
@@ -18,7 +18,7 @@ const NewsEventsSection = () => {
       description: "Our team is currently on the ground delivering food, clean water, and medical supplies to the families most affected by the devastation of Typhoon Tino.",
       date: "December 13, 2025",
       location: "Cebu, Philippines",
-      image: "cebu",
+      image: cebu,
       type: "News",
     },
     {
@@ -26,7 +26,7 @@ const NewsEventsSection = () => {
       description: "Our program provides children with essential tools for play, learning, and faith, ensuring every child feels like a hero in their own story.",
       date: "December 22, 2025",
       location: "Lagos, Nigeria",
-      image: "dewdrops",
+      image: dewdrops,
       type: "Foundation",
     }
   ];
