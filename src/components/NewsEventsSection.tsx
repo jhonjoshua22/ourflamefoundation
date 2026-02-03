@@ -1,30 +1,33 @@
 import { Calendar, MapPin, ArrowRight } from "lucide-react";
+import cebu from "@/assets/cebu.jpeg";
+import glow from "@/assets/glow.png";
+import dewdrops from "@/assets/dewdrops.jpeg";
 
 const NewsEventsSection = () => {
   const events = [
     {
-      title: "Global Entrepreneurship Summit 2026",
-      description: "Join us for our flagship event where we discuss the future of AGI integration in local business incubation.",
-      date: "October 12, 2026",
+      title: "Glow and Tell",
+      description: "An empowering event for women owning their menopause journey.",
+      date: "October 12, 2025",
       location: "Beverly Hills, CA",
-      image: "https://images.unsplash.com/photo-1540575861501-7ad05823c9f5?auto=format&fit=crop&q=80&w=800",
+      image: "glow",
       type: "Event",
     },
     {
-      title: "Clean Software v2.0 Launch",
-      description: "Our core community utility suite is receiving a massive upgrade to improve paperless compliance and accessibility.",
-      date: "November 05, 2026",
-      location: "Digital Stream / Global",
-      image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800",
+      title: "Relief Operations for Typhoon Tino",
+      description: "Our team is currently on the ground delivering food, clean water, and medical supplies to the families most affected by the devastation of Typhoon Tino.",
+      date: "December 13, 2025",
+      location: "Cebu, Philippines",
+      image: "cebu",
       type: "News",
     },
     {
-      title: "SEND Leadership Workshop",
-      description: "A specialized training session for our SuperHeros to develop essential local leadership and tech management skills.",
-      date: "December 15, 2026",
-      location: "Hackney, London",
-      image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800",
-      type: "Workshop",
+      title: "Dewdrops Care Development Foundation",
+      description: "Our program provides children with essential tools for play, learning, and faith, ensuring every child feels like a hero in their own story.",
+      date: "December 22, 2025",
+      location: "Lagos, Nigeria",
+      image: "dewdrops",
+      type: "Foundation",
     }
   ];
 
