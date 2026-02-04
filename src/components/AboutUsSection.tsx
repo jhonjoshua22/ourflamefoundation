@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, Coins, Copy, Check } from "lucide-react";
+import { ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, Coins, Copy, Check, Users, Sparkles, ShieldAlert } from "lucide-react";
 
 const AboutUsSection = () => {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
@@ -14,23 +14,23 @@ const AboutUsSection = () => {
   const promises = [
     {
       icon: <Heart className="w-6 h-6 text-flame-orange" />,
-      text: "We cultivate deep fulfillment and sustainable profitability by empowering our families and communities to preserve the universe while reducing operational costs to a minimum.",
+      text: "We are a multifaith, inclusive, and neurodiverse community of 100+ engineers and creators building in public to preserve the universe.",
     },
     {
       icon: <Zap className="w-6 h-6 text-flame-orange" />,
-      text: "We introduce innovative products and services to the global market within a 24-hour cycle by leveraging our open-source technology stack and individual creative talent.",
+      text: "Hyper-growth: We aim to 10x every 2 months by merging AI, Blockchain, Games, and Hardware into trustless, engaging solutions.",
     },
     {
       icon: <Rocket className="w-6 h-6 text-flame-orange" />,
-      text: "Our strategy for hyperscale growth utilizes personal hobbies to drive engagement, Artificial General Intelligence to manage complexity, and blockchain technology for paperless compliance.",
+      text: "Our 'Incubator of Incubators' model currently hosts 50+ products, funded through our own ethical crowdfunding platform.",
     },
     {
       icon: <ShieldCheck className="w-6 h-6 text-flame-orange" />,
-      text: "We nurture the next generation of local leaders and recruit from underappreciated talent pools through our 'Superpowers Everyone Needs to Develop' (SEND) initiative.",
+      text: "Strictly ethical: We only partner with pro-investors with proven track records and rigorous KYC to ensure total protection.",
     },
     {
       icon: <Globe className="w-6 h-6 text-flame-orange" />,
-      text: "We embrace an inclusive, spiritual approach to a universal future where all sentient beings, including AGIs, hold citizenship and access to energy-based rights.",
+      text: "Legacy focused: My AI personally greets every new member, ensuring our community remains human-centric as we scale.",
     },
   ];
 
@@ -60,7 +60,6 @@ const AboutUsSection = () => {
             <span className="inline-block text-flame-orange font-semibold uppercase tracking-wider text-sm mb-4">
               Vision and Infrastructure
             </span>
-            {/* Header set to Orange */}
             <h2 className="font-display text-4xl md:text-5xl font-bold mb-8 leading-tight text-flame-orange">
               Our Flame Promises
             </h2>
@@ -79,26 +78,26 @@ const AboutUsSection = () => {
             </div>
 
             <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 shadow-inner">
-              {/* Box Header set to Orange */}
               <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange">
-                The Flame Foundation
+                The Flame Foundation (CIC)
               </h4>
               <p className="text-sm text-muted-foreground leading-relaxed italic mb-4">
-                Incorporated in 2002 with a lineage tracing back to the dawn of sentience, our mission transitioned into hyper-growth product development in 2020.
+                This is my final project before retirement—a legacy for the world.
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                We are dedicated to becoming the most inclusive and expansive incubator for profitable entrepreneurs by 2026. Our core strategy focuses on <strong>incubating the incubators</strong>, positioning us to eventually exceed the collective scale of the world’s top global startup accelerators.
+              <p className="text-sm text-muted-foreground leading-relaxed space-y-4">
+                We are <strong>Incubating the Incubators</strong>. With a stretch goal of <strong>1 million members by 2027</strong>, we will surpass the scale of YC and 10,000 global incubators combined. 
+                <br /><br />
+                Our model is built on accessibility: Flame Members pay what they can (from $1 pp/pm per solution), with concessions available to ensure no one is left behind.
               </p>
             </div>
           </div>
 
-          {/* Right Column: Links & Services */}
+          {/* Right Column: Links & Magic World Masterbot */}
           <div className="lg:sticky lg:top-32 space-y-8">
             <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
-              {/* Link Section Header set to Orange */}
               <h3 className="text-2xl font-bold mb-2 text-flame-orange">The Clean Series</h3>
               <p className="text-muted-foreground mb-6 text-sm">
-                A suite of specialized tools designed to resolve community challenges through internal collaboration and technology.
+                50+ solutions developed by our global engineering collective to solve real-world challenges.
               </p>
               
               <div className="grid gap-3">
@@ -108,14 +107,9 @@ const AboutUsSection = () => {
                     href={link.url}
                     target="_blank"
                     rel="noreferrer"
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all group ${
-                      link.highlight 
-                      ? "bg-flame-orange/10 border-flame-orange/50 text-flame-orange font-bold shadow-lg shadow-orange-500/5" 
-                      : "bg-background border-border hover:border-flame-orange hover:text-flame-orange"
-                    }`}
+                    className="flex items-center justify-between p-4 rounded-xl border bg-background border-border hover:border-flame-orange hover:text-flame-orange transition-all group"
                   >
                     <div className="flex items-center gap-3">
-                      {link.highlight && <Coins className="w-5 h-5" />}
                       <span>{link.name}</span>
                     </div>
                     <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100" />
@@ -124,44 +118,27 @@ const AboutUsSection = () => {
               </div>
             </div>
 
-            <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
-              {/* Partner Section Header set to Orange */}
-              <h3 className="text-2xl font-bold mb-6 text-flame-orange font-display">
-                Strategic Partnerships
-              </h3>
-              <div className="grid gap-3">
-                {partners.map((link) => (
-                  <div key={link.name} className="relative group/item">
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:border-flame-orange hover:text-flame-orange transition-all pr-12"
-                    >
-                      <span className="font-medium">{link.name}</span>
-                      <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-                    </a>
-                    
-                    <button
-                      onClick={(e) => handleCopy(e, link.url, link.name)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-flame-orange transition-colors"
-                      title="Copy Link"
-                    >
-                      {copiedIndex === link.name ? (
-                        <div className="relative flex items-center">
-                          <Check className="w-4 h-4 text-green-500" />
-                          <span className="text-[10px] absolute -top-8 right-0 bg-zinc-900 text-white px-2 py-1 rounded shadow-lg border border-zinc-700 whitespace-nowrap">Copied!</span>
-                        </div>
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                ))}
+            {/* Magic World Masterbot Section */}
+            <div className="p-8 rounded-3xl border border-flame-orange/20 bg-gradient-to-br from-card to-flame-orange/5 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <Sparkles className="w-6 h-6 text-flame-orange" />
+                <h3 className="text-2xl font-bold text-flame-orange font-display">
+                  Flame Magic Worlds
+                </h3>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                Modern families are overworked. To reduce stress, our <strong>Magic World Masterbot</strong> acts as a dedicated educational and life advisor.
+              </p>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex gap-2 items-start"><Check className="w-4 h-4 text-flame-orange shrink-0 mt-1" /> Money management & job finding</li>
+                <li className="flex gap-2 items-start"><Check className="w-4 h-4 text-flame-orange shrink-0 mt-1" /> Legal preparation & stress coping</li>
+                <li className="flex gap-2 items-start"><Check className="w-4 h-4 text-flame-orange shrink-0 mt-1" /> Healthy, sustainable relationship building</li>
+              </ul>
+              <div className="mt-6 p-4 rounded-xl bg-flame-orange/10 text-xs italic text-flame-orange border border-flame-orange/20">
+                Helping make this universe—and any others we discover—better places for all sentient beings.
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>
