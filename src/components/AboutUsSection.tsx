@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, Coins, Copy, Check, Users, Sparkles, ShieldAlert } from "lucide-react";
+import { 
+  ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
+  Coins, Copy, Check, Users, Sparkles, Bot, Scale 
+} from "lucide-react";
 
 const AboutUsSection = () => {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
@@ -14,23 +17,23 @@ const AboutUsSection = () => {
   const promises = [
     {
       icon: <Heart className="w-6 h-6 text-flame-orange" />,
-      text: "We are a multifaith, inclusive, and neurodiverse community of 100+ engineers and creators building in public to preserve the universe.",
+      text: "We cultivate deep fulfillment and sustainable profitability by empowering our families and communities to preserve the universe while reducing operational costs to a minimum.",
     },
     {
       icon: <Zap className="w-6 h-6 text-flame-orange" />,
-      text: "Hyper-growth: We aim to 10x every 2 months by merging AI, Blockchain, Games, and Hardware into trustless, engaging solutions.",
+      text: "We introduce innovative products and services to the global market within a 24-hour cycle by leveraging our open-source technology stack and individual creative talent.",
     },
     {
       icon: <Rocket className="w-6 h-6 text-flame-orange" />,
-      text: "Our 'Incubator of Incubators' model currently hosts 50+ products, funded through our own ethical crowdfunding platform.",
+      text: "Our strategy for hyperscale growth utilizes personal hobbies to drive engagement, Artificial General Intelligence to manage complexity, and blockchain technology for paperless compliance.",
     },
     {
       icon: <ShieldCheck className="w-6 h-6 text-flame-orange" />,
-      text: "Strictly ethical: We only partner with pro-investors with proven track records and rigorous KYC to ensure total protection.",
+      text: "We nurture the next generation of local leaders and recruit from underappreciated talent pools through our 'Superpowers Everyone Needs to Develop' (SEND) initiative.",
     },
     {
       icon: <Globe className="w-6 h-6 text-flame-orange" />,
-      text: "Legacy focused: My AI personally greets every new member, ensuring our community remains human-centric as we scale.",
+      text: "We embrace an inclusive, spiritual approach to a universal future where all sentient beings, including AGIs, hold citizenship and access to energy-based rights.",
     },
   ];
 
@@ -77,27 +80,44 @@ const AboutUsSection = () => {
               ))}
             </div>
 
-            <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 shadow-inner">
-              <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange">
-                The Flame Foundation (CIC)
+            {/* NEW: Incubator of Incubators Section */}
+            <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 shadow-inner mb-8">
+              <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange flex items-center gap-2">
+                <Users className="w-5 h-5" /> Incubator of Incubators
               </h4>
-              <p className="text-sm text-muted-foreground leading-relaxed italic mb-4">
-                This is my final project before retirement—a legacy for the world.
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                We are a global collective of <strong>100+ engineers and product creators</strong> building in public. We are multifaith, inclusive, and proudly neurodiverse. Our goal is to <strong>10x every 2 months</strong> through the fusion of AI, Blockchain, Gaming, and Hardware.
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed space-y-4">
-                We are <strong>Incubating the Incubators</strong>. With a stretch goal of <strong>1 million members by 2027</strong>, we will surpass the scale of YC and 10,000 global incubators combined. 
-                <br /><br />
-                Our model is built on accessibility: Flame Members pay what they can (from $1 pp/pm per solution), with concessions available to ensure no one is left behind.
+              <div className="grid grid-cols-2 gap-4 mb-6 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                <div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-flame-orange"/> Prediction</div>
+                <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-flame-orange"/> Trustless</div>
+                <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-flame-orange"/> Engaging</div>
+                <div className="flex items-center gap-2"><Heart className="w-4 h-4 text-flame-orange"/> Protection</div>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed italic">
+                Flame Members follow a "pay what you can" model starting from <strong>$1 per month</strong> per solution. With 50+ products already live, we aim for <strong>1 million members by 2027</strong>—surpassing the scale of YC and 10,000 global incubators combined.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-card border border-border/50 shadow-sm">
+              <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange">
+                Legacy & Ethical Capital
+              </h4>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                This is my <strong>final project before retirement and my lasting legacy</strong>. We fundraise exclusively through our own crowdfunding platform, opening doors only to <strong>ethical investors</strong> with proven track records and proper KYC.
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                To ensure a personal touch at scale, <strong>my AI will speak to every new member</strong>. My wider family's involvement ensures this remains a multi-generational effort to protect and serve.
               </p>
             </div>
           </div>
 
-          {/* Right Column: Links & Magic World Masterbot */}
+          {/* Right Column: Links & Services */}
           <div className="lg:sticky lg:top-32 space-y-8">
             <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
               <h3 className="text-2xl font-bold mb-2 text-flame-orange">The Clean Series</h3>
               <p className="text-muted-foreground mb-6 text-sm">
-                50+ solutions developed by our global engineering collective to solve real-world challenges.
+                A suite of 50+ specialized tools designed to resolve community challenges through internal collaboration and technology.
               </p>
               
               <div className="grid gap-3">
@@ -118,24 +138,65 @@ const AboutUsSection = () => {
               </div>
             </div>
 
-            {/* Magic World Masterbot Section */}
-            <div className="p-8 rounded-3xl border border-flame-orange/20 bg-gradient-to-br from-card to-flame-orange/5 shadow-xl">
-              <div className="flex items-center gap-3 mb-4">
-                <Sparkles className="w-6 h-6 text-flame-orange" />
-                <h3 className="text-2xl font-bold text-flame-orange font-display">
-                  Flame Magic Worlds
-                </h3>
+            <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
+              <h3 className="text-2xl font-bold mb-6 text-flame-orange font-display">
+                Strategic Partnerships
+              </h3>
+              <div className="grid gap-3">
+                {partners.map((link) => (
+                  <div key={link.name} className="relative group/item">
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-between p-4 rounded-xl bg-background border border-border hover:border-flame-orange hover:text-flame-orange transition-all pr-12"
+                    >
+                      <span className="font-medium">{link.name}</span>
+                      <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+                    </a>
+                    
+                    <button
+                      onClick={(e) => handleCopy(e, link.url, link.name)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-flame-orange transition-colors"
+                      title="Copy Link"
+                    >
+                      {copiedIndex === link.name ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                ))}
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Modern families are overworked. To reduce stress, our <strong>Magic World Masterbot</strong> acts as a dedicated educational and life advisor.
-              </p>
-              <ul className="space-y-3 text-sm text-muted-foreground">
-                <li className="flex gap-2 items-start"><Check className="w-4 h-4 text-flame-orange shrink-0 mt-1" /> Money management & job finding</li>
-                <li className="flex gap-2 items-start"><Check className="w-4 h-4 text-flame-orange shrink-0 mt-1" /> Legal preparation & stress coping</li>
-                <li className="flex gap-2 items-start"><Check className="w-4 h-4 text-flame-orange shrink-0 mt-1" /> Healthy, sustainable relationship building</li>
-              </ul>
-              <div className="mt-6 p-4 rounded-xl bg-flame-orange/10 text-xs italic text-flame-orange border border-flame-orange/20">
-                Helping make this universe—and any others we discover—better places for all sentient beings.
+            </div>
+          </div>
+        </div>
+
+        {/* NEW: Conclusion Section (Flame Magic Worlds) */}
+        <div className="mt-16 p-10 rounded-[2rem] bg-gradient-to-br from-flame-orange/10 to-transparent border border-flame-orange/20">
+          <div className="max-w-4xl mx-auto text-center">
+            <Bot className="w-12 h-12 text-flame-orange mx-auto mb-6" />
+            <h3 className="text-3xl font-bold mb-6 text-flame-orange font-display">
+              Flame Magic Worlds: Supporting the Busy Family
+            </h3>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+              We know families are super busy; extra tasks often lead to excessive stress. 
+              <strong> Flame Magic Worlds</strong> is our solution. With your permission, your information feeds into a dedicated 
+              <strong> Magic World Master Bot</strong>.
+            </p>
+            <div className="grid md:grid-cols-3 gap-6 text-left">
+              <div className="bg-card p-6 rounded-2xl border border-border">
+                <h5 className="font-bold mb-2 text-flame-orange flex items-center gap-2"><Scale className="w-4 h-4"/> Life Management</h5>
+                <p className="text-sm text-muted-foreground">Support in money management, job seeking, legal prep, and stress coping.</p>
+              </div>
+              <div className="bg-card p-6 rounded-2xl border border-border">
+                <h5 className="font-bold mb-2 text-flame-orange flex items-center gap-2"><Heart className="w-4 h-4"/> Modern Living</h5>
+                <p className="text-sm text-muted-foreground">Advice on modern relationships, healthy relaxation, and sustainable fun.</p>
+              </div>
+              <div className="bg-card p-6 rounded-2xl border border-border">
+                <h5 className="font-bold mb-2 text-flame-orange flex items-center gap-2"><Globe className="w-4 h-4"/> Universal Good</h5>
+                <p className="text-sm text-muted-foreground">Making this universe (and others) better for all sentient beings.</p>
               </div>
             </div>
           </div>
