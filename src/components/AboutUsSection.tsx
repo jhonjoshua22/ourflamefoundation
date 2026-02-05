@@ -49,6 +49,9 @@ const AboutUsSection = () => {
     { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
     { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
     { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
+    { name: "Fraccounts", url: "https://fraccounts.vercel.app/" },
+    { name: "Freebay", url: "https://freebay.vercel.app/" },
+    { name: "Fruber", url: "https://fruber.vercel.app/" },
   ];
 
   return (
