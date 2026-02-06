@@ -20,7 +20,6 @@ declare global {
 
 const Index = () => {
   useEffect(() => {
-    // Initialize Google Translate
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement(
         {
@@ -32,20 +31,30 @@ const Index = () => {
         "google_translate_element"
       );
 
-      // Force default language to English
-      setTimeout(() => {
+      // Wait until the select actually exists
+      const interval = setInterval(() => {
         const select = document.querySelector(
           ".goog-te-combo"
         ) as HTMLSelectElement | null;
 
-        if (select) {
+        const container = document.getElementById(
+          "google_translate_element"
+        );
+
+        if (select && container) {
+          // Force default to English
           select.value = "en";
           select.dispatchEvent(new Event("change"));
+
+          // Reveal container (kills the dot)
+          container.style.opacity = "1";
+
+          clearInterval(interval);
         }
-      }, 800);
+      }, 100);
     };
 
-    // Load Google Translate script
+    // Inject Google Translate script
     const script = document.createElement("script");
     script.src =
       "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
@@ -55,15 +64,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      {/* Language Switcher */}
+      {/* LANGUAGE SWITCHER */}
       <div className="fixed bottom-10 left-10 z-[9999] flex flex-col-reverse items-start gap-3">
-        {/* Google Dropdown */}
+        
+        {/* Google Translate Mount Point */}
         <div
           id="google_translate_element"
-          className="hover:scale-105 transition-transform duration-300"
+          className="min-w-[180px] min-h-[40px] flex items-center justify-center opacity-0 transition-opacity duration-300"
         />
 
-        {/* Flame Label */}
+        {/* Label */}
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-md border border-flame-orange/30 shadow-2xl pointer-events-none">
           <Globe className="w-4 h-4 text-flame-orange animate-pulse" />
           <span className="text-[11px] uppercase font-black tracking-widest text-flame-orange">
@@ -72,7 +82,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Sections */}
+      {/* MAIN CONTENT */}
       <Navbar />
       <HeroSection />
       <ImpactSection />
@@ -87,4 +97,3 @@ const Index = () => {
 };
 
 export default Index;
-
