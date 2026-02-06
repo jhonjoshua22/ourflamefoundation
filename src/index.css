@@ -183,7 +183,10 @@ html {
   font-family: 'Inter', sans-serif !important;
   cursor: pointer !important;
   width: auto !important;
-  min-width: 110px !important;
+  height: 2vh !important;
+  min-height: 2vh !important;
+  line-height: 2vh !important;
+  min-width: 210px !important;
   text-align: center !important;
   box-shadow: none !important;
   box-sizing: border-box !important;
