@@ -154,48 +154,53 @@ html {
   }
 }
 
-html {
-    background-color: hsl(0 0% 8%) !important; /* Force your background color */
+/* Hide Google logo/link */
+.goog-logo-link, .goog-logo-link * {
+  display: none !important;
 }
 
-body {
-    top: 0px !important;
-    position: static !important;
-}
-
-/* 2. Hide all Google-injected frames and toolbars */
+/* Hide Google toolbar frame */
 .goog-te-banner-frame.skiptranslate,
 #goog-gt-tt,
 .goog-te-balloon-frame,
 .skiptranslate iframe {
-    display: none !important;
-    visibility: hidden !important;
+  display: none !important;
+  visibility: hidden !important;
 }
 
-/* 3. Style the dropdown box to look like your "Flame" components */
+/* Style the dropdown to look like your pill-shaped button */
 .goog-te-combo {
-    @apply bg-card text-foreground border-border rounded-xl px-4 py-2;
-    background-color: hsl(var(--card)) !important; 
-    color: hsl(var(--foreground)) !important;
-    font-family: 'Inter', sans-serif !important;
-    outline: none !important;
-    cursor: pointer;
-    border: 1px solid hsl(var(--flame-orange) / 0.5) !important;
-    font-size: 14px !important;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--flame-orange)) !important;
+  border-radius: 9999px !important;
+  padding: 0.5rem 1.2rem !important;
+  font-weight: 600 !important;
+  font-family: 'Inter', sans-serif !important;
+  cursor: pointer !important;
+  width: auto !important;
+  min-width: 110px !important;
+  text-align: center !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
 }
 
+/* Remove dropdown arrow */
+.goog-te-combo::-ms-expand {
+  display: none;
+}
+.goog-te-combo::-webkit-inner-spin-button,
+.goog-te-combo::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hover effect */
 .goog-te-combo:hover {
-    border-color: hsl(var(--flame-orange)) !important;
-    box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
-}
-
-/* 4. Completely clean up Google branding */
-.goog-te-gadget {
-    font-size: 0 !important;
-    color: transparent !important;
-}
-.goog-te-gadget .goog-te-combo {
-    margin: 0 !important;
+  border-color: hsl(25 100% 65%) !important;
+  box-shadow: 0 0 10px hsl(25 100% 55% / 0.5) !important;
 }
