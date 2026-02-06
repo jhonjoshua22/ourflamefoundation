@@ -36,6 +36,9 @@ const HeroSection = () => {
           <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
             We aim to help families locally & globally improve their lives dramatically via expert support for all of modern life's challenges eg money via work, health via sport & diet, fun via arts & much more! Our superpower is our neurodiversity.
           </p>
+          <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+            We are not lawyers, doctors or financial advisors. We can help you plan for your meetings with experts to minimize any wasted time and effort.
+          </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <a
