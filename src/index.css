@@ -153,49 +153,49 @@ html {
     50% { transform: translateY(-10px); }
   }
 }
-/* Hide branding */
-.goog-te-gadget > span,
-.goog-te-gadget img,
-.goog-te-gadget a,
-.goog-logo-link {
-  display: none !important;
+
+html {
+    background-color: hsl(0 0% 8%) !important; /* Force your background color */
 }
 
-/* Keep container alive */
-.goog-te-gadget {
-  background: transparent !important;
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Styled dropdown */
-.goog-te-combo {
-  width: 180px !important;
-  min-height: 40px;
-  background-color: hsl(var(--card)) !important;
-  color: hsl(var(--foreground)) !important;
-  border: 1px solid hsl(var(--flame-orange) / 0.6) !important;
-  border-radius: 9999px;
-  padding: 0.5rem 1rem;
-  font-size: 14px !important;
-  cursor: pointer;
-  text-align-last: center;
-}
-
-/* Hover glow */
-.goog-te-combo:hover {
-  box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
-}
-
-/* Stop page jump */
 body {
-  top: 0 !important;
-  position: static !important;
+    top: 0px !important;
+    position: static !important;
 }
 
-/* Kill tooltips */
+/* 2. Hide all Google-injected frames and toolbars */
+.goog-te-banner-frame.skiptranslate,
 #goog-gt-tt,
-.goog-te-balloon-frame {
-  display: none !important;
+.goog-te-balloon-frame,
+.skiptranslate iframe {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* 3. Style the dropdown box to look like your "Flame" components */
+.goog-te-combo {
+    @apply bg-card text-foreground border-border rounded-xl px-4 py-2;
+    background-color: hsl(var(--card)) !important; 
+    color: hsl(var(--foreground)) !important;
+    font-family: 'Inter', sans-serif !important;
+    outline: none !important;
+    cursor: pointer;
+    border: 1px solid hsl(var(--flame-orange) / 0.5) !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.goog-te-combo:hover {
+    border-color: hsl(var(--flame-orange)) !important;
+    box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
+}
+
+/* 4. Completely clean up Google branding */
+.goog-te-gadget {
+    font-size: 0 !important;
+    color: transparent !important;
+}
+.goog-te-gadget .goog-te-combo {
+    margin: 0 !important;
 }
