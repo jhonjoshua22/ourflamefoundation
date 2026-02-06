@@ -128,54 +128,51 @@ html {
   }
 }
 
-/* --- Google Translate Customization - Flame Theme --- */
+/* --- Google Translate Fix: Restoring Theme Visibility --- */
 
-/* Hide the Google Translate top bar & branding */
-.goog-te-banner-frame.skiptranslate,
-#goog-gt-tt,
-.goog-te-balloon-frame {
-    display: none !important;
+/* 1. Prevent Google from shifting the page layout or adding a background */
+html {
+    background-color: hsl(0 0% 8%) !important; /* Force your background color */
 }
 
 body {
     top: 0px !important;
+    position: static !important;
 }
 
-.goog-logo-link {
+/* 2. Hide all Google-injected frames and toolbars */
+.goog-te-banner-frame.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.skiptranslate iframe {
     display: none !important;
+    visibility: hidden !important;
 }
 
-.goog-te-gadget {
-    color: transparent !important;
-    font-size: 0 !important;
-}
-
-/* Style the actual dropdown to match the Flames Charity theme */
+/* 3. Style the dropdown box to look like your "Flame" components */
 .goog-te-combo {
     @apply bg-card text-foreground border-border rounded-xl px-4 py-2;
+    background-color: hsl(var(--card)) !important; 
+    color: hsl(var(--foreground)) !important;
     font-family: 'Inter', sans-serif !important;
-    outline: none;
+    outline: none !important;
     cursor: pointer;
-    border: 1px solid hsl(var(--flame-orange) / 0.3) !important;
+    border: 1px solid hsl(var(--flame-orange) / 0.5) !important;
     font-size: 14px !important;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Add a flame glow when they interact with it */
 .goog-te-combo:hover {
     border-color: hsl(var(--flame-orange)) !important;
-    box-shadow: 0 0 15px hsl(var(--flame-red) / 0.3);
+    box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
 }
 
-.goog-te-combo:focus {
-    border-color: hsl(var(--flame-yellow)) !important;
+/* 4. Completely clean up Google branding */
+.goog-te-gadget {
+    font-size: 0 !important;
+    color: transparent !important;
 }
-
-/* Fix for mobile/small screens */
-@media (max-width: 640px) {
-    .goog-te-combo {
-        padding: 6px 10px;
-        font-size: 12px !important;
-    }
+.goog-te-gadget .goog-te-combo {
+    margin: 0 !important;
 }
