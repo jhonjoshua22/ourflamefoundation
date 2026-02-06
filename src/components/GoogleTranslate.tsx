@@ -1,5 +1,12 @@
 import { useEffect } from "react";
 
+declare global {
+  interface Window {
+    googleTranslateElementInit?: () => void;
+    google?: any;
+  }
+}
+
 const GoogleTranslate = () => {
   useEffect(() => {
     const addScript = () => {
@@ -32,17 +39,16 @@ const GoogleTranslate = () => {
       id="google_translate_element"
       style={{
         position: "fixed",
-        bottom: "20px",
-        left: "20px",
+        bottom: 20,
+        left: 20,
         zIndex: 9999,
         backgroundColor: "#fff",
-        borderRadius: "4px",
+        borderRadius: 4,
         padding: "5px 10px",
         boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
       }}
-    ></div>
+    />
   );
 };
 
 export default GoogleTranslate;
-
