@@ -10,7 +10,7 @@ import AboutUsSection from "@/components/AboutUsSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
 import { Globe } from "lucide-react";
 
-// Extend the window interface for TypeScript
+// Extend window for Google Translate
 declare global {
   interface Window {
     googleTranslateElementInit: () => void;
@@ -20,12 +20,12 @@ declare global {
 
 const Index = () => {
   useEffect(() => {
-    // 1. Initialize Google Translate
+    // 1. Initialize Google Translate with the "Simple" layout
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "en",
-          includedLanguages: "en,es,tl,fr,de,zh-CN", 
+          includedLanguages: "en,es,tl,fr,de,zh-CN",
           layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
           autoDisplay: false,
         },
@@ -33,7 +33,7 @@ const Index = () => {
       );
     };
 
-    // 2. Inject Script
+    // 2. Load the Google Script
     const addScript = document.createElement("script");
     addScript.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
     addScript.async = true;
@@ -43,24 +43,29 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       
-      {/* LANGUAGE SWITCHER: Bottom-Left, Label Above, No Logo */}
-      <div className="fixed bottom-6 left-6 z-[9999] flex flex-col-reverse items-start gap-2">
+      {/* LANGUAGE SWITCHER UI 
+          - fixed bottom-10 left-10: Places in bottom-left corner
+          - flex-col-reverse: Places the Label ABOVE the Select box
+          - z-[9999]: Ensures it stays on top of all other sections
+      */}
+      <div className="fixed bottom-10 left-10 z-[9999] flex flex-col-reverse items-start gap-3">
         
-        {/* The Dropdown (At the bottom, forces list to open upwards) */}
+        {/* The Google Dropdown Container */}
         <div 
           id="google_translate_element" 
-          className="hover:scale-105 transition-transform duration-300"
+          className="hover:scale-105 transition-transform duration-300 min-h-[40px]"
         />
 
-        {/* The Label (Appears above the dropdown) */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/60 backdrop-blur-md border border-flame-orange/20 shadow-lg pointer-events-none">
-          <Globe className="w-3.5 h-3.5 text-flame-orange animate-flicker" />
-          <span className="text-[10px] uppercase font-bold tracking-widest text-flame-orange/80">
+        {/* The Themed "Flame" Label */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-md border border-flame-orange/30 shadow-2xl pointer-events-none">
+          <Globe className="w-4 h-4 text-flame-orange animate-pulse" />
+          <span className="text-[11px] uppercase font-black tracking-widest text-flame-orange">
             Select Language
           </span>
         </div>
       </div>
 
+      {/* Main Sections */}
       <Navbar />
       <HeroSection />
       <ImpactSection />
