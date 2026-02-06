@@ -25,14 +25,14 @@ import football from "@/assets/football.png";
 import art from "@/assets/art.png";
 import writer from "@/assets/writer.png";
 import badminton from "@/assets/badminton.png";
-import aitraining from "@/assets/aitraining.png";
-import homecare from "@/assets/homecare.png";
+import aitraining from "@/assets/aitraining.jpeg";
+import homecare from "@/assets/homecare.jpeg";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
 
 // --- DATA ARRAYS ---
 const lessonItems = [
-  { image: community1, title: "FLAME JOBS", description: "Live daily every 6:15GMT" },
+  { image: community1, title: "FLAME JOBS", description: "Live every Monday 10:00 EMEA" },
   { image: community2, title: "MAGIC MONEY TRAINING", description: "Live daily every 6:15GMT" },
   { image: community3, title: "FLAME LEGAL", description: "Live daily every 6:15GMT" },
   { image: community5, title: "SUPERPETS TRAINING", description: "Live daily every 6:15GMT" },
@@ -53,15 +53,15 @@ const otherServiceItems = [
   { image: joshua, title: "JOSHUA'S PRODUCTS", description: "Live daily every 6:15GMT" },
   { image: emeka, title: "EMEKA'S PRODUCTS", description: "Live daily every 6:15GMT" },
   { image: moyasis, title: "MOYASIS' PRODUCTS", description: "Live daily every 6:15GMT" },
-  { image: homecare, title: "HOME CARE", description: "Live every week" },
-  { image: aitraining, title: "AI TRAINING", description: "Live every week" },
+  { image: homecare, title: "HOME CARE", description: "Live every Saturday 11:00 EMEA" },
+  { image: aitraining, title: "AI TRAINING", description: "Live every Frifday 11:00 EMEA" },
 ];
 
 const ourWorldItems = [
-  { image: football, title: "FOOTBALL WORLD", description: "Live daily every 6:15GMT" },
-  { image: art, title: "ART WORLD", description: "Live daily every 6:15GMT" },
-  { image: writer, title: "WRITER WORLD", description: "Live daily every 6:15GMT" },
-  { image: education, title: "EDUCATION WORLD", description: "Live daily every 6:15GMT" },
+  { image: football, title: "FOOTBALL WORLD", description: "Live every Wednesday 20:00 UTC" },
+  { image: art, title: "ART WORLD", description: "Live every Friday 10:00 UTC" },
+  { image: writer, title: "WRITER WORLD", description: "Live every Friday 10:00 UTC" },
+  { image: education, title: "EDUCATION WORLD", description: "Live every Tuesday 20:00 UTC" },
   { image: badminton, title: "BADMINTON WORLD", description: "Live daily every 6:15GMT" },
 ];
 
