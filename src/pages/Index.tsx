@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot"; 
 import AboutUsSection from "@/components/AboutUsSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
+import GoogleTranslate from "@/components/GoogleTranslate";
 
 const Index = () => {
   return (
@@ -21,6 +22,7 @@ const Index = () => {
       <Footer />
 
       <Chatbot />
+      <GoogleTranslate />
     </div>
   );
 };
