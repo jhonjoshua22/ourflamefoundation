@@ -4,8 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
-/* Flames Charity Design System - Red, Orange, Black Palette */
+/* ================================
+   Flames Charity Design System
+   Red • Orange • Black Palette
+   ================================ */
 
 @layer base {
   :root {
@@ -47,9 +49,24 @@
     --flame-ember: 15 95% 45%;
 
     /* Gradients */
-    --gradient-flame: linear-gradient(135deg, hsl(5 85% 48%), hsl(25 100% 55%), hsl(40 100% 60%));
-    --gradient-ember: linear-gradient(180deg, hsl(0 0% 12%), hsl(0 0% 6%));
-    --gradient-hero: linear-gradient(135deg, hsl(5 85% 48% / 0.9), hsl(25 100% 55% / 0.8));
+    --gradient-flame: linear-gradient(
+      135deg,
+      hsl(5 85% 48%),
+      hsl(25 100% 55%),
+      hsl(40 100% 60%)
+    );
+
+    --gradient-ember: linear-gradient(
+      180deg,
+      hsl(0 0% 12%),
+      hsl(0 0% 6%)
+    );
+
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(5 85% 48% / 0.9),
+      hsl(25 100% 55% / 0.8)
+    );
 
     --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 98%;
@@ -68,7 +85,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
   }
 
@@ -76,6 +93,10 @@
     font-family: 'Poppins', sans-serif;
   }
 }
+
+/* ================================
+   Components
+   ================================ */
 
 @layer components {
   .flame-gradient {
@@ -90,8 +111,9 @@
   }
 
   .ember-glow {
-    box-shadow: 0 0 40px hsl(var(--flame-orange) / 0.3),
-                0 0 80px hsl(var(--flame-red) / 0.2);
+    box-shadow:
+      0 0 40px hsl(var(--flame-orange) / 0.3),
+      0 0 80px hsl(var(--flame-red) / 0.2);
   }
 
   .card-hover {
@@ -103,6 +125,10 @@
     box-shadow: 0 20px 40px hsl(var(--flame-red) / 0.2);
   }
 }
+
+/* ================================
+   Animations
+   ================================ */
 
 html {
   scroll-behavior: smooth;
@@ -128,53 +154,60 @@ html {
   }
 }
 
-/* --- Final Flame Theme Language Switcher Fix --- */
+/* ================================
+   Google Translate – Flame Theme
+   (DOT BUG FIX INCLUDED)
+   ================================ */
 
-/* 1. Hide the Google Logo and "Powered by" text, but NOT the dropdown div */
-.goog-te-gadget > span, 
+/* Hide Google branding */
+.goog-te-gadget > span,
 .goog-te-gadget img,
 .goog-te-gadget a,
 .goog-logo-link {
-    display: none !important;
+  display: none !important;
 }
 
-/* 2. Style the actual dropdown select box */
-.goog-te-combo {
-    @apply bg-card text-foreground border-border rounded-xl px-4 py-2;
-    background-color: hsl(var(--card)) !important; 
-    color: hsl(var(--foreground)) !important;
-    font-family: 'Inter', sans-serif !important;
-    border: 1px solid hsl(var(--flame-orange) / 0.5) !important;
-    font-size: 14px !important;
-    cursor: pointer;
-    outline: none !important;
-    /* Removed appearance:none so the browser arrow stays visible for the user */
-    width: 160px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-/* 3. Hover state with Flame glow */
-.goog-te-combo:hover {
-    border-color: hsl(var(--flame-orange)) !important;
-    box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
-}
-
-/* 4. Cleaning the gadget container while keeping it visible */
+/* Keep container visible (IMPORTANT) */
 .goog-te-gadget {
-    color: transparent !important;
-    font-size: 0 !important;
-    background: transparent !important;
+  background: transparent !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 5. Force the body to stay put */
+/* Styled dropdown */
+.goog-te-combo {
+  width: 180px !important;
+  min-height: 40px;
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--flame-orange) / 0.5) !important;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  cursor: pointer;
+  outline: none !important;
+  transition: all 0.3s ease;
+  text-align-last: center;
+}
+
+/* Hover glow */
+.goog-te-combo:hover {
+  border-color: hsl(var(--flame-orange)) !important;
+  box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
+}
+
+/* Prevent Google from shifting the page */
 body {
-    top: 0px !important;
-    position: static !important;
+  top: 0px !important;
+  position: static !important;
 }
 
-/* 6. Hide the Google Translate popup/tooltip */
-#goog-gt-tt, .goog-te-balloon-frame {
-    display: none !important;
-    visibility: hidden !important;
+/* Hide tooltip balloon */
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
 }
+
