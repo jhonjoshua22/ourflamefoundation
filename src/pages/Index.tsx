@@ -1,6 +1,21 @@
 import { useEffect } from "react";
-// ... (your other imports)
-import { Globe } from "lucide-react"; // Import Globe for a better UI icon
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import ImpactSection from "@/components/ImpactSection";
+import ProcessSection from "@/components/ProcessSection";
+import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
+import Chatbot from "@/components/Chatbot"; 
+import AboutUsSection from "@/components/AboutUsSection";
+import NewsEventsSection from "@/components/NewsEventsSection";
+import { Globe } from "lucide-react"; // Matching your icon style
+
+declare global {
+  interface Window {
+    googleTranslateElementInit: () => void;
+    google: any;
+  }
+}
 
 const Index = () => {
   useEffect(() => {
@@ -8,7 +23,7 @@ const Index = () => {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "en",
-          includedLanguages: "en,es,tl,fr,de,zh-CN", 
+          includedLanguages: "en,es,tl,fr,de,zh-CN",
           layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
           autoDisplay: false,
         },
@@ -23,18 +38,17 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background text-foreground relative">
       
-      {/* IMPROVED UI: Bottom-Left Language Switcher */}
-      <div className="fixed bottom-6 left-6 z-[9999] flex flex-col items-start group">
-        <div className="flex items-center gap-2 mb-2 bg-card/80 backdrop-blur-md border border-border/50 p-2 px-3 rounded-full shadow-lg">
-          <Globe className="w-4 h-4 text-flame-orange animate-flicker" />
-          <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
-            Select Language
+      {/* IMPROVED UI: Bottom-Left Themed Switcher */}
+      <div className="fixed bottom-6 left-6 z-[9999] flex flex-col items-start gap-2">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/40 backdrop-blur-md border border-flame-orange/20 shadow-lg animate-flicker">
+          <Globe className="w-3.5 h-3.5 text-flame-orange" />
+          <span className="text-[10px] uppercase font-bold tracking-widest text-flame-orange/80">
+            Language
           </span>
         </div>
         
-        {/* The Google Element Container */}
         <div 
           id="google_translate_element" 
           className="hover:scale-105 transition-transform duration-300"
