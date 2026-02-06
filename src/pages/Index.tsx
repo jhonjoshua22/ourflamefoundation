@@ -1,30 +1,13 @@
 import { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import HeroSection from "@/components/HeroSection";
-import ImpactSection from "@/components/ImpactSection";
-import ProcessSection from "@/components/ProcessSection";
-import ContactSection from "@/components/ContactSection";
-import Footer from "@/components/Footer";
-import Chatbot from "@/components/Chatbot"; 
-import AboutUsSection from "@/components/AboutUsSection";
-import NewsEventsSection from "@/components/NewsEventsSection";
-
-// Extend the window interface for TypeScript
-declare global {
-  interface Window {
-    googleTranslateElementInit: () => void;
-    google: any;
-  }
-}
+// ... (your other imports)
+import { Globe } from "lucide-react"; // Import Globe for a better UI icon
 
 const Index = () => {
   useEffect(() => {
-    // 1. Define the initialization function
     window.googleTranslateElementInit = () => {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "en",
-          // Add or remove languages here
           includedLanguages: "en,es,tl,fr,de,zh-CN", 
           layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
           autoDisplay: false,
@@ -33,7 +16,6 @@ const Index = () => {
       );
     };
 
-    // 2. Add the Google script to the page
     const addScript = document.createElement("script");
     addScript.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
     addScript.async = true;
@@ -42,12 +24,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* 3. The Dropdown Container (Fixed at top-right) */}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col items-end">
-        <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 mr-2">
-          Select Language
-        </label>
-        <div id="google_translate_element" className="border rounded-lg shadow-md bg-white p-1" />
+      
+      {/* IMPROVED UI: Bottom-Left Language Switcher */}
+      <div className="fixed bottom-6 left-6 z-[9999] flex flex-col items-start group">
+        <div className="flex items-center gap-2 mb-2 bg-card/80 backdrop-blur-md border border-border/50 p-2 px-3 rounded-full shadow-lg">
+          <Globe className="w-4 h-4 text-flame-orange animate-flicker" />
+          <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
+            Select Language
+          </span>
+        </div>
+        
+        {/* The Google Element Container */}
+        <div 
+          id="google_translate_element" 
+          className="hover:scale-105 transition-transform duration-300"
+        />
       </div>
 
       <Navbar />
