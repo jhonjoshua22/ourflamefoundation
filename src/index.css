@@ -130,12 +130,11 @@ html {
 
 /* --- Final Flame Theme Language Switcher Fix --- */
 
-/* 1. Hide the Google Logo and "Powered by" text completely */
-.goog-te-gadget span, 
+/* 1. Hide the Google Logo and "Powered by" text, but NOT the dropdown div */
+.goog-te-gadget > span, 
 .goog-te-gadget img,
 .goog-te-gadget a,
-.goog-logo-link,
-.goog-te-gadget div {
+.goog-logo-link {
     display: none !important;
 }
 
@@ -149,9 +148,8 @@ html {
     font-size: 14px !important;
     cursor: pointer;
     outline: none !important;
-    appearance: none; /* Removes default browser arrow */
-    -webkit-appearance: none;
-    width: 150px;
+    /* Removed appearance:none so the browser arrow stays visible for the user */
+    width: 160px;
     text-align: center;
     transition: all 0.3s ease;
 }
@@ -162,20 +160,20 @@ html {
     box-shadow: 0 0 15px hsl(var(--flame-red) / 0.4);
 }
 
-/* 4. Cleaning the gadget container */
+/* 4. Cleaning the gadget container while keeping it visible */
 .goog-te-gadget {
     color: transparent !important;
     font-size: 0 !important;
     background: transparent !important;
 }
 
-/* 5. Force the body to stay put (prevents Google's top-bar shift) */
+/* 5. Force the body to stay put */
 body {
     top: 0px !important;
     position: static !important;
 }
 
-/* 6. Hide the Google Translate popup/tooltip that appears on hover */
+/* 6. Hide the Google Translate popup/tooltip */
 #goog-gt-tt, .goog-te-balloon-frame {
     display: none !important;
     visibility: hidden !important;
