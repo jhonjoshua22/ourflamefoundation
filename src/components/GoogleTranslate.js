@@ -2,7 +2,6 @@ import { useEffect } from "react";
 
 const GoogleTranslate = () => {
   useEffect(() => {
-    // Function to load the Google Translate script
     const addScript = () => {
       if (!document.querySelector("#google-translate-script")) {
         const script = document.createElement("script");
@@ -12,12 +11,11 @@ const GoogleTranslate = () => {
       }
     };
 
-    // This function is called by the Google script after it loads
     window.googleTranslateElementInit = () => {
       if (window.google && window.google.translate) {
         new window.google.translate.TranslateElement(
           {
-            pageLanguage: "en", // Your default site language
+            pageLanguage: "en",
             layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false,
           },
@@ -32,9 +30,19 @@ const GoogleTranslate = () => {
   return (
     <div
       id="google_translate_element"
-      style={{ marginLeft: "auto", marginRight: "10px" }} // adjust styling as needed
+      style={{
+        position: "fixed",
+        bottom: "20px",
+        left: "20px",
+        zIndex: 9999,
+        backgroundColor: "#fff",
+        borderRadius: "4px",
+        padding: "5px 10px",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+      }}
     ></div>
   );
 };
 
 export default GoogleTranslate;
+
