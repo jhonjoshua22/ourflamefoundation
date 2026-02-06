@@ -142,3 +142,16 @@ body {
 .goog-te-gadget {
     color: transparent !important;
 }
+/* Style the actual dropdown to match the Flames Charity theme */
+.goog-te-combo {
+    @apply bg-card text-foreground border-border rounded-md px-3 py-1;
+    font-family: 'Inter', sans-serif !important;
+    outline: none;
+    cursor: pointer;
+    border: 1px solid hsl(var(--flame-orange) / 0.5) !important;
+}
+
+/* Add a slight glow when they click it */
+.goog-te-combo:focus {
+    box-shadow: 0 0 10px hsl(var(--flame-red) / 0.5);
+}
