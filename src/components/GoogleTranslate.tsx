@@ -17,24 +17,20 @@ declare global {
   interface Window {
     googleTranslateElementInit?: () => void;
     google?: any;
-    // Google Translate cookie function
-    googleTranslateGetCurrentLang?: () => string;
   }
 }
 
 const GoogleTranslate = () => {
   const [selectedLang, setSelectedLang] = useState("en");
 
+  // Load Google Translate script and initialize widget only once on mount
   useEffect(() => {
-    // Remove previous google translate elements if any
-    const existing = document.getElementById("google_translate_element");
-    if (existing) {
-      existing.remove();
+    if (!document.getElementById("google-translate-script")) {
+      const script = document.createElement("script");
+      script.id = "google-translate-script";
+      script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      document.body.appendChild(script);
     }
-    const script = document.createElement("script");
-    script.id = "google-translate-script";
-    script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    document.body.appendChild(script);
 
     window.googleTranslateElementInit = () => {
       if (window.google && window.google.translate) {
@@ -47,35 +43,41 @@ const GoogleTranslate = () => {
           },
           "google_translate_element"
         );
-
-        // Set initial language if not English
-        if (selectedLang !== "en") {
-          setTimeout(() => {
-            const select = document.querySelector<HTMLSelectElement>(
-              "#google_translate_element select"
-            );
-            if (select) {
-              select.value = selectedLang;
-              select.dispatchEvent(new Event("change"));
-            }
-          }, 500);
-        }
       }
     };
+  }, []);
 
-    return () => {
-      // Cleanup script
-      const oldScript = document.getElementById("google-translate-script");
-      if (oldScript) oldScript.remove();
-      const oldElement = document.getElementById("google_translate_element");
-      if (oldElement) oldElement.remove();
-    };
+  // Watch selectedLang change and trigger language switch on Google widget
+  useEffect(() => {
+    if (selectedLang === "en") {
+      // Reload page to reset to original language (or clear cookies if preferred)
+      window.location.reload();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const select = document.querySelector<HTMLSelectElement>("#google_translate_element select");
+      if (select) {
+        select.value = selectedLang;
+        select.dispatchEvent(new Event("change"));
+        clearInterval(interval);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
   }, [selectedLang]);
 
   return (
     <>
-      {/* Hidden container for Google Translate */}
-      <div id="google_translate_element" style={{ display: "none" }}></div>
+      {/* Hidden container for Google Translate widget */}
+      <div
+        id="google_translate_element"
+        style={{
+          position: "fixed",
+          left: "-9999px",
+          top: 0,
+        }}
+      ></div>
 
       {/* Minimalist visible selector */}
       <select
@@ -110,4 +112,5 @@ const GoogleTranslate = () => {
 };
 
 export default GoogleTranslate;
+
 
