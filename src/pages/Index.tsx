@@ -1,4 +1,13 @@
 import { useEffect } from "react";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import ImpactSection from "@/components/ImpactSection";
+import ProcessSection from "@/components/ProcessSection";
+import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
+import Chatbot from "@/components/Chatbot";
+import AboutUsSection from "@/components/AboutUsSection";
+import NewsEventsSection from "@/components/NewsEventsSection";
 
 const LANGUAGES = [
   { code: "en", label: "English" },
@@ -35,11 +44,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Google Translate widget at bottom-left */}
       <div
         id="google_translate_element"
         style={{ position: "fixed", bottom: 10, left: 10, zIndex: 1000 }}
       ></div>
 
+      {/* Your site components */}
       <Navbar />
       <HeroSection />
       <ImpactSection />
