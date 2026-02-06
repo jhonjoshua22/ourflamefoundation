@@ -19,40 +19,54 @@ declare global {
 
 const Index = () => {
   useEffect(() => {
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "en",
-          includedLanguages: "en,es,tl,fr,de,zh-CN",
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false,
-        },
-        "google_translate_element"
-      );
-    };
+  window.googleTranslateElementInit = () => {
+    new window.google.translate.TranslateElement(
+      {
+        pageLanguage: "en",
+        includedLanguages: "en,es,tl,fr,de,zh-CN",
+        layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false,
+      },
+      "google_translate_element"
+    );
+  };
 
-    const addScript = document.createElement("script");
-    addScript.src =
-      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    addScript.async = true;
-    document.body.appendChild(addScript);
+  const addScript = document.createElement("script");
+  addScript.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+  addScript.async = true;
+  document.body.appendChild(addScript);
 
-    const interval = setInterval(() => {
-      const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
-      if (select) {
-        if (
-          select.options.length > 0 &&
-          select.options[0].text.toLowerCase().includes("select")
-        ) {
-          select.remove(0);
-        }
-        select.value = "en";
-        clearInterval(interval);
+  const cleanUpDropdown = () => {
+    const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+    if (select) {
+      // Remove the placeholder option "Select Language"
+      if (
+        select.options.length > 0 &&
+        select.options[0].text.toLowerCase().includes("select")
+      ) {
+        select.remove(0);
       }
-    }, 300);
+      // Set default language to English
+      select.value = "en";
 
-    return () => clearInterval(interval);
-  }, []);
+      // Trigger change event to force Google Translate update UI
+      select.dispatchEvent(new Event("change"));
+
+      return true;
+    }
+    return false;
+  };
+
+  // Poll until dropdown is ready and cleaned
+  const interval = setInterval(() => {
+    if (cleanUpDropdown()) {
+      clearInterval(interval);
+    }
+  }, 300);
+
+  return () => clearInterval(interval);
+}, []);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
