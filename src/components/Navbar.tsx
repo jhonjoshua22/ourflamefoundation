@@ -1,12 +1,21 @@
 import { Flame, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Prevent background scrolling when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isOpen]);
+
   const navLinks = [
     { name: "Home", href: "#home" },
-    { name: "About Us", href: "#about" }, // New link added here
+    { name: "About Us", href: "#about" },
     { name: "Our Impact", href: "#impact" },
     { name: "Contact", href: "#contact" },
   ];
@@ -16,7 +25,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="#home" className="flex items-center gap-3 group">
+          <a href="#home" className="flex items-center gap-3 group z-[60]">
             <div className="relative">
               <Flame className="w-10 h-10 text-flame-orange animate-flicker" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
@@ -45,39 +54,44 @@ const Navbar = () => {
             </a>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Increased Z-index to stay on top */}
           <button
-            className="md:hidden text-foreground"
+            className="md:hidden text-foreground z-[60] p-2"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden pb-6 animate-fade-in">
-            <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </a>
-              ))}
+        {/* Full-Screen Mobile Navigation Overlay */}
+        <div
+          className={`fixed inset-0 bg-background z-[50] flex flex-col items-center justify-center transition-all duration-300 ease-in-out md:hidden ${
+            isOpen 
+              ? "opacity-100 pointer-events-auto translate-y-0" 
+              : "opacity-0 pointer-events-none -translate-y-4"
+          }`}
+        >
+          <div className="flex flex-col items-center gap-8 w-full px-6">
+            {navLinks.map((link) => (
               <a
-                href="#contact"
-                className="flame-gradient px-6 py-3 rounded-full font-semibold text-primary-foreground text-center mt-2"
+                key={link.name}
+                href={link.href}
+                className="text-3xl font-display font-bold text-foreground hover:text-flame-orange transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Get Involved
+                {link.name}
               </a>
-            </div>
+            ))}
+            <a
+              href="#contact"
+              className="flame-gradient w-full max-w-xs py-4 rounded-full font-bold text-xl text-primary-foreground text-center mt-4 shadow-lg"
+              onClick={() => setIsOpen(false)}
+            >
+              Get Involved
+            </a>
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );
