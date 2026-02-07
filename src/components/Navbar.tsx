@@ -6,7 +6,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", href: "#home" },
-    { name: "About Us", href: "#about" }, // New link added here
+    { name: "About Us", href: "#about" },
     { name: "Our Impact", href: "#impact" },
     { name: "Contact", href: "#contact" },
   ];
@@ -26,6 +26,7 @@ const Navbar = () => {
             </span>
           </a>
 
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <a
@@ -43,6 +44,8 @@ const Navbar = () => {
               Get Involved
             </a>
           </div>
+
+          {/* Mobile Toggle */}
           <button
             className="md:hidden text-foreground"
             onClick={() => setIsOpen(!isOpen)}
@@ -50,34 +53,36 @@ const Navbar = () => {
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
+      </div>
 
-        {isOpen && (
-          <div className="md:hidden pb-6 animate-fade-in">
-            <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </a>
-              ))}
+      {/* Mobile Menu – FULL HEIGHT */}
+      {isOpen && (
+        <div className="md:hidden fixed top-20 left-0 w-full h-[calc(100vh-5rem)] bg-background animate-fade-in">
+          <div className="flex flex-col gap-6 px-6 py-10">
+            {navLinks.map((link) => (
               <a
-                href="#contact"
-                className="flame-gradient px-6 py-3 rounded-full font-semibold text-primary-foreground text-center mt-2"
+                key={link.name}
+                href={link.href}
+                className="text-lg text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Get Involved
+                {link.name}
               </a>
-            </div>
+            ))}
+
+            <a
+              href="#contact"
+              className="flame-gradient px-6 py-3 rounded-full font-semibold text-primary-foreground text-center mt-4"
+              onClick={() => setIsOpen(false)}
+            >
+              Get Involved
+            </a>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   );
 };
 
-
 export default Navbar;
+
