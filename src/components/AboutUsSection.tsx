@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
-  Coins, Copy, Check, Users, Sparkles, Bot, Scale 
+  Copy, Check, Users, Sparkles, Bot, Scale 
 } from "lucide-react";
 
 const AboutUsSection = () => {
@@ -45,13 +45,19 @@ const AboutUsSection = () => {
     { name: "Clean Law", url: "https://cleanlaw.vercel.app/" },
   ];
 
+  const freeSeries = [
+    { name: "Fraccounts", url: "https://fraccounts.vercel.app/" },
+    { name: "Freebay", url: "https://freebay.vercel.app/" },
+    { name: "Fruber", url: "https://fruber.vercel.app/" },
+    { name: "Frainer", url: "https://frainer.vercel.app/" },
+    { name: "Frov", url: "https://frov.vercel.app/" },
+    { name: "Frifts", url: "https://frifts.vercel.app/" },
+  ];
+
   const partners = [
     { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
     { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
     { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
-    { name: "Fraccounts", url: "https://fraccounts.vercel.app/" },
-    { name: "Freebay", url: "https://freebay.vercel.app/" },
-    { name: "Fruber", url: "https://fruber.vercel.app/" },
   ];
 
   return (
@@ -83,7 +89,6 @@ const AboutUsSection = () => {
               ))}
             </div>
 
-            {/* NEW: Incubator of Incubators Section */}
             <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 shadow-inner mb-8">
               <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange flex items-center gap-2">
                 <Users className="w-5 h-5" /> Incubator of Incubators
@@ -117,12 +122,12 @@ const AboutUsSection = () => {
 
           {/* Right Column: Links & Services */}
           <div className="lg:sticky lg:top-32 space-y-8">
+            {/* The Clean Series */}
             <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
               <h3 className="text-2xl font-bold mb-2 text-flame-orange">The Clean Series</h3>
               <p className="text-muted-foreground mb-6 text-sm">
-                A suite of 50+ specialized tools designed to resolve community challenges through internal collaboration and technology.
+                A suite of specialized tools designed to resolve community challenges.
               </p>
-              
               <div className="grid gap-3">
                 {cleanSeries.map((link) => (
                   <a
@@ -132,15 +137,36 @@ const AboutUsSection = () => {
                     rel="noreferrer"
                     className="flex items-center justify-between p-4 rounded-xl border bg-background border-border hover:border-flame-orange hover:text-flame-orange transition-all group"
                   >
-                    <div className="flex items-center gap-3">
-                      <span>{link.name}</span>
-                    </div>
+                    <span className="font-medium">{link.name}</span>
                     <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100" />
                   </a>
                 ))}
               </div>
             </div>
 
+            {/* The Free Series */}
+            <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
+              <h3 className="text-2xl font-bold mb-2 text-flame-orange">The Free Series</h3>
+              <p className="text-muted-foreground mb-6 text-sm">
+                Accessible ecosystem tools designed for the community.
+              </p>
+              <div className="grid gap-3">
+                {freeSeries.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-between p-4 rounded-xl border bg-background border-border hover:border-flame-orange hover:text-flame-orange transition-all group"
+                  >
+                    <span className="font-medium">{link.name}</span>
+                    <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Strategic Partnerships */}
             <div className="p-8 rounded-3xl border bg-card/50 backdrop-blur-sm shadow-xl">
               <h3 className="text-2xl font-bold mb-6 text-flame-orange font-display">
                 Strategic Partnerships
@@ -157,7 +183,6 @@ const AboutUsSection = () => {
                       <span className="font-medium">{link.name}</span>
                       <ExternalLink className="w-4 h-4 opacity-50 group-hover:opacity-100" />
                     </a>
-                    
                     <button
                       onClick={(e) => handleCopy(e, link.url, link.name)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-flame-orange transition-colors"
@@ -176,7 +201,7 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* NEW: Conclusion Section (Flame Magic Worlds) */}
+        {/* Conclusion Section */}
         <div className="mt-16 p-10 rounded-[2rem] bg-gradient-to-br from-flame-orange/10 to-transparent border border-flame-orange/20">
           <div className="max-w-4xl mx-auto text-center">
             <Bot className="w-12 h-12 text-flame-orange mx-auto mb-6" />
