@@ -1,17 +1,8 @@
 import { Flame, Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
-  // Prevent background scrolling when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-  }, [isOpen]);
 
   const navLinks = [
     { name: "Home", href: "#home" },
@@ -20,12 +11,18 @@ const Navbar = () => {
     { name: "Contact", href: "#contact" },
   ];
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
+  }, [isOpen]);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
+
           {/* Logo */}
-          <a href="#home" className="flex items-center gap-3 group z-[60]">
+          <a href="#home" className="flex items-center gap-3 group">
             <div className="relative">
               <Flame className="w-10 h-10 text-flame-orange animate-flicker" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
@@ -54,45 +51,51 @@ const Navbar = () => {
             </a>
           </div>
 
-          {/* Mobile Menu Button - Increased Z-index to stay on top */}
+          {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-foreground z-[60] p-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
+            className="md:hidden text-foreground z-50"
+            onClick={() => setIsOpen(true)}
           >
-            {isOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+            <Menu className="w-7 h-7" />
           </button>
         </div>
+      </div>
 
-        {/* Full-Screen Mobile Navigation Overlay */}
-        <div
-          className={`fixed inset-0 bg-background z-[50] flex flex-col items-center justify-center transition-all duration-300 ease-in-out md:hidden ${
-            isOpen 
-              ? "opacity-100 pointer-events-auto translate-y-0" 
-              : "opacity-0 pointer-events-none -translate-y-4"
-          }`}
-        >
-          <div className="flex flex-col items-center gap-8 w-full px-6">
+      {/* Fullscreen Mobile Menu */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md md:hidden animate-fade-in">
+
+          {/* Close Button */}
+          <button
+            className="absolute top-6 right-6 text-foreground"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {/* Menu Items */}
+          <div className="flex flex-col items-center justify-center h-full gap-8 text-2xl">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="text-3xl font-display font-bold text-foreground hover:text-flame-orange transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 {link.name}
               </a>
             ))}
+
             <a
               href="#contact"
-              className="flame-gradient w-full max-w-xs py-4 rounded-full font-bold text-xl text-primary-foreground text-center mt-4 shadow-lg"
+              className="flame-gradient px-10 py-3 rounded-full font-semibold text-primary-foreground mt-6"
               onClick={() => setIsOpen(false)}
             >
               Get Involved
             </a>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
