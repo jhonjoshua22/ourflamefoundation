@@ -37,7 +37,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="text-center md:text-right text-muted-foreground text-sm">
-            <p>ourflamefoundation@gmail.com</p>
+            <p>mflynn1999@gmail.com</p>
             <p>+44 7762 293742</p>
           </div>
         </div>
