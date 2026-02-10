@@ -25,6 +25,7 @@ import football from "@/assets/football.png";
 import art from "@/assets/art.png";
 import writer from "@/assets/writer.png";
 import badminton from "@/assets/badminton.png";
+import fashion from "@/assets/fashion.png";
 import aitraining from "@/assets/aitraining.jpeg";
 import homecare from "@/assets/homecare.jpeg";
 
@@ -61,6 +62,7 @@ const ourWorldItems = [
   { image: football, title: "FOOTBALL WORLD", description: "Live every Wednesday 20:00 UTC" },
   { image: art, title: "ART WORLD", description: "Live every Friday 10:00 UTC" },
   { image: writer, title: "WRITER WORLD", description: "Live every Friday 10:00 UTC" },
+  { image: fashion, title: "FASHION WORLD", description: "Live every Thursday 20:00 UTC" },
   { image: education, title: "EDUCATION WORLD", description: "Live every Tuesday 20:00 UTC" },
   { image: badminton, title: "BADMINTON WORLD", description: "Live daily every 6:15GMT" },
 ];
