@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
-  Copy, Check, Users, Sparkles, Bot, Scale, Plane, Package 
+  Copy, Check, Users, Sparkles, Bot, Scale, Plane, Package, Gift
 } from "lucide-react";
 
 const AboutUsSection = () => {
@@ -60,6 +60,12 @@ const AboutUsSection = () => {
     { name: "Philippines", url: "https://travelphilippines.vercel.app/" },
   ];
 
+  const giftPackSeries = [
+    { name: "Easter", url: "https://eastergiftpack.vercel.app/" },
+    { name: "Christmas", url: "https://christmasgiftpack.vercel.app/" },
+    { name: "Birthday", url: "https://birthdaygiftpack.vercel.app/" },
+  ];
+
   const freeSeries = [
     { name: "Fraccounts", url: "https://fraccounts.vercel.app/" },
     { name: "Freebay", url: "https://freebay.vercel.app/" },
@@ -105,75 +111,88 @@ const AboutUsSection = () => {
               <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange flex items-center gap-2">
                 <Users className="w-5 h-5" /> Incubator of Incubators
               </h4>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                We are a global collective of <strong>100+ engineers and product creators</strong> building in public. We aim for <strong>1 million members by 2027</strong>.
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We are a global collective of <strong>100+ engineers</strong> building in public. We aim for <strong>1 million members by 2027</strong>.
               </p>
             </div>
           </div>
 
           {/* Right Column: The Series Grid */}
-          <div className="lg:sticky lg:top-10 space-y-6">
+          <div className="lg:sticky lg:top-6 space-y-4">
             
             {/* Clean Series Card */}
-            <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-xl border-flame-orange/10">
-              <div className="flex items-center gap-2 mb-4 text-flame-orange">
-                <Sparkles className="w-5 h-5" />
-                <h3 className="text-xl font-bold">The Clean Series</h3>
+            <div className="p-5 rounded-3xl border bg-card/50 backdrop-blur-md shadow-lg border-flame-orange/10">
+              <div className="flex items-center gap-2 mb-3 text-flame-orange">
+                <Sparkles className="w-4 h-4" />
+                <h3 className="text-lg font-bold">The Clean Series</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {cleanSeries.map((link) => (
                   <a key={link.name} href={link.url} target="_blank" rel="noreferrer" 
                      className="flex items-center justify-center p-2 rounded-lg border bg-background/50 border-border hover:border-flame-orange hover:bg-flame-orange/5 transition-all text-center">
-                    <span className="text-xs font-medium truncate">Clean {link.name}</span>
+                    <span className="text-[10px] font-bold uppercase truncate">Clean {link.name}</span>
                   </a>
                 ))}
               </div>
             </div>
 
             {/* Travel Series Card */}
-            <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-xl border-flame-orange/10">
-              <div className="flex items-center gap-2 mb-4 text-flame-orange">
-                <Plane className="w-5 h-5" />
-                <h3 className="text-xl font-bold">The Travel Series</h3>
+            <div className="p-5 rounded-3xl border bg-card/50 backdrop-blur-md shadow-lg border-flame-orange/10">
+              <div className="flex items-center gap-2 mb-3 text-flame-orange">
+                <Plane className="w-4 h-4" />
+                <h3 className="text-lg font-bold">The Travel Series</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {travelSeries.map((link) => (
                   <a key={link.name} href={link.url} target="_blank" rel="noreferrer" 
-                     className="flex flex-col items-center justify-center p-2 rounded-lg border bg-background/50 border-border hover:border-flame-orange hover:bg-flame-orange/5 transition-all text-center">
-                    <span className="text-xs font-medium">{link.name}</span>
+                     className="flex items-center justify-center p-2 rounded-lg border bg-background/50 border-border hover:border-flame-orange hover:bg-flame-orange/5 transition-all text-center">
+                    <span className="text-[10px] font-bold uppercase">{link.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Gift Pack Series Card */}
+            <div className="p-5 rounded-3xl border bg-card/50 backdrop-blur-md shadow-lg border-flame-orange/10">
+              <div className="flex items-center gap-2 mb-3 text-flame-orange">
+                <Gift className="w-4 h-4" />
+                <h3 className="text-lg font-bold">The Gift Pack Series</h3>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {giftPackSeries.map((link) => (
+                  <a key={link.name} href={link.url} target="_blank" rel="noreferrer" 
+                     className="flex items-center justify-center p-2 rounded-lg border bg-background/50 border-border hover:border-flame-orange hover:bg-flame-orange/5 transition-all text-center">
+                    <span className="text-[10px] font-bold uppercase">{link.name}</span>
                   </a>
                 ))}
               </div>
             </div>
 
             {/* Free Series Card */}
-            <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-xl border-flame-orange/10">
-              <div className="flex items-center gap-2 mb-4 text-flame-orange">
-                <Package className="w-5 h-5" />
-                <h3 className="text-xl font-bold">The Free Series</h3>
+            <div className="p-5 rounded-3xl border bg-card/50 backdrop-blur-md shadow-lg border-flame-orange/10">
+              <div className="flex items-center gap-2 mb-3 text-flame-orange">
+                <Package className="w-4 h-4" />
+                <h3 className="text-lg font-bold">The Free Series</h3>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {freeSeries.map((link) => (
                   <a key={link.name} href={link.url} target="_blank" rel="noreferrer" 
                      className="flex items-center justify-center p-2 rounded-lg border bg-background/50 border-border hover:border-flame-orange hover:bg-flame-orange/5 transition-all text-center">
-                    <span className="text-xs font-medium">{link.name}</span>
+                    <span className="text-[10px] font-bold uppercase">{link.name}</span>
                   </a>
                 ))}
               </div>
             </div>
 
-            {/* Partners - Kept elegant and simple */}
-            <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-lg border-border">
-              <h3 className="text-sm font-bold mb-4 uppercase tracking-widest text-muted-foreground">Strategic Partners</h3>
-              <div className="space-y-3">
+            {/* Partners */}
+            <div className="p-5 rounded-3xl border bg-card/40 border-border">
+              <h3 className="text-[10px] font-bold mb-3 uppercase tracking-widest text-muted-foreground">Strategic Partners</h3>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {partners.map((link) => (
-                  <div key={link.name} className="flex items-center justify-between group/item">
-                    <a href={link.url} target="_blank" className="text-sm font-medium hover:text-flame-orange transition-colors">
+                  <div key={link.name} className="flex items-center gap-2 group/item">
+                    <a href={link.url} target="_blank" className="text-xs font-medium hover:text-flame-orange transition-colors">
                       {link.name}
                     </a>
-                    <button onClick={(e) => handleCopy(e, link.url, link.name)} className="p-1.5 rounded-md hover:bg-muted transition-colors opacity-0 group-hover/item:opacity-100">
-                      {copiedIndex === link.name ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                    </button>
                   </div>
                 ))}
               </div>
