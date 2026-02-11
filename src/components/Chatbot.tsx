@@ -1,98 +1,39 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Flame } from "lucide-react";
 
-type ChatMessage = {
-  id: string;
-  role: "user" | "model";
-  content: string;
-};
+const FAQS = [
+  {
+    question: "How can stuff be free here?",
+    answer: "It’s a membership program! Richer partners cover costs for those in need via gifts, donations, barter, mentoring, and investment. We take care of each other."
+  },
+  {
+    question: "What are the prices?",
+    answer: "We offer optional subscriptions for better-off members. These values are equivalent to the support provided to all members, ensuring fairness across the board."
+  },
+  {
+    question: "Why do we need this?",
+    answer: "Because bad people have too much power to hurt the innocent, and most people are too stressed to help. We are here to protect."
+  }
+];
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  
-  // 'init-greet' is the ID we use to identify the hardcoded welcome message
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { 
-      id: "init-greet", 
-      role: "model", 
-      content: "Hello! I'm your Flame Assistant. How can I help you today? 🔥" 
-    },
+  const [chatHistory, setChatHistory] = useState([
+    { role: "model", content: "Hello! I'm the Flame Assistant. Click a question below to learn more about our mission! 🔥" }
   ]);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [chatHistory]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isTyping) return;
-
-    const userText = input;
-    const userMessage: ChatMessage = { 
-      id: Date.now().toString(), 
-      role: "user", 
-      content: userText 
-    };
-    
-    setMessages((prev) => [...prev, userMessage]);
-    setIsTyping(true);
-    setInput("");
-
-    try {
-      /**
-       * FIX: Gemini requires the first message in 'history' to be from 'user'.
-       * We filter out our initial "Hello" message (init-greet) so the API 
-       * sees your first message as the start of the conversation.
-       */
-      const historyForAPI = messages
-        .filter(m => m.id !== "init-greet")
-        .map(m => ({
-          role: m.role,
-          parts: [{ text: m.content }]
-        }));
-
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          message: userText, 
-          history: historyForAPI 
-        }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.reply || "Failed to connect");
-      }
-
-      const data = await res.json();
-      
-      setMessages((prev) => [
-        ...prev, 
-        { 
-          id: (Date.now() + 1).toString(), 
-          role: "model", 
-          content: data.reply 
-        }
-      ]);
-    } catch (err: any) {
-      console.error("Chat Error:", err);
-      setMessages((prev) => [
-        ...prev, 
-        { 
-          id: "err-" + Date.now(), 
-          role: "model", 
-          content: "⚠️ " + (err.message || "Connection lost. Try again.") 
-        }
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
+  const handleQuestionClick = (faq: typeof FAQS[0]) => {
+    // Add User Question and then the auto-response
+    setChatHistory((prev) => [
+      ...prev,
+      { role: "user", content: faq.question },
+      { role: "model", content: faq.answer }
+    ]);
   };
 
   return (
@@ -102,74 +43,51 @@ export default function Chatbot() {
           
           {/* Header */}
           <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50">
-            <div>
-              <h1 className="text-white font-bold text-sm">Flame Assistant</h1>
-              <p className="text-[10px] text-zinc-500">Powered by Gemini 1.5 Flash</p>
+            <div className="flex items-center gap-2">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <h1 className="text-white font-bold text-sm">Flame FAQ Guide</h1>
             </div>
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="text-zinc-400 hover:text-white transition-colors"
-            >
+            <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-white">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0a0a0a]">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] p-3 rounded-2xl text-sm ${
-                    msg.role === "user"
-                      ? "bg-orange-600 text-white rounded-tr-none"
+            {chatHistory.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${
+                    msg.role === "user" 
+                      ? "bg-orange-600 text-white rounded-tr-none" 
                       : "bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-tl-none"
-                  }`}
-                >
+                }`}>
                   {msg.content}
                 </div>
               </div>
             ))}
-
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl rounded-tl-none">
-                  <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
-                </div>
-              </div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Form */}
-          <div className="p-4 bg-zinc-900/50 border-t border-zinc-800">
-            <form onSubmit={handleSend} className="relative flex items-center">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your message..."
-                disabled={isTyping}
-                className="w-full bg-zinc-950 text-white border border-zinc-700 pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-sm disabled:opacity-50"
-              />
+          {/* FAQ Options (The "Input" area replacement) */}
+          <div className="p-4 bg-zinc-900/50 border-t border-zinc-800 space-y-2">
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2 font-bold">Select a topic:</p>
+            {FAQS.map((faq, index) => (
               <button
-                type="submit"
-                disabled={isTyping || !input.trim()}
-                className="absolute right-2 p-2 text-orange-600 hover:text-orange-500 disabled:opacity-30 transition-colors"
+                key={index}
+                onClick={() => handleQuestionClick(faq)}
+                className="w-full text-left text-xs bg-zinc-950 border border-zinc-700 hover:border-orange-500/50 text-zinc-300 hover:text-white p-2 rounded-lg transition-all"
               >
-                <Send className="w-5 h-5" />
+                {faq.question}
               </button>
-            </form>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Floating Toggle Button */}
+      {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-orange-600 hover:bg-orange-500 p-4 rounded-full shadow-lg text-white transition-all hover:scale-105 active:scale-95"
+        className="bg-orange-600 hover:bg-orange-500 p-4 rounded-full shadow-lg text-white transition-all hover:scale-105"
       >
         {isOpen ? <X className="w-7 h-7" /> : <MessageCircle className="w-7 h-7" />}
       </button>
