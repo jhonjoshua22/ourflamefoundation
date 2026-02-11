@@ -1,11 +1,12 @@
 import { Flame, Menu, X, User } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom"; // 1. Import Link
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", href: "#home" },
+    { name: "Home", href: "/" }, // Changed to / for routing
     { name: "About Us", href: "#about" },
     { name: "Our Impact", href: "#impact" },
     { name: "Contact", href: "#contact" },
@@ -15,8 +16,8 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <a href="#home" className="flex items-center gap-3 group">
+          {/* Logo - Use Link to return home without refresh */}
+          <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
               <Flame className="w-10 h-10 text-flame-orange animate-flicker" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
@@ -24,7 +25,7 @@ const Navbar = () => {
             <span className="font-display font-bold text-xl flame-text">
               Our Flame Foundation
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
@@ -38,14 +39,14 @@ const Navbar = () => {
               </a>
             ))}
             
-            {/* Sign In Button */}
-            <a 
-              href="/login" 
+            {/* 2. SIGN IN BUTTON (Desktop) - Changed <a> to <Link> */}
+            <Link 
+              to="/login" 
               className="text-foreground hover:text-flame-orange transition-colors font-medium flex items-center gap-2"
             >
               <User className="w-4 h-4" />
               Sign In
-            </a>
+            </Link>
 
             <a
               href="#contact"
@@ -80,14 +81,17 @@ const Navbar = () => {
               </a>
             ))}
             <hr className="border-border" />
-            <a
-              href="/login"
+            
+            {/* 3. SIGN IN BUTTON (Mobile) - Changed <a> to <Link> */}
+            <Link
+              to="/login"
               className="text-lg font-medium flex items-center gap-2"
               onClick={() => setIsOpen(false)}
             >
               <User className="w-5 h-5 text-flame-orange" />
               Sign In / Register
-            </a>
+            </Link>
+
             <a
               href="#contact"
               className="flame-gradient px-6 py-3 rounded-full font-semibold text-primary-foreground text-center mt-4"
