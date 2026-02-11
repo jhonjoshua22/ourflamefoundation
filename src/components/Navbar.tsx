@@ -22,7 +22,7 @@ const Navbar = () => {
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
             <span className="font-display font-bold text-xl flame-text">
-              Our Flames Foundation
+              Our Flame Foundation
             </span>
           </a>
 
