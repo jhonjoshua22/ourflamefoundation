@@ -1,4 +1,4 @@
-import { Flame, Menu, X } from "lucide-react";
+import { Flame, Menu, X, User } from "lucide-react";
 import { useState } from "react";
 
 const Navbar = () => {
@@ -37,6 +37,16 @@ const Navbar = () => {
                 {link.name}
               </a>
             ))}
+            
+            {/* Sign In Button */}
+            <a 
+              href="/login" 
+              className="text-foreground hover:text-flame-orange transition-colors font-medium flex items-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              Sign In
+            </a>
+
             <a
               href="#contact"
               className="flame-gradient px-6 py-2.5 rounded-full font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
@@ -55,7 +65,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu – FULL HEIGHT */}
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden fixed top-20 left-0 w-full h-[calc(100vh-5rem)] bg-background animate-fade-in">
           <div className="flex flex-col gap-6 px-6 py-10">
@@ -69,7 +79,15 @@ const Navbar = () => {
                 {link.name}
               </a>
             ))}
-
+            <hr className="border-border" />
+            <a
+              href="/login"
+              className="text-lg font-medium flex items-center gap-2"
+              onClick={() => setIsOpen(false)}
+            >
+              <User className="w-5 h-5 text-flame-orange" />
+              Sign In / Register
+            </a>
             <a
               href="#contact"
               className="flame-gradient px-6 py-3 rounded-full font-semibold text-primary-foreground text-center mt-4"
