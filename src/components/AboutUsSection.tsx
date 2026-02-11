@@ -251,11 +251,11 @@ const AboutUsSection = () => {
           <div className="max-w-4xl mx-auto text-center">
             <Bot className="w-12 h-12 text-flame-orange mx-auto mb-6" />
             <h3 className="text-3xl font-bold mb-6 text-flame-orange font-display">
-              Flame Magic Worlds: Supporting the Busy Family
+              Our Flame Foundation: Supporting the Busy Family
             </h3>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
               We know families are super busy; extra tasks often lead to excessive stress. 
-              <strong> Flame Magic Worlds</strong> is our solution. With your permission, your information feeds into a dedicated 
+              <strong> Our Flame Foundation</strong> is our solution. With your permission, your information feeds into a dedicated 
               <strong> Magic World Master Bot</strong>.
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-left">
