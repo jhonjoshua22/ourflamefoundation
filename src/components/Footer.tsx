@@ -17,7 +17,7 @@ const Footer = () => {
           <div className="flex items-center gap-3">
             <Flame className="w-8 h-8 text-flame-orange" />
             <span className="font-display font-bold text-xl flame-text">
-              Flames Charity
+              Our Flame Foundation
             </span>
           </div>
 
@@ -44,7 +44,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} Our Flame Foundation. All rights reserved.
+            🄯 {currentYear} Our Flame Foundation. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs mt-2">
             Improving families lives via expert support & modern tools, funded by pro investors.
