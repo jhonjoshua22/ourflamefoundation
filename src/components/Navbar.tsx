@@ -21,8 +21,8 @@ const Navbar = () => {
               <Flame className="w-10 h-10 text-flame-orange animate-flicker" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
-            <span className="font-display font-bold text-2xl flame-text">
-              Flames Charity
+            <span className="font-display font-bold text-xl flame-text">
+              Our Flames Foundation
             </span>
           </a>
 
