@@ -7,7 +7,7 @@ const AuthPage = () => {
       provider: 'google',
       options: {
         // This line kills the localhost error
-        redirectTo: 'https://ourflamefoundation.vercel.app/login',
+        redirectTo: 'https://ourflamefoundation.vercel.app',
       },
     });
     
