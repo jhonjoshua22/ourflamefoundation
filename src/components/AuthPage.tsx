@@ -1,66 +1,82 @@
 import { supabase } from "../lib/supabaseClient";
-import { Flame, Chrome } from "lucide-react";
+import { Flame, Chrome, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AuthPage = () => {
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // This line kills the localhost error
         redirectTo: 'https://ourflamefoundation.vercel.app',
+        // This forces the "Account Picker" to show up every time
+        queryParams: {
+          prompt: 'select_account',
+          access_type: 'offline',
+        },
       },
     });
     
     if (error) {
       console.error("Login error:", error.message);
-      alert("Login failed: " + error.message);
     }
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      backgroundColor: '#020617', 
-      color: 'white',
-      fontFamily: 'sans-serif',
-      padding: '20px'
-    }}>
-      <div style={{ 
-        width: '100%', 
-        maxWidth: '400px', 
-        padding: '40px', 
-        borderRadius: '16px', 
-        backgroundColor: '#0f172a', 
-        border: '1px solid #1e293b',
-        textAlign: 'center'
-      }}>
-        <Flame size={48} color="#f97316" style={{ marginBottom: '16px', marginLeft: 'auto', marginRight: 'auto' }} />
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>Our Flame Foundation</h2>
-        <p style={{ color: '#94a3b8', marginBottom: '32px' }}>Welcome back. Please sign in.</p>
+    <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Decorative Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-flame-orange/10 rounded-full blur-[120px] -z-10" />
 
-        <button 
-          onClick={handleGoogleLogin}
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            padding: '14px',
-            backgroundColor: 'white',
-            color: 'black',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: '600',
-            cursor: 'pointer'
-          }}
-        >
-          <Chrome size={20} />
-          Continue with Google
-        </button>
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors"
+      >
+        <ArrowLeft size={20} />
+        Back to home
+      </Link>
+
+      <div className="w-full max-w-[440px]">
+        <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl">
+          
+          <div className="flex flex-col items-center text-center mb-10">
+            <div className="w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-700 mb-6 shadow-inner group">
+              <Flame size={40} className="text-flame-orange animate-pulse" />
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight mb-3">
+              Join the Flame
+            </h1>
+            <p className="text-slate-400 text-base leading-relaxed">
+              Sign in to manage your impact and stay connected with our community.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <button 
+              onClick={handleGoogleLogin}
+              className="w-full group relative flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-black py-4 px-6 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
+            >
+              <Chrome size={22} className="transition-transform group-hover:scale-110" />
+              Continue with Google
+            </button>
+            
+            <div className="flex items-center gap-3 py-4">
+              <div className="h-[1px] bg-slate-800 flex-1"></div>
+              <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Secure Access</span>
+              <div className="h-[1px] bg-slate-800 flex-1"></div>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
+              <ShieldCheck size={16} className="text-emerald-500" />
+              <span>Protected by Supabase Encryption</span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center text-slate-600 text-xs mt-8 px-8">
+          By continuing, you agree to Our Flame Foundation's 
+          <a href="#" className="text-slate-400 hover:underline mx-1">Terms of Service</a> 
+          and 
+          <a href="#" className="text-slate-400 hover:underline mx-1">Privacy Policy</a>.
+        </p>
       </div>
     </div>
   );
