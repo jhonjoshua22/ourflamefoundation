@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import AuthPage from "./components/AuthPage"; // Import your new component
+import AuthPage from "./components/AuthPage"; 
+import Profile from "./pages/Profile"; // <--- ADDED THIS
 
 const queryClient = new QueryClient();
 
@@ -17,9 +18,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          
-          {/* New Login Route */}
           <Route path="/login" element={<AuthPage />} />
+          
+          {/* New Profile Route */}
+          <Route path="/profile" element={<Profile />} /> {/* <--- ADDED THIS */}
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
