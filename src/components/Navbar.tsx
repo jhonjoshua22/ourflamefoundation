@@ -1,7 +1,10 @@
-import { Flame, Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react"; // Removed 'Flame'
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+
+// 1. Import your custom logo from the assets folder
+import logo from "../assets/ourflamelogo.png"; 
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,12 +12,10 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -38,10 +39,16 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+          
+          {/* Logo Section */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <Flame className="w-10 h-10 text-flame-orange animate-flicker" />
+              {/* 2. Replaced <Flame /> with your <img> tag */}
+              <img 
+                src={logo} 
+                alt="Our Flame Foundation Logo" 
+                className="w-10 h-10 object-contain animate-flicker" 
+              />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
             <span className="font-display font-bold text-xl flame-text">
@@ -57,7 +64,6 @@ const Navbar = () => {
               </a>
             ))}
             
-            {/* USER SECTION (Desktop) */}
             {user ? (
               <div className="flex items-center gap-4">
                 <Link 
