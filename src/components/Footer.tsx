@@ -1,4 +1,7 @@
-import { Flame, Facebook, Twitter, Youtube } from "lucide-react";
+import { Facebook, Twitter, Youtube } from "lucide-react"; // Removed 'Flame'
+
+// 1. Import your custom logo
+import logo from "../assets/ourflamelogo.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -13,9 +16,15 @@ const Footer = () => {
     <footer className="bg-flame-dark border-t border-border py-12">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Logo */}
+          
+          {/* Logo Section */}
           <div className="flex items-center gap-3">
-            <Flame className="w-8 h-8 text-flame-orange" />
+            {/* 2. Swapped <Flame /> for <img> */}
+            <img 
+              src={logo} 
+              alt="Our Flame Foundation Logo" 
+              className="w-8 h-8 object-contain" 
+            />
             <span className="font-display font-bold text-xl flame-text">
               Our Flame Foundation
             </span>
@@ -28,6 +37,8 @@ const Footer = () => {
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
+                target="_blank" 
+                rel="noopener noreferrer"
                 className="p-2 rounded-full bg-muted hover:bg-primary/20 text-muted-foreground hover:text-flame-orange transition-colors"
               >
                 <social.icon className="w-5 h-5" />
