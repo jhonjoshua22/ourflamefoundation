@@ -6,7 +6,7 @@ import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
   Copy, Check, Users, Sparkles, Bot, Scale, Plane, Gift, Package, Handshake,
-  FileText, Eye 
+  FileText, Eye, FolderOpen 
 } from "lucide-react";
 
 const AboutUsSection = () => {
@@ -19,8 +19,6 @@ const AboutUsSection = () => {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  // ... (promises, cleanSeries, travelSeries, giftPackSeries, freeSeries, partners arrays remain same as before)
-  
   const promises = [
     {
       icon: <Heart className="w-6 h-6 text-flame-orange" />,
@@ -88,10 +86,11 @@ const AboutUsSection = () => {
     { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
   ];
 
-  // 2. Updated to use the imported assets
+  // Added the Assets GDrive link here
   const brandFiles = [
-    { name: "Magic Worlds Guideline", path: MagicWorldsPDF },
-    { name: "Our Flame Foundation Guideline", path: FlameFoundationPDF },
+    { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
+    { name: "Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
+    { name: "Assets (GDrive)", path: "https://drive.google.com/file/d/17TPQ55S9cRFY9rTAIMIMSXI69Es62vi4/view?usp=drive_link", type: "drive" },
   ];
 
   return (
@@ -259,29 +258,31 @@ const AboutUsSection = () => {
               </div>
             </div>
 
-            {/* Brand Resources PDF Section */}
+            {/* Brand Resources Section - Now with Grid Layout */}
             <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-xl border-flame-orange/10">
               <div className="flex items-center gap-2 mb-4 text-flame-orange">
                 <FileText className="w-5 h-5" />
                 <h3 className="text-xl font-bold font-display">Brand Resources</h3>
               </div>
-              <div className="grid gap-3">
+              {/* Changed from flex-column grid to responsive grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {brandFiles.map((file) => (
                   <a
                     key={file.name}
                     href={file.path}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-4 rounded-xl bg-flame-orange/5 border border-flame-orange/20 hover:border-flame-orange hover:bg-flame-orange/10 transition-all group"
+                    className="flex flex-col gap-3 p-4 rounded-xl bg-flame-orange/5 border border-flame-orange/20 hover:border-flame-orange hover:bg-flame-orange/10 transition-all group"
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-flame-orange/10 text-flame-orange group-hover:scale-110 transition-transform">
-                        <FileText className="w-4 h-4" />
+                        {file.type === 'drive' ? <FolderOpen className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                       </div>
-                      <span className="text-xs font-bold text-foreground">{file.name}</span>
+                      <span className="text-[11px] font-bold text-foreground leading-tight">{file.name}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tighter text-flame-orange opacity-70 group-hover:opacity-100">
-                      View PDF <Eye className="w-3 h-3" />
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-tighter text-flame-orange/70 group-hover:text-flame-orange">
+                      {file.type === 'drive' ? 'Open Drive' : 'View PDF'}
+                      <Eye className="w-3 h-3" />
                     </div>
                   </a>
                 ))}
