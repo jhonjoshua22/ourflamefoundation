@@ -90,7 +90,7 @@ const AboutUsSection = () => {
   const brandFiles = [
     { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
     { name: "Our Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
-    { name: "Assets (GDrive)", path: "https://drive.google.com/file/d/17TPQ55S9cRFY9rTAIMIMSXI69Es62vi4/view?usp=drive_link", type: "drive" },
+    { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
   ];
 
   return (
