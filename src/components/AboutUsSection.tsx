@@ -89,7 +89,7 @@ const AboutUsSection = () => {
   // Added the Assets GDrive link here
   const brandFiles = [
     { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
-    { name: "Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
+    { name: "Our Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/file/d/17TPQ55S9cRFY9rTAIMIMSXI69Es62vi4/view?usp=drive_link", type: "drive" },
   ];
 
