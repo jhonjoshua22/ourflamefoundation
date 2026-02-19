@@ -1,7 +1,12 @@
 import { useState } from "react";
+// 1. Import your PDFs from the assets folder
+import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
+import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
+
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
-  Copy, Check, Users, Sparkles, Bot, Scale, Plane, Gift, Package, Handshake
+  Copy, Check, Users, Sparkles, Bot, Scale, Plane, Gift, Package, Handshake,
+  FileText, Eye 
 } from "lucide-react";
 
 const AboutUsSection = () => {
@@ -14,6 +19,8 @@ const AboutUsSection = () => {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  // ... (promises, cleanSeries, travelSeries, giftPackSeries, freeSeries, partners arrays remain same as before)
+  
   const promises = [
     {
       icon: <Heart className="w-6 h-6 text-flame-orange" />,
@@ -81,6 +88,12 @@ const AboutUsSection = () => {
     { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
   ];
 
+  // 2. Updated to use the imported assets
+  const brandFiles = [
+    { name: "Magic Worlds Guideline", path: MagicWorldsPDF },
+    { name: "Our Flame Foundation Guideline", path: FlameFoundationPDF },
+  ];
+
   return (
     <section id="about" className="py-24 bg-background relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-flame-orange/5 rounded-full blur-[120px] -z-10" />
@@ -88,7 +101,7 @@ const AboutUsSection = () => {
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           
-          {/* Left Column: Promises & Mission (All Original Text Restored) */}
+          {/* Left Column: Promises & Mission */}
           <div className="space-y-8">
             <div>
               <span className="inline-block text-flame-orange font-semibold uppercase tracking-wider text-sm mb-4">
@@ -111,6 +124,7 @@ const AboutUsSection = () => {
                 ))}
               </div>
 
+              {/* Incubator Box */}
               <div className="p-8 rounded-3xl bg-primary/5 border border-primary/10 shadow-inner mb-8">
                 <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange flex items-center gap-2">
                   <Users className="w-5 h-5" /> Incubator of Incubators
@@ -129,6 +143,7 @@ const AboutUsSection = () => {
                 </p>
               </div>
 
+              {/* Legacy Box */}
               <div className="p-8 rounded-3xl bg-card border border-border/50 shadow-sm">
                 <h4 className="text-xl font-bold mb-4 uppercase tracking-tight text-flame-orange">
                   Legacy & Ethical Capital
@@ -211,7 +226,7 @@ const AboutUsSection = () => {
               </div>
             </div>
 
-            {/* Strategic Partnerships (Matching UI) */}
+            {/* Strategic Partnerships */}
             <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-xl border-flame-orange/10">
               <div className="flex items-center gap-2 mb-4 text-flame-orange">
                 <Handshake className="w-5 h-5" />
@@ -243,10 +258,40 @@ const AboutUsSection = () => {
                 ))}
               </div>
             </div>
+
+            {/* Brand Resources PDF Section */}
+            <div className="p-6 rounded-3xl border bg-card/50 backdrop-blur-md shadow-xl border-flame-orange/10">
+              <div className="flex items-center gap-2 mb-4 text-flame-orange">
+                <FileText className="w-5 h-5" />
+                <h3 className="text-xl font-bold font-display">Brand Resources</h3>
+              </div>
+              <div className="grid gap-3">
+                {brandFiles.map((file) => (
+                  <a
+                    key={file.name}
+                    href={file.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-4 rounded-xl bg-flame-orange/5 border border-flame-orange/20 hover:border-flame-orange hover:bg-flame-orange/10 transition-all group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-flame-orange/10 text-flame-orange group-hover:scale-110 transition-transform">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-bold text-foreground">{file.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tighter text-flame-orange opacity-70 group-hover:opacity-100">
+                      View PDF <Eye className="w-3 h-3" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* Conclusion Section (All Original Text Restored) */}
+        {/* Conclusion Section */}
         <div className="mt-16 p-10 rounded-[2rem] bg-gradient-to-br from-flame-orange/10 to-transparent border border-flame-orange/20">
           <div className="max-w-4xl mx-auto text-center">
             <Bot className="w-12 h-12 text-flame-orange mx-auto mb-6" />
@@ -254,8 +299,8 @@ const AboutUsSection = () => {
               Our Flame Foundation: Supporting the Busy Family
             </h3>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              We know families are super busy; extra tasks often lead to excessive stress. 
-              <strong> Our Flame Foundation</strong> is our solution. With your permission, your information feeds into a dedicated 
+              We know families are super busy; extra tasks often lead to excessive stress. 
+              <strong> Our Flame Foundation</strong> is our solution. With your permission, your information feeds into a dedicated 
               <strong> Magic World Master Bot</strong>.
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-left">
