@@ -22,15 +22,16 @@ const AuthPage: React.FC = () => {
     });
   };
 
-  // --- X (Twitter) - Updated with Scope Fix ---
+  // --- X (Twitter) - Corrected for OAuth 2.0 Stability ---
   const handleXLogin = async (): Promise<void> => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'x', // Ensure 'x' is enabled in Supabase Dashboard
+      provider: 'x', 
       options: {
         redirectTo: REDIRECT_URL,
-        // Manual override for scopes to avoid "Request Email" errors
         queryParams: {
-          scope: 'users.read tweet.read offline.access',
+          // 'offline.access' is removed here because it often fails for 
+          // free-tier X apps without specific confidential client settings.
+          scope: 'users.read tweet.read', 
         },
       },
     });
@@ -55,7 +56,6 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Decorative Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-flame-orange/10 rounded-full blur-[120px] -z-10" />
 
       <Link to="/" className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
