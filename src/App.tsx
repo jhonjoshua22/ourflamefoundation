@@ -19,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<AuthPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           
           {/* New Profile Route */}
           <Route path="/profile" element={<Profile />} /> {/* <--- ADDED THIS */}
