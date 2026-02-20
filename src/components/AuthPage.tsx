@@ -1,24 +1,36 @@
+import React from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Flame, Chrome, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Flame, Chrome, ArrowLeft, ShieldCheck, Facebook } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const AuthPage = () => {
-  const handleGoogleLogin = async () => {
+const AuthPage: React.FC = () => {
+  // Common redirect URL - must be whitelisted in Supabase Auth settings
+  const REDIRECT_URL = 'https://ourflamefoundation.vercel.app';
+
+  // --- Google Login Handler ---
+  const handleGoogleLogin = async (): Promise<void> => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://ourflamefoundation.vercel.app',
-        // This forces the "Account Picker" to show up every time
+        redirectTo: REDIRECT_URL,
         queryParams: {
           prompt: 'select_account',
           access_type: 'offline',
         },
       },
     });
-    
-    if (error) {
-      console.error("Login error:", error.message);
-    }
+    if (error) console.error("Google login error:", error.message);
+  };
+
+  // --- Facebook Login Handler ---
+  const handleFacebookLogin = async (): Promise<void> => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: REDIRECT_URL,
+      },
+    });
+    if (error) console.error("Facebook login error:", error.message);
   };
 
   return (
@@ -45,17 +57,27 @@ const AuthPage = () => {
               Join the Flame
             </h1>
             <p className="text-slate-400 text-base leading-relaxed">
-              Sign in to manage your impact and stay connected with our community.
+              Choose your preferred way to sign in and join our community.
             </p>
           </div>
 
           <div className="space-y-4">
+            {/* Google Button */}
             <button 
               onClick={handleGoogleLogin}
               className="w-full group relative flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-black py-4 px-6 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
             >
               <Chrome size={22} className="transition-transform group-hover:scale-110" />
               Continue with Google
+            </button>
+
+            {/* Facebook Button */}
+            <button 
+              onClick={handleFacebookLogin}
+              className="w-full group relative flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white py-4 px-6 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-lg shadow-blue-600/20"
+            >
+              <Facebook size={22} className="transition-transform group-hover:scale-110" />
+              Continue with Facebook
             </button>
             
             <div className="flex items-center gap-3 py-4">
