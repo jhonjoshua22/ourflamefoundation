@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./components/AuthPage"; 
+import PrivacyPolicy from "./pages/PrivacyPolicy"; 
 import Profile from "./pages/Profile"; // <--- ADDED THIS
 
 const queryClient = new QueryClient();
