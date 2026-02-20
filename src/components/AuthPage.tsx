@@ -1,47 +1,44 @@
 import React from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Flame, Chrome, ArrowLeft, ShieldCheck, Facebook } from "lucide-react";
+// Added Twitter icon from lucide-react
+import { Flame, Chrome, ArrowLeft, ShieldCheck, Facebook, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const AuthPage: React.FC = () => {
-  // Common redirect URL - must be whitelisted in Supabase Auth settings
   const REDIRECT_URL = 'https://ourflamefoundation.vercel.app';
 
-  // --- Google Login Handler ---
   const handleGoogleLogin = async (): Promise<void> => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: REDIRECT_URL,
-        queryParams: {
-          prompt: 'select_account',
-          access_type: 'offline',
-        },
-      },
+      options: { redirectTo: REDIRECT_URL },
     });
     if (error) console.error("Google login error:", error.message);
   };
 
-  // --- Facebook Login Handler ---
   const handleFacebookLogin = async (): Promise<void> => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
-      options: {
-        redirectTo: REDIRECT_URL,
-      },
+      options: { redirectTo: REDIRECT_URL },
     });
     if (error) console.error("Facebook login error:", error.message);
   };
 
+  // --- X (Twitter) Login Handler ---
+  const handleXLogin = async (): Promise<void> => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'twitter',
+      options: {
+        redirectTo: REDIRECT_URL,
+      },
+    });
+    if (error) console.error("X login error:", error.message);
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Decorative Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-flame-orange/10 rounded-full blur-[120px] -z-10" />
 
-      <Link 
-        to="/" 
-        className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors"
-      >
+      <Link to="/" className="absolute top-8 left-8 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
         <ArrowLeft size={20} />
         Back to home
       </Link>
@@ -50,33 +47,30 @@ const AuthPage: React.FC = () => {
         <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl">
           
           <div className="flex flex-col items-center text-center mb-10">
-            <div className="w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-700 mb-6 shadow-inner group">
+            <div className="w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-700 mb-6 shadow-inner">
               <Flame size={40} className="text-flame-orange animate-pulse" />
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-3">
-              Join the Flame
-            </h1>
-            <p className="text-slate-400 text-base leading-relaxed">
-              Choose your preferred way to sign in and join our community.
-            </p>
+            <h1 className="text-3xl font-bold text-white tracking-tight mb-3">Join the Flame</h1>
+            <p className="text-slate-400 text-base">Choose your preferred way to sign in.</p>
           </div>
 
           <div className="space-y-4">
-            {/* Google Button */}
-            <button 
-              onClick={handleGoogleLogin}
-              className="w-full group relative flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-black py-4 px-6 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-lg shadow-white/5"
-            >
-              <Chrome size={22} className="transition-transform group-hover:scale-110" />
+            <button onClick={handleGoogleLogin} className="w-full group flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-black py-4 px-6 rounded-xl font-bold transition-all active:scale-[0.98]">
+              <Chrome size={22} className="group-hover:scale-110 transition-transform" />
               Continue with Google
             </button>
 
-            {/* Facebook Button */}
+            {/* X (Twitter) Button */}
             <button 
-              onClick={handleFacebookLogin}
-              className="w-full group relative flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white py-4 px-6 rounded-xl font-bold transition-all duration-200 active:scale-[0.98] shadow-lg shadow-blue-600/20"
+              onClick={handleXLogin}
+              className="w-full group flex items-center justify-center gap-3 bg-black hover:bg-slate-900 text-white border border-slate-800 py-4 px-6 rounded-xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-black/20"
             >
-              <Facebook size={22} className="transition-transform group-hover:scale-110" />
+              <Twitter size={22} className="group-hover:scale-110 transition-transform fill-current" />
+              Continue with X
+            </button>
+
+            <button onClick={handleFacebookLogin} className="w-full group flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white py-4 px-6 rounded-xl font-bold transition-all active:scale-[0.98]">
+              <Facebook size={22} className="group-hover:scale-110 transition-transform" />
               Continue with Facebook
             </button>
             
@@ -92,13 +86,6 @@ const AuthPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-        <p className="text-center text-slate-600 text-xs mt-8 px-8">
-          By continuing, you agree to Our Flame Foundation's 
-          <a href="#" className="text-slate-400 hover:underline mx-1">Terms of Service</a> 
-          and 
-          <a href="#" className="text-slate-400 hover:underline mx-1">Privacy Policy</a>.
-        </p>
       </div>
     </div>
   );
