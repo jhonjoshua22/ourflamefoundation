@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./components/AuthPage"; 
 import PrivacyPolicy from "./pages/PrivacyPolicy"; 
+import TermsPage from "./pages/TermsPage"; 
 import Profile from "./pages/Profile"; // <--- ADDED THIS
 
 const queryClient = new QueryClient();
@@ -21,7 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          
+          <Route path="/terms" element={<TermsPage />} />
           {/* New Profile Route */}
           <Route path="/profile" element={<Profile />} /> {/* <--- ADDED THIS */}
 
