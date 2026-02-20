@@ -19,7 +19,7 @@ const AuthPage: React.FC = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin, // Vercel URL
+          redirectTo: window.location.origin, // your Vercel URL
         },
       });
 
