@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ImpactSection from "@/components/ImpactSection";
+import Testimonials from "@/components/Testimonials";
 import ProcessSection from "@/components/ProcessSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -124,6 +125,7 @@ const Index = () => {
       <AboutUsSection />
       <NewsEventsSection />
       <ProcessSection />
+      <Testimonials />
       <ContactSection />
       <Footer />
       <Chatbot />
