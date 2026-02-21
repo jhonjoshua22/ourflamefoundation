@@ -5,7 +5,7 @@ import { ArrowLeft, ScrollText } from "lucide-react";
 const TermsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#020617] text-slate-300 p-8 md:p-20">
-      <Link to="/auth" className="flex items-center gap-2 text-flame-orange mb-10 hover:underline">
+      <Link to="/login" className="flex items-center gap-2 text-flame-orange mb-10 hover:underline">
         <ArrowLeft size={20} /> Back to Sign In
       </Link>
 
