@@ -18,7 +18,7 @@ const Footer = () => {
 
   const resources = [
     { name: "Magic Worlds", href: "https://www.themagicworlds.com/", icon: Globe },
-    { name: "Customer Service", href: "https://www.facebook.com/MagikWorldss", icon: Facebook },
+    { name: "Customer Service", href: "https://www.facebook.com/MagikWorlds", icon: Facebook },
     { name: "News", href: "https://x.com/magicworlds3", icon: Twitter },
     { name: "TV", href: "https://www.youtube.com/@magicworldstv", icon: Youtube },
     { name: "Teams", href: "https://www.linkedin.com/company/magic-worlds", icon: Linkedin },
