@@ -1,4 +1,4 @@
-import { Calendar, MapPin, ArrowRight } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import cebu from "@/assets/cebu.jpeg";
 import glow from "@/assets/glow.png";
 import dewdrops from "@/assets/dewdrops.jpeg";
@@ -15,7 +15,7 @@ const NewsEventsSection = () => {
     },
     {
       title: "Relief Operations for Typhoon Tino",
-      description: "Our team is currently on the ground delivering food, clean water, and medical supplies to the families most affected by the devastation of Typhoon Tino.",
+      description: "Our team is currently on the ground delivering food, clean water, and medical supplies to affected families.",
       date: "December 13, 2025",
       location: "Cebu, Philippines",
       image: cebu,
@@ -23,7 +23,7 @@ const NewsEventsSection = () => {
     },
     {
       title: "Dewdrops Care Development Foundation",
-      description: "Our program provides children with essential tools for play, learning, and faith, ensuring every child feels like a hero in their own story.",
+      description: "Providing children with essential tools for play, learning, and faith, ensuring every child feels like a hero.",
       date: "December 22, 2025",
       location: "Lagos, Nigeria",
       image: dewdrops,
@@ -32,65 +32,66 @@ const NewsEventsSection = () => {
   ];
 
   return (
-    <section id="news" className="py-24 bg-background relative overflow-hidden">
-      {/* Background Glow to match About Section */}
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-flame-orange/5 rounded-full blur-[120px] -z-10" />
-
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <span className="inline-block text-flame-orange font-semibold uppercase tracking-wider text-sm mb-4">
-            Updates & Engagements
-          </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight text-flame-orange">
-            News & Events
-          </h2>
+    <section id="news" className="py-24 bg-white dark:bg-black font-sans">
+      <div className="container mx-auto px-6 max-w-7xl">
+        
+        {/* Header - Simple & Clean */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+          <div className="max-w-xl">
+            <h4 className="text-orange-600 font-black uppercase tracking-[0.3em] text-[10px] mb-4">
+              Updates & Engagements
+            </h4>
+            <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic">
+              News & <span className="text-orange-600 not-italic uppercase">Events</span>
+            </h2>
+          </div>
+          <div className="h-[1px] flex-grow bg-zinc-100 dark:bg-zinc-800 hidden md:block mx-12 mb-4" />
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
           {events.map((item, index) => (
             <div 
               key={index} 
-              className="group bg-card border border-border/50 rounded-3xl overflow-hidden hover:border-flame-orange/30 transition-all duration-500 hover:shadow-2xl hover:shadow-flame-orange/10"
+              className="group bg-white dark:bg-zinc-950 flex flex-col h-full transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
             >
-              {/* Image Container */}
-              <div className="relative h-56 overflow-hidden">
+              {/* Image Container - Sharp Edges */}
+              <div className="relative aspect-video overflow-hidden">
                 <img 
                   src={item.image} 
                   alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-700"
                 />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-background/90 backdrop-blur-md text-flame-orange text-xs font-bold px-3 py-1.5 rounded-full border border-flame-orange/20 uppercase">
-                    {item.type}
-                  </span>
-                </div>
               </div>
 
               {/* Content Container */}
-              <div className="p-8">
-                <div className="flex flex-col gap-3 mb-4 text-xs font-medium text-muted-foreground uppercase tracking-tight">
+              <div className="p-10 flex flex-col flex-grow">
+                {/* Meta Info */}
+                <div className="flex flex-wrap gap-5 mb-8 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-flame-orange" />
+                    <Calendar size={14} className="text-orange-600" />
                     {item.date}
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-flame-orange" />
+                    <MapPin size={14} className="text-orange-600" />
                     {item.location}
                   </div>
                 </div>
 
-                <h3 className="text-xl font-bold mb-3 group-hover:text-flame-orange transition-colors">
+                <h3 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight uppercase italic group-hover:text-orange-600 transition-colors">
                   {item.title}
                 </h3>
                 
-                <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed mb-10">
                   {item.description}
                 </p>
 
-                <button className="flex items-center gap-2 text-sm font-bold text-flame-orange group/btn">
-                  Read More 
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                </button>
+                {/* Footer of Card */}
+                <div className="mt-auto pt-6 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-600">
+                    {item.type}
+                  </span>
+                  <div className="w-8 h-[1px] bg-zinc-300 dark:bg-zinc-700 group-hover:w-12 group-hover:bg-orange-600 transition-all duration-300" />
+                </div>
               </div>
             </div>
           ))}
