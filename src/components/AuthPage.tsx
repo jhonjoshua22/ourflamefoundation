@@ -126,7 +126,7 @@ const AuthPage: React.FC = () => {
 
         <p className="text-center text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-8 px-8 leading-relaxed">
           By continuing, you agree to our
-          <Link to="/tos" className="text-zinc-400 hover:text-white mx-1 transition-colors">
+          <Link to="/terms" className="text-zinc-400 hover:text-white mx-1 transition-colors">
             Terms
           </Link>
           &
