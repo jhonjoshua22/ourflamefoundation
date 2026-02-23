@@ -5,7 +5,6 @@ import HeroSection from "@/components/HeroSection";
 import ImpactSection from "@/components/ImpactSection";
 import Testimonials from "@/components/Testimonials";
 import ProcessSection from "@/components/ProcessSection";
-import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
 import AboutUsSection from "@/components/AboutUsSection";
@@ -126,7 +125,6 @@ const Index = () => {
       <AboutUsSection />
       <ProcessSection />
       <Testimonials />
-      <ContactSection />
       <Footer />
       <Chatbot />
     </div>
