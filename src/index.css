@@ -6,30 +6,27 @@
 
 /* ================================
    Flames Charity Design System
-   White Background Revision
+   Global Variables (Light/Dark)
    ================================ */
 
 @layer base {
   :root {
-    /* Core Background - Pure White */
+    /* --- LIGHT MODE (Default) --- */
     --background: 0 0% 100%;
-    --foreground: 0 0% 10%; /* Deep black/grey for text */
+    --foreground: 0 0% 10%;
 
-    /* Cards - White with subtle separation */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Brand Primary / Secondary - Kept Vibrant */
     --primary: 12 90% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 100% 55%;
+    --secondary: 30 100% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted Tones - Light Grey */
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
@@ -39,14 +36,13 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Borders - Visible on white */
     --border: 0 0% 90%;
     --input: 0 0% 92%;
     --ring: 12 90% 50%;
 
     --radius: 0.75rem;
 
-    /* Custom flame colors constants */
+    /* Flame Colors */
     --flame-red: 5 85% 48%;
     --flame-orange: 25 100% 55%;
     --flame-yellow: 40 100% 60%;
@@ -54,26 +50,10 @@
     --flame-ember: 15 95% 45%;
 
     /* Gradients */
-    --gradient-flame: linear-gradient(
-      135deg,
-      hsl(5 85% 48%),
-      hsl(25 100% 55%),
-      hsl(40 100% 60%)
-    );
+    --gradient-flame: linear-gradient(135deg, hsl(5 85% 48%), hsl(25 100% 55%), hsl(40 100% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(5 85% 48% / 0.95), hsl(25 100% 55% / 0.9));
 
-    /* Adjusted for light theme container backgrounds */
-    --gradient-ember: linear-gradient(
-      180deg,
-      hsl(0 0% 98%),
-      hsl(0 0% 94%)
-    );
-
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(5 85% 48% / 0.95),
-      hsl(25 100% 55% / 0.9)
-    );
-
+    /* Sidebar Light */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 15%;
     --sidebar-primary: 12 90% 50%;
@@ -83,11 +63,36 @@
     --sidebar-border: 0 0% 90%;
     --sidebar-ring: 12 90% 50%;
   }
+
+  .dark {
+    /* --- DARK MODE (Triggered by class) --- */
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 18%;
+
+    /* Sidebar Dark */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 20%;
+  }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-300;
   }
 
   body {
@@ -117,25 +122,33 @@
   }
 
   .ember-glow {
-    /* Adjusted glow to be softer on white backgrounds */
     box-shadow:
       0 0 30px hsl(var(--flame-orange) / 0.15),
       0 0 60px hsl(var(--flame-red) / 0.1);
   }
 
+  .dark .ember-glow {
+    box-shadow:
+      0 0 40px hsl(var(--flame-orange) / 0.3),
+      0 0 80px hsl(var(--flame-red) / 0.2);
+  }
+
   .card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    @apply transition-all duration-300;
   }
 
   .card-hover:hover {
     transform: translateY(-8px);
-    /* Subtle shadow for light mode elevation */
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .card-hover:hover {
+    box-shadow: 0 20px 40px hsl(var(--flame-red) / 0.1);
   }
 }
 
 /* ================================
-   Animations
+   Animations & Utils
    ================================ */
 
 html {
