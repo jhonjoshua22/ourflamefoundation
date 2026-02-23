@@ -6,28 +6,32 @@
 
 /* ================================
    Flames Charity Design System
-   Red • Orange • Black Palette
+   White Background Revision
    ================================ */
 
 @layer base {
   :root {
-    --background: 0 0% 8%;
-    --foreground: 0 0% 98%;
+    /* Core Background - Pure White */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%; /* Deep black/grey for text */
 
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 98%;
+    /* Cards - White with subtle separation */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
 
+    /* Brand Primary / Secondary - Kept Vibrant */
     --primary: 12 90% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 100% 55%;
+    --secondary: 25 100% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    /* Muted Tones - Light Grey */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
     --accent: 20 100% 60%;
     --accent-foreground: 0 0% 100%;
@@ -35,13 +39,14 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 18%;
+    /* Borders - Visible on white */
+    --border: 0 0% 90%;
+    --input: 0 0% 92%;
     --ring: 12 90% 50%;
 
     --radius: 0.75rem;
 
-    /* Custom flame colors */
+    /* Custom flame colors constants */
     --flame-red: 5 85% 48%;
     --flame-orange: 25 100% 55%;
     --flame-yellow: 40 100% 60%;
@@ -56,25 +61,26 @@
       hsl(40 100% 60%)
     );
 
+    /* Adjusted for light theme container backgrounds */
     --gradient-ember: linear-gradient(
       180deg,
-      hsl(0 0% 12%),
-      hsl(0 0% 6%)
+      hsl(0 0% 98%),
+      hsl(0 0% 94%)
     );
 
     --gradient-hero: linear-gradient(
       135deg,
-      hsl(5 85% 48% / 0.9),
-      hsl(25 100% 55% / 0.8)
+      hsl(5 85% 48% / 0.95),
+      hsl(25 100% 55% / 0.9)
     );
 
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 98%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 15%;
     --sidebar-primary: 12 90% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 90%;
     --sidebar-ring: 12 90% 50%;
   }
 }
@@ -111,9 +117,10 @@
   }
 
   .ember-glow {
+    /* Adjusted glow to be softer on white backgrounds */
     box-shadow:
-      0 0 40px hsl(var(--flame-orange) / 0.3),
-      0 0 80px hsl(var(--flame-red) / 0.2);
+      0 0 30px hsl(var(--flame-orange) / 0.15),
+      0 0 60px hsl(var(--flame-red) / 0.1);
   }
 
   .card-hover {
@@ -122,7 +129,8 @@
 
   .card-hover:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px hsl(var(--flame-red) / 0.2);
+    /* Subtle shadow for light mode elevation */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   }
 }
 
