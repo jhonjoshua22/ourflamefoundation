@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp, PlayCircle, ExternalLink } from "lucide-react";
 
-// --- ASSET IMPORTS ---
+// --- ASSET IMPORTS (Maintained as requested) ---
 import community1 from "@/assets/jobs.png";
 import community2 from "@/assets/money.jpeg";
 import community3 from "@/assets/legal.png";
@@ -31,7 +31,6 @@ import homecare from "@/assets/homecare.jpeg";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
 
-// --- DATA ARRAYS ---
 const lessonItems = [
   { image: community1, title: "FLAME JOBS", description: "Live every Monday 10:00 EMEA" },
   { image: community2, title: "MAGIC MONEY TRAINING", description: "Live daily every 6:15GMT" },
@@ -67,77 +66,69 @@ const ourWorldItems = [
   { image: badminton, title: "BADMINTON WORLD", description: "Live daily every 6:15GMT" },
 ];
 
-// --- COMPONENTS ---
-
 const ItemCard = ({ item }) => (
   <a 
     href={YOUTUBE_LINK} 
     target="_blank" 
     rel="noopener noreferrer"
-    className="group flex flex-col bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+    className="group flex flex-row items-center bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all duration-200 hover:border-orange-600 rounded-none h-24 overflow-hidden"
   >
-    {/* Image Container */}
-    <div className="relative aspect-video w-full overflow-hidden bg-zinc-100">
+    {/* Compact Image Square */}
+    <div className="relative aspect-square h-full overflow-hidden bg-zinc-100 shrink-0">
       <img
         src={item.image}
         alt={item.title}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
       />
-      {/* Play Overlay */}
-      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-        <div className="bg-white/90 p-3 rounded-full shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
-          <PlayCircle className="text-orange-600 w-8 h-8" />
-        </div>
-      </div>
     </div>
 
-    {/* Content Area */}
-    <div className="p-5 flex flex-col flex-grow">
-      <div className="flex justify-between items-start gap-2 mb-2">
-        <h3 className="font-bold text-zinc-900 dark:text-zinc-100 leading-tight group-hover:text-orange-600 transition-colors">
-          {item.title}
-        </h3>
-        <ExternalLink size={14} className="text-zinc-400 group-hover:text-orange-400 shrink-0" />
-      </div>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium mt-auto">
+    {/* Content Area - Streamlined */}
+    <div className="px-4 py-2 flex flex-col justify-center overflow-hidden">
+      <h3 className="font-bold text-xs text-zinc-900 dark:text-zinc-100 uppercase tracking-tight group-hover:text-orange-600 transition-colors truncate">
+        {item.title}
+      </h3>
+      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-wider mt-1">
         {item.description}
       </p>
+    </div>
+    
+    <div className="ml-auto pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <PlayCircle size={18} className="text-orange-600" />
     </div>
   </a>
 );
 
 const CategorySection = ({ title, items }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const displayItems = isExpanded ? items : items.slice(0, 3);
+  // Show 6 items by default for better density (3 per row on desktop)
+  const displayItems = isExpanded ? items : items.slice(0, 6);
 
   return (
-    <div className="mb-24 last:mb-0">
-      <div className="flex items-center gap-4 mb-10">
-        <h3 className="text-sm font-black tracking-[0.2em] uppercase text-orange-600 whitespace-nowrap">
+    <div className="mb-12 last:mb-0">
+      <div className="flex items-center gap-4 mb-6">
+        <h3 className="text-[11px] font-black tracking-[0.3em] uppercase text-orange-600 whitespace-nowrap">
           {title}
         </h3>
-        <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800" />
+        <div className="h-[1px] w-full bg-zinc-200 dark:bg-zinc-800" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {displayItems.map((item, index) => (
           <ItemCard key={`${title}-${index}`} item={item} />
         ))}
       </div>
       
-      {items.length > 3 && (
-        <div className="mt-12 flex justify-center">
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-3 px-8 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-full font-bold text-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all shadow-sm active:scale-95"
-          >
-            {isExpanded ? (
-              <>Show Less <ChevronUp size={18} /></>
-            ) : (
-              <>Browse All {items.length} <ChevronDown size={18} /></>
-            )}
-          </button>
-        </div>
+      {items.length > 6 && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-6 w-full flex items-center justify-center gap-2 py-3 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 font-black text-[10px] uppercase tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all rounded-none"
+        >
+          {isExpanded ? (
+            <>Collapse Details <ChevronUp size={14} /></>
+          ) : (
+            <>View More from {title} ({items.length}) <ChevronDown size={14} /></>
+          )}
+        </button>
       )}
     </div>
   );
@@ -145,26 +136,25 @@ const CategorySection = ({ title, items }) => {
 
 const ImpactSection = () => {
   return (
-    <section id="impact" className="py-24 bg-zinc-50/50 dark:bg-black">
+    <section id="impact" className="py-20 bg-white dark:bg-black font-sans">
       <div className="container mx-auto px-6 max-w-7xl">
-        {/* Modern Header */}
-        <div className="max-w-4xl mx-auto text-center mb-24">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold text-xs uppercase tracking-widest mb-6">
-            Impact Report 2026
-          </span>
-          <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter text-zinc-900 dark:text-white">
-            Making a <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">Difference</span> Together
+        {/* Simplified, Professional Header */}
+        <div className="border-l-4 border-orange-600 pl-8 mb-16">
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic">
+            Impact <span className="text-orange-600 not-italic uppercase">Report 2026</span>
           </h2>
-          <p className="text-zinc-500 dark:text-zinc-400 text-xl max-w-2xl mx-auto leading-relaxed">
-            Explore our interactive lessons, global worlds, and professional services. 
-            Click any item to view the official playlist.
+          <p className="text-zinc-500 dark:text-zinc-400 text-lg mt-4 max-w-2xl leading-relaxed">
+            Direct access to our training, community hubs, and essential services. 
+            All sessions are archived on our official media channels.
           </p>
         </div>
 
-        {/* Content Sections */}
-        <CategorySection title="Educational Lessons" items={lessonItems} />
-        <CategorySection title="Our Worlds" items={ourWorldItems} />
-        <CategorySection title="Specialized Services" items={otherServiceItems} />
+        {/* Modular Content Sections */}
+        <div className="space-y-16">
+          <CategorySection title="Educational Framework" items={lessonItems} />
+          <CategorySection title="Operational Worlds" items={ourWorldItems} />
+          <CategorySection title="Specialized Foundations" items={otherServiceItems} />
+        </div>
       </div>
     </section>
   );
