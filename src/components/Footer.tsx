@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import logo from "../assets/ourflamelogo.png";
 
-const UnifiedFooter = () => {
+const footer = () => {
   const currentYear = new Date().getFullYear();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
