@@ -7,9 +7,31 @@ import logo from "../assets/ourflamelogo.png";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [isDarkMode, setIsDarkMode] = useState(false); // Default to Light Mode
   const navigate = useNavigate();
+  
+  // Initialize theme from localStorage or system preference
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("theme");
+      if (saved) return saved === "dark";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
+  });
 
+  // Sync Theme with HTML class and LocalStorage
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
+
+  // Auth State Listener
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -24,6 +46,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    setIsOpen(false);
     navigate("/");
   };
 
@@ -34,129 +57,173 @@ const Navbar = () => {
     { name: "Contact", href: "#contact" },
   ];
 
-  // Dynamic Class logic
-  const navBg = isDarkMode ? "bg-[#0a0a0a] border-white/10" : "bg-white/90 border-black/5";
-  const textColor = isDarkMode ? "text-white" : "text-black";
-  const linkColor = isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-black";
-
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-md transition-colors duration-300 ${navBg} ${textColor}`}>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 dark:bg-background/90 backdrop-blur-md border-b border-border transition-all duration-300">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
             <div className="relative">
               <img 
                 src={logo} 
-                alt="Our Flame Foundation Logo" 
+                alt="Our Flame Logo" 
                 className="w-10 h-10 object-contain animate-flicker" 
               />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
-            <span className="font-display font-bold text-xl flame-text">
+            <span className="font-display font-bold text-xl flame-text hidden sm:block">
               Our Flame Foundation
             </span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className={`transition-colors font-medium ${linkColor}`}
-              >
-                {link.name}
-              </a>
-            ))}
+            <div className="flex items-center gap-8 mr-4">
+              {navLinks.map((link) => (
+                <a 
+                  key={link.name} 
+                  href={link.href} 
+                  className="text-sm font-medium text-muted-foreground hover:text-flame-orange transition-colors"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
 
-            <div className="h-6 w-[1px] bg-gray-300/30 mx-2" />
-            
-            {/* Theme Toggle Button */}
+            {/* Theme Toggle */}
             <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-2 rounded-full transition-all ${isDarkMode ? 'bg-white/10 text-yellow-400' : 'bg-black/5 text-gray-600'}`}
+              onClick={() => setIsDark(!isDark)}
+              className="p-2.5 rounded-xl bg-muted hover:bg-accent transition-all duration-300 border border-border group"
               aria-label="Toggle Theme"
             >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDark ? (
+                <Sun className="w-4 h-4 text-yellow-500 group-hover:rotate-45 transition-transform" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-700 group-hover:-rotate-12 transition-transform" />
+              )}
             </button>
-            
+
+            <div className="h-6 w-px bg-border mx-2" />
+
+            {/* Auth Actions */}
             {user ? (
               <div className="flex items-center gap-4">
-                <Link 
-                  to="/profile" 
-                  className={`flex items-center gap-2 transition-colors font-medium hover:text-flame-orange ${textColor}`}
-                >
-                  {user.user_metadata?.avatar_url ? (
-                    <img src={user.user_metadata.avatar_url} className="w-8 h-8 rounded-full border border-flame-orange" alt="profile" />
-                  ) : (
-                    <User className="w-5 h-5" />
-                  )}
-                  <span>{user.user_metadata?.full_name?.split(' ')[0] || 'Profile'}</span>
+                <Link to="/profile" className="flex items-center gap-2 group">
+                  <div className="w-8 h-8 rounded-full bg-flame-orange/10 flex items-center justify-center border border-flame-orange/20 overflow-hidden">
+                    {user.user_metadata?.avatar_url ? (
+                      <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-4 h-4 text-flame-orange" />
+                    )}
+                  </div>
+                  <span className="text-sm font-medium hidden lg:block">
+                    {user.user_metadata?.full_name?.split(' ')[0] || 'Profile'}
+                  </span>
                 </Link>
-                <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors">
+                <button 
+                  onClick={handleLogout} 
+                  className="text-muted-foreground hover:text-destructive transition-colors"
+                  title="Logout"
+                >
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
             ) : (
-              <Link to="/login" className={`hover:text-flame-orange transition-colors font-medium flex items-center gap-2 ${textColor}`}>
+              <Link 
+                to="/login" 
+                className="text-sm font-semibold hover:text-flame-orange transition-colors flex items-center gap-2"
+              >
                 <User className="w-4 h-4" />
                 Sign In
               </Link>
             )}
 
-            <a href="#contact" className="flame-gradient px-6 py-2.5 rounded-full font-semibold text-white hover:opacity-90 transition-opacity">
+            <a 
+              href="#contact" 
+              className="flame-gradient px-6 py-2.5 rounded-full font-bold text-white shadow-lg shadow-flame-orange/20 hover:scale-105 active:scale-95 transition-all"
+            >
               Get Involved
             </a>
           </div>
 
-          {/* Mobile Actions */}
-          <div className="flex items-center gap-4 md:hidden">
-            <button 
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 rounded-full"
+          {/* Mobile Menu Actions */}
+          <div className="flex items-center gap-3 md:hidden">
+             <button 
+              onClick={() => setIsDark(!isDark)}
+              className="p-2 rounded-lg bg-muted border border-border"
             >
-              {isDarkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5" />}
+              {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-700" />}
             </button>
-            <button className={textColor} onClick={() => setIsOpen(!isOpen)}>
+            <button 
+              className="p-2 text-foreground" 
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Menu"
+            >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className={`md:hidden fixed top-20 left-0 w-full h-[calc(100vh-5rem)] animate-fade-in border-t ${navBg}`}>
-          <div className="flex flex-col gap-6 px-6 py-10">
-            {navLinks.map((link) => (
-              <a key={link.name} href={link.href} className={`text-lg ${linkColor}`} onClick={() => setIsOpen(false)}>
-                {link.name}
-              </a>
-            ))}
-            <hr className={isDarkMode ? "border-white/10" : "border-black/5"} />
-            
-            {user ? (
-              <>
-                <Link to="/profile" className={`text-lg font-medium flex items-center gap-3 ${textColor}`} onClick={() => setIsOpen(false)}>
+      {/* Mobile Sidebar */}
+      <div className={`
+        md:hidden fixed inset-0 top-20 bg-background/95 backdrop-blur-xl transition-all duration-300 z-40
+        ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"}
+      `}>
+        <div className="flex flex-col gap-6 p-8">
+          {navLinks.map((link) => (
+            <a 
+              key={link.name} 
+              href={link.href} 
+              className="text-2xl font-bold hover:text-flame-orange transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              {link.name}
+            </a>
+          ))}
+          <hr className="border-border" />
+          
+          {user ? (
+            <div className="space-y-6">
+              <Link 
+                to="/profile" 
+                className="flex items-center gap-4 text-xl font-medium" 
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="w-10 h-10 rounded-full bg-flame-orange/20 flex items-center justify-center">
                   <User className="w-6 h-6 text-flame-orange" />
-                  My Profile
-                </Link>
-                <button onClick={handleLogout} className="text-lg font-medium text-left flex items-center gap-3 text-red-500">
-                  <LogOut className="w-6 h-6" />
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className={`text-lg font-medium flex items-center gap-2 ${textColor}`} onClick={() => setIsOpen(false)}>
-                <User className="w-5 h-5 text-flame-orange" />
-                Sign In / Register
+                </div>
+                My Profile
               </Link>
-            )}
-          </div>
+              <button 
+                onClick={handleLogout} 
+                className="w-full py-4 rounded-2xl bg-destructive/10 text-destructive font-bold text-lg flex items-center justify-center gap-3"
+              >
+                <LogOut className="w-6 h-6" />
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link 
+              to="/login" 
+              className="w-full py-4 rounded-2xl bg-muted text-foreground font-bold text-lg flex items-center justify-center gap-3"
+              onClick={() => setIsOpen(false)}
+            >
+              <User className="w-6 h-6 text-flame-orange" />
+              Sign In / Register
+            </Link>
+          )}
+          
+          <a 
+            href="#contact" 
+            onClick={() => setIsOpen(false)}
+            className="flame-gradient w-full py-4 rounded-2xl text-white font-bold text-center text-lg shadow-xl shadow-flame-orange/20"
+          >
+            Get Involved
+          </a>
         </div>
-      )}
+      </div>
     </nav>
   );
 };
