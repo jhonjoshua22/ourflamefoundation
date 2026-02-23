@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import logo from "../assets/ourflamelogo.png";
 
-const Footer = () => {
+const UnifiedFooter = () => {
   const currentYear = new Date().getFullYear();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
@@ -36,152 +36,106 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-zinc-950 text-zinc-300 pt-24 pb-12 border-t border-zinc-900">
+    <footer className="bg-black text-zinc-300 pt-24 pb-12 border-t border-zinc-900">
       <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Top Section: Brand & Contact Form */}
-        <div className="grid lg:grid-cols-12 gap-16 mb-24">
+        {/* Main Footer Content */}
+        <div className="grid lg:grid-cols-12 gap-16 mb-24 items-start">
           
-          {/* Brand & Mission (5 Columns) */}
-          <div className="lg:col-span-5 space-y-8">
-            <div className="flex flex-col gap-6">
-              <div className="flex items-center gap-4">
-                <img src={logo} alt="Our Flame Logo" className="w-16 h-16 object-contain" />
-                <h2 className="text-3xl font-bold tracking-tighter text-white uppercase italic">
-                  Our <span className="text-orange-600">Flame</span> Foundation
+          {/* COLUMN 1: GIANT LOGO & BRAND (4 Cols) */}
+          <div className="lg:col-span-4 space-y-10">
+            <div className="flex flex-col gap-8">
+              {/* LARGE LOGO */}
+              <img 
+                src={logo} 
+                alt="Our Flame Logo" 
+                className="w-32 h-32 md:w-40 md:h-40 object-contain brightness-110 drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]" 
+              />
+              <div>
+                <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
+                  Our <span className="text-orange-600">Flame</span> <br /> 
+                  <span className="text-2xl not-italic font-light tracking-[0.2em]">Foundation</span>
                 </h2>
+                <div className="h-1 w-20 bg-orange-600 mt-4" />
               </div>
-              <p className="text-zinc-400 text-lg leading-relaxed max-w-md">
+              
+              <p className="text-zinc-500 text-sm leading-relaxed max-w-xs">
                 A global incubator dedicated to reducing operational complexity for families. 
-                Fusing AI, blockchain, and expert human support to empower communities.
+                Fusing AI, blockchain, and expert human support.
               </p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-start gap-4 group">
-                <div className="p-3 bg-zinc-900 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase tracking-widest">Global Locations</h4>
-                  <p className="text-zinc-500 text-sm">UK, Philippines, India, Pakistan, Bangladesh, Georgia & more.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 group">
-                <div className="p-3 bg-zinc-900 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                  <Phone size={20} />
-                </div>
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase tracking-widest">24/7 Support</h4>
-                  <p className="text-zinc-500 text-sm">+44 7762 293742 (Please leave a message)</p>
-                </div>
-              </div>
             </div>
 
             <div className="flex gap-4">
               {socialLinks.map((social, i) => (
                 <a key={i} href={social.href} target="_blank" rel="noreferrer" 
-                   className="w-10 h-10 flex items-center justify-center bg-zinc-900 hover:bg-orange-600 text-zinc-400 hover:text-white transition-all">
+                   className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-orange-600 text-zinc-500 hover:text-white transition-all">
                   <social.icon size={18} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Contact Form (7 Columns) */}
-          <div className="lg:col-span-7 bg-zinc-900/50 border border-zinc-800 p-8 md:p-12 relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/5 blur-[80px] -z-10" />
-            <h3 className="text-2xl font-bold text-white mb-8 uppercase tracking-tight">
-              Get In <span className="text-orange-600 italic">Touch</span>
-            </h3>
-            
-            <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Full Name</label>
-                <input 
-                  type="text" required placeholder="John Doe"
-                  className="w-full bg-zinc-800 border-zinc-700 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-600"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Email Address</label>
-                <input 
-                  type="email" required placeholder="john@example.com"
-                  className="w-full bg-zinc-800 border-zinc-700 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-600"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                />
-              </div>
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Message</label>
-                <textarea 
-                  required rows={4} placeholder="How can we help or how would you like to get involved?"
-                  className="w-full bg-zinc-800 border-zinc-700 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-600 resize-none"
-                  value={formData.message}
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
-                />
-              </div>
-              <button type="submit" className="md:col-span-2 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.2em] py-5 px-8 flex items-center justify-center gap-3 transition-all active:scale-[0.98]">
-                Send Message <Send size={18} />
+          {/* COLUMN 2: CONTACT FORM (5 Cols) */}
+          <div className="lg:col-span-5 bg-zinc-900/30 p-8 md:p-10 border border-zinc-900">
+            <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.4em] mb-8">Contact Us</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input 
+                type="text" required placeholder="Full Name"
+                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+              />
+              <input 
+                type="email" required placeholder="Email Address"
+                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+              />
+              <textarea 
+                required rows={3} placeholder="Your Message"
+                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm resize-none"
+                value={formData.message}
+                onChange={(e) => setFormData({...formData, message: e.target.value})}
+              />
+              <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.2em] py-4 text-xs flex items-center justify-center gap-3 transition-all">
+                Submit <Send size={14} />
               </button>
             </form>
           </div>
+
+          {/* COLUMN 3: DIRECTORY (3 Cols) */}
+          <div className="lg:col-span-3 space-y-12 lg:pl-10">
+            <div className="space-y-4">
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Resources</h4>
+              <div className="flex flex-col gap-3">
+                {resources.map((link, i) => (
+                  <a key={i} href={link.href} className="text-[13px] text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
+                    {link.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Foundation Support</h4>
+              <div className="flex flex-col gap-3 text-[13px] text-zinc-500">
+                <p className="flex items-center gap-2"><MapPin size={14} className="text-orange-600"/> UK, PH, IN, PK, BD, GE</p>
+                <p className="flex items-center gap-2"><Phone size={14} className="text-orange-600"/> +44 7762 293742</p>
+                <p className="flex items-center gap-2"><Mail size={14} className="text-orange-600"/> mflynn1999@gmail.com</p>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* Middle Section: Directory Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-t border-zinc-900">
-          <div className="space-y-4">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest">Resources</h4>
-            <div className="flex flex-col gap-3">
-              {resources.slice(0, 3).map((link, i) => (
-                <a key={i} href={link.href} className="text-sm text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
-                  <link.icon size={12}/> {link.name}
-                </a>
-              ))}
-            </div>
+        {/* Bottom Legal Bar */}
+        <div className="pt-10 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex gap-6">
+            <a href="/terms" className="text-[10px] uppercase font-bold text-zinc-600 hover:text-zinc-400">Terms</a>
+            <a href="/privacy" className="text-[10px] uppercase font-bold text-zinc-600 hover:text-zinc-400">Privacy</a>
           </div>
-          <div className="space-y-4 pt-8 md:pt-0">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest invisible hidden md:block">&nbsp;</h4>
-            <div className="flex flex-col gap-3">
-              {resources.slice(3).map((link, i) => (
-                <a key={i} href={link.href} className="text-sm text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
-                  <link.icon size={12}/> {link.name}
-                </a>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest">Legal</h4>
-            <div className="flex flex-col gap-3">
-              <a href="https://ourflamefoundation.vercel.app/terms" className="text-sm text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
-                <ScrollText size={12}/> Terms of Service
-              </a>
-              <a href="https://ourflamefoundation.vercel.app/privacy" className="text-sm text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
-                <Shield size={12}/> Privacy Policy
-              </a>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h4 className="text-white font-black text-xs uppercase tracking-widest">Reach Us</h4>
-            <div className="flex flex-col gap-3">
-              <a href="mailto:mflynn1999@gmail.com" className="text-sm text-zinc-500 hover:text-orange-600 transition-colors truncate">
-                mflynn1999@gmail.com
-              </a>
-              <span className="text-sm text-zinc-500">+44 7762 293742</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="pt-12 mt-12 border-t border-zinc-900 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">
-            &copy; {currentYear} <span className="text-zinc-400">Our Flame Foundation</span>. All rights reserved.
-          </p>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-orange-600 animate-pulse">
-            Improving lives via expert support & modern tools
+          <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.2em]">
+            &copy; {currentYear} Our Flame Foundation
           </p>
         </div>
       </div>
@@ -189,4 +143,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default UnifiedFooter;
