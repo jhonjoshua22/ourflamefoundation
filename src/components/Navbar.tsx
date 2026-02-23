@@ -58,7 +58,7 @@ const Navbar = () => {
           {/* Logo & Brand - Sharp/Italic Style */}
           <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => setIsOpen(false)}>
             <div className="relative">
-              <img src={logo} alt="Logo" className="w-18 h-18 object-contain" />
+              <img src={logo} alt="Logo" className="w-17 h-17 object-contain" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
             <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
