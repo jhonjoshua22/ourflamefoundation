@@ -55,10 +55,10 @@ const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo & Brand - Using New Italic Title Style */}
+          {/* Logo & Brand - Sharp/Italic Style */}
           <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => setIsOpen(false)}>
             <div className="relative">
-              <img src={logo} alt="Logo" className="w-10 h-10 object-contain animate-flicker" />
+              <img src={logo} alt="Logo" className="w-10 h-10 object-contain" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
             <span className="font-black text-xl tracking-tighter uppercase italic hidden sm:block">
@@ -85,16 +85,12 @@ const Navbar = () => {
               onClick={() => setIsDark(!isDark)}
               className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all rounded-none"
             >
-              {isDark ? (
-                <Sun className="w-4 h-4 text-yellow-500" />
-              ) : (
-                <Moon className="w-4 h-4 text-gray-400" />
-              )}
+              {isDark ? <Sun className="w-4 h-4 text-yellow-500" /> : <Moon className="w-4 h-4 text-gray-400" />}
             </button>
 
             <div className="h-6 w-px bg-white/10 mx-2" />
 
-            {/* Auth State - Restored Sign In Button */}
+            {/* Auth State - Sign In Button Restored */}
             {user ? (
               <div className="flex items-center gap-4">
                 <Link to="/profile" className="flex items-center gap-2 group">
@@ -115,9 +111,9 @@ const Navbar = () => {
               </Link>
             )}
 
-            {/* ACTION BUTTON - Anchors to Footer Section */}
+            {/* UPDATED: DIRECTS TO #FOOTER */}
             <a 
-              href="#contact" 
+              href="#footer" 
               className="bg-orange-600 px-6 py-2.5 rounded-none font-black text-[10px] uppercase tracking-[0.2em] text-white hover:bg-orange-500 transition-all active:scale-95"
             >
               Get In Touch
@@ -126,16 +122,10 @@ const Navbar = () => {
 
           {/* MOBILE TOGGLES */}
           <div className="flex items-center gap-3 md:hidden">
-            <button 
-              onClick={() => setIsDark(!isDark)} 
-              className="p-2 text-white bg-white/5 rounded-none border border-white/10"
-            >
+            <button onClick={() => setIsDark(!isDark)} className="p-2 text-white bg-white/5 rounded-none border border-white/10">
               {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-gray-400" />}
             </button>
-            <button 
-              className="p-2 text-white bg-white/5 rounded-none border border-white/10" 
-              onClick={() => setIsOpen(!isOpen)}
-            >
+            <button className="p-2 text-white bg-white/5 rounded-none border border-white/10" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -143,59 +133,33 @@ const Navbar = () => {
       </div>
 
       {/* MOBILE MENU */}
-      <div className={`
-        md:hidden fixed inset-x-0 bottom-0 top-20 z-[99] 
-        bg-[#0a0a0a] border-t border-white/10
-        transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "translate-x-full"}
-      `}>
+      <div className={`md:hidden fixed inset-x-0 bottom-0 top-20 z-[99] bg-[#0a0a0a] border-t border-white/10 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex flex-col h-full p-8 space-y-8">
           <div className="flex flex-col gap-6">
             {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className="text-2xl font-black uppercase italic tracking-tighter text-white hover:text-orange-600 transition-colors border-b border-white/5 pb-2"
-                onClick={() => setIsOpen(false)}
-              >
+              <a key={link.name} href={link.href} className="text-2xl font-black uppercase italic tracking-tighter text-white hover:text-orange-600 transition-colors border-b border-white/5 pb-2" onClick={() => setIsOpen(false)}>
                 {link.name}
               </a>
             ))}
           </div>
-          
           <div className="mt-auto space-y-4 pb-12">
             {user ? (
               <>
-                <Link 
-                  to="/profile" 
-                  className="flex items-center justify-center gap-3 w-full py-4 rounded-none bg-white/5 text-white font-black uppercase tracking-widest border border-white/10"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <User className="w-5 h-5 text-orange-600" />
-                  My Profile
+                <Link to="/profile" className="flex items-center justify-center gap-3 w-full py-4 rounded-none bg-white/5 text-white font-black uppercase border border-white/10" onClick={() => setIsOpen(false)}>
+                  <User className="w-5 h-5 text-orange-600" /> Profile
                 </Link>
-                <button 
-                  onClick={handleLogout} 
-                  className="w-full py-4 rounded-none bg-red-500/10 text-red-500 font-black uppercase tracking-widest border border-red-500/20"
-                >
+                <button onClick={handleLogout} className="w-full py-4 rounded-none bg-red-500/10 text-red-500 font-black uppercase border border-red-500/20">
                   Sign Out
                 </button>
               </>
             ) : (
-              <Link 
-                to="/login" 
-                className="flex items-center justify-center gap-3 w-full py-4 rounded-none bg-white/5 text-white font-black uppercase tracking-widest border border-white/10"
-                onClick={() => setIsOpen(false)}
-              >
+              <Link to="/login" className="flex items-center justify-center gap-3 w-full py-4 rounded-none bg-white/5 text-white font-black uppercase border border-white/10" onClick={() => setIsOpen(false)}>
                 Sign In / Register
               </Link>
             )}
             
-            <a 
-              href="#contact" 
-              onClick={() => setIsOpen(false)}
-              className="bg-orange-600 block w-full py-5 rounded-none text-white font-black text-center text-sm uppercase tracking-[0.2em]"
-            >
+            {/* MOBILE UPDATED TO #FOOTER */}
+            <a href="#footer" onClick={() => setIsOpen(false)} className="bg-orange-600 block w-full py-5 rounded-none text-white font-black text-center text-sm uppercase tracking-[0.2em]">
               Get In Touch
             </a>
           </div>
