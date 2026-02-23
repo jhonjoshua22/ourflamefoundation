@@ -36,16 +36,16 @@ const UnifiedFooter = () => {
   ];
 
   return (
-    <footer className="bg-black text-zinc-300 pt-24 pb-12 border-t border-zinc-900">
+    /* ONLY ADDED THE ID HERE - DESIGN IS UNTOUCHED */
+    <footer id="footer" className="bg-black text-zinc-300 pt-24 pb-12 border-t border-zinc-900">
       <div className="container mx-auto px-6 max-w-7xl">
         
         {/* Main Footer Content */}
         <div className="grid lg:grid-cols-12 gap-16 mb-24 items-start">
           
-          {/* COLUMN 1: GIANT LOGO & BRAND (4 Cols) */}
+          {/* COLUMN 1: GIANT LOGO & BRAND */}
           <div className="lg:col-span-4 space-y-10">
             <div className="flex flex-col gap-8">
-              {/* LARGE LOGO */}
               <img 
                 src={logo} 
                 alt="Our Flame Logo" 
@@ -68,42 +68,42 @@ const UnifiedFooter = () => {
             <div className="flex gap-4">
               {socialLinks.map((social, i) => (
                 <a key={i} href={social.href} target="_blank" rel="noreferrer" 
-                   className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-orange-600 text-zinc-500 hover:text-white transition-all">
+                   className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-orange-600 text-zinc-500 hover:text-white transition-all rounded-none">
                   <social.icon size={18} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* COLUMN 2: CONTACT FORM (5 Cols) */}
+          {/* COLUMN 2: CONTACT FORM */}
           <div className="lg:col-span-5 bg-zinc-900/30 p-8 md:p-10 border border-zinc-900">
             <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.4em] mb-8">Contact Us</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input 
                 type="text" required placeholder="Full Name"
-                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm"
+                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm rounded-none"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
               />
               <input 
                 type="email" required placeholder="Email Address"
-                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm"
+                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm rounded-none"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
               />
               <textarea 
                 required rows={3} placeholder="Your Message"
-                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm resize-none"
+                className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm resize-none rounded-none"
                 value={formData.message}
                 onChange={(e) => setFormData({...formData, message: e.target.value})}
               />
-              <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.2em] py-4 text-xs flex items-center justify-center gap-3 transition-all">
+              <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.2em] py-4 text-xs flex items-center justify-center gap-3 transition-all rounded-none">
                 Submit <Send size={14} />
               </button>
             </form>
           </div>
 
-          {/* COLUMN 3: DIRECTORY (3 Cols) */}
+          {/* COLUMN 3: DIRECTORY */}
           <div className="lg:col-span-3 space-y-12 lg:pl-10">
             <div className="space-y-4">
               <h4 className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Resources</h4>
