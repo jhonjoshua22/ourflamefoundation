@@ -9,17 +9,17 @@ const Navbar = () => {
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   
-  // Initialize theme from localStorage or system preference
+  // 1. INITIALIZE THEME: Strictly default to Light Mode (false)
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("theme");
-      if (saved) return saved === "dark";
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      // Only returns true if user explicitly saved 'dark' before
+      return saved === "dark" ? true : false;
     }
-    return false;
+    return false; 
   });
 
-  // Sync Theme with HTML class and LocalStorage
+  // 2. SYNC THEME: Apply .dark class to the HTML tag
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
@@ -31,7 +31,7 @@ const Navbar = () => {
     }
   }, [isDark]);
 
-  // Auth State Listener
+  // 3. AUTH LISTENER: Check Supabase session
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -58,7 +58,9 @@ const Navbar = () => {
   ];
 
   return (
-    /* LOCKED to bg-[#0a0a0a] and text-white */
+    /* NAVBAR STYLING: 
+       Locked to Black (#0a0a0a) so it remains consistent regardless of Light/Dark mode.
+    */
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a] text-white border-b border-white/10 backdrop-blur-md transition-all duration-300">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
@@ -92,7 +94,7 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle Button */}
             <button 
               onClick={() => setIsDark(!isDark)}
               className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
@@ -159,7 +161,6 @@ const Navbar = () => {
             <button 
               className="p-2 text-white" 
               onClick={() => setIsOpen(!isOpen)}
-              aria-label="Menu"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -167,9 +168,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar - Locked Black */}
+      {/* Mobile Sidebar - Also Locked to Black */}
       <div className={`
-        md:hidden fixed inset-0 top-20 bg-[#0a0a0a] backdrop-blur-xl transition-all duration-300 z-40
+        md:hidden fixed inset-0 top-20 bg-[#0a0a0a] transition-all duration-300 z-40
         ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"}
       `}>
         <div className="flex flex-col gap-6 p-8">
@@ -177,7 +178,7 @@ const Navbar = () => {
             <a 
               key={link.name} 
               href={link.href} 
-              className="text-2xl font-bold text-white hover:text-flame-orange transition-colors"
+              className="text-2xl font-bold text-white hover:text-flame-orange"
               onClick={() => setIsOpen(false)}
             >
               {link.name}
@@ -192,34 +193,30 @@ const Navbar = () => {
                 className="flex items-center gap-4 text-xl font-medium text-white" 
                 onClick={() => setIsOpen(false)}
               >
-                <div className="w-10 h-10 rounded-full bg-flame-orange/20 flex items-center justify-center">
-                  <User className="w-6 h-6 text-flame-orange" />
-                </div>
+                <User className="w-6 h-6 text-flame-orange" />
                 My Profile
               </Link>
               <button 
                 onClick={handleLogout} 
-                className="w-full py-4 rounded-2xl bg-red-500/10 text-red-500 font-bold text-lg flex items-center justify-center gap-3"
+                className="w-full py-4 rounded-2xl bg-red-500/10 text-red-500 font-bold text-lg"
               >
-                <LogOut className="w-6 h-6" />
                 Sign Out
               </button>
             </div>
           ) : (
             <Link 
               to="/login" 
-              className="w-full py-4 rounded-2xl bg-white/5 text-white font-bold text-lg flex items-center justify-center gap-3"
+              className="w-full py-4 rounded-2xl bg-white/5 text-white font-bold text-lg text-center"
               onClick={() => setIsOpen(false)}
             >
-              <User className="w-6 h-6 text-flame-orange" />
-              Sign In / Register
+              Sign In
             </Link>
           )}
           
           <a 
             href="#contact" 
             onClick={() => setIsOpen(false)}
-            className="flame-gradient w-full py-4 rounded-2xl text-white font-bold text-center text-lg shadow-xl shadow-flame-orange/20"
+            className="flame-gradient w-full py-4 rounded-2xl text-white font-bold text-center text-lg"
           >
             Get Involved
           </a>
