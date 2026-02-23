@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, PlayCircle, ExternalLink } from "lucide-react";
 
 // --- ASSET IMPORTS ---
 import community1 from "@/assets/jobs.png";
@@ -55,7 +55,7 @@ const otherServiceItems = [
   { image: emeka, title: "EMEKA'S PRODUCTS", description: "Live daily every 6:15GMT" },
   { image: moyasis, title: "MOYASIS' PRODUCTS", description: "Live daily every 6:15GMT" },
   { image: homecare, title: "HOME CARE", description: "Live every Saturday 11:00 EMEA" },
-  { image: aitraining, title: "AI TRAINING", description: "Live every Frifday 11:00 EMEA" },
+  { image: aitraining, title: "AI TRAINING", description: "Live every Friday 11:00 EMEA" },
 ];
 
 const ourWorldItems = [
@@ -69,50 +69,57 @@ const ourWorldItems = [
 
 // --- COMPONENTS ---
 
-const ItemCard = ({ item }: { item: any }) => (
+const ItemCard = ({ item }) => (
   <a 
     href={YOUTUBE_LINK} 
     target="_blank" 
     rel="noopener noreferrer"
-    className="group relative block overflow-hidden rounded-2xl border bg-background card-hover"
+    className="group flex flex-col bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-100 dark:border-zinc-800 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
   >
-    <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+    {/* Image Container */}
+    <div className="relative aspect-video w-full overflow-hidden bg-zinc-100">
       <img
         src={item.image}
         alt={item.title}
-        className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105"
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
       />
+      {/* Play Overlay */}
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+        <div className="bg-white/90 p-3 rounded-full shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
+          <PlayCircle className="text-orange-600 w-8 h-8" />
+        </div>
+      </div>
     </div>
 
-    {/* Overlay Details on Hover */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    
-    <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-      <h3 className="font-display text-xl font-bold mb-2 text-white">
-        {item.title}
-      </h3>
-      <p className="text-gray-200 text-sm">
+    {/* Content Area */}
+    <div className="p-5 flex flex-col flex-grow">
+      <div className="flex justify-between items-start gap-2 mb-2">
+        <h3 className="font-bold text-zinc-900 dark:text-zinc-100 leading-tight group-hover:text-orange-600 transition-colors">
+          {item.title}
+        </h3>
+        <ExternalLink size={14} className="text-zinc-400 group-hover:text-orange-400 shrink-0" />
+      </div>
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium mt-auto">
         {item.description}
       </p>
-    </div>
-
-    {/* Static Label (Hides on Hover) */}
-    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent group-hover:opacity-0 transition-opacity duration-300">
-      <h3 className="font-display text-lg font-bold text-white">{item.title}</h3>
     </div>
   </a>
 );
 
-const CategorySection = ({ title, items }: { title: string, items: any[] }) => {
+const CategorySection = ({ title, items }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const displayItems = isExpanded ? items : items.slice(0, 3);
 
   return (
-    <div className="mb-20">
-      <h3 className="text-2xl font-bold mb-8 text-flame-orange border-l-4 border-flame-orange pl-4">
-        {title}
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+    <div className="mb-24 last:mb-0">
+      <div className="flex items-center gap-4 mb-10">
+        <h3 className="text-sm font-black tracking-[0.2em] uppercase text-orange-600 whitespace-nowrap">
+          {title}
+        </h3>
+        <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {displayItems.map((item, index) => (
           <ItemCard key={`${title}-${index}`} item={item} />
         ))}
@@ -122,12 +129,12 @@ const CategorySection = ({ title, items }: { title: string, items: any[] }) => {
         <div className="mt-12 flex justify-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 px-8 py-3 bg-flame-orange text-white rounded-full font-bold hover:bg-orange-600 transition-all shadow-lg active:scale-95"
+            className="flex items-center gap-3 px-8 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-full font-bold text-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all shadow-sm active:scale-95"
           >
             {isExpanded ? (
-              <>Show Less <ChevronUp size={20} /></>
+              <>Show Less <ChevronUp size={18} /></>
             ) : (
-              <>Show More <ChevronDown size={20} /></>
+              <>Browse All {items.length} <ChevronDown size={18} /></>
             )}
           </button>
         </div>
@@ -138,23 +145,26 @@ const CategorySection = ({ title, items }: { title: string, items: any[] }) => {
 
 const ImpactSection = () => {
   return (
-    <section id="impact" className="py-24 bg-card">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <span className="inline-block text-flame-orange font-semibold uppercase tracking-wider text-sm mb-4">
-            Our Hot topics 2026
+    <section id="impact" className="py-24 bg-zinc-50/50 dark:bg-black">
+      <div className="container mx-auto px-6 max-w-7xl">
+        {/* Modern Header */}
+        <div className="max-w-4xl mx-auto text-center mb-24">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold text-xs uppercase tracking-widest mb-6">
+            Impact Report 2026
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-            Making a <span className="flame-text">Difference</span> Together
+          <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter text-zinc-900 dark:text-white">
+            Making a <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">Difference</span> Together
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Explore our lessons, worlds and other services. Click any item to view our playlists.
+          <p className="text-zinc-500 dark:text-zinc-400 text-xl max-w-2xl mx-auto leading-relaxed">
+            Explore our interactive lessons, global worlds, and professional services. 
+            Click any item to view the official playlist.
           </p>
         </div>
 
-        <CategorySection title="Lessons" items={lessonItems} />
+        {/* Content Sections */}
+        <CategorySection title="Educational Lessons" items={lessonItems} />
         <CategorySection title="Our Worlds" items={ourWorldItems} />
-        <CategorySection title="Other Services" items={otherServiceItems} />
+        <CategorySection title="Specialized Services" items={otherServiceItems} />
       </div>
     </section>
   );
