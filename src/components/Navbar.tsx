@@ -62,7 +62,7 @@ const Navbar = () => {
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
             <span className="font-black text-xl tracking-tighter uppercase italic hidden sm:block">
-              Our <span className="text-orange-600 not-italic uppercase">Flame</span> Foundation
+              Our Flame<span className="text-orange-600 not-italic uppercase"> Foundation
             </span>
           </Link>
 
