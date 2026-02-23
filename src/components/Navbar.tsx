@@ -61,9 +61,10 @@ const Navbar = () => {
               <img src={logo} alt="Logo" className="w-10 h-10 object-contain" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
-            <span className="font-black text-xl tracking-tighter uppercase italic hidden sm:block">
-              Our Flame<span className="text-orange-600 not-italic uppercase"> Foundation
-            </span>
+            <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
+              Our <span className="text-orange-600">Flame</span> <br /> 
+              <span className="text-2xl not-italic font-light tracking-[0.2em]">Foundation</span>
+            </h2>
           </Link>
 
           {/* DESKTOP NAVIGATION */}
