@@ -58,7 +58,8 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 dark:bg-background/90 backdrop-blur-md border-b border-border transition-all duration-300">
+    /* LOCKED to bg-[#0a0a0a] and text-white */
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a] text-white border-b border-white/10 backdrop-blur-md transition-all duration-300">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           
@@ -84,7 +85,7 @@ const Navbar = () => {
                 <a 
                   key={link.name} 
                   href={link.href} 
-                  className="text-sm font-medium text-muted-foreground hover:text-flame-orange transition-colors"
+                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
                 >
                   {link.name}
                 </a>
@@ -94,17 +95,17 @@ const Navbar = () => {
             {/* Theme Toggle */}
             <button 
               onClick={() => setIsDark(!isDark)}
-              className="p-2.5 rounded-xl bg-muted hover:bg-accent transition-all duration-300 border border-border group"
+              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 group"
               aria-label="Toggle Theme"
             >
               {isDark ? (
                 <Sun className="w-4 h-4 text-yellow-500 group-hover:rotate-45 transition-transform" />
               ) : (
-                <Moon className="w-4 h-4 text-slate-700 group-hover:-rotate-12 transition-transform" />
+                <Moon className="w-4 h-4 text-gray-400 group-hover:-rotate-12 transition-transform" />
               )}
             </button>
 
-            <div className="h-6 w-px bg-border mx-2" />
+            <div className="h-6 w-px bg-white/10 mx-2" />
 
             {/* Auth Actions */}
             {user ? (
@@ -117,13 +118,13 @@ const Navbar = () => {
                       <User className="w-4 h-4 text-flame-orange" />
                     )}
                   </div>
-                  <span className="text-sm font-medium hidden lg:block">
+                  <span className="text-sm font-medium hidden lg:block text-white">
                     {user.user_metadata?.full_name?.split(' ')[0] || 'Profile'}
                   </span>
                 </Link>
                 <button 
                   onClick={handleLogout} 
-                  className="text-muted-foreground hover:text-destructive transition-colors"
+                  className="text-gray-400 hover:text-red-500 transition-colors"
                   title="Logout"
                 >
                   <LogOut className="w-5 h-5" />
@@ -132,7 +133,7 @@ const Navbar = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="text-sm font-semibold hover:text-flame-orange transition-colors flex items-center gap-2"
+                className="text-sm font-semibold text-white hover:text-flame-orange transition-colors flex items-center gap-2"
               >
                 <User className="w-4 h-4" />
                 Sign In
@@ -151,12 +152,12 @@ const Navbar = () => {
           <div className="flex items-center gap-3 md:hidden">
              <button 
               onClick={() => setIsDark(!isDark)}
-              className="p-2 rounded-lg bg-muted border border-border"
+              className="p-2 rounded-lg bg-white/5 border border-white/10"
             >
-              {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-700" />}
+              {isDark ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-gray-400" />}
             </button>
             <button 
-              className="p-2 text-foreground" 
+              className="p-2 text-white" 
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >
@@ -166,9 +167,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar - Locked Black */}
       <div className={`
-        md:hidden fixed inset-0 top-20 bg-background/95 backdrop-blur-xl transition-all duration-300 z-40
+        md:hidden fixed inset-0 top-20 bg-[#0a0a0a] backdrop-blur-xl transition-all duration-300 z-40
         ${isOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"}
       `}>
         <div className="flex flex-col gap-6 p-8">
@@ -176,19 +177,19 @@ const Navbar = () => {
             <a 
               key={link.name} 
               href={link.href} 
-              className="text-2xl font-bold hover:text-flame-orange transition-colors"
+              className="text-2xl font-bold text-white hover:text-flame-orange transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.name}
             </a>
           ))}
-          <hr className="border-border" />
+          <hr className="border-white/10" />
           
           {user ? (
             <div className="space-y-6">
               <Link 
                 to="/profile" 
-                className="flex items-center gap-4 text-xl font-medium" 
+                className="flex items-center gap-4 text-xl font-medium text-white" 
                 onClick={() => setIsOpen(false)}
               >
                 <div className="w-10 h-10 rounded-full bg-flame-orange/20 flex items-center justify-center">
@@ -198,7 +199,7 @@ const Navbar = () => {
               </Link>
               <button 
                 onClick={handleLogout} 
-                className="w-full py-4 rounded-2xl bg-destructive/10 text-destructive font-bold text-lg flex items-center justify-center gap-3"
+                className="w-full py-4 rounded-2xl bg-red-500/10 text-red-500 font-bold text-lg flex items-center justify-center gap-3"
               >
                 <LogOut className="w-6 h-6" />
                 Sign Out
@@ -207,7 +208,7 @@ const Navbar = () => {
           ) : (
             <Link 
               to="/login" 
-              className="w-full py-4 rounded-2xl bg-muted text-foreground font-bold text-lg flex items-center justify-center gap-3"
+              className="w-full py-4 rounded-2xl bg-white/5 text-white font-bold text-lg flex items-center justify-center gap-3"
               onClick={() => setIsOpen(false)}
             >
               <User className="w-6 h-6 text-flame-orange" />
