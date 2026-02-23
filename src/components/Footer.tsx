@@ -135,7 +135,7 @@ const UnifiedFooter = () => {
             <a href="/privacy" className="text-[10px] uppercase font-bold text-zinc-600 hover:text-zinc-400">Privacy</a>
           </div>
           <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.2em]">
-            &copy; {currentYear} Our Flame Foundation
+            🄯; {currentYear} Our Flame Foundation
           </p>
         </div>
       </div>
