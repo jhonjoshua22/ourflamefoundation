@@ -29,7 +29,7 @@ const HeroSection = () => {
         <div className="max-w-3xl">
           
           {/* Sharp Badge - Removed all rounding */}
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none bg-orange-600/10 border border-orange-600/30 mb-8 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none mb-8 backdrop-blur-sm">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600">
               Empowering Communities Since 2002
             </span>
