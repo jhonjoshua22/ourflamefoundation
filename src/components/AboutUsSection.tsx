@@ -1,7 +1,8 @@
 import { useState } from "react";
-// 1. Import your PDFs from the assets folder
+// 1. Import your PDFs and Docs from the assets folder
 import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
 import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
+import ScheduleDoc from "../assets/schedule.docx"; // Added Docx import
 
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
@@ -70,6 +71,7 @@ const AboutUsSection = () => {
   };
 
   const brandFiles = [
+    { name: "2026 Daily Timetable", path: ScheduleDoc, type: "docx" }, // Added Schedule
     { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
     { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
@@ -173,14 +175,16 @@ const AboutUsSection = () => {
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
               <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
                 {brandFiles.map((file) => (
-                  <a key={file.name} href={file.path} target="_blank" rel="noreferrer"
+                  <a key={file.name} href={file.path} target="_blank" rel="noreferrer" download={file.type !== 'drive'}
                      className="flex items-center gap-5 p-5 bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group">
                     <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-orange-600">
                       {file.type === 'drive' ? <FolderOpen size={18}/> : <FileText size={18}/>}
                     </div>
                     <div className="flex-1">
                       <p className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest">{file.name}</p>
-                      <p className="text-[9px] text-zinc-400 uppercase tracking-tighter mt-1">{file.type === 'drive' ? 'Cloud Assets' : 'Documentation'}</p>
+                      <p className="text-[9px] text-zinc-400 uppercase tracking-tighter mt-1">
+                        {file.type === 'drive' ? 'Cloud Assets' : file.type === 'docx' ? 'Strategic Plan' : 'Documentation'}
+                      </p>
                     </div>
                     <ExternalLink size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
                   </a>
