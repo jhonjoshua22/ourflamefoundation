@@ -5,7 +5,14 @@ const PrivacyPolicy: React.FC = () => {
   return (
     <div className="p-6 md:p-16 text-zinc-300 bg-[#020617] min-h-screen font-sans leading-relaxed">
       <div className="max-w-4xl mx-auto bg-black/40 border border-zinc-900 p-8 md:p-12 shadow-2xl">
-        
+        <div className="mb-8">
+          <a 
+            href="https://ourflamefoundation.vercel.app" 
+            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-orange-600 transition-colors"
+          >
+            ← Back to Foundation
+          </a>
+        </div>
         {/* HEADER */}
         <div className="mb-12 border-b border-zinc-800 pb-8">
           <h1 className="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tighter mb-4">
