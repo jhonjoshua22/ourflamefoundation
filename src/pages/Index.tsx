@@ -8,6 +8,7 @@ import ProcessSection from "@/components/ProcessSection";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
 import AboutUsSection from "@/components/AboutUsSection";
+import PartnerSection from "@/components/PartnerSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
 // Modern icon import (optional, can use the SVG below if not installed)
 import { Globe } from "lucide-react";
@@ -125,6 +126,7 @@ const Index = () => {
       <AboutUsSection />
       <ProcessSection />
       <Testimonials />
+      <PartnerSection />
       <Footer />
       <Chatbot />
     </div>
