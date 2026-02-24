@@ -2,11 +2,11 @@ import React from "react";
 
 // Replace these paths with your actual partner logo assets
 const partnerLogos = [
-  { id: 1, src: "/assets/google.png", alt: "Partner 1" },
-  { id: 2, src: "/assets/x.png", alt: "Partner 2" },
-  { id: 3, src: "/assets/meta.png", alt: "Partner 3" },
-  { id: 4, src: "/assets/microsoft.png", alt: "Partner 4" },
-  { id: 5, src: "/assets/nhs.png", alt: "Partner 5" },
+  { id: 1, src: "../assets/google.png", alt: "Partner 1" },
+  { id: 2, src: "../assets/x.png", alt: "Partner 2" },
+  { id: 3, src: "../assets/meta.png", alt: "Partner 3" },
+  { id: 4, src: "../assets/microsoft.png", alt: "Partner 4" },
+  { id: 5, src: "../assets/nhs.png", alt: "Partner 5" },
 ];
 
 const PartnerSection = () => {
