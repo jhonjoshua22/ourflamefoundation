@@ -65,7 +65,6 @@ const ProcessSection = () => {
             </div>
           </div>
 
-          {/* RIGHT SIDE: RANKING + PARTNERS + PRIZES */}
           <div className="bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 flex flex-col gap-10">
             {/* Personal Ranking */}
             <div>
