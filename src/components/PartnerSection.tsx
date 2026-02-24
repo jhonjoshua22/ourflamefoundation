@@ -18,7 +18,7 @@ const partnerLogos = [
 
 const PartnerSection = () => {
   return (
-    <section className="bg-background py-16 border-t border-border transition-colors duration-500">
+    <section className="bg-background py-16 transition-colors duration-500">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row gap-12 items-start">
           
