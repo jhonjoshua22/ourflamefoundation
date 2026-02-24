@@ -1,92 +1,86 @@
 import React from "react";
-import { Flame, ShieldCheck } from "lucide-react";
+import { Flame, ShieldCheck, Trophy } from "lucide-react";
 
 const ProcessSection = () => {
   const steps = [
-    {
-      number: "01",
-      title: "ONBOARDING",
-      desc: "Join your chosen session and receive your exclusive Flame merch to begin your journey with the community.",
-    },
-    {
-      number: "02",
-      title: "WEEKLY ACTIVITIES",
-      desc: "Complete improvement activities weekly. Your Flame team is dedicated to cheering you toward personal success.",
-    },
-    {
-      number: "03",
-      title: "SUCCESS REPORTING",
-      desc: "Report daily successes via video. This consistency unlocks weekly prize opportunities and community recognition.",
-    },
+    { number: "01", title: "ONBOARDING", desc: "Join your chosen session and receive your exclusive Flame merch to begin your journey." },
+    { number: "02", title: "WEEKLY ACTIVITIES", desc: "Complete improvement activities weekly. Your Flame team is dedicated to cheering you toward success." },
+    { number: "03", title: "SUCCESS REPORTING", desc: "Report daily successes via video. This consistency unlocks weekly prizes and recognition." },
   ];
 
   const rankingItems = [
     { label: ">100% Complete", rank: "Flame Flyer Rank + Bonus Prize", color: "text-orange-600" },
-    { label: "100% Complete", rank: "3 Flame Rank - Top Performer Bonus", color: "text-orange-500" },
+    { label: "100% Complete", rank: "3 Flame Rank - Top Performer", color: "text-orange-500" },
     { label: "<100% Complete", rank: "2 Flame Rank - Extra Support", color: "text-zinc-500" },
     { label: "<50% Complete", rank: "1 Flame Rank - Pivot", color: "text-zinc-400" },
+  ];
+
+  const partnerTiers = [
+    { title: "Gold Partner", status: "100% Committed", dot: "bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" },
+    { title: "Silver Partner", status: "50% Committed", dot: "bg-slate-300 shadow-[0_0_10px_rgba(203,213,225,0.5)]" },
+    { title: "Bronze Partner", status: "1% Committed", dot: "bg-amber-800 shadow-[0_0_10px_rgba(180,83,9,0.5)]" },
   ];
 
   return (
     <section id="process" className="py-24 bg-white dark:bg-black font-sans border-t border-zinc-100 dark:border-zinc-900">
       <div className="container mx-auto px-6 max-w-7xl">
-        
-        {/* Header - Minimalist & Ethical */}
         <div className="mb-20">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-zinc-900 dark:text-white uppercase italic">
             How the <span className="text-orange-600 not-italic uppercase">Foundation Works</span>
           </h2>
-          <p className="text-zinc-500 mt-4 max-w-2xl text-lg">
-            A simple three-step process designed to foster growth and ethical improvement within our global community.
-          </p>
         </div>
 
-        {/* Main Content Grid - Perfectly Aligned */}
         <div className="grid lg:grid-cols-2 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
-          
-          {/* LEFT SIDE: THE STORYTELLING JOURNEY */}
-          <div className="bg-white dark:bg-black p-8 md:p-12 space-y-12 flex flex-col justify-between">
+          <div className="bg-white dark:bg-black p-8 md:p-12 space-y-12">
             {steps.map((step, index) => (
               <div key={index} className="flex gap-6 items-start">
-                <span className="text-sm font-black text-orange-600 tracking-tighter pt-1">
-                  {step.number}
-                </span>
+                <span className="text-sm font-black text-orange-600 tracking-tighter pt-1">{step.number}</span>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tight">
-                    {step.title}
-                  </h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed max-w-sm">
-                    {step.desc}
-                  </p>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-tight">{step.title}</h3>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed max-w-sm">{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* RIGHT SIDE: RANKING & NB BOARD */}
-          <div className="bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 flex flex-col">
+          <div className="bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 flex flex-col gap-12">
             {/* Ranking System */}
-            <div className="mb-10">
+            <div>
               <div className="flex items-center gap-2 mb-6 text-orange-600">
                 <Flame size={16} />
-                <h4 className="text-xs font-black uppercase tracking-[0.2em]">Ranking System</h4>
+                <h4 className="text-xs font-black uppercase tracking-[0.2em]">Personal Ranking</h4>
               </div>
               <div className="space-y-3">
                 {rankingItems.map((item, index) => (
-                  <div key={index} className="flex flex-col md:flex-row md:justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3 last:border-0">
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>
-                      {item.label}
-                    </span>
-                    <span className="text-[11px] text-zinc-600 dark:text-zinc-400 font-medium">
-                      {item.rank}
-                    </span>
+                  <div key={index} className="flex justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3 last:border-0">
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
+                    <span className="text-[11px] text-zinc-600 dark:text-zinc-400 font-medium">{item.rank}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* NB Section - Pushed to bottom to align with left side */}
-            <div className="mt-auto pt-8 border-t border-zinc-200 dark:border-zinc-800">
+            {/* Partner Tiers Moved Here */}
+            <div>
+              <div className="flex items-center gap-2 mb-6 text-zinc-900 dark:text-white">
+                <Trophy size={16} className="text-amber-500" />
+                <h4 className="text-xs font-black uppercase tracking-[0.2em]">Partner Commitment Tiers</h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {partnerTiers.map((tier, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${tier.dot}`} />
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-black uppercase text-zinc-900 dark:text-zinc-100">{tier.title}</span>
+                      <span className="text-[10px] font-bold text-orange-600 leading-none mt-1">{tier.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* NB Section */}
+            <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800">
               <div className="flex items-center gap-2 mb-4 text-zinc-900 dark:text-white">
                 <ShieldCheck size={16} />
                 <h4 className="text-xs font-black uppercase tracking-[0.2em]">Nota Bene (NB)</h4>
@@ -98,7 +92,6 @@ const ProcessSection = () => {
               </ul>
             </div>
           </div>
-
         </div>
       </div>
     </section>
