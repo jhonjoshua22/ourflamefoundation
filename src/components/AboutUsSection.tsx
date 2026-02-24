@@ -63,7 +63,7 @@ const AboutUsSection = () => {
       { name: "Frov", url: "https://frov.vercel.app/" },
       { name: "Frifts", url: "https://frifts.vercel.app/" },
     ],
-    Partners: [
+    NewProducts: [
       { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
       { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
       { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
@@ -157,7 +157,7 @@ const AboutUsSection = () => {
                       <span className="text-[11px] font-black uppercase tracking-widest text-zinc-700 dark:text-zinc-300">{link.name}</span>
                       <ArrowRight size={14} className="opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all text-orange-600" />
                     </a>
-                    {activeTab === 'Partners' && (
+                    {activeTab === 'Products' && (
                       <button 
                         onClick={(e) => handleCopy(e, link.url, link.name)}
                         className="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-orange-600"
