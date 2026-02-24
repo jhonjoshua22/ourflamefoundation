@@ -2,7 +2,7 @@ import { useState } from "react";
 // 1. Import your PDFs and Docs from the assets folder
 import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
 import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
-import ScheduleDoc from "../assets/schedule.docx"; // Added Docx import
+import ScheduleDoc from "../assets/schedule.docx";
 
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
