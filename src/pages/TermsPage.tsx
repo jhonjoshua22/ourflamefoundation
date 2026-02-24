@@ -4,7 +4,14 @@ const TermsOfUse: React.FC = () => {
   return (
     <div className="p-4 md:p-16 text-zinc-300 bg-[#020617] min-h-screen font-sans leading-relaxed">
       <div className="max-w-5xl mx-auto bg-black/60 border border-zinc-900 p-6 md:p-14 shadow-2xl backdrop-blur-sm">
-        
+        <div className="mb-8">
+          <a 
+            href="https://ourflamefoundation.vercel.app" 
+            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-orange-600 transition-colors"
+          >
+            ← Back to Foundation
+          </a>
+        </div>
         {/* HEADER */}
         <div className="mb-12 border-b border-zinc-800 pb-8 text-center md:text-left">
           <h1 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter mb-4">
