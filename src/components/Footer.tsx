@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { 
   Facebook, Twitter, Youtube, Github, Linkedin, 
-  Globe, MessageSquare, Shield, ScrollText, Mail, Phone, 
-  MapPin, Send 
+  Globe, MessageSquare, Shield, ScrollText, Mail, 
+  MapPin, Send, MessageCircle // Changed Phone to MessageCircle
 } from "lucide-react";
 import logo from "../assets/ourflamelogo.png";
 
@@ -18,8 +18,8 @@ const UnifiedFooter = () => {
   };
 
   const socialLinks = [
-    { icon: Facebook, href: "https://www.facebook.com/MagikWorlds/", label: "Facebook" },
-    { icon: Twitter, href: "https://x.com/MagicWorlds3", label: "Twitter" },
+    { icon: Facebook, href: "https://www.facebook.com/OurFlameFoundation/", label: "Facebook" },
+    { icon: Twitter, href: "https://x.com/OurFlameFoundtn", label: "Twitter" },
     { icon: Youtube, href: "https://www.youtube.com/@MagicworldsTV", label: "Youtube" },
     { icon: MessageSquare, href: "https://discord.com/invite/NcNSaTVNdn", label: "Discord" },
     { icon: Github, href: "https://github.com/TheMagicWorlds", label: "Github" },
@@ -27,16 +27,15 @@ const UnifiedFooter = () => {
   ];
 
   const resources = [
-    { name: "Magic Worlds", href: "https://www.themagicworlds.com/", icon: Globe },
-    { name: "Customer Service", href: "https://www.facebook.com/MagikWorlds", icon: Facebook },
-    { name: "News", href: "https://x.com/magicworlds3", icon: Twitter },
+    { name: "Magic Worlds", href: "https://www.themagicworlds.org/", icon: Globe },
+    { name: "Customer Service", href: "https://www.facebook.com/OurFlameFoundation/", icon: Facebook },
+    { name: "News", href: "https://x.com/OurFlameFoundtn", icon: Twitter },
     { name: "TV", href: "https://www.youtube.com/@magicworldstv", icon: Youtube },
     { name: "Teams", href: "https://www.linkedin.com/company/magic-worlds", icon: Linkedin },
     { name: "Code", href: "https://github.com/TheMagicWorlds", icon: Github },
   ];
 
   return (
-    /* ONLY ADDED THE ID HERE - DESIGN IS UNTOUCHED */
     <footer id="footer" className="bg-black text-zinc-300 pt-24 pb-12 border-t border-zinc-900">
       <div className="container mx-auto px-6 max-w-7xl">
         
@@ -120,7 +119,10 @@ const UnifiedFooter = () => {
               <h4 className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Foundation Support</h4>
               <div className="flex flex-col gap-3 text-[13px] text-zinc-500">
                 <p className="flex items-center gap-2"><MapPin size={14} className="text-orange-600"/> UK, PH, IN, PK, BD, GE</p>
-                <p className="flex items-center gap-2"><Phone size={14} className="text-orange-600"/> +44 7762 293742</p>
+                {/* Updated to MessageCircle with WhatsApp Link capability */}
+                <a href="https://wa.me/447762293742" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-orange-600 transition-colors">
+                    <MessageCircle size={14} className="text-orange-600"/> +44 7762 293742
+                </a>
                 <p className="flex items-center gap-2"><Mail size={14} className="text-orange-600"/> mflynn1999@gmail.com</p>
               </div>
             </div>
