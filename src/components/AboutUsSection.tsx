@@ -1,8 +1,8 @@
 import { useState } from "react";
-// 1. Import your PDFs and Docs from the assets folder
+// Import PDFs from the assets folder
+import SchedulePDF from "../assets/schedule.pdf";
 import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
 import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
-import ScheduleDoc from "../assets/schedule.docx";
 
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
@@ -71,7 +71,7 @@ const AboutUsSection = () => {
   };
 
   const brandFiles = [
-    { name: "2026 Daily Timetable", path: ScheduleDoc, type: "docx" }, // Added Schedule
+    { name: "2026 Daily Timetable", path: SchedulePDF, type: "pdf" }, 
     { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
     { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
@@ -113,7 +113,7 @@ const AboutUsSection = () => {
               ))}
             </div>
 
-            {/* Incubator Highlight - Squared */}
+            {/* Incubator Highlight */}
             <div className="p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 relative overflow-hidden">
               <Sparkles className="absolute -top-4 -right-4 w-24 h-24 opacity-10 rotate-12" />
               <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
@@ -135,7 +135,7 @@ const AboutUsSection = () => {
           {/* Right Column (Dynamic Links & Resources) */}
           <div className="lg:col-span-5 bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 space-y-12">
             
-            {/* The Tabbed Series Explorer - Squared */}
+            {/* The Tabbed Series Explorer */}
             <div className="space-y-6">
               <div className="flex flex-wrap bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800">
                 {Object.keys(linkCategories).map(cat => (
@@ -183,7 +183,7 @@ const AboutUsSection = () => {
                     <div className="flex-1">
                       <p className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest">{file.name}</p>
                       <p className="text-[9px] text-zinc-400 uppercase tracking-tighter mt-1">
-                        {file.type === 'drive' ? 'Cloud Assets' : file.type === 'docx' ? 'Strategic Plan' : 'Documentation'}
+                        {file.type === 'drive' ? 'Cloud Assets' : 'Documentation'}
                       </p>
                     </div>
                     <ExternalLink size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
@@ -195,7 +195,7 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Master Bot Section - Squared Editorial Style */}
+        {/* Master Bot Section */}
         <div className="mt-24 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 p-12 md:p-20 border-t-8 border-orange-600 relative overflow-hidden text-center">
           <Bot className="w-16 h-16 text-orange-600 mx-auto mb-10" />
           <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none mb-8">
