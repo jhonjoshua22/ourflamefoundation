@@ -5,103 +5,99 @@ const HeroSection = () => {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-background"
+      className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#0a0a0a]"
     >
       {/* Background Container */}
       <div className="absolute inset-0 z-0">
-        {/* The Image: Heavily dimmed in light mode to create immediate contrast */}
         <img
           src={heroImage}
           alt="Professionals"
           className="w-full h-full object-cover object-center 
-                     brightness-[0.6] contrast-[1.1] 
-                     dark:brightness-[0.8] dark:contrast-100 
+                     brightness-[0.4] contrast-[1.1] 
+                     dark:brightness-[0.3] dark:contrast-125 
                      transition-all duration-700"
         />
         
-        {/* LAYER 1: The "Blackout" Gradient (Light Mode Only)
-            This ensures the left side is NEVER white behind the text. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent dark:hidden" />
-
-        {/* LAYER 2: The Theme Gradient 
-            Forces a solid background color on the left 60% of the screen. */}
-        <div className="absolute inset-0 bg-gradient-to-r 
-                        from-background via-background/95 to-transparent 
-                        md:from-background md:via-background/80 md:to-transparent 
-                        transition-all duration-500" />
-
-        {/* LAYER 3: The Bottom Fade 
-            Blends the hero into the next section. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+        {/* Foundation Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
       </div>
 
       {/* Content */}
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-2xl">
-          {/* Badge with Backdrop Blur */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-primary/10 border border-white/20 dark:border-primary/30 mb-6 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-flame-orange animate-pulse" />
-            <span className="text-sm font-semibold uppercase tracking-wider text-flame-orange">
+        <div className="max-w-3xl">
+          
+          {/* Sharp Badge */}
+          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none bg-orange-600/10 border border-orange-600/30 mb-8 backdrop-blur-sm">
+            <span className="w-2 h-2 bg-orange-600 animate-pulse rounded-none" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600">
               Empowering Communities Since 2002
             </span>
           </div>
 
-          {/* Heading with Text Shadow for extra punch */}
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 drop-shadow-md text-foreground transition-colors duration-500">
-            Ignite Change,{" "}
-            <span className="flame-text">Transform Lives</span>
+          {/* Heading - Foundation Style */}
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-8 text-white uppercase italic tracking-tighter">
+            Ignite <span className="text-orange-600 not-italic">Change</span>,<br />
+            <span className="text-white">Transform Lives</span>
           </h1>
 
-          <div className="space-y-6 mb-10">
-            <p className="text-xl md:text-2xl text-foreground font-medium leading-relaxed max-w-xl">
-              Helping families locally & globally improve their lives via expert support for money, health, & arts!
+          <div className="space-y-6 mb-12">
+            <p className="text-xl md:text-2xl text-zinc-300 font-light leading-relaxed max-w-2xl">
+              A global incubator dedicated to reducing complexity. 
+              Fusing <span className="text-white font-bold">AI, blockchain</span>, and expert human support to improve lives.
             </p>
-            <p className="text-lg text-muted-foreground leading-relaxed border-l-4 border-flame-orange/50 pl-6 bg-white/5 dark:bg-transparent py-2 rounded-r-lg">
-              Our superpower is our <span className="text-foreground font-bold italic">neurodiversity</span>. 
-              We help you plan meetings with experts to minimize wasted time.
-            </p>
+            
+            <div className="border-l-2 border-orange-600 pl-6 py-1">
+              <p className="text-sm md:text-base text-zinc-500 uppercase tracking-widest leading-relaxed">
+                Our superpower is our <span className="text-zinc-200 font-black">neurodiversity</span>. 
+                We eliminate wasted time through precision planning.
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-5 mb-16">
-            <a
-              href="https://www.youtube.com/@MagicworldsTV"
-              className="inline-flex items-center justify-center gap-3 flame-gradient px-10 py-4 rounded-full font-bold text-lg text-white hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-flame-orange/40"
-            >
-              Start Learning!
-              <ArrowRight className="w-6 h-6" />
-            </a>
-            <a
-              href="#impact"
-              className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-full font-bold text-lg border-2 border-border bg-background/40 backdrop-blur-md hover:bg-foreground hover:text-background transition-all"
-            >
-              See Our Hot Topics
-            </a>
+          {/* Sharp Buttons */}
+          <div className="flex flex-col sm:row gap-4 mb-20">
+            <div className="flex flex-wrap gap-4">
+              <a
+                href="https://www.youtube.com/@MagicworldsTV"
+                className="inline-flex items-center justify-center gap-3 bg-orange-600 px-10 py-5 rounded-none font-black text-xs uppercase tracking-[0.2em] text-white hover:bg-orange-500 transition-all active:scale-95 shadow-[0_0_20px_rgba(234,88,12,0.3)]"
+              >
+                Start Learning
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#impact"
+                className="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-none font-black text-xs uppercase tracking-[0.2em] border border-zinc-800 bg-white/5 text-white hover:bg-white hover:text-black transition-all"
+              >
+                Our Hot Topics
+              </a>
+            </div>
           </div>
 
-          {/* Stats Section with Divider */}
-          <div className="grid grid-cols-3 gap-8 pt-10 border-t border-border/40">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Users className="w-6 h-6 text-flame-orange" />
-                <span className="font-display text-3xl font-extrabold tracking-tight">50K+</span>
+          {/* Stats Section - Clean & Industrial */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-12 pt-12 border-t border-zinc-900">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5 text-orange-600" />
+                <span className="text-4xl font-black tracking-tighter text-white">50K+</span>
               </div>
-              <p className="text-xs uppercase font-bold tracking-widest text-muted-foreground">Followers</p>
+              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-600">Followers</p>
             </div>
             
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Flag className="w-6 h-6 text-flame-orange" />
-                <span className="font-display text-3xl font-extrabold tracking-tight">100K+</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <Flag className="w-5 h-5 text-orange-600" />
+                <span className="text-4xl font-black tracking-tighter text-white">100K+</span>
               </div>
-              <p className="text-xs uppercase font-bold tracking-widest text-muted-foreground">Supported</p>
+              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-600">Supported</p>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-6 h-6 text-flame-orange" />
-                <span className="font-display text-3xl font-extrabold tracking-tight">3.5M</span>
+            <div className="space-y-2 col-span-2 md:col-span-1">
+              <div className="flex items-center gap-3">
+                <ThumbsUp className="w-5 h-5 text-orange-600" />
+                <span className="text-4xl font-black tracking-tighter text-white">3.5M</span>
               </div>
-              <p className="text-xs uppercase font-bold tracking-widest text-muted-foreground">2026 Goal</p>
+              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-600">2026 Foundation Goal</p>
             </div>
           </div>
         </div>
