@@ -16,9 +16,24 @@ const ProcessSection = () => {
   ];
 
   const partnerTiers = [
-    { title: "Gold Partner", range: "60-100%", dot: "bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" },
-    { title: "Silver Partner", range: "10-60%", dot: "bg-slate-300 shadow-[0_0_10px_rgba(203,213,225,0.5)]" },
-    { title: "Bronze Partner", range: "<10%", dot: "bg-amber-800 shadow-[0_0_10px_rgba(180,83,9,0.5)]" },
+    { 
+      title: "Gold Partner", 
+      range: "60-100%", 
+      details: "SuperBot $10 pm per fam (wholesale)",
+      dot: "bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" 
+    },
+    { 
+      title: "Silver Partner", 
+      range: "10-60%", 
+      details: "$1 pm per family (wholesale) Magic Bots",
+      dot: "bg-slate-300 shadow-[0_0_10px_rgba(203,213,225,0.5)]" 
+    },
+    { 
+      title: "Bronze Partner", 
+      range: "<10%", 
+      details: "FREE Magic Gems & Merch",
+      dot: "bg-amber-800 shadow-[0_0_10px_rgba(180,83,9,0.5)]" 
+    },
   ];
 
   return (
@@ -46,7 +61,7 @@ const ProcessSection = () => {
               ))}
             </div>
 
-            {/* MOVED: NB Section now on the left side */}
+            {/* NB Section */}
             <div className="pt-8 border-t border-zinc-100 dark:border-zinc-900">
               <div className="flex items-center gap-2 mb-4 text-zinc-900 dark:text-white">
                 <ShieldCheck size={16} className="text-orange-600" />
@@ -84,19 +99,24 @@ const ProcessSection = () => {
                 <Trophy size={16} className="text-amber-500" />
                 <h4 className="text-xs font-black uppercase tracking-[0.2em]">Partner Commitment Tiers</h4>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-1 gap-4 mb-8">
                 {partnerTiers.map((tier, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
-                    <div className={`w-2 h-2 rounded-full shrink-0 ${tier.dot}`} />
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-black uppercase text-zinc-900 dark:text-zinc-100">{tier.title}</span>
-                      <span className="text-[12px] font-black text-orange-600 leading-none mt-1">{tier.range}</span>
+                  <div key={i} className="flex items-center gap-4 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                    <div className={`w-3 h-3 rounded-full shrink-0 ${tier.dot}`} />
+                    <div className="flex flex-col flex-1">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[11px] font-black uppercase text-zinc-900 dark:text-zinc-100 tracking-tight">{tier.title}</span>
+                        <span className="text-[11px] font-black text-orange-600 leading-none">{tier.range}</span>
+                      </div>
+                      <span className="text-[12px] font-medium text-zinc-500 dark:text-zinc-400 italic leading-tight">
+                        {tier.details}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* NEW: Partner Link Section */}
+              {/* Partner Link Section */}
               <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800 mt-auto">
                 <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
                   We work with: 
