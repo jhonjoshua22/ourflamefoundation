@@ -175,8 +175,14 @@ const AboutUsSection = () => {
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
               <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
                 {brandFiles.map((file) => (
-                  <a key={file.name} href={file.path} target="_blank" rel="noreferrer" download={file.type !== 'drive'}
-                     className="flex items-center gap-5 p-5 bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group">
+                  <a 
+                    key={file.name} 
+                    href={file.path} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    // Removing the download attribute allows the browser to use its default PDF viewer
+                    className="flex items-center gap-5 p-5 bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group"
+                  >
                     <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-orange-600">
                       {file.type === 'drive' ? <FolderOpen size={18}/> : <FileText size={18}/>}
                     </div>
