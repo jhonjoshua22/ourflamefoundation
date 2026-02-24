@@ -63,7 +63,7 @@ const AboutUsSection = () => {
       { name: "Frov", url: "https://frov.vercel.app/" },
       { name: "Frifts", url: "https://frifts.vercel.app/" },
     ],
-    NewProducts: [
+    "New Products": [
       { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
       { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
       { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
