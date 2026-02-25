@@ -17,41 +17,45 @@ const GlobalMap = () => {
   useEffect(() => {
     if (!window.L || mapInstance.current) return;
 
+    // INITIALIZE LOCKED MAP
     mapInstance.current = window.L.map(mapRef.current, {
-      center: [25, 40],
-      zoom: 2,
-      zoomControl: false,
+      center: [25, 60], // Centered between Europe and SE Asia
+      zoom: 3,
+      dragging: false,      // PREVENTS PANNING (Locked in)
+      scrollWheelZoom: true, // ALLOWS ZOOMING
+      zoomControl: true,    // SHOWS +/- BUTTONS
+      touchZoom: true,
+      doubleClickZoom: true,
+      boxZoom: false,
+      keyboard: false,
       attributionControl: false,
-      scrollWheelZoom: false,
     });
 
-    // CHANGE: Switched to a Light Grey theme ('light_all') 
-    // This is clean, modern, and high-contrast for your logos
-    window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(mapInstance.current);
+    // Green/Blue Natural Tiles
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
 
     const flameIcon = window.L.icon({
       iconUrl: logo,
-      iconSize: [45, 45], // Slightly larger for better visibility on light background
-      iconAnchor: [22, 22],
-      popupAnchor: [0, -20],
+      iconSize: [38, 38],
+      iconAnchor: [19, 19],
+      popupAnchor: [0, -15],
     });
 
     locations.forEach((loc) => {
-      const marker = window.L.marker([loc.lat, loc.lng], { icon: flameIcon }).addTo(mapInstance.current);
-      
-      marker.bindPopup(`
-        <div style="padding: 5px; font-family: sans-serif;">
-          <strong style="color: #ea580c; text-transform: uppercase; font-size: 10px;">${loc.id}</strong><br/>
-          <span style="font-weight: bold; font-size: 14px; color: #1a1a1a;">${loc.name}</span><br/>
-          <small style="color: #71717a;">${loc.details}</small>
-        </div>
-      `);
+      window.L.marker([loc.lat, loc.lng], { icon: flameIcon })
+        .addTo(mapInstance.current)
+        .bindPopup(`
+          <div style="font-family: sans-serif; text-align: center;">
+            <b style="color: #166534; text-transform: uppercase; font-size: 10px;">${loc.id}</b><br/>
+            <span style="font-weight: 900; font-size: 14px;">${loc.name}</span>
+          </div>
+        `);
     });
 
-    // Ensure the map doesn't stay grey/black by forcing a recalculation
+    // Fix for potential rendering issues on GitHub/Vercel
     setTimeout(() => {
       if(mapInstance.current) mapInstance.current.invalidateSize();
-    }, 200);
+    }, 500);
 
     return () => {
       if (mapInstance.current) {
@@ -62,41 +66,38 @@ const GlobalMap = () => {
   }, []);
 
   return (
-    <section className="bg-white py-20 border-t border-zinc-100">
+    <section className="bg-white py-16 border-t border-zinc-200">
       <div className="container mx-auto px-6">
         
-        <div className="mb-12 border-l-4 border-orange-600 pl-6">
+        <div className="mb-10 border-l-4 border-green-600 pl-6">
           <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-zinc-900">
-            Global <span className="text-orange-600 not-italic">Presence</span>
+            Global <span className="text-green-600 not-italic">Reach</span>
           </h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-zinc-400 mt-2">
-            Foundation Node Tracking Interface
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mt-2">
+            Static Viewport // Interactive Scale
           </p>
         </div>
 
-        {/* Map Container - Lightened the borders and shadow */}
-        <div className="relative border border-zinc-200 bg-zinc-50 shadow-xl overflow-hidden group">
+        {/* Map Frame with "Locked" indicator */}
+        <div className="relative border-2 border-zinc-100 shadow-2xl rounded-sm overflow-hidden group">
           <div 
             ref={mapRef} 
-            className="w-full h-[600px] transition-all duration-700"
+            className="w-full h-[600px] cursor-default" 
           />
           
-          {/* HUD Overlay - Swapped to Dark Text for Light Map */}
-          <div className="absolute top-6 right-6 z-[1000] pointer-events-none text-right">
-            <div className="text-[10px] font-mono text-orange-600 font-bold uppercase tracking-widest">System Status</div>
-            <div className="text-xl font-black text-zinc-900 italic">LIVE_FEED</div>
+          {/* Top Right UI Overlay */}
+          <div className="absolute top-4 right-4 z-[1000] bg-white/80 backdrop-blur-md p-2 border border-zinc-200 pointer-events-none">
+            <p className="text-[9px] font-bold text-green-700 uppercase tracking-widest">Map Status</p>
+            <p className="text-xs font-black text-zinc-900">POSITION_LOCKED</p>
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-6">
+        {/* Legend Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
           {locations.map((loc) => (
-            <div key={loc.id} className="border border-zinc-100 p-4 bg-zinc-50/50 flex items-center gap-3 hover:border-orange-500 transition-colors">
-              <div className="w-1.5 h-6 bg-orange-600" />
-              <div>
-                <span className="block text-xs font-black text-zinc-900">{loc.id}</span>
-                <span className="block text-[9px] uppercase text-zinc-400 tracking-tighter">{loc.name}</span>
-              </div>
+            <div key={loc.id} className="p-4 bg-zinc-50 border border-zinc-100 flex flex-col hover:border-green-600 transition-all group">
+              <span className="text-[10px] font-mono text-green-600 font-bold">NODE_{loc.id}</span>
+              <span className="text-sm font-black uppercase text-zinc-800">{loc.name}</span>
             </div>
           ))}
         </div>
