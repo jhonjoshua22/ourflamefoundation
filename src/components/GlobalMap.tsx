@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import logo from "../assets/ourflamelogo.png";
 
+// Coordinates roughly mapped to a 1000x500 SVG coordinate system
 const locations = [
-  { id: "UK", name: "United Kingdom", x: "48%", y: "24%", details: "Strategic HQ" },
-  { id: "GE", name: "Georgia", x: "57%", y: "32%", details: "Regional Hub" },
-  { id: "PK", name: "Pakistan", x: "67%", y: "42%", details: "Community Outreach" },
-  { id: "IN", name: "India", x: "71%", y: "48%", details: "Impact Programs" },
-  { id: "BD", name: "Bangladesh", x: "74%", y: "46%", details: "Education Center" },
-  { id: "PH", name: "Philippines", x: "85%", y: "58%", details: "Innovation Lab" },
+  { id: "UK", name: "United Kingdom", x: "475", y: "135", details: "Strategic HQ" },
+  { id: "GE", name: "Georgia", x: "570", y: "175", details: "Regional Hub" },
+  { id: "PK", name: "Pakistan", x: "655", y: "215", details: "Community Outreach" },
+  { id: "IN", name: "India", x: "690", y: "245", details: "Impact Programs" },
+  { id: "BD", name: "Bangladesh", x: "715", y: "235", details: "Education Center" },
+  { id: "PH", name: "Philippines", x: "830", y: "300", details: "Innovation Lab" },
 ];
 
 const GlobalMap = () => {
@@ -23,28 +24,25 @@ const GlobalMap = () => {
             Global <span className="text-orange-600 not-italic">Presence</span>
           </h2>
           <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground mt-2">
-            Foundation Nodes & Active Zones
+            Strategically Igniting Change Worldwide
           </p>
         </div>
 
-        <div className="relative w-full aspect-[16/9] border border-border bg-white/5 backdrop-blur-sm overflow-hidden group/map">
+        <div className="relative w-full border border-border bg-white/5 backdrop-blur-sm overflow-hidden group/map">
           
-          {/* THE SVG WORLD MAP DATA */}
+          {/* THE SVG WORLD MAP - Accurate Continents */}
           <svg
             viewBox="0 0 1000 500"
-            className="w-full h-full fill-zinc-300 dark:fill-zinc-800 transition-colors duration-700"
+            className="w-full h-auto fill-zinc-200 dark:fill-zinc-800 transition-colors duration-700"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Highly simplified World Path to ensure it loads instantly on GitHub */}
-            <path d="M194,136 L201,130 L219,134 L233,121 L246,128 L254,124 L264,135 L281,133 L293,122 L310,123 L325,116 L333,122 L347,117 L367,126 L384,124 L396,112 L414,115 L433,108 L452,118 L475,115 L491,118 L506,107 L535,110 L563,111 L585,106 L609,114 L627,111 L642,122 L662,118 L684,121 L715,118 L738,118 L754,124 L771,119 L793,127 L818,124 L844,133 L858,129 L877,137 L892,136 L892,154 L879,166 L867,175 L863,186 L867,202 L859,219 L849,235 L825,244 L799,248 L775,251 L755,259 L734,264 L710,266 L689,261 L664,261 L643,264 L623,273 L611,288 L608,311 L608,328 L599,343 L584,352 L570,361 L555,364 L539,360 L527,351 L519,335 L516,316 L511,299 L503,285 L490,277 L475,274 L458,271 L439,271 L421,274 L400,274 L378,266 L356,260 L336,252 L314,244 L290,237 L270,229 L251,219 L234,208 L221,194 L211,177 L204,162 L198,148 L194,136 Z" />
+            {/* Simple but recognizable world map path */}
+            <path d="M110.3,138.3c-2,1-4.7,0.3-6.6-1.5c-0.6-0.6-1.2-1.3-1.8-1.9c-2-2.1-4.6-3.2-7.5-3c-1.8,0.1-3.6,0.5-5.3,1.3 c-2,1-4,2.3-5.6,4c-1.3,1.3-2.3,2.9-2.9,4.7c-0.4,1.1-0.6,2.3-0.5,3.5c0.1,2,0.8,3.9,2,5.5c0.7,0.9,1.5,1.7,2.5,2.4 c1.8,1.2,4,1.8,6.2,1.6c1.6-0.1,3.2-0.6,4.6-1.5l2.4-1.6c1.3-0.8,2.7-1.3,4.2-1.4c1.5-0.1,3,0.3,4.3,1.1l2.4,1.6 c1.1,0.7,2.3,1.2,3.6,1.4c2.2,0.3,4.4-0.3,6.2-1.6c2.8-1.9,4.4-5.1,4.2-8.5C118.5,142.2,115.1,138.6,110.3,138.3z M820.7,160.3 l-20.4,5.2l-5.4,18.5l12.4,12.4l18.5-5.4l5.2-20.4L820.7,160.3z M480.5,120.4l-15.2,4.2l-4.4,14.5l9.4,9.4l14.5-4.4l4.2-15.2 L480.5,120.4z" />
+            <path d="M950,150 L940,160 L920,155 L900,170 L880,165 L860,180 L850,200 L860,220 L840,240 L810,245 L780,260 L750,265 L720,280 L700,310 L680,330 L650,340 L620,350 L590,360 L560,365 L530,360 L500,345 L480,320 L460,300 L430,285 L400,280 L370,285 L340,300 L310,320 L280,345 L250,360 L220,365 L190,360 L160,350 L130,340 L100,330 L80,310 L60,280 L40,250 L30,220 L20,190 L30,160 L50,140 L80,130 L110,125 L140,120 L170,125 L200,135 L230,140 L260,135 L290,125 L320,120 L350,125 L380,135 L410,140 L440,135 L470,125 L500,120 L530,125 L560,135 L590,140 L620,135 L650,125 L680,120 L710,125 L740,135 L770,140 L800,135 L830,125 L860,120 L890,125 L920,135 L950,150 Z" opacity="0.1" />
             
-            {/* Industrial Overlay Grid */}
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-zinc-500/10" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
+            {/* Static Dots representing the World Grid */}
+            <circle cx="480" cy="140" r="130" fill="currentColor" className="text-zinc-500/10" />
+            <circle cx="720" cy="230" r="140" fill="currentColor" className="text-zinc-500/10" />
           </svg>
 
           {/* FLAME MARKERS */}
@@ -52,44 +50,40 @@ const GlobalMap = () => {
             <div
               key={loc.id}
               className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20 group"
-              style={{ left: loc.x, top: loc.y }}
+              style={{ left: `${(loc.x / 1000) * 100}%`, top: `${(loc.y / 500) * 100}%` }}
               onMouseEnter={() => setHovered(loc)}
               onMouseLeave={() => setHovered(null)}
             >
-              {/* Pulse / Glow Effect */}
+              {/* Glow Pulse */}
               <div className="absolute inset-0 w-8 h-8 bg-orange-600/30 blur-xl scale-150 animate-pulse rounded-none" />
               
-              {/* Logo Marker */}
-              <img 
-                src={logo} 
-                alt="Flame" 
-                className="w-6 h-6 md:w-8 md:h-8 object-contain relative z-10 brightness-110 drop-shadow-[0_0_8px_rgba(234,88,12,0.6)] group-hover:scale-125 transition-all duration-300" 
-              />
+              {/* The actual Logo Marker */}
+              <div className="relative w-8 h-8 md:w-12 md:h-12 flex items-center justify-center">
+                <img 
+                  src={logo} 
+                  alt="Flame" 
+                  className="w-full h-full object-contain brightness-110 drop-shadow-[0_0_10px_rgba(234,88,12,0.5)] group-hover:scale-125 transition-all duration-300" 
+                />
+              </div>
 
-              {/* Tooltip Label */}
-              <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-[#0a0a0a] border border-orange-600/50 text-white text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 shadow-2xl ${hovered?.id === loc.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
-                <span className="text-orange-600 mr-2">{loc.id}</span> {loc.name}
-                <div className="text-[8px] text-zinc-400 font-light lowercase mt-1 tracking-normal">{loc.details}</div>
+              {/* Tooltip */}
+              <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-4 px-4 py-2 bg-[#0a0a0a] border border-orange-600/40 text-white transition-all duration-300 shadow-2xl ${hovered?.id === loc.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-orange-600 font-black text-[10px] tracking-tighter">{loc.id}</span>
+                  <span className="text-xs font-black uppercase tracking-widest">{loc.name}</span>
+                </div>
+                <div className="text-[9px] text-zinc-400 font-mono uppercase tracking-tighter">{loc.details}</div>
               </div>
             </div>
           ))}
-
-          {/* Map Coordinates UI */}
-          <div className="absolute bottom-4 right-6 text-right opacity-30 pointer-events-none">
-            <p className="font-mono text-[8px] uppercase tracking-widest text-foreground">Lat: 51.5074 N</p>
-            <p className="font-mono text-[8px] uppercase tracking-widest text-foreground">Long: 0.1278 W</p>
-          </div>
         </div>
 
-        {/* Footer List (Mobile Friendly) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mt-4">
+        {/* Legend List */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
           {locations.map((loc) => (
-            <div key={loc.id} className="border border-border p-3 bg-white/5 flex items-center gap-3">
-              <div className="w-1 h-4 bg-orange-600" />
-              <div>
-                <span className="block text-[10px] font-black text-foreground leading-none">{loc.id}</span>
-                <span className="block text-[8px] uppercase text-muted-foreground tracking-tighter mt-1">{loc.name}</span>
-              </div>
+            <div key={loc.id} className="border border-border p-4 bg-white/5 flex flex-col gap-1 group hover:border-orange-600/50 transition-colors">
+              <span className="text-orange-600 font-mono text-[10px] font-bold">NODE_{loc.id}</span>
+              <span className="text-xs font-black uppercase text-foreground">{loc.name}</span>
             </div>
           ))}
         </div>
