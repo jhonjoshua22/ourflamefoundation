@@ -30,7 +30,8 @@ import aitraining from "@/assets/aitraining.jpeg";
 import homecare from "@/assets/homecare.jpeg";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
-const BOOKING_EMAIL = "mailto:ourflamefoundation@gmail.com?subject=Booking Request";
+// This link forces an event creation screen that invites your gmail account automatically
+const BOOKING_LINK = "https://calendar.google.com/calendar/u/0/r/eventedit?add=ourflamefoundation@gmail.com";
 
 const lessonItems = [
   { image: community1, title: "FLAME JOBS", description: "Live Mon 10:00 EMEA", details: "Description coming soon" },
@@ -75,7 +76,7 @@ const otherServiceItems = [
 const ItemCard = ({ item, onClick }) => (
   <button 
     onClick={() => onClick(item)}
-    className="group relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 rounded-none border border-zinc-200/10 text-left"
+    className="group relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 rounded-none border border-zinc-200/10 text-left outline-none"
   >
     <img
       src={item.image}
@@ -158,8 +159,16 @@ const ImpactSection = () => {
 
         {/* --- TRUSTPILOT WIDGET --- */}
         <div className="mt-24 pt-12 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8">Community Verified</p>
-            <div className="trustpilot-widget" data-locale="en-US" data-template-id="56278e9abfbbba0bdcd568bc" data-businessunit-id="699ebadf007f4226955833d3" data-style-height="52px" data-style-width="100%" data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
+            <div 
+              className="trustpilot-widget" 
+              data-locale="en-US" 
+              data-template-id="56278e9abfbbba0bdcd568bc" 
+              data-businessunit-id="699ebadf007f4226955833d3" 
+              data-style-height="52px" 
+              data-style-width="100%" 
+              data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
+            >
                 <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
             </div>
         </div>
@@ -169,24 +178,27 @@ const ImpactSection = () => {
       {selectedItem && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800">
+            {/* Close Button */}
             <button 
               onClick={() => setSelectedItem(null)}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-orange-600 transition-colors"
+              className="absolute top-4 right-4 z-[110] p-2 bg-black/50 text-white rounded-full hover:bg-orange-600 transition-colors"
             >
               <X size={24} />
             </button>
 
             <div className="grid md:grid-cols-2">
-              <div className="aspect-square md:aspect-auto h-full">
+              <div className="aspect-square md:aspect-auto h-full max-h-[400px] md:max-h-none">
                 <img src={selectedItem.image} alt={selectedItem.title} className="w-full h-full object-cover" />
               </div>
               
-              <div className="p-8 md:p-12 flex flex-col">
-                <span className="text-orange-600 font-black tracking-widest text-xs mb-2 uppercase">{selectedItem.description}</span>
-                <h2 className="text-4xl font-black text-zinc-900 dark:text-white uppercase italic mb-6 leading-none">{selectedItem.title}</h2>
-                <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-10 overflow-y-auto max-h-[30vh]">
-                  {selectedItem.details}
-                </p>
+              <div className="p-8 md:p-12 flex flex-col justify-center">
+                <span className="text-orange-600 font-black tracking-widest text-[10px] mb-2 uppercase">{selectedItem.description}</span>
+                <h2 className="text-4xl font-black text-zinc-900 dark:text-white uppercase italic mb-6 leading-none tracking-tighter">{selectedItem.title}</h2>
+                <div className="overflow-y-auto max-h-[250px] pr-4 custom-scrollbar mb-8">
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap">
+                    {selectedItem.details}
+                  </p>
+                </div>
 
                 <div className="mt-auto space-y-3">
                   <a 
@@ -198,15 +210,19 @@ const ImpactSection = () => {
                     <Youtube size={18} /> Watch on YouTube
                   </a>
                   <a 
-                    href={BOOKING_EMAIL}
+                    href={BOOKING_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center justify-center gap-3 w-full py-4 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white font-black uppercase tracking-widest text-xs hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
                   >
-                    <Calendar size={18} /> Schedule Booking
+                    <Calendar size={18} /> Choose Date & Book
                   </a>
                 </div>
               </div>
             </div>
           </div>
+          {/* Click Outside to Close */}
+          <div className="absolute inset-0 -z-10" onClick={() => setSelectedItem(null)} />
         </div>
       )}
     </section>
