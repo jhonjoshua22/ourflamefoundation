@@ -8,6 +8,7 @@ import ProcessSection from "@/components/ProcessSection";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
 import AboutUsSection from "@/components/AboutUsSection";
+import GlobalMap from "@/components/GlobalMap";
 import PartnerSection from "@/components/PartnerSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
 // Modern icon import (optional, can use the SVG below if not installed)
@@ -124,6 +125,7 @@ const Index = () => {
       <ImpactSection />
       <NewsEventsSection />
       <AboutUsSection />
+      <GlobalMap />
       <ProcessSection />
       <Testimonials />
       <PartnerSection />
