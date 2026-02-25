@@ -17,13 +17,12 @@ const GlobalMap = () => {
   useEffect(() => {
     if (!window.L || mapInstance.current) return;
 
-    // INITIALIZE LOCKED MAP
     mapInstance.current = window.L.map(mapRef.current, {
-      center: [25, 60], // Centered between Europe and SE Asia
+      center: [25, 60], 
       zoom: 3,
-      dragging: false,      // PREVENTS PANNING (Locked in)
-      scrollWheelZoom: true, // ALLOWS ZOOMING
-      zoomControl: true,    // SHOWS +/- BUTTONS
+      dragging: false,      
+      scrollWheelZoom: true, 
+      zoomControl: true,    
       touchZoom: true,
       doubleClickZoom: true,
       boxZoom: false,
@@ -31,13 +30,13 @@ const GlobalMap = () => {
       attributionControl: false,
     });
 
-    // Green/Blue Natural Tiles
+    // Keeping the "Green/Blue" map tiles as requested, but the UI is back to Flame theme
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
 
     const flameIcon = window.L.icon({
       iconUrl: logo,
-      iconSize: [38, 38],
-      iconAnchor: [19, 19],
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
       popupAnchor: [0, -15],
     });
 
@@ -45,14 +44,13 @@ const GlobalMap = () => {
       window.L.marker([loc.lat, loc.lng], { icon: flameIcon })
         .addTo(mapInstance.current)
         .bindPopup(`
-          <div style="font-family: sans-serif; text-align: center;">
-            <b style="color: #166534; text-transform: uppercase; font-size: 10px;">${loc.id}</b><br/>
-            <span style="font-weight: 900; font-size: 14px;">${loc.name}</span>
+          <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 5px;">
+            <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">${loc.id}</b><br/>
+            <span style="font-weight: 900; font-size: 14px; color: #000; text-transform: uppercase;">${loc.name}</span>
           </div>
         `);
     });
 
-    // Fix for potential rendering issues on GitHub/Vercel
     setTimeout(() => {
       if(mapInstance.current) mapInstance.current.invalidateSize();
     }, 500);
@@ -66,38 +64,39 @@ const GlobalMap = () => {
   }, []);
 
   return (
-    <section className="bg-white py-16 border-t border-zinc-200">
+    <section className="bg-background py-20 border-t border-border transition-colors duration-500 relative z-0">
       <div className="container mx-auto px-6">
         
-        <div className="mb-10 border-l-4 border-green-600 pl-6">
-          <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-zinc-900">
-            Global <span className="text-green-600 not-italic">Reach</span>
+        {/* Header - Back to Flame Theme */}
+        <div className="mb-12 border-l-4 border-orange-600 pl-6">
+          <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
+            Global <span className="text-orange-600 not-italic">Presence</span>
           </h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mt-2">
-            Static Viewport // Interactive Scale
+          <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground mt-2">
+            Strategic Infrastructure // Scale Active
           </p>
         </div>
 
-        {/* Map Frame with "Locked" indicator */}
-        <div className="relative border-2 border-zinc-100 shadow-2xl rounded-sm overflow-hidden group">
+        {/* Map Container - Lowered z-index and removed brand-clashing colors */}
+        <div className="relative border border-border bg-white/5 shadow-2xl overflow-hidden group z-10">
           <div 
             ref={mapRef} 
-            className="w-full h-[600px] cursor-default" 
+            className="w-full h-[600px] cursor-crosshair" 
           />
           
-          {/* Top Right UI Overlay */}
-          <div className="absolute top-4 right-4 z-[1000] bg-white/80 backdrop-blur-md p-2 border border-zinc-200 pointer-events-none">
-            <p className="text-[9px] font-bold text-green-700 uppercase tracking-widest">Map Status</p>
-            <p className="text-xs font-black text-zinc-900">POSITION_LOCKED</p>
+          {/* Flame Theme UI Overlay */}
+          <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border pointer-events-none">
+            <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">Foundation Data</p>
+            <p className="text-xs font-black text-foreground uppercase italic">Geo_Lock_Engaged</p>
           </div>
         </div>
 
-        {/* Legend Grid */}
+        {/* Legend Grid - Back to Flame Theme (Black/Orange) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
           {locations.map((loc) => (
-            <div key={loc.id} className="p-4 bg-zinc-50 border border-zinc-100 flex flex-col hover:border-green-600 transition-all group">
-              <span className="text-[10px] font-mono text-green-600 font-bold">NODE_{loc.id}</span>
-              <span className="text-sm font-black uppercase text-zinc-800">{loc.name}</span>
+            <div key={loc.id} className="p-4 border border-border bg-white/5 flex flex-col hover:border-orange-600 transition-all group">
+              <span className="text-[10px] font-mono text-orange-600 font-bold tracking-tighter">NODE_{loc.id}</span>
+              <span className="text-sm font-black uppercase text-foreground italic">{loc.name}</span>
             </div>
           ))}
         </div>
