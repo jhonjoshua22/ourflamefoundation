@@ -86,8 +86,8 @@ const GlobalMap = () => {
           
           {/* Flame Theme UI Overlay */}
           <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border pointer-events-none">
-            <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">Foundation Data</p>
-            <p className="text-xs font-black text-foreground uppercase italic">Geo_Lock_Engaged</p>
+            <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">Our Flame Foundation</p>
+            <p className="text-xs font-black text-foreground uppercase italic">Live Presence</p>
           </div>
         </div>
 
