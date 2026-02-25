@@ -20,7 +20,7 @@ const GlobalMap = () => {
     mapInstance.current = window.L.map(mapRef.current, {
       center: [25, 60], 
       zoom: 3,
-      dragging: false,      
+      dragging: true,      
       scrollWheelZoom: true, 
       zoomControl: true,    
       touchZoom: true,
