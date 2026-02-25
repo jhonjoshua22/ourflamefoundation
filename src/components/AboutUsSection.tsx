@@ -64,6 +64,7 @@ const AboutUsSection = () => {
       { name: "Frifts", url: "https://frifts.vercel.app/" },
     ],
     "New Products": [
+      { name: "Robots4Business", url: "https://jhonjoshua22.github.io/Robots4Business/" },
       { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
       { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
       { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
@@ -180,7 +181,6 @@ const AboutUsSection = () => {
                     href={file.path} 
                     target="_blank" 
                     rel="noreferrer" 
-                    // Removing the download attribute allows the browser to use its default PDF viewer
                     className="flex items-center gap-5 p-5 bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group"
                   >
                     <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-orange-600">
