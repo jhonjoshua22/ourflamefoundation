@@ -15,42 +15,43 @@ const GlobalMap = () => {
   const mapInstance = useRef(null);
 
   useEffect(() => {
-    // 1. Ensure Leaflet is loaded from your index.html script tags
     if (!window.L || mapInstance.current) return;
 
-    // 2. Initialize the map
     mapInstance.current = window.L.map(mapRef.current, {
       center: [25, 40],
       zoom: 2,
-      zoomControl: false, // Keeps it clean
+      zoomControl: false,
       attributionControl: false,
-      scrollWheelZoom: false, // Prevents accidental scrolling while browsing
+      scrollWheelZoom: false,
     });
 
-    // 3. Add a high-quality Dark Mode theme (No API Key required)
-    window.L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(mapInstance.current);
+    // CHANGE: Switched to a Light Grey theme ('light_all') 
+    // This is clean, modern, and high-contrast for your logos
+    window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(mapInstance.current);
 
-    // 4. Create custom Flame Icon
     const flameIcon = window.L.icon({
       iconUrl: logo,
-      iconSize: [35, 35],
-      iconAnchor: [17, 17],
-      popupAnchor: [0, -15],
+      iconSize: [45, 45], // Slightly larger for better visibility on light background
+      iconAnchor: [22, 22],
+      popupAnchor: [0, -20],
     });
 
-    // 5. Add markers
     locations.forEach((loc) => {
-      const marker = window.L.marker([loc.lat, loc.lng], { icon: flameIcon })
-        .addTo(mapInstance.current);
+      const marker = window.L.marker([loc.lat, loc.lng], { icon: flameIcon }).addTo(mapInstance.current);
       
       marker.bindPopup(`
-        <div style="background: #0a0a0a; color: white; padding: 5px; border: 1px solid #ea580c; font-family: sans-serif;">
+        <div style="padding: 5px; font-family: sans-serif;">
           <strong style="color: #ea580c; text-transform: uppercase; font-size: 10px;">${loc.id}</strong><br/>
-          <span style="font-weight: bold; font-size: 14px;">${loc.name}</span><br/>
-          <small style="color: #a1a1aa;">${loc.details}</small>
+          <span style="font-weight: bold; font-size: 14px; color: #1a1a1a;">${loc.name}</span><br/>
+          <small style="color: #71717a;">${loc.details}</small>
         </div>
       `);
     });
+
+    // Ensure the map doesn't stay grey/black by forcing a recalculation
+    setTimeout(() => {
+      if(mapInstance.current) mapInstance.current.invalidateSize();
+    }, 200);
 
     return () => {
       if (mapInstance.current) {
@@ -61,41 +62,40 @@ const GlobalMap = () => {
   }, []);
 
   return (
-    <section className="bg-background py-20 border-t border-border transition-colors duration-500">
+    <section className="bg-white py-20 border-t border-zinc-100">
       <div className="container mx-auto px-6">
         
-        {/* Industrial Header */}
         <div className="mb-12 border-l-4 border-orange-600 pl-6">
-          <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
+          <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-zinc-900">
             Global <span className="text-orange-600 not-italic">Presence</span>
           </h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground mt-2">
-            Live Foundation Node Tracking
+          <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-zinc-400 mt-2">
+            Foundation Node Tracking Interface
           </p>
         </div>
 
-        {/* Map Container - Leaflet mounts here */}
-        <div className="relative border border-border bg-black overflow-hidden group">
+        {/* Map Container - Lightened the borders and shadow */}
+        <div className="relative border border-zinc-200 bg-zinc-50 shadow-xl overflow-hidden group">
           <div 
             ref={mapRef} 
-            className="w-full h-[500px] grayscale-[0.6] hover:grayscale-0 transition-all duration-700"
+            className="w-full h-[600px] transition-all duration-700"
           />
           
-          {/* HUD Styling Overlay */}
-          <div className="absolute top-4 right-4 z-[1000] pointer-events-none text-right">
+          {/* HUD Overlay - Swapped to Dark Text for Light Map */}
+          <div className="absolute top-6 right-6 z-[1000] pointer-events-none text-right">
             <div className="text-[10px] font-mono text-orange-600 font-bold uppercase tracking-widest">System Status</div>
-            <div className="text-xl font-black text-white italic">ONLINE</div>
+            <div className="text-xl font-black text-zinc-900 italic">LIVE_FEED</div>
           </div>
         </div>
 
-        {/* Quick List Footer */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mt-4">
+        {/* Legend */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-6">
           {locations.map((loc) => (
-            <div key={loc.id} className="border border-border p-3 bg-white/5 flex items-center gap-3">
-              <div className="w-1 h-4 bg-orange-600" />
+            <div key={loc.id} className="border border-zinc-100 p-4 bg-zinc-50/50 flex items-center gap-3 hover:border-orange-500 transition-colors">
+              <div className="w-1.5 h-6 bg-orange-600" />
               <div>
-                <span className="block text-[10px] font-black text-foreground">{loc.id}</span>
-                <span className="block text-[8px] uppercase text-muted-foreground tracking-tighter">{loc.name}</span>
+                <span className="block text-xs font-black text-zinc-900">{loc.id}</span>
+                <span className="block text-[9px] uppercase text-zinc-400 tracking-tighter">{loc.name}</span>
               </div>
             </div>
           ))}
