@@ -2,7 +2,12 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -14,8 +19,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Poppins', 'sans-serif'],
+        sans: ["Inter", "sans-serif"],
+        display: ["Poppins", "sans-serif"],
+        // Star Wars Style Font
+        orbitron: ["Orbitron", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,6 +58,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Your Flame Charity Branding
         flame: {
           red: "hsl(var(--flame-red))",
           orange: "hsl(var(--flame-orange))",
@@ -87,23 +95,28 @@ export default {
           from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
-        // --- NEW GALAXY KEYFRAMES ---
-        "galaxy-spin": {
+        // --- SPACE ANIMATIONS ---
+        "galaxy-rotate": {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" },
         },
         "star-pulse": {
           "0%, 100%": { opacity: "0.4" },
           "50%": { opacity: "1" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out forwards",
-        // --- NEW GALAXY ANIMATIONS ---
-        "galaxy-rotate": "galaxy-spin 180s linear infinite",
+        // --- SPACE ANIMATIONS ---
+        "galaxy-rotate": "galaxy-rotate 180s linear infinite",
         "star-pulse": "star-pulse 4s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
       },
     },
   },
