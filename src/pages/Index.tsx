@@ -8,6 +8,7 @@ import ProcessSection from "@/components/ProcessSection";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
 import AboutUsSection from "@/components/AboutUsSection";
+import FlameGame from "@/components/FlameGame";
 import GlobalMap from "@/components/GlobalMap";
 import PartnerSection from "@/components/PartnerSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
@@ -125,6 +126,7 @@ const Index = () => {
       <ImpactSection />
       <NewsEventsSection />
       <AboutUsSection />
+      <FlameGame />
       <GlobalMap />
       <ProcessSection />
       <Testimonials />
