@@ -45,7 +45,7 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Home", href: "/" },
+    { name: "Home", href: "#home" },
     { name: "About Us", href: "#about" },
     { name: "Services ", href: "#services " },
     { name: "News  Us", href: "#news" },
@@ -64,7 +64,7 @@ const Navbar = () => {
               <img src={logo} alt="Logo" className="w-20 h-20 object-contain" />
               <div className="absolute inset-0 blur-lg bg-flame-orange/30 -z-10" />
             </div>
-            <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
+            <h2 href="#home" className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
               Our <span className="text-orange-600">Flame</span> <br /> 
               <span className="text-2xl not-italic font-light tracking-[0.2em]">Foundation</span>
             </h2>
