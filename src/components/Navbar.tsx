@@ -1,10 +1,3 @@
-add to navbar
-
-Services = #services
-News = #news
-Presence = #presence
-Process= #process
-
 import { Menu, X, User, LogOut, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
