@@ -1,176 +1,86 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&family=Orbitron:wght@400;500;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ================================
-   Flames Charity Design System
-   Global Variables (Light/Dark)
-   ================================ */
-
 @layer base {
   :root {
-    /* --- LIGHT MODE (Default) --- */
     --background: 0 0% 100%;
     --foreground: 0 0% 10%;
-
     --card: 0 0% 100%;
     --card-foreground: 0 0% 15%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-
     --primary: 12 90% 50%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 30 100% 55%;
     --secondary-foreground: 0 0% 100%;
-
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
-
     --accent: 20 100% 60%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 0 0% 90%;
     --input: 0 0% 92%;
     --ring: 12 90% 50%;
-
     --radius: 0.75rem;
 
     /* Flame Colors */
     --flame-red: 5 85% 48%;
     --flame-orange: 25 100% 55%;
     --flame-yellow: 40 100% 60%;
-    --flame-dark: 0 0% 6%;
-    --flame-ember: 15 95% 45%;
 
     /* Gradients */
     --gradient-flame: linear-gradient(135deg, hsl(5 85% 48%), hsl(25 100% 55%), hsl(40 100% 60%));
-    --gradient-hero: linear-gradient(135deg, hsl(5 85% 48% / 0.95), hsl(25 100% 55% / 0.9));
-
-    /* Sidebar Light */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 15%;
-    --sidebar-primary: 12 90% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 12 90% 50%;
   }
 
   .dark {
-    /* --- DARK MODE (Triggered by class) --- */
-    --background: 0 0% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 12%;
+    --background: 240 10% 4%;
+    --foreground: 45 100% 56%; /* Star Wars Yellow */
+    --card: 240 10% 6%;
     --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-
     --border: 0 0% 20%;
-    --input: 0 0% 18%;
-
-    /* Sidebar Dark */
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border transition-colors duration-300;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased transition-colors duration-500;
     font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
   }
-}
 
-/* ================================
-   Components
-   ================================ */
-
-@layer components {
-  .flame-gradient {
-    background: var(--gradient-flame);
+  /* Target headers with the Sci-Fi font for the Star Wars feel */
+  .font-orbitron, .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.05em;
   }
-
-  .flame-text {
-    background: var(--gradient-flame);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .ember-glow {
-    box-shadow:
-      0 0 30px hsl(var(--flame-orange) / 0.15),
-      0 0 60px hsl(var(--flame-red) / 0.1);
-  }
-
-  .dark .ember-glow {
-    box-shadow:
-      0 0 40px hsl(var(--flame-orange) / 0.3),
-      0 0 80px hsl(var(--flame-red) / 0.2);
-  }
-
-  .card-hover {
-    @apply transition-all duration-300;
-  }
-
-  .card-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  }
-
-  .dark .card-hover:hover {
-    box-shadow: 0 20px 40px hsl(var(--flame-red) / 0.1);
-  }
-}
-
-/* ================================
-   Animations & Utils
-   ================================ */
-
-html {
-  scroll-behavior: smooth;
 }
 
 @layer utilities {
+  @keyframes galaxy-rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .animate-galaxy-rotate {
+    animation: galaxy-rotate 150s linear infinite;
+  }
+
+  .text-glow-yellow {
+    text-shadow: 0 0 10px hsl(45 100% 56% / 0.5), 0 0 20px hsl(45 100% 56% / 0.2);
+  }
+
   .animate-flicker {
     animation: flicker 3s ease-in-out infinite;
   }
 
   @keyframes flicker {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.85; }
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { opacity: 0.8; }
   }
 }
