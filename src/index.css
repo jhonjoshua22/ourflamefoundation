@@ -4,11 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ================================
-   Flames Charity Design System
-   Global Variables (Light/Dark)
-   ================================ */
-
 @layer base {
   :root {
     /* --- LIGHT MODE (Default) --- */
