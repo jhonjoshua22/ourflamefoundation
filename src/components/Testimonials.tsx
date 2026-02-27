@@ -1,8 +1,16 @@
 import React from "react";
-import { Star, CheckCircle } from "lucide-react";
+import { Star, CheckCircle, Rocket } from "lucide-react"; // Added Rocket for your specific highlight
 
 const Testimonials = () => {
   const testimonials = [
+    {
+      name: "You", // Your name can go here
+      role: "Web Developer",
+      content: "I started as a Social Media Manager and am now their Web Developer. This journey helped me grow my skills and secure a wide range of clients through the foundation's incredible network.",
+      initials: "YD", // Your initials
+      accent: "border-orange-600",
+      isHighlight: true // Flag to give your story extra flair
+    },
     {
       name: "Joshua",
       role: "Family Beneficiary",
@@ -44,7 +52,8 @@ const Testimonials = () => {
   const infiniteTestimonials = [...testimonials, ...testimonials];
 
   return (
-    <section className="py-24 bg-white dark:bg-zinc-950 border-y border-zinc-100 dark:border-zinc-900 overflow-hidden">
+    // Added id="impact" here
+    <section id="impact" className="py-24 bg-white dark:bg-zinc-950 border-y border-zinc-100 dark:border-zinc-900 overflow-hidden">
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -71,7 +80,6 @@ const Testimonials = () => {
       </div>
 
       <div className="relative">
-        {/* Soft edge fades for a clean look */}
         <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white dark:from-zinc-950 to-transparent z-10" />
         <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white dark:from-zinc-950 to-transparent z-10" />
 
@@ -79,13 +87,19 @@ const Testimonials = () => {
           {infiniteTestimonials.map((item, index) => (
             <div 
               key={index} 
-              className="w-[420px] bg-zinc-50 dark:bg-zinc-900/50 p-12 border-l-[4px] border-orange-600 flex flex-col justify-between transition-colors hover:bg-white dark:hover:bg-zinc-900 shadow-sm"
+              className={`w-[420px] p-12 border-l-[4px] flex flex-col justify-between transition-all hover:scale-[1.02] shadow-sm
+                ${item.isHighlight 
+                  ? 'bg-orange-50/50 dark:bg-orange-950/10 border-orange-600' 
+                  : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800'}`}
             >
               <div>
-                <div className="flex gap-1 mb-8">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={12} className="fill-orange-600 text-orange-600 opacity-80" />
-                  ))}
+                <div className="flex justify-between items-start mb-8">
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={12} className="fill-orange-600 text-orange-600 opacity-80" />
+                    ))}
+                  </div>
+                  {item.isHighlight && <Rocket size={16} className="text-orange-600 animate-pulse" />}
                 </div>
                 
                 <blockquote className="text-zinc-600 dark:text-zinc-400 text-lg leading-relaxed font-serif italic mb-10">
@@ -94,7 +108,7 @@ const Testimonials = () => {
               </div>
               
               <div className="flex items-center gap-5">
-                <div className={`w-12 h-12 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 font-bold text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100`}>
+                <div className="w-12 h-12 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 font-bold text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
                   {item.initials}
                 </div>
                 <div>
@@ -115,7 +129,6 @@ const Testimonials = () => {
       </div>
 
       <div className="mt-20 flex justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
-         {/* These act as subtle placeholders for charity partners or certifications */}
          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">24-Hour Innovation Cycle</span>
          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">Ethical Capital Certified</span>
          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">Open Source Technology</span>
