@@ -30,7 +30,6 @@ const GlobalMap = () => {
       attributionControl: false,
     });
 
-    // Keeping the "Green/Blue" map tiles as requested, but the UI is back to Flame theme
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
 
     const flameIcon = window.L.icon({
@@ -64,7 +63,8 @@ const GlobalMap = () => {
   }, []);
 
   return (
-    <section className="bg-background py-20 border-t border-border transition-colors duration-500 relative z-0">
+    // Added id="presence" here
+    <section id="presence" className="bg-background py-20 border-t border-border transition-colors duration-500 relative z-0">
       <div className="container mx-auto px-6">
         
         {/* Header - Back to Flame Theme */}
@@ -77,7 +77,7 @@ const GlobalMap = () => {
           </p>
         </div>
 
-        {/* Map Container - Lowered z-index and removed brand-clashing colors */}
+        {/* Map Container */}
         <div className="relative border border-border bg-white/5 shadow-2xl overflow-hidden group z-10">
           <div 
             ref={mapRef} 
@@ -91,7 +91,7 @@ const GlobalMap = () => {
           </div>
         </div>
 
-        {/* Legend Grid - Back to Flame Theme (Black/Orange) */}
+        {/* Legend Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
           {locations.map((loc) => (
             <div key={loc.id} className="p-4 border border-border bg-white/5 flex flex-col hover:border-orange-600 transition-all group">
