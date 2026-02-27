@@ -139,7 +139,7 @@ const ImpactSection = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   return (
-    <section id="impact" className="py-24 bg-white dark:bg-black font-sans relative">
+    <section id="services" className="py-24 bg-white dark:bg-black font-sans relative">
       <div className="container mx-auto px-6 max-w-7xl">
         <div className="mb-20">
           <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic leading-[0.85]">
