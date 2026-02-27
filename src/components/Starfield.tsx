@@ -11,7 +11,7 @@ const Starfield = () => {
 
     let animationId: number;
     const stars: { x: number; y: number; z: number; size: number }[] = [];
-    const NUM_STARS = 400; // Adjusted for performance
+    const NUM_STARS = 400; // Optimal for performance
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -21,17 +21,18 @@ const Starfield = () => {
     resize();
     window.addEventListener("resize", resize);
 
+    // Initialize stars in 3D space
     for (let i = 0; i < NUM_STARS; i++) {
       stars.push({
         x: (Math.random() - 0.5) * canvas.width * 2,
         y: (Math.random() - 0.5) * canvas.height * 2,
         z: Math.random() * 1500,
-        size: Math.random() * 1.2 + 0.5,
+        size: Math.random() * 1.5 + 0.5,
       });
     }
 
     const animate = () => {
-      // Dark space background
+      // Trail effect: draws a semi-transparent rectangle over previous frame
       ctx.fillStyle = "rgba(5, 5, 12, 0.2)"; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -39,13 +40,15 @@ const Starfield = () => {
       const cy = canvas.height / 2;
 
       for (const star of stars) {
-        star.z -= 1.2; // Forward speed
+        star.z -= 1.5; // Forward movement speed
+        
         if (star.z <= 0) {
           star.z = 1500;
           star.x = (Math.random() - 0.5) * canvas.width * 2;
           star.y = (Math.random() - 0.5) * canvas.height * 2;
         }
 
+        // Perspective projection: map 3D coords to 2D screen
         const sx = (star.x / star.z) * 400 + cx;
         const sy = (star.y / star.z) * 400 + cy;
         const r = (1 - star.z / 1500) * star.size * 2;
@@ -70,7 +73,7 @@ const Starfield = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 z-[-1] pointer-events-none"
-      style={{ background: "radial-gradient(circle at center, #0a0a1a 0%, #020205 100%)" }}
+      style={{ background: "#020205" }}
     />
   );
 };
