@@ -14,16 +14,37 @@ import {
 
 const ProcessSection = () => {
   const steps = [
-    { number: "01", title: "MISSION BRIEFING", desc: "Join your chosen session and receive your exclusive Flame gear to begin your journey.", icon: <Compass className="text-blue-400" /> },
-    { number: "02", title: "WEEKLY MANEUVERS", desc: "Complete improvement activities weekly. Your Flame squad is dedicated to cheering you toward victory.", icon: <Zap className="text-orange-500" /> },
-    { number: "03", title: "HOLONET REPORTING", desc: "Report daily successes via video. Consistency unlocks rare weekly prizes and Jedi-level recognition.", icon: <Target className="text-red-500" /> },
+    { 
+      number: "01", 
+      title: "MISSION BRIEFING", 
+      desc: "Join your chosen session and receive your exclusive Flame gear to begin your journey.", 
+      icon: <Compass className="text-blue-400" /> 
+    },
+    { 
+      number: "02", 
+      title: "WEEKLY MANEUVERS", 
+      desc: "Complete improvement activities weekly. Your Flame squad is dedicated to cheering you toward victory.", 
+      icon: <Zap className="text-orange-500" /> 
+    },
+    { 
+      number: "03", 
+      title: "HOLONET REPORTING", 
+      desc: "Report daily successes via video. Consistency unlocks rare weekly prizes and Jedi-level recognition.", 
+      icon: <Target className="text-red-500" /> 
+    },
   ];
 
   const rankingItems = [
-    { label: ">100% Complete", rank: "Master Flame Flyer + Mythic Prize", color: "text-orange-600", glow: "shadow-orange-500/50" },
-    { label: "100% Complete", rank: "Elite 3-Flame Knight", color: "text-orange-500", glow: "shadow-orange-400/30" },
-    { label: "<100% Complete", rank: "2-Flame Padawan - Support", color: "text-zinc-500", glow: "" },
-    { label: "<50% Complete", rank: "Initiate Rank - Pivot Mission", color: "text-zinc-400", glow: "" },
+    { label: ">100% Complete", rank: "Master Flame Flyer + Mythic Prize", color: "text-orange-600" },
+    { label: "100% Complete", rank: "Elite 3-Flame Knight", color: "text-orange-500" },
+    { label: "<100% Complete", rank: "2-Flame Padawan - Support", color: "text-zinc-500" },
+    { label: "<50% Complete", rank: "Initiate Rank - Pivot Mission", color: "text-zinc-400" },
+  ];
+
+  const rewardTiers = [
+    { level: "Bronze", reward: "Magic Gems & Exclusive Merch", icon: <Medal className="text-amber-700" /> },
+    { level: "Silver", reward: "$1 pm Magic Bots (Wholesale)", icon: <Medal className="text-zinc-400" /> },
+    { level: "Gold", reward: "SuperBot Access ($10 pm Wholesale)", icon: <Medal className="text-amber-400" /> },
   ];
 
   return (
@@ -46,7 +67,7 @@ const ProcessSection = () => {
 
         <div className="grid lg:grid-cols-2 gap-px bg-zinc-200 dark:bg-white/10 border border-zinc-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl">
           
-          {/* LEFT SIDE: THE JOURNEY */}
+          {/* LEFT SIDE: THE JOURNEY (MISSION STEPS) */}
           <div className="bg-white dark:bg-[#0a0a0a] p-8 md:p-12 flex flex-col justify-between gap-16">
             <div className="space-y-12">
               {steps.map((step, index) => (
@@ -74,13 +95,14 @@ const ProcessSection = () => {
               ))}
             </div>
 
+            {/* Engagement Rules (Nota Bene) */}
             <motion.div 
               whileHover={{ scale: 1.02 }}
               className="p-6 bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/10 rounded-lg"
             >
               <div className="flex items-center gap-2 mb-4 text-zinc-900 dark:text-white">
                 <ShieldCheck size={18} className="text-orange-600 animate-pulse" />
-                <h4 className="text-xs font-black uppercase tracking-[0.2em]">Rules of Engagement (NB)</h4>
+                <h4 className="text-xs font-black uppercase tracking-[0.2em]">Rules of Engagement</h4>
               </div>
               <ul className="space-y-3 text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug font-medium uppercase tracking-wider">
                 <li className="flex gap-2 items-start"><span className="text-orange-600">»</span> Missions target Money, Jobs, and Connection.</li>
@@ -90,10 +112,10 @@ const ProcessSection = () => {
             </motion.div>
           </div>
 
-          {/* RIGHT SIDE: RANKINGS & REWARDS */}
+          {/* RIGHT SIDE: RANKINGS & SECTOR REWARDS */}
           <div className="bg-zinc-50 dark:bg-[#0d0d0d] p-8 md:p-12 flex flex-col gap-10 border-l border-zinc-200 dark:border-white/10">
             
-            {/* Personal Ranking */}
+            {/* Personal Ranking / Pilot Standings */}
             <div className="relative">
               <div className="flex items-center gap-2 mb-6 text-orange-600">
                 <Flame size={18} className="drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]" />
@@ -113,18 +135,14 @@ const ProcessSection = () => {
               </div>
             </div>
 
-            {/* Rewards Section */}
+            {/* Sector Rewards / Prizes */}
             <div>
               <div className="flex items-center gap-2 mb-6 text-zinc-900 dark:text-white">
                 <Gift size={18} className="text-orange-600" />
                 <h4 className="text-xs font-black uppercase tracking-[0.2em]">Sector Rewards</h4>
               </div>
               <div className="grid grid-cols-1 gap-3">
-                {[
-                  { level: "Bronze", reward: "Magic Gems & Exclusive Merch", icon: <Medal className="text-amber-700" /> },
-                  { level: "Silver", reward: "$1 pm Magic Bots (Wholesale)", icon: <Medal className="text-zinc-400" /> },
-                  { level: "Gold", reward: "SuperBot Access ($10 pm Wholesale)", icon: <Medal className="text-amber-400" /> },
-                ].map((prize, i) => (
+                {rewardTiers.map((prize, i) => (
                   <motion.div 
                     key={i}
                     whileHover={{ scale: 1.03, backgroundColor: "rgba(234, 88, 12, 0.05)" }}
@@ -140,6 +158,7 @@ const ProcessSection = () => {
               </div>
             </div>
 
+            {/* Footer / Partner Link */}
             <div className="pt-6 border-t border-zinc-200 dark:border-white/10 mt-auto">
               <p className="text-[11px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                 Operational Partners: 
