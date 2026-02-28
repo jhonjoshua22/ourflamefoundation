@@ -31,7 +31,7 @@ const HeroSection = () => {
           {/* Sharp Badge - Removed all rounding */}
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none mb-8 backdrop-blur-sm">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600">
-              Empowering Communities Since 2002
+              Empowering Communities Since 1876
             </span>
           </div>
 
