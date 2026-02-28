@@ -30,6 +30,12 @@ const FlameGame = () => {
     },
   ];
 
+  const steps = [
+    { step: "01", title: "1-Click Entry", desc: "Sign up instantly with SSO or Video verification.", icon: <Video />, link: "/login" },
+    { step: "02", title: "Daily Mission", desc: "Follow AI-monitored task programs with smart prompts.", icon: <Flame />, link: "#tiers" },
+    { step: "03", title: "Claim Rewards", desc: "Saturday 0700 UTC: Enjoy your magical rewards.", icon: <Star />, link: null }
+  ];
+
   return (
     <section id="flame-game" className="relative py-24 px-6 overflow-hidden bg-white dark:bg-black">
       <div className="container mx-auto max-w-6xl relative z-10">
@@ -43,37 +49,43 @@ const FlameGame = () => {
             Help your family save the universe(s) & enjoy magical rewards. 
             <span className="block text-orange-600 font-bold mt-2 italic">Forever Free & Open Source.</span>
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm uppercase tracking-[0.3em] text-zinc-400 pt-4">
-            <Star size={14} className="animate-pulse" />
-            Recruiting: Scouts, Stormtroopers & Angels
-            <Star size={14} className="animate-pulse" />
-          </div>
         </div>
 
         {/* 3 Steps Process */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          {[
-            { step: "01", title: "1-Click Entry", desc: "Sign up instantly with SSO or Video verification.", icon: <Video />, link: "/login" },
-            { step: "02", title: "Daily Mission", desc: "Follow AI-monitored task programs with smart prompts.", icon: <Flame />, link: "#tiers" },
-            { step: "03", title: "Claim Rewards", desc: "Saturday 0700 UTC: Enjoy your magical rewards.", icon: <Star />, link: null }
-          ].map((item, idx) => (
-            <div key={idx} className="relative p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group hover:border-orange-600 transition-all cursor-pointer">
-              <span className="text-6xl font-black text-zinc-900/5 dark:text-white/5 absolute top-4 right-4 group-hover:text-orange-600/10 transition-colors">
-                {item.step}
-              </span>
-              <div className="text-orange-600 mb-4">{item.icon}</div>
-              <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2 uppercase">
-                {item.link ? (
-                  <a href={item.link} className="hover:text-orange-600 transition-colors">{item.title}</a>
-                ) : item.title}
-              </h3>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
+          {steps.map((item, idx) => {
+            const CardContent = (
+              <div className={`relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 ${item.link ? 'hover:border-orange-600 hover:scale-[1.02] cursor-pointer' : ''}`}>
+                <span className="text-6xl font-black text-zinc-900/5 dark:text-white/5 absolute top-4 right-4 group-hover:text-orange-600/10 transition-colors">
+                  {item.step}
+                </span>
+                <div className="text-orange-600 mb-4 transition-transform group-hover:scale-110 duration-300">{item.icon}</div>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2 uppercase group-hover:text-orange-600 transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+                {item.link && (
+                   <div className="mt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                     Proceed <ChevronRight size={12} />
+                   </div>
+                )}
+              </div>
+            );
+
+            return item.link ? (
+              <a key={idx} href={item.link} className="block h-full">
+                {CardContent}
+              </a>
+            ) : (
+              <div key={idx} className="block h-full">
+                {CardContent}
+              </div>
+            );
+          })}
         </div>
 
         {/* 3x3 Ticket Grid */}
-        <div id="tiers" className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
+        <div id="tiers" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-3 gap-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
           {tiers.map((tier, i) => (
             <div 
               key={i} 
@@ -91,13 +103,6 @@ const FlameGame = () => {
               </button>
             </div>
           ))}
-        </div>
-
-        {/* Join Queue Footer */}
-        <div className="mt-16 text-center">
-          <p className="text-zinc-400 uppercase tracking-[0.5em] text-[10px] font-black">
-            Join your queues please ... Recruitment is Active
-          </p>
         </div>
       </div>
     </section>
