@@ -3,6 +3,7 @@ import { useState } from "react";
 import SchedulePDF from "../assets/schedule.pdf";
 import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
 import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
+import MasterplanPDF from "../assets/masterplan.pdf";
 
 import { 
   ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
@@ -73,6 +74,7 @@ const AboutUsSection = () => {
 
   const brandFiles = [
     { name: "2026 Daily Timetable", path: SchedulePDF, type: "pdf" }, 
+    { name: "The Masterplan", path: MasterplanPDF, type: "pdf" },
     { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
     { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
