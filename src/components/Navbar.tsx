@@ -47,6 +47,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", href: "#home" },
     { name: "About Us", href: "#about" },
+    { name: "Flame Game", href: "#flame-game" },
     { name: "Services ", href: "#services " },
     { name: "Presence", href: "#presence" },
     { name: "News", href: "#news" },
