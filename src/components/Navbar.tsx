@@ -48,6 +48,7 @@ const Navbar = () => {
     { name: "Home", href: "#home" },
     { name: "About Us", href: "#about" },
     { name: "Services ", href: "#services " },
+    { name: "Presence", href: "#presence" },
     { name: "News", href: "#news" },
     { name: "Process", href: "#process" },
     { name: "Impact", href: "#impact" },
