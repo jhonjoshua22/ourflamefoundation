@@ -124,13 +124,13 @@ const Index = () => {
 
       <Navbar />
       <HeroSection />
-      <ImpactSection />
-      <NewsEventsSection />
-      <AboutUsSection />
-      <FlameGame />
-      <GlobalMap />
+      <FlameGame />
+      <GlobalMap />
       <ProcessSection />
       <Testimonials />
+      <AboutUsSection />
+      <NewsEventsSection />
+      <ImpactSection />
       <PartnerSection />
       <Footer />
       <Chatbot />
