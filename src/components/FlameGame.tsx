@@ -19,7 +19,7 @@ const FlameGame = () => {
       button: "Join Scouts",
     },
     {
-      role: "Stormtroopers",
+      role: "Supertroopers",
       image: stormtrooperImg,
       price: "From $10 pm",
       benefit: "7% Revenue Share",
