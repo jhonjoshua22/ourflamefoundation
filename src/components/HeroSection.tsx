@@ -45,6 +45,7 @@ const HeroSection = () => {
             <p className="text-xl md:text-2xl text-foreground/80 font-light leading-relaxed max-w-2xl">
               A global incubator dedicated to reducing complexity. 
               Fusing <span className="font-bold">AI, blockchain</span>, and expert human support to improve lives.
+              Objectives: Maximise healthy happiness, economic sustainability & curiosity for sentients, truth & beautiful design.
             </p>
             
             <div className="border-l-2 border-orange-600 pl-6 py-1">
