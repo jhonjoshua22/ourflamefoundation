@@ -6,9 +6,9 @@ import {
   ShieldCheck,
   Facebook,
   MessageSquare,
+  Zap, // Added for Clapmi icon
 } from "lucide-react";
 import { Link } from "react-router-dom";
-// Updated Logo Import
 import logo from "../assets/ourflamelogo.png";
 
 const AuthPage: React.FC = () => {
@@ -35,10 +35,10 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
-      {/* Background Glow - Matches Foundation Theme */}
+      {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[120px] -z-10" />
 
-      {/* Back Button - Sharp Design */}
+      {/* Back Button */}
       <Link
         to="/"
         className="absolute top-8 left-8 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-[10px] font-black tracking-[0.2em]"
@@ -47,11 +47,9 @@ const AuthPage: React.FC = () => {
         Back to home
       </Link>
 
-      {/* Auth Card - Sharp Edges */}
       <div className="w-full max-w-[400px]">
         <div className="bg-[#111111]/80 backdrop-blur-md border border-white/10 rounded-none p-8 md:p-12">
           <div className="flex flex-col items-center text-center mb-10">
-            {/* Logo Section */}
             <div className="relative mb-6">
               <img 
                 src={logo} 
@@ -107,6 +105,17 @@ const AuthPage: React.FC = () => {
               </svg>
               Continue with GitHub
             </button>
+
+            {/* Clapmi Link - Matches OAuth Style */}
+            <a
+              href="https://clapmi.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-3 bg-zinc-900 border border-white/5 hover:border-pink-500/50 hover:bg-pink-500/5 text-zinc-400 hover:text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
+            >
+              <Zap size={18} className="text-pink-500" />
+              Open Clapmi Dashboard
+            </a>
 
             {/* Divider */}
             <div className="flex items-center gap-3 py-6">
