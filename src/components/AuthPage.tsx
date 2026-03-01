@@ -114,7 +114,7 @@ const AuthPage: React.FC = () => {
               className="w-full flex items-center justify-center gap-3 bg-zinc-900 border border-white/5 hover:border-pink-500/50 hover:bg-pink-500/5 text-zinc-400 hover:text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
             >
               <Zap size={18} className="text-pink-500" />
-              Open Clapmi Dashboard
+              Continue with Clapmi
             </a>
 
             {/* Divider */}
