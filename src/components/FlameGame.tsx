@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Added for routing
+import { Link } from "react-router-dom";
 import { Flame, ChevronRight, Video, Star } from "lucide-react";
 
 // Asset Imports
@@ -40,13 +40,31 @@ const FlameGame = () => {
   ];
 
   const steps = [
-    { step: "01", title: "1-Click Entry", desc: "Sign up instantly with SSO or Video verification.", icon: <Video />, link: "/login" },
-    { step: "02", title: "Daily Mission", desc: "Follow AI-monitored task programs with smart prompts.", icon: <Flame />, link: "#dashboard" },
-    { step: "03", title: "Claim Rewards", desc: "Saturday 0700 UTC: Enjoy your magical rewards.", icon: <Star />, link: null }
+    { 
+      step: "01", 
+      title: "1-Click Entry", 
+      desc: "Sign up instantly with SSO or Video verification.", 
+      icon: <Video />, 
+      link: "/login" 
+    },
+    { 
+      step: "02", 
+      title: "Daily Mission", 
+      desc: "Follow AI-monitored task programs with smart prompts.", 
+      icon: <Flame />, 
+      link: "#dashboard" 
+    },
+    { 
+      step: "03", 
+      title: "Claim Rewards", 
+      desc: "Saturday 0700 UTC: Enjoy your magical rewards.", 
+      icon: <Star />, 
+      link: "https://calendar.google.com" // Link to Google Calendar
+    }
   ];
 
   return (
-    <section id="flame-game" className="relative py-24 px-6 overflow-hidden bg-white dark:bg-black">
+    <section id="flame-game" className="relative py-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes breathe {
           0%, 100% { transform: scale(1); filter: brightness(100%); }
@@ -73,8 +91,11 @@ const FlameGame = () => {
         {/* 3 Steps Process */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {steps.map((item, idx) => {
+            const isExternal = item.link?.startsWith('http');
+            const isAnchor = item.link?.startsWith('#');
+
             const CardContent = (
-              <div className={`relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 ${item.link ? 'hover:border-orange-600 hover:scale-[1.02] cursor-pointer' : ''}`}>
+              <div className="relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 hover:border-orange-600 hover:scale-[1.02] cursor-pointer">
                 <span className="text-6xl font-black text-zinc-900/5 dark:text-white/5 absolute top-4 right-4 group-hover:text-orange-600/10 transition-colors">
                   {item.step}
                 </span>
@@ -83,23 +104,32 @@ const FlameGame = () => {
                   {item.title}
                 </h3>
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
-                {item.link && (
-                   <div className="mt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                     Proceed <ChevronRight size={12} />
-                   </div>
-                )}
+                <div className="mt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {item.title === "Claim Rewards" ? "Open Calendar" : "Proceed"} <ChevronRight size={12} />
+                </div>
               </div>
             );
 
-            // Conditional rendering for steps with links
-            return item.link ? (
-              item.link.startsWith('/') ? (
-                <Link key={idx} to={item.link} className="block h-full">{CardContent}</Link>
-              ) : (
-                <a key={idx} href={item.link} className="block h-full">{CardContent}</a>
-              )
-            ) : (
-              <div key={idx} className="block h-full">{CardContent}</div>
+            if (isExternal) {
+              return (
+                <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="block h-full">
+                  {CardContent}
+                </a>
+              );
+            }
+
+            if (isAnchor) {
+              return (
+                <a key={idx} href={item.link} className="block h-full">
+                  {CardContent}
+                </a>
+              );
+            }
+
+            return (
+              <Link key={idx} to={item.link || "#"} className="block h-full">
+                {CardContent}
+              </Link>
             );
           })}
         </div>
@@ -125,7 +155,6 @@ const FlameGame = () => {
               <div className="text-orange-600 font-bold text-lg mb-1">{tier.price}</div>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-8">{tier.benefit}</p>
               
-              {/* Updated Button to Link to /login */}
               <Link 
                 to="/login" 
                 className={`w-full py-4 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 ${
