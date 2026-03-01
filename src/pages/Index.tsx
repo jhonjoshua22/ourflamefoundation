@@ -125,8 +125,8 @@ const Index = () => {
 
       <Navbar />
       <HeroSection />
-      <Dashboard />
       <FlameGame />
+      <Dashboard />
       <GlobalMap />
       <ProcessSection />
       <Testimonials />
