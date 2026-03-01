@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
 import AboutUsSection from "@/components/AboutUsSection";
 import FlameGame from "@/components/FlameGame";
+import Dashboard from "@/components/Dashboard";
 import GlobalMap from "@/components/GlobalMap";
 import PartnerSection from "@/components/PartnerSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
@@ -124,6 +125,7 @@ const Index = () => {
 
       <Navbar />
       <HeroSection />
+      <Dashboard />
       <FlameGame />
       <GlobalMap />
       <ProcessSection />
