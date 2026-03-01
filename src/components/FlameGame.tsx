@@ -6,26 +6,32 @@ const FlameGame = () => {
     {
       role: "Scouts",
       icon: <Zap className="text-blue-500" />,
+      image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&q=80&w=300", // Space Scout Theme
       price: "Forever Free",
       benefit: "Target: $1/mo pay-out",
       color: "border-border bg-card/50", 
+      glow: "shadow-[0_0_30px_rgba(205,127,50,0.4)]", // Bronze Glow
       button: "Join Scouts",
     },
     {
       role: "Stormtroopers",
       icon: <Target className="text-orange-600" />,
+      image: "https://images.unsplash.com/photo-1585366119957-e556f4002a0c?auto=format&fit=crop&q=80&w=300", // Soldier Theme
       price: "From $10 pm",
       benefit: "7% Revenue Share",
       color: "border-orange-600 bg-orange-600/10 shadow-[0_0_20px_rgba(234,88,12,0.1)]",
+      glow: "shadow-[0_0_30px_rgba(192,192,192,0.4)]", // Silver Glow
       button: "Recruit Me",
       featured: true,
     },
     {
       role: "Angels",
       icon: <Shield className="text-yellow-500" />,
+      image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=300", // Celestial Theme
       price: "From $100 pm",
       benefit: "0.7% Revenue Share",
       color: "border-border bg-card/50",
+      glow: "shadow-[0_0_40px_rgba(255,215,0,0.5)]", // Gold Glow
       button: "Become Angel",
     },
   ];
@@ -38,6 +44,17 @@ const FlameGame = () => {
 
   return (
     <section id="flame-game" className="relative py-24 px-6 overflow-hidden bg-white dark:bg-black">
+      {/* Global Style for the Breathing Animation */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.15); opacity: 1; }
+        }
+        .animate-breathe {
+          animation: breathe 4s ease-in-out infinite;
+        }
+      `}} />
+
       <div className="container mx-auto max-w-6xl relative z-10">
         
         {/* Header Section */}
@@ -91,7 +108,21 @@ const FlameGame = () => {
               key={i} 
               className={`p-10 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}
             >
-              <div className="mb-6 p-4 bg-zinc-900/5 dark:bg-white/5 rounded-full">{tier.icon}</div>
+              {/* Breathing Avatar Photo */}
+              <div className="relative mb-8">
+                <div className={`w-24 h-24 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glow}`}>
+                  <img 
+                    src={tier.image} 
+                    alt={tier.role} 
+                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                  />
+                </div>
+                {/* Small overlay icon */}
+                <div className="absolute -bottom-2 -right-2 p-2 bg-black rounded-full border border-white/10">
+                  {tier.icon}
+                </div>
+              </div>
+
               <h4 className="text-3xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
               <div className="text-orange-600 font-bold text-lg mb-1">{tier.price}</div>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-8">{tier.benefit}</p>
