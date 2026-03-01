@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Added for routing
 import { Flame, ChevronRight, Video, Star } from "lucide-react";
 
 // Asset Imports
@@ -14,7 +15,6 @@ const FlameGame = () => {
       price: "Forever Free",
       benefit: "Target: $1/mo pay-out",
       color: "border-border bg-card/50", 
-      // High-intensity Bronze Glow
       glowClass: "shadow-[0_0_50px_rgba(205,127,50,0.6),0_0_20px_rgba(205,127,50,0.4)]",
       button: "Join Scouts",
     },
@@ -24,7 +24,6 @@ const FlameGame = () => {
       price: "From $10 pm",
       benefit: "7% Revenue Share",
       color: "border-orange-600 bg-orange-600/10 shadow-[0_0_20px_rgba(234,88,12,0.1)]",
-      // High-intensity Silver Glow
       glowClass: "shadow-[0_0_50px_rgba(255,255,255,0.5),0_0_20px_rgba(148,163,184,0.4)]",
       button: "Recruit Me",
       featured: true,
@@ -35,7 +34,6 @@ const FlameGame = () => {
       price: "From $100 pm",
       benefit: "0.7% Revenue Share",
       color: "border-border bg-card/50",
-      // High-intensity Gold Glow
       glowClass: "shadow-[0_0_60px_rgba(255,215,0,0.7),0_0_25px_rgba(255,165,0,0.4)]",
       button: "Become Angel",
     },
@@ -76,7 +74,7 @@ const FlameGame = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {steps.map((item, idx) => {
             const CardContent = (
-              <div key={idx} className={`relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 ${item.link ? 'hover:border-orange-600 hover:scale-[1.02] cursor-pointer' : ''}`}>
+              <div className={`relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 ${item.link ? 'hover:border-orange-600 hover:scale-[1.02] cursor-pointer' : ''}`}>
                 <span className="text-6xl font-black text-zinc-900/5 dark:text-white/5 absolute top-4 right-4 group-hover:text-orange-600/10 transition-colors">
                   {item.step}
                 </span>
@@ -93,8 +91,13 @@ const FlameGame = () => {
               </div>
             );
 
+            // Conditional rendering for steps with links
             return item.link ? (
-              <a key={idx} href={item.link} className="block h-full">{CardContent}</a>
+              item.link.startsWith('/') ? (
+                <Link key={idx} to={item.link} className="block h-full">{CardContent}</Link>
+              ) : (
+                <a key={idx} href={item.link} className="block h-full">{CardContent}</a>
+              )
             ) : (
               <div key={idx} className="block h-full">{CardContent}</div>
             );
@@ -108,7 +111,6 @@ const FlameGame = () => {
               key={i} 
               className={`p-10 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}
             >
-              {/* Breathing Asset Photo with Recognized Glow */}
               <div className="relative mb-10 mt-4">
                 <div className={`w-32 h-32 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
                   <img 
@@ -123,11 +125,15 @@ const FlameGame = () => {
               <div className="text-orange-600 font-bold text-lg mb-1">{tier.price}</div>
               <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-8">{tier.benefit}</p>
               
-              <button className={`w-full py-4 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 ${
-                tier.featured ? "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.4)]" : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
-              }`}>
+              {/* Updated Button to Link to /login */}
+              <Link 
+                to="/login" 
+                className={`w-full py-4 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 ${
+                  tier.featured ? "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.4)]" : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
+                }`}
+              >
                 {tier.button} <ChevronRight size={16} />
-              </button>
+              </Link>
             </div>
           ))}
         </div>
