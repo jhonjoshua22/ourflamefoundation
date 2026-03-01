@@ -2,7 +2,7 @@ import React from "react";
 import { Flame, ChevronRight, Video, Star } from "lucide-react";
 
 // Asset Imports
-import scoutImg from "../assets/scouts.png";
+import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/stormtrooper.png";
 import angelImg from "../assets/angel.png";
 
