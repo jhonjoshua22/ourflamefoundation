@@ -12,7 +12,7 @@ import NewsEventsSection from "@/components/NewsEventsSection";
 const Index = () => {
   return (
     <div className="flex flex-col">
-      {/* Note: Navbar and Footer are now handled by MainLayout. 
+      {/* 
           This page renders inside the <Outlet /> of MainLayout. 
       */}
       
