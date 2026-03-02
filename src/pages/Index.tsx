@@ -123,7 +123,6 @@ const Index = () => {
         .VIpgJd-ZVi9nd-ORHb-nS19Ww { display: none !important; } /* Modern Google branding hide */
       `}</style>
 
-      <Navbar />
       <HeroSection />
       <FlameGame />
       <Dashboard />
@@ -134,8 +133,7 @@ const Index = () => {
       <NewsEventsSection />
       <ImpactSection />
       <PartnerSection />
-      <Footer />
-      <Chatbot />
+
     </div>
   );
 };
