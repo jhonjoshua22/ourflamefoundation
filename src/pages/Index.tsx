@@ -12,27 +12,48 @@ import NewsEventsSection from "@/components/NewsEventsSection";
 const Index = () => {
   return (
     <div className="flex flex-col">
-      {/* 
-          This page renders inside the <Outlet /> of MainLayout. 
-      */}
+      {/* 1. HOME */}
+      <section id="home">
+        <HeroSection />
+      </section>
       
-      <HeroSection />
+      {/* 2. ABOUT */}
+      <section id="about">
+        <AboutUsSection />
+      </section>
+
+      {/* 3. FLAME GAME */}
+      <section id="flame-game">
+        <FlameGame />
+        <Dashboard />
+      </section>
       
-      {/* The Flame Game & Dashboard Sections */}
-      <FlameGame />
-      <Dashboard />
+      {/* 4. SERVICES */}
+      <section id="services">
+        <ProcessSection />
+      </section>
+
+      {/* 5. PRESENCE */}
+      <section id="presence">
+        <GlobalMap />
+      </section>
+
+      {/* 6. NEWS */}
+      <section id="news">
+        <NewsEventsSection />
+      </section>
+
+      {/* 7. PROCESS */}
+      <section id="process">
+        <Testimonials />
+      </section>
+
+      {/* 8. IMPACT */}
+      <section id="impact">
+        <ImpactSection />
+      </section>
       
-      {/* Infrastructure & Social Proof */}
-      <GlobalMap />
-      <ProcessSection />
-      <Testimonials />
-      
-      {/* Foundation Details */}
-      <AboutUsSection />
-      <NewsEventsSection />
-      <ImpactSection />
-      
-      {/* Partnership Ecosystem */}
+      {/* Partnership Ecosystem (No Nav Link) */}
       <PartnerSection />
     </div>
   );
