@@ -45,12 +45,12 @@ const Index = () => {
 
       {/* 7. PROCESS */}
       <section id="process">
-        <Testimonials />
+        <ProcessSection />
       </section>
 
       {/* 8. IMPACT */}
       <section id="impact">
-        <ImpactSection />
+        <Testimonials />
       </section>
       
       {/* Partnership Ecosystem (No Nav Link) */}
