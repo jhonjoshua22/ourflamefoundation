@@ -1,6 +1,6 @@
-import { Menu, X, User, LogOut, Sun, Moon, Trophy } from "lucide-react"; // Added Trophy icon
+import { Menu, X, User, LogOut, Sun, Moon, Trophy } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom"; // Added useLocation
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import logo from "../assets/ourflamelogo.png"; 
 
@@ -8,45 +8,63 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation(); // Hook to check what page we are on
+  const location = useLocation();
   
+  // Theme State
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("theme");
-      return saved === "dark";
+      return saved === "dark" || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
     return false; 
   });
 
-  // ... (Theme and Auth Sync effects remain the same)
+  // THEME EFFECT: This is what makes light/dark mode actually work
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
 
-  // Updated Links: Use /#id instead of just #id
+  // Auth Listener
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    navigate("/login");
+  };
+
   const navLinks = [
     { name: "Home", href: "/#home" },
     { name: "About", href: "/#about" },
     { name: "Flame Game", href: "/#flame-game" },
     { name: "Scoretable", href: "/scoretable", isPage: true },
-    { name: "Services", href: "#services" },
+    { name: "Services", href: "/#services" },
     { name: "Presence", href: "/#presence" },
     { name: "News", href: "/#news" },
     { name: "Process", href: "/#process" },
     { name: "Impact", href: "/#impact" },
   ];
 
-  // Helper to determine if we should use <Link> or <a>
   const NavItem = ({ link, className }: { link: any, className: string }) => {
-    // If it's a separate page (like /scoretable), use Link
-    if (link.isPage) {
-      return (
-        <Link to={link.href} className={className} onClick={() => setIsOpen(false)}>
-          {link.name}
-        </Link>
-      );
-    }
+    const isHome = location.pathname === "/";
     
-    // If we are ALREADY on the home page, standard <a> is fine for smooth scroll
-    // If we are NOT on home page, we use <Link> to go home first
-    if (location.pathname !== "/") {
+    // Logic: If we are on a different page, ALWAYS use <Link> to go home first
+    if (link.isPage || !isHome) {
       return (
         <Link to={link.href} className={className} onClick={() => setIsOpen(false)}>
           {link.name}
@@ -54,6 +72,7 @@ const Navbar = () => {
       );
     }
 
+    // If on home, use <a> for smooth scrolling
     return (
       <a href={link.href} className={className} onClick={() => setIsOpen(false)}>
         {link.name}
@@ -62,11 +81,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0a0a0a] text-white border-b border-white/10 font-sans">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0a0a0a] dark:bg-black text-white border-b border-white/10 font-sans">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo Section */}
           <Link to="/" className="flex items-center gap-2 shrink-0" onClick={() => setIsOpen(false)}>
             <img src={logo} alt="Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
             <div className="flex flex-col text-left">
@@ -77,7 +95,6 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* DESKTOP NAV */}
           <div className="hidden lg:flex items-center gap-4">
             <div className="flex items-center gap-4 xl:gap-6">
               {navLinks.map((link) => (
@@ -94,7 +111,7 @@ const Navbar = () => {
             <div className="h-6 w-px bg-white/10 mx-2" />
 
             <div className="flex items-center gap-3">
-              <button onClick={() => setIsDark(!isDark)} className="p-2 hover:bg-white/5 transition-all">
+              <button onClick={() => setIsDark(!isDark)} className="p-2 hover:bg-white/5 transition-all outline-none">
                 {isDark ? <Sun size={16} className="text-yellow-500" /> : <Moon size={16} className="text-gray-400" />}
               </button>
 
@@ -115,7 +132,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* MOBILE CONTROLS */}
           <div className="flex lg:hidden items-center gap-2">
             <button onClick={() => setIsDark(!isDark)} className="p-2 text-white bg-white/5 border border-white/10">
               {isDark ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} className="text-gray-400" />}
@@ -137,12 +153,6 @@ const Navbar = () => {
               className="text-2xl font-black uppercase italic tracking-tighter text-white border-b border-white/5 py-4 block" 
             />
           ))}
-          
-          <div className="pt-6 space-y-4">
-            <a href="#footer" onClick={() => setIsOpen(false)} className="bg-orange-600 block w-full py-5 text-white font-black text-center uppercase tracking-[0.2em]">
-              Get In Touch
-            </a>
-          </div>
         </div>
       </div>
     </nav>
