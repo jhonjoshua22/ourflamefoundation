@@ -1,8 +1,8 @@
 import React from "react";
-import { Trophy, Target, Zap, Star, Shield, Activity, ChevronRight } from "lucide-react";
+// Import from assets folder which is one level up from pages
+import scoretableBg from "../assets/scoretable.png"; 
 
-// The photo background for the scoreboard table only
-const TABLE_BG = "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop";
+import { Trophy, Target, Zap, Star, Shield, Activity, ChevronRight } from "lucide-react";
 
 const Scoretable = () => {
   const leaders = [
@@ -70,18 +70,18 @@ const Scoretable = () => {
             </h3>
             
             <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[450px]">
-              {/* Table Photo Background */}
+              {/* Photo Background Wrapper using the IMPORTED variable */}
               <div 
                 className="absolute inset-0 z-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${TABLE_BG})` }}
+                style={{ backgroundImage: `url(${scoretableBg})` }}
               />
-              <div className="absolute inset-0 z-10 bg-black/80 backdrop-blur-[2px]" />
+              <div className="absolute inset-0 z-10 bg-black/85 backdrop-blur-[1px]" />
 
               {/* Table Content */}
               <div className="relative z-20 overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-black/50 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                    <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                       <th className="p-6">Rank</th>
                       <th className="p-6">Agent / Class</th>
                       <th className="p-6">Email Address</th>
@@ -91,15 +91,13 @@ const Scoretable = () => {
                   <tbody className="divide-y divide-white/5">
                     {leaders.map((agent, index) => (
                       <tr key={agent.id} className="hover:bg-orange-600/10 transition-colors group">
-                        {/* Rank */}
                         <td className="p-6 font-black italic text-2xl text-white/10 group-hover:text-orange-600/30">
                           #{index + 1}
                         </td>
                         
-                        {/* Name + Class below */}
                         <td className="p-6">
-                          <p className="font-bold text-white uppercase tracking-tight leading-none mb-1">{agent.name}</p>
-                          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-sm ${
+                          <p className="font-bold text-white uppercase tracking-tight leading-none mb-1.5">{agent.name}</p>
+                          <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 tracking-tighter ${
                             agent.rank === 'Angel' ? 'bg-yellow-500/20 text-yellow-500' : 
                             agent.rank === 'Supertrooper' ? 'bg-orange-600/20 text-orange-600' : 
                             'bg-blue-500/20 text-blue-500'
@@ -108,14 +106,12 @@ const Scoretable = () => {
                           </span>
                         </td>
 
-                        {/* Email */}
                         <td className="p-6">
                           <p className="text-[11px] text-zinc-400 lowercase font-medium tracking-wide">
                             {agent.email}
                           </p>
                         </td>
 
-                        {/* Score */}
                         <td className="p-6 font-mono font-bold text-white text-right">
                           {agent.points}
                         </td>
@@ -127,16 +123,16 @@ const Scoretable = () => {
             </div>
           </div>
 
-          {/* Live Feed */}
+          {/* Live Feed Column */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-400 flex items-center gap-3">
               <Activity size={18} className="text-orange-600" /> Live Feed
             </h3>
-            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950/50">
+            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950/50 h-full">
               <div className="space-y-6">
-                {[1, 2, 3, 4].map((i) => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-100 dark:border-zinc-900 pb-4 last:border-0">
-                    <p className="text-zinc-500 dark:text-zinc-400">
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">
                       <span className="text-orange-600 font-bold uppercase tracking-tighter">System Alert:</span> 
                       <br />Monitoring sector data...
                     </p>
@@ -147,7 +143,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* REWARDS GRID STYLE */}
+        {/* Achievement Tiers Grid */}
         <div className="space-y-6">
           <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-400 flex items-center gap-3">
              <Shield size={18} className="text-orange-600" /> Achievement Tiers
