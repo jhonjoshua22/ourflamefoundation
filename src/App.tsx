@@ -12,7 +12,7 @@ import AuthPage from "./components/AuthPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy"; 
 import TermsPage from "./pages/TermsPage"; 
 import Profile from "./pages/Profile";
-import Scoretable from "./pages/Scoretable"; // <--- YOUR NEW PAGE
+import Scoretable from "./pages/Scoretable";
 
 const queryClient = new QueryClient();
 
