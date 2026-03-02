@@ -30,7 +30,7 @@ const Index = () => {
       
       {/* 4. SERVICES */}
       <section id="services">
-        <ProcessSection />
+        <ImpactSection />
       </section>
 
       {/* 5. PRESENCE */}
