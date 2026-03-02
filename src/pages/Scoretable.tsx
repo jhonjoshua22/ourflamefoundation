@@ -2,7 +2,6 @@ import React from "react";
 import { Trophy, Medal, Target, Zap, Star, Shield, ArrowUpRight, Gift, ChevronRight } from "lucide-react";
 
 const Scoretable = () => {
-  // Sample data set to 0 as requested
   const leaders = [
     { id: 1, name: "Nova_Flame", rank: "Angel", points: 0, change: "0%", avatar: "NF" },
     { id: 2, name: "CyberScout_88", rank: "Supertrooper", points: 0, change: "0%", avatar: "CS" },
