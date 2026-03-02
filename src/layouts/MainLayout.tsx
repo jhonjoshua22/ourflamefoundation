@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
@@ -16,9 +16,26 @@ const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState("en");
   const menuRef = useRef<HTMLDivElement>(null);
+  const { pathname, hash } = useLocation();
+
+  // --- SCROLL TO HASH LOGIC ---
+  useEffect(() => {
+    if (hash) {
+      // Small timeout to allow the DOM to render the home page sections
+      const timer = setTimeout(() => {
+        const id = hash.replace("#", "");
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [pathname, hash]);
 
   useEffect(() => {
-    // 1. Initialize Google Translate
     (window as any).googleTranslateElementInit = () => {
       new (window as any).google.translate.TranslateElement(
         { pageLanguage: "en", includedLanguages: LANGUAGES.map((l) => l.code).join(","), autoDisplay: false },
@@ -26,7 +43,6 @@ const MainLayout = () => {
       );
     };
 
-    // 2. Add Script safely
     const scriptId = "google-translate-script";
     if (!document.getElementById(scriptId)) {
       const addScript = document.createElement("script");
@@ -57,7 +73,6 @@ const MainLayout = () => {
     <div className="min-h-screen bg-background relative">
       <div id="google_translate_element" style={{ visibility: "hidden", position: "absolute" }} />
       
-      {/* FLOATING LANGUAGE UI */}
       <div className="fixed bottom-6 left-6 z-[9999]" ref={menuRef}>
         <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-center w-12 h-12 rounded-full bg-white text-slate-700 border border-slate-200 shadow-xl hover:bg-slate-50 transition-all active:scale-90">
           <Globe size={20} />
