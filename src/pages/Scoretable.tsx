@@ -63,25 +63,22 @@ const Scoretable = () => {
 
         {/* Rankings & Live Feed */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
-          
           <div className="lg:col-span-2 space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 dark:text-zinc-400 flex items-center gap-3">
-              <Target size={18} className="text-orange-600" /> Sector Leaders
+              <Target size={18} className="text-orange-600" /> Scoreboard
             </h3>
             
             <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[450px]">
-              {/* Photo Background Wrapper - Lighter Overlay */}
               <div 
                 className="absolute inset-0 z-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${scoretableBg})` }}
               />
-              <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-[1px]" />
+              <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-[1px]" />
 
-              {/* Table Content */}
               <div className="relative z-20 overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-black/40 border-b border-white/20 text-[10px] font-black uppercase tracking-widest text-white">
+                    <tr className="bg-black/60 border-b border-white/20 text-[10px] font-black uppercase tracking-widest text-white">
                       <th className="p-6">Rank</th>
                       <th className="p-6">Agent / Class</th>
                       <th className="p-6">Email Address</th>
@@ -94,7 +91,6 @@ const Scoretable = () => {
                         <td className="p-6 font-black italic text-2xl text-white group-hover:text-orange-400 transition-colors">
                           #{index + 1}
                         </td>
-                        
                         <td className="p-6">
                           <p className="font-bold text-white uppercase tracking-tight leading-none mb-1.5">{agent.name}</p>
                           <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 tracking-tighter ${
@@ -105,13 +101,11 @@ const Scoretable = () => {
                             {agent.rank}
                           </span>
                         </td>
-
                         <td className="p-6">
-                          <p className="text-[11px] text-zinc-100 lowercase font-medium tracking-wide">
+                          <p className="text-[11px] text-white lowercase font-medium tracking-wide">
                             {agent.email}
                           </p>
                         </td>
-
                         <td className="p-6 font-mono font-bold text-white text-right">
                           {agent.points}
                         </td>
@@ -123,7 +117,6 @@ const Scoretable = () => {
             </div>
           </div>
 
-          {/* Live Feed Column */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 dark:text-zinc-400 flex items-center gap-3">
               <Activity size={18} className="text-orange-600" /> Live Feed
@@ -132,7 +125,7 @@ const Scoretable = () => {
               <div className="space-y-6">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-700 pb-4 last:border-0">
-                    <p className="text-zinc-600 dark:text-zinc-200 font-medium leading-relaxed">
+                    <p className="text-zinc-900 dark:text-white font-medium leading-relaxed">
                       <span className="text-orange-600 font-bold uppercase tracking-tighter">System Alert:</span> 
                       <br />Monitoring sector data...
                     </p>
@@ -143,36 +136,50 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* Achievement Tiers Grid */}
+        {/* Achievement Tiers Grid - CLEANED UP VERSION */}
         <div className="space-y-6">
           <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 dark:text-zinc-400 flex items-center gap-3">
              <Shield size={18} className="text-orange-600" /> Achievement Tiers
           </h3>
           
-          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-            <div className="hidden md:grid grid-cols-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-              <div className="p-6 border-r border-zinc-200 dark:border-zinc-800">Class & Rank</div>
-              <div className="p-6 border-r border-zinc-200 dark:border-zinc-800">Requirement</div>
-              <div className="p-6">Benefits</div>
+          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
+            {/* Table Header */}
+            <div className="hidden md:grid grid-cols-12 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
+              <div className="col-span-4 p-6 border-r border-zinc-200 dark:border-zinc-800">Class & Rank</div>
+              <div className="col-span-3 p-6 border-r border-zinc-200 dark:border-zinc-800">Requirement</div>
+              <div className="col-span-5 p-6">Tier Benefits</div>
             </div>
 
+            {/* Table Body */}
             <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
               {classRewards.map((tier) => (
-                <div key={tier.class} className="grid grid-cols-1 md:grid-cols-3 group">
-                  <div className="p-8 border-r-0 md:border-r border-zinc-200 dark:border-zinc-800 flex items-center gap-4">
-                    <div className="p-3 bg-zinc-100 dark:bg-zinc-800">{tier.icon}</div>
-                    <h4 className="text-xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.class}</h4>
+                <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 group hover:bg-zinc-50 dark:hover:bg-zinc-900/40 transition-colors">
+                  {/* Icon & Name */}
+                  <div className="col-span-4 p-8 border-r-0 md:border-r border-zinc-200 dark:border-zinc-800 flex items-center gap-6">
+                    <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-sm group-hover:scale-110 transition-transform">
+                      {tier.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic tracking-tighter leading-none">{tier.class}</h4>
+                      <p className="text-[10px] font-bold text-orange-600 uppercase tracking-widest mt-1">Rewards</p>
+                    </div>
                   </div>
                   
-                  <div className="p-8 border-r-0 md:border-r border-zinc-200 dark:border-zinc-800 flex items-center">
-                    <span className="text-sm font-mono font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-widest">{tier.requirement}</span>
+                  {/* Requirement */}
+                  <div className="col-span-3 p-8 border-r-0 md:border-r border-zinc-200 dark:border-zinc-800 flex items-center">
+                    <span className="text-sm font-mono font-bold text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-white/5 px-3 py-1 uppercase tracking-widest">
+                      {tier.requirement}
+                    </span>
                   </div>
 
-                  <div className="p-8 bg-zinc-50/30 dark:bg-zinc-900/10 flex flex-wrap gap-x-6 gap-y-2">
+                  {/* Clean Vertical Benefits */}
+                  <div className="col-span-5 flex flex-col divide-y divide-zinc-100 dark:divide-zinc-800">
                     {tier.benefits.map((benefit, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[11px] font-bold text-zinc-600 dark:text-zinc-200 uppercase">
-                        <ChevronRight size={12} className="text-orange-600" />
-                        {benefit}
+                      <div key={i} className="px-8 py-4 flex items-center gap-3">
+                        <ChevronRight size={14} className="text-orange-600 shrink-0" />
+                        <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wide">
+                          {benefit}
+                        </span>
                       </div>
                     ))}
                   </div>
