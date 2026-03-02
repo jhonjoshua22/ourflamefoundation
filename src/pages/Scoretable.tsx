@@ -1,13 +1,21 @@
 import React from "react";
-import { Trophy, Medal, Target, Zap, Star, Shield, ArrowUpRight } from "lucide-react";
+import { Trophy, Medal, Target, Zap, Star, Shield, ArrowUpRight, Gift, ChevronRight } from "lucide-react";
 
 const Scoretable = () => {
+  // Sample data set to 0 as requested
   const leaders = [
-    { id: 1, name: "Nova_Flame", rank: "Angel", points: 12450, change: "+12%", avatar: "NF" },
-    { id: 2, name: "CyberScout_88", rank: "Supertrooper", points: 11200, change: "+5%", avatar: "CS" },
-    { id: 3, name: "Solar_Angel", rank: "Angel", points: 10890, change: "+8%", avatar: "SA" },
-    { id: 4, name: "Echo_Trooper", rank: "Supertrooper", points: 9400, change: "+2%", avatar: "ET" },
-    { id: 5, name: "Pixel_Scout", rank: "Scout", points: 8100, change: "+15%", avatar: "PS" },
+    { id: 1, name: "Nova_Flame", rank: "Angel", points: 0, change: "0%", avatar: "NF" },
+    { id: 2, name: "CyberScout_88", rank: "Supertrooper", points: 0, change: "0%", avatar: "CS" },
+    { id: 3, name: "Solar_Angel", rank: "Angel", points: 0, change: "0%", avatar: "SA" },
+    { id: 4, name: "Echo_Trooper", rank: "Supertrooper", points: 0, change: "0%", avatar: "ET" },
+    { id: 5, name: "Pixel_Scout", rank: "Scout", points: 0, change: "0%", avatar: "PS" },
+  ];
+
+  const rewardTiers = [
+    { level: "Level 01", title: "Starter Kit", requirement: "500 pts", reward: "Foundation Badge" },
+    { level: "Level 05", title: "Elite Access", requirement: "2,500 pts", reward: "Exclusive Merch" },
+    { level: "Level 10", title: "Global Trooper", requirement: "10,000 pts", reward: "Event Pass" },
+    { level: "Max Rank", title: "Flame Guardian", requirement: "25,000 pts", reward: "Honorary NFT" },
   ];
 
   return (
@@ -31,17 +39,17 @@ const Scoretable = () => {
           <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
             <div className="bg-zinc-100 dark:bg-zinc-900 p-4 border border-zinc-200 dark:border-zinc-800">
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Total Rewards Distributed</p>
-              <p className="text-2xl font-black text-orange-600">$142,500.00</p>
+              <p className="text-2xl font-black text-orange-600">$0.00</p>
             </div>
             <div className="bg-zinc-100 dark:bg-zinc-900 p-4 border border-zinc-200 dark:border-zinc-800">
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Active Agents</p>
-              <p className="text-2xl font-black text-zinc-900 dark:text-white">12,842</p>
+              <p className="text-2xl font-black text-zinc-900 dark:text-white">0</p>
             </div>
           </div>
         </div>
 
         {/* Main Score Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
           
           {/* Top 3 Spotlight */}
           <div className="lg:col-span-2 space-y-6">
@@ -72,7 +80,7 @@ const Scoretable = () => {
                           </div>
                           <div>
                             <p className="font-bold text-zinc-900 dark:text-white uppercase tracking-tight">{agent.name}</p>
-                            <p className="text-[10px] text-green-500 font-bold tracking-widest">{agent.change} This Week</p>
+                            <p className="text-[10px] text-zinc-400 font-bold tracking-widest">{agent.change} This Week</p>
                           </div>
                         </div>
                       </td>
@@ -87,7 +95,7 @@ const Scoretable = () => {
                         </span>
                       </td>
                       <td className="p-6 font-mono font-bold text-zinc-900 dark:text-white">
-                        {agent.points.toLocaleString()}
+                        {agent.points}
                       </td>
                     </tr>
                   ))}
@@ -99,34 +107,62 @@ const Scoretable = () => {
           {/* Sidebar - Quick Stats & Call to Action */}
           <div className="space-y-8">
             <div className="p-8 bg-zinc-900 text-white border-l-4 border-orange-600">
-              <Medal className="text-orange-600 mb-4" size={32} />
-              <h4 className="text-xl font-black uppercase italic mb-2">Claim Your Payout</h4>
+              <Gift className="text-orange-600 mb-4" size={32} />
+              <h4 className="text-xl font-black uppercase italic mb-2">Rewards Program</h4>
               <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                Objective verification is complete for the current cycle. Weekly rewards are ready for transfer.
+                Complete missions to earn points and unlock exclusive Flame Foundation tiers.
               </p>
               <button className="w-full py-4 bg-orange-600 hover:bg-orange-500 transition-all font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 group">
-                Access Rewards Wall <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                View All Rewards <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
             </div>
 
             <div className="border border-zinc-200 dark:border-zinc-800 p-6">
               <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-6 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Live Feed
+                <div className="w-2 h-2 rounded-full bg-zinc-400" /> Activity Log
               </h5>
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-100 dark:border-zinc-900 pb-3 last:border-0">
                     <p className="text-zinc-500 dark:text-zinc-400">
-                      <span className="text-orange-600 font-bold uppercase">System:</span> Angel_Z7 verified a community event in Sector 4.
+                      <span className="text-zinc-400 font-bold uppercase">System:</span> Waiting for mission deployment...
                     </p>
-                    <p className="text-zinc-400 mt-1 opacity-50">2m ago</p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-
         </div>
+
+        {/* NEW REWARDS TABLE SECTION */}
+        <div className="space-y-6">
+          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-400 flex items-center gap-3">
+            <Medal size={18} className="text-orange-600" /> Achievement Tiers
+          </h3>
+          <div className="bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800">
+            <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-zinc-200 dark:divide-zinc-800">
+              {rewardTiers.map((tier) => (
+                <div key={tier.level} className="p-8 hover:bg-white dark:hover:bg-zinc-900 transition-all group">
+                  <p className="text-orange-600 text-[10px] font-black uppercase tracking-widest mb-2">{tier.level}</p>
+                  <h5 className="text-xl font-black text-zinc-900 dark:text-white uppercase italic mb-4 group-hover:text-orange-600 transition-colors">
+                    {tier.title}
+                  </h5>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-[10px] font-bold uppercase text-zinc-400">
+                      <span>Requirement</span>
+                      <span className="text-zinc-900 dark:text-white">{tier.requirement}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px] font-bold uppercase text-zinc-400">
+                      <span>Reward</span>
+                      <span className="text-green-500">{tier.reward}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
