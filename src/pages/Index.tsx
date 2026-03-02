@@ -1,5 +1,3 @@
-my current one
-
 import HeroSection from "@/components/HeroSection";
 import ImpactSection from "@/components/ImpactSection";
 import Testimonials from "@/components/Testimonials";
