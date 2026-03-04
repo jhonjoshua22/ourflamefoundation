@@ -8,11 +8,11 @@ import {
   Star, 
   Shield, 
   Activity, 
-  Loader2,
-  Search,
-  X,
-  Network as NetworkIcon,
-  Gift
+  Loader2, 
+  Search, 
+  X, 
+  Network as NetworkIcon, 
+  Gift 
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -97,13 +97,13 @@ const Scoretable = () => {
                 placeholder="Search Agent or Email..." 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
+                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none transition-all" 
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
+              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer hover:text-orange-600" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
             </form>
 
-            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
+            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-800">
               <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
                 <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Top 10 Value</p>
                 <p className="text-xl font-black text-orange-600">${stats.totalFlame.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
@@ -145,7 +145,7 @@ const Scoretable = () => {
                           <td className="p-6 font-black italic text-xl">{isSearching ? "-" : `#${index + 1}`}</td>
                           <td className="p-6">
                             <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name}</p>
-                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5">{agent.rank || "Scout"}</span>
+                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Scout"}</span>
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
                             ${calculateFlameDollars(agent.points).toLocaleString(undefined, {minimumFractionDigits: 2})}
@@ -174,12 +174,12 @@ const Scoretable = () => {
               </div>
               Live Activity
             </h3>
-            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto">
+            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto shadow-inner">
               <div className="space-y-6">
                 {leaders.slice(0, 8).map((agent, i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0">
-                    <p className="text-zinc-900 dark:text-zinc-400 font-medium leading-relaxed">
-                      Agent <span className="text-white font-black italic">{agent.display_name}</span> is currently active at Rank #{i + 1} with {agent.points?.toLocaleString()} NETWORK.
+                    <p className="text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">
+                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase tracking-tight">{agent.display_name}</span> is currently active at Rank #{i + 1} with {agent.points?.toLocaleString()} NETWORK.
                     </p>
                   </div>
                 ))}
@@ -200,14 +200,14 @@ const Scoretable = () => {
               <div className="col-span-4 text-right">Class Rewards</div>
             </div>
             {classRewards.map((tier) => (
-              <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-100 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
+              <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-100 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <div className="col-span-4 flex items-center gap-4">
-                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded">{tier.icon}</div>
+                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded group-hover:bg-orange-600/10 transition-colors">{tier.icon}</div>
                   <h4 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">{tier.class}</h4>
                 </div>
                 <div className="col-span-4 text-center font-mono font-bold text-orange-600 tracking-widest">{tier.network} NETWORK</div>
                 <div className="col-span-4 text-right space-y-1">
-                  {tier.rewards.map((r, i) => <p key={i} className="text-[10px] font-bold uppercase text-zinc-500">{r}</p>)}
+                  {tier.rewards.map((r, i) => <p key={i} className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">{r}</p>)}
                 </div>
               </div>
             ))}
