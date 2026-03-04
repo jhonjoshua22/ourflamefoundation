@@ -11,7 +11,7 @@ import {
   Loader2,
   Search,
   X,
-  Coins,
+  Network as NetworkIcon,
   ArrowUpRight
 } from "lucide-react";
 
@@ -64,7 +64,7 @@ const Scoretable = () => {
         }
       }
     } catch (error) {
-      console.error("Database Sync Error:", error);
+      console.error("Network Sync Error:", error);
     } finally {
       setLoading(false);
     }
@@ -128,7 +128,7 @@ const Scoretable = () => {
               )}
             </form>
 
-            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
+            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800 shadow-xl">
               <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
                 <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Minted</p>
                 <p className="text-xl font-black text-orange-600">${stats.totalFlame.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
@@ -158,21 +158,19 @@ const Scoretable = () => {
                     <Loader2 className="animate-spin mb-4 text-orange-600" size={32} />
                   </div>
                 ) : (
-                  <table className="w-full text-left border-collapse min-w-[700px]">
+                  <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                         <th className="p-6">Position</th>
                         <th className="p-6">Agent Identity</th>
-                        <th className="p-6 text-right">Total Earned</th>
+                        <th className="p-6 text-right">Flame $ Value</th>
                         <th className="p-6 text-right">Received</th>
-                        <th className="p-6 text-right text-orange-600">Balance</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {leaders.map((agent, index) => {
                         const totalEarned = calculateFlameDollars(agent.points);
-                        const received = Number(agent.received || 0);
-                        const balance = totalEarned - received;
+                        const receivedAmount = Number(agent.received || 0);
 
                         return (
                           <tr key={agent.id} className="hover:bg-orange-600/10 transition-all group">
@@ -193,23 +191,15 @@ const Scoretable = () => {
                               <p className="font-mono font-black text-white text-lg">
                                 ${totalEarned.toLocaleString(undefined, {minimumFractionDigits: 2})}
                               </p>
-                              <div className="flex items-center justify-end gap-1 text-[9px] font-black text-zinc-500 uppercase">
-                                <Coins size={10} /> {agent.points?.toLocaleString()} PTS
+                              <div className="flex items-center justify-end gap-1 text-[9px] font-black text-orange-600 uppercase">
+                                <NetworkIcon size={10} /> {agent.points?.toLocaleString()} NETWORK
                               </div>
                             </td>
                             <td className="p-6 text-right">
                               <p className="font-mono font-bold text-green-500 text-md">
-                                ${received.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                                ${receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}
                               </p>
-                              <p className="text-[9px] text-zinc-600 font-black uppercase italic tracking-tighter">Confirmed</p>
-                            </td>
-                            <td className="p-6 text-right">
-                              <div className="bg-orange-600/5 border border-orange-600/20 p-2 rounded">
-                                <p className="font-mono font-black text-orange-600 text-lg">
-                                  ${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}
-                                </p>
-                                <p className="text-[8px] text-orange-600/60 font-black uppercase tracking-widest">To Be Paid</p>
-                              </div>
+                              <p className="text-[9px] text-zinc-600 font-black uppercase italic tracking-tighter">Confirmed Payout</p>
                             </td>
                           </tr>
                         );
@@ -224,21 +214,21 @@ const Scoretable = () => {
           {/* SIDEBAR */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <Activity size={18} className="text-orange-600" /> Payout Ledger
+              <Activity size={18} className="text-orange-600" /> Foundation Parameters
             </h3>
             <div className="border border-zinc-200 dark:border-zinc-800 p-8 bg-zinc-50 dark:bg-zinc-950 shadow-inner">
-               <div className="space-y-4">
+               <div className="space-y-6">
                   <div className="p-5 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm">
-                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-2">Equation Key</p>
-                    <p className="text-[10px] font-mono text-zinc-600 bg-zinc-100 dark:bg-zinc-900 p-3 rounded italic leading-relaxed">
-                      Total Earned - Received = Remaining Balance
+                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-2">Network Valuation</p>
+                    <p className="text-[11px] font-mono text-zinc-600 bg-zinc-100 dark:bg-zinc-900 p-3 rounded italic leading-relaxed">
+                      Points registered as "Network" are calculated against the 1B Liquidity Reserve.
                     </p>
                   </div>
                   
-                  <div className="p-6 bg-orange-600 text-white rounded-xl shadow-xl space-y-2">
+                  <div className="p-6 bg-zinc-900 text-white rounded-xl shadow-xl border border-zinc-800 space-y-2">
                     <div className="flex justify-between items-center">
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Global Reserve</p>
-                      <ArrowUpRight size={16} />
+                      <p className="text-[10px] font-black uppercase tracking-widest text-orange-600">Global Reserve</p>
+                      <ArrowUpRight size={16} className="text-orange-600" />
                     </div>
                     <p className="text-3xl font-black italic tracking-tighter">$1,000,000,000</p>
                     <p className="text-[9px] font-bold uppercase tracking-widest opacity-60">Foundation Pool Limit</p>
