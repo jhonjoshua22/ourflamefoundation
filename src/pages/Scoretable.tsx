@@ -70,9 +70,9 @@ const Scoretable = () => {
   }, []);
 
   const classRewards = [
-    { class: "Scout", icon: <Zap size={20} className="text-blue-500" />, network: "0 - 5,000", rewards: ["Basic Mission Access", "Community Badge"] },
-    { class: "Supertrooper", icon: <Star size={20} className="text-orange-600" />, network: "5,001 - 15,000", rewards: ["Priority Deployment", "Governance Voting"] },
-    { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, network: "15,001+", rewards: ["Foundation Liaison", "Strategic Rights"] }
+    { class: "Scout", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Basic Mission Access", "Community Badge", "Network Entry"] },
+    { class: "Supertrooper", icon: <Star size={20} className="text-orange-600" />, rewards: ["Priority Deployment", "Governance Voting", "Enhanced Payouts"] },
+    { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, rewards: ["Foundation Liaison", "Strategic Rights", "Elite Grid Access"] }
   ];
 
   return (
@@ -85,7 +85,7 @@ const Scoretable = () => {
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
               <Trophy size={16} /> Global Payouts
             </div>
-            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
+            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none text-balance">
               Flame Foundation <span className="text-orange-600">Rewards</span>
             </h1>
           </div>
@@ -97,7 +97,7 @@ const Scoretable = () => {
                 placeholder="Search Agent or Email..." 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none transition-all" 
+                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none transition-all shadow-inner" 
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
               {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer hover:text-orange-600" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
@@ -188,16 +188,17 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* REWARDS SECTION */}
+        {/* REWARDS SECTION (Thresholds Removed) */}
         <div className="space-y-6 pt-12 border-t border-zinc-200 dark:border-zinc-800">
-          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-            <Gift size={18} className="text-orange-600" /> Tiered Rewards
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+              <Gift size={18} className="text-orange-600" /> Foundation Rewards
+            </h3>
+          </div>
           <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl">
             <div className="hidden md:grid grid-cols-12 bg-zinc-100 dark:bg-zinc-900 text-[10px] font-black uppercase p-6 border-b border-zinc-200 dark:border-zinc-800">
-              <div className="col-span-4">Class</div>
-              <div className="col-span-4 text-center">Network Threshold</div>
-              <div className="col-span-4 text-right">Class Rewards</div>
+              <div className="col-span-4">Class Designation</div>
+              <div className="col-span-8 text-right">Class-Specific Rewards & Privileges</div>
             </div>
             {classRewards.map((tier) => (
               <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-100 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
@@ -205,9 +206,12 @@ const Scoretable = () => {
                   <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded group-hover:bg-orange-600/10 transition-colors">{tier.icon}</div>
                   <h4 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">{tier.class}</h4>
                 </div>
-                <div className="col-span-4 text-center font-mono font-bold text-orange-600 tracking-widest">{tier.network} NETWORK</div>
-                <div className="col-span-4 text-right space-y-1">
-                  {tier.rewards.map((r, i) => <p key={i} className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">{r}</p>)}
+                <div className="col-span-8 text-right flex flex-wrap justify-end gap-2 md:gap-4">
+                  {tier.rewards.map((r, i) => (
+                    <span key={i} className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 px-3 py-1 border border-zinc-200 dark:border-zinc-800">
+                      {r}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
