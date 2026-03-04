@@ -12,7 +12,7 @@ import {
   Search,
   X,
   Network as NetworkIcon,
-  ArrowUpRight
+  Gift
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -20,9 +20,8 @@ const Scoretable = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [stats, setStats] = useState({ totalFlame: 0, activeAgents: 0 });
+  const [stats, setStats] = useState({ totalFlame: 0, totalMembers: 0 });
 
-  // CONVERSION FORMULA: (1B * 0.0001533 * points) / 50,000
   const calculateFlameDollars = (points: number) => {
     return (1000000000 * 0.0001533 * (points || 0)) / 50000;
   };
@@ -30,9 +29,9 @@ const Scoretable = () => {
   const fetchScores = async (query = "") => {
     try {
       setLoading(true);
-      let supabaseQuery = supabase
-        .from("profiles")
-        .select("id, display_name, email, points, rank, received");
+      const { count } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
+
+      let supabaseQuery = supabase.from("profiles").select("id, display_name, email, points, rank, received");
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
@@ -44,27 +43,19 @@ const Scoretable = () => {
       if (error) throw error;
 
       if (data) {
-        const rankPriority: Record<string, number> = { 'Angel': 1, 'Supertrooper': 2, 'Scout': 3 };
-
-        const sortedData = [...data].sort((a, b) => {
-          if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
-          const priorityA = rankPriority[a.rank] || 3;
-          const priorityB = rankPriority[b.rank] || 3;
-          if (priorityA !== priorityB) return priorityA - priorityB;
-          return (a.display_name || "").localeCompare(b.display_name || "");
-        });
+        const sortedData = [...data].sort((a, b) => (b.points || 0) - (a.points || 0));
 
         if (!query) {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
           const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.points), 0);
-          setStats({ totalFlame, activeAgents: top10.length });
+          setStats({ totalFlame, totalMembers: count || 0 });
         } else {
           setLeaders(sortedData);
         }
       }
     } catch (error) {
-      console.error("Network Sync Error:", error);
+      console.error("Foundation Sync Error:", error);
     } finally {
       setLoading(false);
     }
@@ -72,70 +63,54 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchScores();
-    const channel = supabase
-      .channel("live-scoreboard")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        if (!searchQuery) fetchScores();
-      })
-      .subscribe();
+    const channel = supabase.channel("live-scoreboard").on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+      if (!searchQuery) fetchScores();
+    }).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearching(true);
-      fetchScores(searchQuery);
-    }
-  };
-
-  const clearSearch = () => {
-    setSearchQuery("");
-    setIsSearching(false);
-    fetchScores();
-  };
+  const classRewards = [
+    { class: "Scout", icon: <Zap size={20} className="text-blue-500" />, network: "0 - 5,000", rewards: ["Basic Mission Access", "Community Badge"] },
+    { class: "Supertrooper", icon: <Star size={20} className="text-orange-600" />, network: "5,001 - 15,000", rewards: ["Priority Deployment", "Governance Voting"] },
+    { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, network: "15,001+", rewards: ["Foundation Liaison", "Strategic Rights"] }
+  ];
 
   return (
     <div className="pt-32 pb-24 px-6 bg-white dark:bg-black min-h-screen transition-colors duration-500 font-sans">
       <div className="container mx-auto max-w-6xl">
         
-        {/* HEADER SECTION */}
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
-              <Trophy size={16} /> Foundation Rewards
+              <Trophy size={16} /> Global Payouts
             </div>
-            <h1 className="text-6xl md:text-7xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
-              Flame <span className="text-orange-600">$</span> Grid
+            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
+              Flame Foundation <span className="text-orange-600">Rewards</span>
             </h1>
           </div>
           
           <div className="flex flex-col gap-4 w-full md:w-auto">
-            {/* SEARCH */}
-            <form onSubmit={handleSearch} className="relative group">
+            <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group">
               <input 
-                type="text"
-                placeholder="Search Agent or Email..."
-                value={searchQuery}
+                type="text" 
+                placeholder="Search Agent or Email..." 
+                value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all w-full md:w-80 text-zinc-900 dark:text-white"
+                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-orange-600 transition-colors" size={14} />
-              {isSearching && (
-                <button type="button" onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white">
-                  <X size={14} />
-                </button>
-              )}
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
             </form>
 
-            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800 shadow-xl">
+            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
               <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
-                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Minted</p>
+                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Top 10 Value</p>
                 <p className="text-xl font-black text-orange-600">${stats.totalFlame.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
               </div>
               <div className="bg-white dark:bg-zinc-950 p-4">
-                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Elite Count</p>
-                <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.activeAgents}</p>
+                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Members</p>
+                <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.totalMembers.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -145,65 +120,44 @@ const Scoretable = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
           <div className="lg:col-span-2 space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : "Top 10 Rankings"}
+              <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : "Live Scoreboard"}
             </h3>
             
             <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[500px] shadow-2xl bg-zinc-950">
-              <div className="absolute inset-0 z-0 bg-cover bg-center opacity-40" style={{ backgroundImage: `url(${scoretableBg})` }} />
-              <div className="absolute inset-0 z-10 bg-black/80 backdrop-blur-[2px]" />
-
+              <div className="absolute inset-0 z-0 bg-cover opacity-30" style={{ backgroundImage: `url(${scoretableBg})` }} />
+              <div className="absolute inset-0 z-10 bg-black/70 backdrop-blur-[2px]" />
               <div className="relative z-20 overflow-x-auto">
                 {loading ? (
-                  <div className="flex flex-col items-center justify-center h-[500px] text-white">
-                    <Loader2 className="animate-spin mb-4 text-orange-600" size={32} />
-                  </div>
+                  <div className="flex h-[500px] items-center justify-center"><Loader2 className="animate-spin text-orange-600" size={32} /></div>
                 ) : (
-                  <table className="w-full text-left border-collapse min-w-[600px]">
+                  <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                        <th className="p-6">Position</th>
-                        <th className="p-6">Agent Identity</th>
-                        <th className="p-6 text-right">Flame $ Value</th>
-                        <th className="p-6 text-right">Received</th>
+                        <th className="p-6">Pos</th>
+                        <th className="p-6">Agent</th>
+                        <th className="p-6 text-right">Flame $</th>
+                        <th className="p-6 text-right text-green-500">Paid</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {leaders.map((agent, index) => {
-                        const totalEarned = calculateFlameDollars(agent.points);
-                        const receivedAmount = Number(agent.received || 0);
-
-                        return (
-                          <tr key={agent.id} className="hover:bg-orange-600/10 transition-all group">
-                            <td className="p-6 font-black italic text-2xl text-white group-hover:text-orange-400">
-                               {isSearching ? "-" : `#${index + 1}`}
-                            </td>
-                            <td className="p-6">
-                              <p className="font-bold text-white uppercase tracking-tight mb-1">{agent.display_name || "Unknown Agent"}</p>
-                              <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-sm ${
-                                agent.rank === 'Angel' ? 'bg-yellow-500 text-black' : 
-                                agent.rank === 'Supertrooper' ? 'bg-orange-600 text-white' : 
-                                'bg-blue-600 text-white'
-                              }`}>
-                                {agent.rank || "Scout"}
-                              </span>
-                            </td>
-                            <td className="p-6 text-right">
-                              <p className="font-mono font-black text-white text-lg">
-                                ${totalEarned.toLocaleString(undefined, {minimumFractionDigits: 2})}
-                              </p>
-                              <div className="flex items-center justify-end gap-1 text-[9px] font-black text-orange-600 uppercase">
-                                <NetworkIcon size={10} /> {agent.points?.toLocaleString()} NETWORK
-                              </div>
-                            </td>
-                            <td className="p-6 text-right">
-                              <p className="font-mono font-bold text-green-500 text-md">
-                                ${receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}
-                              </p>
-                              <p className="text-[9px] text-zinc-600 font-black uppercase italic tracking-tighter">Confirmed Payout</p>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                    <tbody className="divide-y divide-white/5 text-white">
+                      {leaders.map((agent, index) => (
+                        <tr key={agent.id} className="hover:bg-orange-600/10 transition-colors group">
+                          <td className="p-6 font-black italic text-xl">{isSearching ? "-" : `#${index + 1}`}</td>
+                          <td className="p-6">
+                            <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name}</p>
+                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5">{agent.rank || "Scout"}</span>
+                          </td>
+                          <td className="p-6 text-right font-mono text-lg font-black">
+                            ${calculateFlameDollars(agent.points).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold">
+                              <NetworkIcon size={10} /> {agent.points?.toLocaleString()} NETWORK
+                            </div>
+                          </td>
+                          <td className="p-6 text-right font-mono text-green-500 font-bold">
+                            ${Number(agent.received || 0).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 )}
@@ -211,32 +165,55 @@ const Scoretable = () => {
             </div>
           </div>
 
-          {/* SIDEBAR */}
+          {/* ELITE ACTIVITY FEED */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <Activity size={18} className="text-orange-600" /> Foundation Parameters
+              <div className="relative">
+                <Activity size={18} className="text-orange-600" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" />
+              </div>
+              Live Activity
             </h3>
-            <div className="border border-zinc-200 dark:border-zinc-800 p-8 bg-zinc-50 dark:bg-zinc-950 shadow-inner">
-               <div className="space-y-6">
-                  <div className="p-5 bg-white dark:bg-black border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm">
-                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-2">Network Valuation</p>
-                    <p className="text-[11px] font-mono text-zinc-600 bg-zinc-100 dark:bg-zinc-900 p-3 rounded italic leading-relaxed">
-                      Points registered as "Network" are calculated against the 1B Liquidity Reserve.
+            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto">
+              <div className="space-y-6">
+                {leaders.slice(0, 8).map((agent, i) => (
+                  <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0">
+                    <p className="text-zinc-900 dark:text-zinc-400 font-medium leading-relaxed">
+                      Agent <span className="text-white font-black italic">{agent.display_name}</span> is currently active at Rank #{i + 1} with {agent.points?.toLocaleString()} NETWORK.
                     </p>
                   </div>
-                  
-                  <div className="p-6 bg-zinc-900 text-white rounded-xl shadow-xl border border-zinc-800 space-y-2">
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-orange-600">Global Reserve</p>
-                      <ArrowUpRight size={16} className="text-orange-600" />
-                    </div>
-                    <p className="text-3xl font-black italic tracking-tighter">$1,000,000,000</p>
-                    <p className="text-[9px] font-bold uppercase tracking-widest opacity-60">Foundation Pool Limit</p>
-                  </div>
-               </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* REWARDS SECTION */}
+        <div className="space-y-6 pt-12 border-t border-zinc-200 dark:border-zinc-800">
+          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+            <Gift size={18} className="text-orange-600" /> Tiered Rewards
+          </h3>
+          <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl">
+            <div className="hidden md:grid grid-cols-12 bg-zinc-100 dark:bg-zinc-900 text-[10px] font-black uppercase p-6 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="col-span-4">Class</div>
+              <div className="col-span-4 text-center">Network Threshold</div>
+              <div className="col-span-4 text-right">Class Rewards</div>
+            </div>
+            {classRewards.map((tier) => (
+              <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-100 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
+                <div className="col-span-4 flex items-center gap-4">
+                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded">{tier.icon}</div>
+                  <h4 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">{tier.class}</h4>
+                </div>
+                <div className="col-span-4 text-center font-mono font-bold text-orange-600 tracking-widest">{tier.network} NETWORK</div>
+                <div className="col-span-4 text-right space-y-1">
+                  {tier.rewards.map((r, i) => <p key={i} className="text-[10px] font-bold uppercase text-zinc-500">{r}</p>)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
