@@ -18,21 +18,20 @@ const Scoretable = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalPoints: 0, activeAgents: 0 });
 
-  // 1. DATA FETCHING LOGIC
+  // 1. DATA FETCHING LOGIC - LIMITED TO TOP 10
   const fetchScores = async () => {
     try {
-      // We pull from the 'profiles' table which links to your Auth users
       const { data, error } = await supabase
         .from("profiles") 
         .select("id, display_name, email, points, rank") 
         .order("points", { ascending: false })
-        .limit(20);
+        .limit(10); // Strictly pulls only the top 10 rows
 
       if (error) throw error;
 
       if (data) {
         setLeaders(data);
-        // Calculate totals for the header cards
+        // Calculate totals based on current top 10
         const total = data.reduce((acc, curr) => acc + (curr.points || 0), 0);
         setStats({ totalPoints: total, activeAgents: data.length });
       }
@@ -47,7 +46,6 @@ const Scoretable = () => {
   useEffect(() => {
     fetchScores();
 
-    // Listen for any changes in the profiles table (score updates)
     const channel = supabase
       .channel("live-scoreboard")
       .on(
@@ -100,11 +98,11 @@ const Scoretable = () => {
           
           <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 shadow-2xl">
             <div className="bg-white dark:bg-zinc-950 p-6 min-w-[140px]">
-              <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Total Points</p>
+              <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Top 10 Points</p>
               <p className="text-3xl font-black text-orange-600">{stats.totalPoints.toLocaleString()}</p>
             </div>
             <div className="bg-white dark:bg-zinc-950 p-6 min-w-[140px]">
-              <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Active Agents</p>
+              <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Active Elite</p>
               <p className="text-3xl font-black text-zinc-900 dark:text-white">{stats.activeAgents}</p>
             </div>
           </div>
@@ -114,12 +112,12 @@ const Scoretable = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
           <div className="lg:col-span-2 space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 dark:text-zinc-400 flex items-center gap-3">
-              <Target size={18} className="text-orange-600" /> Live Scoreboard
+              <Target size={18} className="text-orange-600" /> Top 10 Elite
             </h3>
             
-            <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[450px] shadow-2xl">
+            <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[450px] shadow-2xl bg-zinc-950">
               <div 
-                className="absolute inset-0 z-0 bg-cover bg-center"
+                className="absolute inset-0 z-0 bg-cover bg-center opacity-40"
                 style={{ backgroundImage: `url(${scoretableBg})` }}
               />
               <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-[1px]" />
@@ -128,7 +126,7 @@ const Scoretable = () => {
                 {loading ? (
                   <div className="flex flex-col items-center justify-center h-[450px] text-white">
                     <Loader2 className="animate-spin mb-4 text-orange-600" size={32} />
-                    <p className="text-[10px] font-black uppercase tracking-widest">Accessing Secure Grid...</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest">Syncing Grid...</p>
                   </div>
                 ) : (
                   <table className="w-full text-left border-collapse">
@@ -178,17 +176,16 @@ const Scoretable = () => {
           {/* LIVE FEED COLUMN */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 dark:text-zinc-400 flex items-center gap-3">
-              <Activity size={18} className="text-orange-600" /> System Logs
+              <Activity size={18} className="text-orange-600" /> Elite Activity
             </h3>
             <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-full shadow-inner">
               <div className="space-y-6">
-                {leaders.slice(0, 6).map((agent, i) => (
+                {leaders.slice(0, 5).map((agent, i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0">
                     <p className="text-zinc-900 dark:text-white font-medium leading-relaxed">
-                      <span className="text-orange-600 font-bold uppercase tracking-tighter">Event:</span> 
-                      <br />Agent <span className="font-black italic">{agent.display_name || "Unknown"}</span> is currently active in the sector.
+                      <span className="text-orange-600 font-bold uppercase tracking-tighter">Status:</span> 
+                      <br />Agent <span className="font-black italic">{agent.display_name || "Unknown"}</span> holding Rank #{i + 1} with {agent.points?.toLocaleString()} PTS.
                     </p>
-                    <p className="text-[9px] text-zinc-500 uppercase mt-1">Status: Online</p>
                   </div>
                 ))}
               </div>
