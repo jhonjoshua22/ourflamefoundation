@@ -18,25 +18,57 @@ const Scoretable = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalPoints: 0, activeAgents: 0 });
 
-  // 1. DATA FETCHING LOGIC - LIMITED TO TOP 10
+  // 1. DATA FETCHING LOGIC - WITH RANK TIE-BREAKERS
   const fetchScores = async () => {
     try {
+      setLoading(true);
+      
+      // We fetch slightly more than 10 to ensure we catch all elites for sorting
       const { data, error } = await supabase
         .from("profiles") 
         .select("id, display_name, email, points, rank") 
         .order("points", { ascending: false })
-        .limit(10); // Strictly pulls only the top 10 rows
+        .limit(20); 
 
       if (error) throw error;
 
       if (data) {
-        setLeaders(data);
-        // Calculate totals based on current top 10
-        const total = data.reduce((acc, curr) => acc + (curr.points || 0), 0);
-        setStats({ totalPoints: total, activeAgents: data.length });
+        // Define our custom Rank Hierarchy for tie-breaking
+        const rankPriority: Record<string, number> = {
+          'Angel': 1,        // Highest Priority
+          'Supertrooper': 2, 
+          'Scout': 3         // Lowest Priority
+        };
+
+        const sortedData = [...data].sort((a, b) => {
+          // Rule 1: Sort by points primarily (Descending)
+          if ((b.points || 0) !== (a.points || 0)) {
+            return (b.points || 0) - (a.points || 0);
+          }
+
+          // Rule 2: If points are tied, sort by Rank Priority (Angel > Supertrooper > Scout)
+          const priorityA = rankPriority[a.rank] || 3;
+          const priorityB = rankPriority[b.rank] || 3;
+
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB;
+          }
+
+          // Rule 3: If points and rank are tied, sort alphabetically
+          return (a.display_name || "").localeCompare(b.display_name || "");
+        });
+
+        // Strictly keep the top 10
+        const top10 = sortedData.slice(0, 10);
+        
+        setLeaders(top10);
+        
+        // Stats based on top 10
+        const total = top10.reduce((acc, curr) => acc + (curr.points || 0), 0);
+        setStats({ totalPoints: total, activeAgents: top10.length });
       }
     } catch (error) {
-      console.error("Error syncing with Foundation database:", error);
+      console.error("Foundation Database Sync Error:", error);
     } finally {
       setLoading(false);
     }
@@ -134,7 +166,6 @@ const Scoretable = () => {
                       <tr className="bg-black/60 border-b border-white/20 text-[10px] font-black uppercase tracking-widest text-white">
                         <th className="p-6">Rank</th>
                         <th className="p-6">Agent / Class</th>
-                        <th className="p-6">Contact Sync</th>
                         <th className="p-6 text-right">Points</th>
                       </tr>
                     </thead>
@@ -155,11 +186,6 @@ const Scoretable = () => {
                             }`}>
                               {agent.rank || "Scout"}
                             </span>
-                          </td>
-                          <td className="p-6">
-                            <p className="text-[11px] text-zinc-400 lowercase font-medium group-hover:text-white transition-colors">
-                              {agent.email}
-                            </p>
                           </td>
                           <td className="p-6 font-mono font-bold text-white text-right text-lg">
                             {(agent.points || 0).toLocaleString()}
@@ -228,7 +254,6 @@ const Scoretable = () => {
                   <div className="col-span-5 flex flex-col divide-y divide-zinc-100 dark:divide-zinc-800 bg-zinc-50/30 dark:bg-black/20">
                     {tier.benefits.map((benefit, i) => (
                       <div key={i} className="px-8 py-4 flex items-center gap-3">
-                        <ChevronRight size={14} className="text-orange-600 shrink-0" />
                         <span className="text-xs font-bold text-zinc-800 dark:text-zinc-300 uppercase tracking-wide">
                           {benefit}
                         </span>
