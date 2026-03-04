@@ -86,7 +86,7 @@ const Scoretable = () => {
               <Trophy size={16} /> Global Payouts
             </div>
             <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none text-balance">
-              Flame Foundation <span className="text-orange-600">Rewards</span>
+              Flame Foundation <span className="text-orange-600">Scoreboard & Rewards</span>
             </h1>
           </div>
           
@@ -133,10 +133,10 @@ const Scoretable = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                        <th className="p-6">Pos</th>
-                        <th className="p-6">Agent</th>
+                        <th className="p-6">Rank</th>
+                        <th className="p-6">Name</th>
                         <th className="p-6 text-right">Flame $</th>
-                        <th className="p-6 text-right text-green-500">Paid</th>
+                        <th className="p-6 text-right text-green-500">Received</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 text-white">
