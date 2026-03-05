@@ -13,31 +13,38 @@ const Scoretable = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalFlame: 0, totalMembers: 0 });
 
-  const calculateFlameDollars = (points: number) => {
-    return (1000000000 * 0.0001533 * (points || 0)) / 50000;
+  // Synced to use networkVal
+  const calculateFlameDollars = (networkVal: number) => {
+    return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
   };
 
   const fetchScores = async (query = "") => {
     try {
       setLoading(true);
       const { count } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
-      let supabaseQuery = supabase.from("profiles").select("id, display_name, email, points, rank, received");
+      
+      // Changed points -> network here
+      let supabaseQuery = supabase.from("profiles").select("id, display_name, email, network, rank, received");
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       } else {
-        supabaseQuery = supabaseQuery.order("points", { ascending: false }).limit(20);
+        // Changed points -> network here
+        supabaseQuery = supabaseQuery.order("network", { ascending: false }).limit(20);
       }
 
       const { data, error } = await supabaseQuery;
       if (error) throw error;
 
       if (data) {
-        const sortedData = [...data].sort((a, b) => (b.points || 0) - (a.points || 0));
+        // Changed points -> network here for sorting
+        const sortedData = [...data].sort((a, b) => (b.network || 0) - (a.network || 0));
+        
         if (!query) {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
-          const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.points), 0);
+          // Changed points -> network here for calculation
+          const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.network), 0);
           setStats({ totalFlame, totalMembers: count || 0 });
         } else {
           setLeaders(sortedData);
@@ -136,9 +143,11 @@ const Scoretable = () => {
                             <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Normie"}</span>
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
-                            ${calculateFlameDollars(agent.points).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                            {/* Changed points -> network here */}
+                            ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
                             <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold">
-                              <NetworkIcon size={10} /> {agent.points?.toLocaleString()} NETWORK
+                              {/* Changed points -> network here */}
+                              <NetworkIcon size={10} /> {agent.network?.toLocaleString()} NETWORK
                             </div>
                           </td>
                           <td className="p-6 text-right font-mono text-green-500 font-bold">
