@@ -22,6 +22,7 @@ const Dashboard = () => {
 
       if (!error) {
         const todayUTC = new Date().toISOString().split('T')[0];
+        // If it's a new day, clear the visual completion status
         if (data.last_reset_date !== todayUTC) {
           data.completed_tasks = [];
         }
@@ -37,9 +38,10 @@ const Dashboard = () => {
     setUpdatingId(taskId);
 
     try {
+      // Create new array for the text[] column
       const newCompletedTasks = [...(profile.completed_tasks || []), taskId];
       
-      // UPDATED: Now ONLY updates points, NOT network
+      // UPDATE: Only increment points, keep network static
       const { error } = await supabase
         .from("profiles")
         .update({ 
@@ -66,7 +68,12 @@ const Dashboard = () => {
   };
 
   if (loading) return null;
-  if (!profile) return <div className="py-24 text-center font-black uppercase italic tracking-tighter text-4xl">Access Denied</div>;
+  if (!profile) return (
+    <div className="py-48 text-center bg-black min-h-screen">
+      <h2 className="text-white font-black uppercase italic text-4xl tracking-tighter">Access Denied</h2>
+      <p className="text-zinc-500 mt-4 uppercase text-xs tracking-widest font-bold">No profile found for this session.</p>
+    </div>
+  );
 
   const taskData = [
     { 
@@ -98,6 +105,8 @@ const Dashboard = () => {
   return (
     <section id="dashboard" className="w-full py-24 px-4 bg-white dark:bg-black min-h-screen">
       <div className="container mx-auto max-w-7xl">
+        
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-8">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-[10px]">
@@ -107,12 +116,20 @@ const Dashboard = () => {
               Daily <span className="text-orange-600">Objectives</span>
             </h2>
             <div className="flex items-center gap-4 mt-4">
-              <span className={`px-3 py-1 text-white text-[10px] font-black uppercase italic rounded-full ${profile.rank === 'SuperFarmer' ? 'bg-green-600' : 'bg-zinc-900'}`}>
-                Rank: {profile.rank}
+              <span className={`px-4 py-1 text-white text-[10px] font-black uppercase italic rounded-full shadow-lg ${
+                profile.rank === 'SuperFarmer' ? 'bg-green-600' : 
+                profile.rank === 'Angel' ? 'bg-yellow-500' : 
+                profile.rank === 'SuperHero' ? 'bg-orange-600' : 'bg-zinc-900'
+              }`}>
+                Rank: {profile.rank || "Normie"}
               </span>
               <div className="flex flex-col">
-                <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">{profile.network?.toLocaleString()} Network Value</span>
-                <span className="text-orange-600 text-[8px] font-black uppercase tracking-[0.2em]">{profile.points?.toLocaleString()} Points Accumulated</span>
+                <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
+                  ${profile.network?.toLocaleString() || 0} Network Value
+                </span>
+                <span className="text-orange-600 text-[8px] font-black uppercase tracking-[0.2em]">
+                  {profile.points?.toLocaleString() || 0} Points Accumulated
+                </span>
               </div>
             </div>
           </div>
@@ -121,14 +138,15 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl">
+        {/* Task Table */}
+        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800">
                   <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Mission</th>
                   <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-blue-500 font-black italic uppercase tracking-tighter text-xl">Normies</th>
-                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-orange-600 font-black italic uppercase tracking-tighter text-xl">SuperHeros</th>
+                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-orange-600 font-black italic uppercase tracking-tighter text-xl">SuperHeroes</th>
                   <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-yellow-500 font-black italic uppercase tracking-tighter text-xl">Angels</th>
                   <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-green-500 font-black italic uppercase tracking-tighter text-xl">SuperFarmers</th>
                 </tr>
@@ -144,16 +162,22 @@ const Dashboard = () => {
                       const isTaskDone = profile.completed_tasks?.includes(row.id);
 
                       return (
-                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 ${isUserRank ? 'bg-orange-600/[0.03]' : 'opacity-20 grayscale'}`}>
+                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-orange-600/[0.03]' : 'opacity-10 grayscale'}`}>
                           <div className="flex flex-col h-full justify-between gap-8">
-                            <p className={`text-sm leading-relaxed ${isUserRank ? 'text-zinc-900 dark:text-zinc-100 font-bold' : 'text-zinc-500'}`}>{taskText}</p>
+                            <p className={`text-sm leading-relaxed ${isUserRank ? 'text-zinc-900 dark:text-zinc-100 font-bold' : 'text-zinc-500'}`}>
+                              {taskText}
+                            </p>
                             {isUserRank && (
                               <button
                                 disabled={isTaskDone || updatingId === row.id}
                                 onClick={() => handleTaskDone(row.id, taskValue)}
-                                className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${isTaskDone ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02]'}`}
+                                className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${
+                                  isTaskDone 
+                                  ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' 
+                                  : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02] active:scale-95 shadow-xl'
+                                }`}
                               >
-                                {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} className="fill-current" />}
+                                {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} className="fill-current text-orange-600" />}
                                 {isTaskDone ? "Mission Secured" : `Execute for ${taskValue} Pts`}
                               </button>
                             )}
