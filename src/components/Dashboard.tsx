@@ -31,24 +31,35 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const handleTaskDone = async (taskId: string, networkToAdd: number) => {
+  const handleTaskDone = async (taskId: string, amountToAdd: number) => {
     if (!profile || updatingId) return;
     const todayUTC = new Date().toISOString().split('T')[0];
     setUpdatingId(taskId);
 
     try {
       const newCompletedTasks = [...(profile.completed_tasks || []), taskId];
+      
+      // UPDATED: Now updating both 'network' and 'points'
       const { error } = await supabase
         .from("profiles")
         .update({ 
-          network: (profile.network || 0) + networkToAdd, 
+          network: (profile.network || 0) + amountToAdd, 
+          points: (profile.points || 0) + amountToAdd, // Shadow points update
           completed_tasks: newCompletedTasks,
           last_reset_date: todayUTC
         })
         .eq("id", profile.id);
 
       if (error) throw error;
-      setProfile({ ...profile, network: (profile.network || 0) + networkToAdd, completed_tasks: newCompletedTasks, last_reset_date: todayUTC });
+      
+      setProfile({ 
+        ...profile, 
+        network: (profile.network || 0) + amountToAdd, 
+        points: (profile.points || 0) + amountToAdd,
+        completed_tasks: newCompletedTasks, 
+        last_reset_date: todayUTC 
+      });
+
     } catch (error) {
       console.error("Transmission Error:", error);
     } finally {
@@ -62,35 +73,32 @@ const Dashboard = () => {
   const taskData = [
     { 
       id: "01", 
-      category: "Social", 
-      normies: "Follow social media & repost", 
-      superheros: "Share #MagicWorlds content", 
-      angels: "Recruit using chosen colours",
-      superfarmers: "Seed Investor Recruitment",
+      normies: "Follow social media & repost content", 
+      superheros: "Share #MagicWorlds & Recruit Normies", 
+      angels: "Recruit SuperHeros & Mentor",
+      superfarmers: "Strategic Recruitment & Funding",
       pts: { Normie: 50, SuperHero: 150, Angel: 500, SuperFarmer: 2000 } 
     },
     { 
       id: "02", 
-      category: "Content", 
-      normies: "Record hobby videos locally", 
-      superheros: "Visit Education MagicBots", 
-      angels: "Host daily relevant events",
-      superfarmers: "Direct AI Seed Strategy",
+      normies: "Record local hobby/good deed videos", 
+      superheros: "Launch products via MagicBots", 
+      angels: "Host daily coaching events",
+      superfarmers: "Seed Fund Projects & Direct AI Strategy",
       pts: { Normie: 100, SuperHero: 300, Angel: 1000, SuperFarmer: 5000 } 
     },
     { 
       id: "03", 
-      category: "Field", 
-      normies: "Scout local streets/parks", 
-      superheros: "Visit OtherWorld MagicBots", 
-      angels: "Soft recommend solutions",
-      superfarmers: "Finalize Seed Fund Deals",
+      normies: "Scout local community improvements", 
+      superheros: "Educate others on OtherWorld AI", 
+      angels: "Recommend Angel Fund solutions",
+      superfarmers: "Finalize Seed Agreements & Partnerships",
       pts: { Normie: 150, SuperHero: 500, Angel: 2000, SuperFarmer: 10000 } 
     },
   ];
 
   return (
-    <section id="dashboard" className="w-full py-24 px-4 bg-white dark:bg-black min-h-screen transition-colors duration-500">
+    <section id="dashboard" className="w-full py-24 px-4 bg-white dark:bg-black min-h-screen">
       <div className="container mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-8">
           <div className="space-y-2">
@@ -104,20 +112,23 @@ const Dashboard = () => {
               <span className={`px-3 py-1 text-white text-[10px] font-black uppercase italic rounded-full ${profile.rank === 'SuperFarmer' ? 'bg-green-600' : 'bg-zinc-900'}`}>
                 Rank: {profile.rank}
               </span>
-              <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">{profile.network?.toLocaleString()} NETWORK</span>
+              <div className="flex flex-col">
+                <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">{profile.network?.toLocaleString()} Network Value</span>
+                <span className="text-orange-600 text-[8px] font-black uppercase tracking-[0.2em]">{profile.points?.toLocaleString()} Points Accumulated</span>
+              </div>
             </div>
           </div>
-          <div className="bg-zinc-100 dark:bg-zinc-900 px-6 py-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-[10px] font-black uppercase text-zinc-500 tracking-widest">
-            Reset: 00:00 UTC
+          <div className="bg-zinc-100 dark:bg-zinc-900 px-6 py-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-[10px] font-black uppercase text-zinc-500 tracking-widest flex items-center gap-2">
+            System Reset <ChevronRight size={10} /> 00:00 UTC
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
-                <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-white/[0.02]">
-                  <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Task</th>
+                <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                  <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Mission</th>
                   <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-blue-500 font-black italic uppercase tracking-tighter text-xl">Normies</th>
                   <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-orange-600 font-black italic uppercase tracking-tighter text-xl">SuperHeros</th>
                   <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-yellow-500 font-black italic uppercase tracking-tighter text-xl">Angels</th>
@@ -131,7 +142,7 @@ const Dashboard = () => {
                     {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rankType) => {
                       const isUserRank = profile.rank === rankType;
                       const taskText = rankType === 'Normie' ? row.normies : rankType === 'SuperHero' ? row.superheros : rankType === 'Angel' ? row.angels : row.superfarmers;
-                      const taskPoints = (row.pts as any)[rankType];
+                      const taskValue = (row.pts as any)[rankType];
                       const isTaskDone = profile.completed_tasks?.includes(row.id);
 
                       return (
@@ -141,11 +152,11 @@ const Dashboard = () => {
                             {isUserRank && (
                               <button
                                 disabled={isTaskDone || updatingId === row.id}
-                                onClick={() => handleTaskDone(row.id, taskPoints)}
-                                className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${isTaskDone ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700 text-white shadow-xl hover:scale-[1.02]'}`}
+                                onClick={() => handleTaskDone(row.id, taskValue)}
+                                className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${isTaskDone ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02]'}`}
                               >
-                                {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} />}
-                                {isTaskDone ? "Secured" : `Claim ${taskPoints} NET`}
+                                {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} className="fill-current" />}
+                                {isTaskDone ? "Mission Secured" : `Execute for ${taskValue} Net`}
                               </button>
                             )}
                           </div>
