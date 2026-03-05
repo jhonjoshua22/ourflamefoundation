@@ -39,12 +39,11 @@ const Dashboard = () => {
     try {
       const newCompletedTasks = [...(profile.completed_tasks || []), taskId];
       
-      // UPDATED: Now updating both 'network' and 'points'
+      // UPDATED: Now ONLY updates points, NOT network
       const { error } = await supabase
         .from("profiles")
         .update({ 
-          network: (profile.network || 0) + amountToAdd, 
-          points: (profile.points || 0) + amountToAdd, // Shadow points update
+          points: (profile.points || 0) + amountToAdd, 
           completed_tasks: newCompletedTasks,
           last_reset_date: todayUTC
         })
@@ -54,7 +53,6 @@ const Dashboard = () => {
       
       setProfile({ 
         ...profile, 
-        network: (profile.network || 0) + amountToAdd, 
         points: (profile.points || 0) + amountToAdd,
         completed_tasks: newCompletedTasks, 
         last_reset_date: todayUTC 
@@ -156,7 +154,7 @@ const Dashboard = () => {
                                 className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${isTaskDone ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02]'}`}
                               >
                                 {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} className="fill-current" />}
-                                {isTaskDone ? "Mission Secured" : `Execute for ${taskValue} Net`}
+                                {isTaskDone ? "Mission Secured" : `Execute for ${taskValue} Pts`}
                               </button>
                             )}
                           </div>
