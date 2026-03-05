@@ -2,17 +2,8 @@ import React, { useState, useEffect } from "react";
 import scoretableBg from "../assets/scoretable.png"; 
 import { supabase } from "../lib/supabaseClient"; 
 import { 
-  Trophy, 
-  Target, 
-  Zap, 
-  Star, 
-  Shield, 
-  Activity, 
-  Loader2, 
-  Search, 
-  X, 
-  Network as NetworkIcon, 
-  Gift 
+  Trophy, Target, Zap, Star, Shield, Activity, 
+  Loader2, Search, X, Network as NetworkIcon, Gift, Sprout
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -30,7 +21,6 @@ const Scoretable = () => {
     try {
       setLoading(true);
       const { count } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
-
       let supabaseQuery = supabase.from("profiles").select("id, display_name, email, points, rank, received");
 
       if (query) {
@@ -44,7 +34,6 @@ const Scoretable = () => {
 
       if (data) {
         const sortedData = [...data].sort((a, b) => (b.points || 0) - (a.points || 0));
-
         if (!query) {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
@@ -70,23 +59,23 @@ const Scoretable = () => {
   }, []);
 
   const classRewards = [
-    { class: "Scout", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Basic Mission Access", "Community Badge", "Network Entry"] },
-    { class: "Supertrooper", icon: <Star size={20} className="text-orange-600" />, rewards: ["Priority Deployment", "Governance Voting", "Enhanced Payouts"] },
-    { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, rewards: ["Foundation Liaison", "Strategic Rights", "Elite Grid Access"] }
+    { class: "Normie", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Do Good", "Share Content", "Win Prizes"] },
+    { class: "SuperHero", icon: <Star size={20} className="text-orange-600" />, rewards: ["Recruit Normies", "Educate All", "Launch Products"] },
+    { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, rewards: ["Recruit SuperHeros", "Mentor & Coach", "Angel Fund"] },
+    { class: "SuperFarmer", icon: <Sprout size={20} className="text-green-500" />, rewards: ["Recruit Angels", "Mentor & Coach", "Seed Fund"] }
   ];
 
   return (
     <div className="pt-32 pb-24 px-6 bg-white dark:bg-black min-h-screen transition-colors duration-500 font-sans">
       <div className="container mx-auto max-w-6xl">
         
-        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
               <Trophy size={16} /> Global Payouts
             </div>
-            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none text-balance">
-              Flame Foundation <span className="text-orange-600">Scoreboard & Rewards</span>
+            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
+              Flame Foundation <span className="text-orange-600">Rewards</span>
             </h1>
           </div>
           
@@ -94,16 +83,16 @@ const Scoretable = () => {
             <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group">
               <input 
                 type="text" 
-                placeholder="Search Agent or Email..." 
+                placeholder="Search Agent..." 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none transition-all shadow-inner" 
+                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer hover:text-orange-600" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
+              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
             </form>
 
-            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800 shadow-xl border border-zinc-200 dark:border-zinc-800">
+            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
               <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
                 <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Top 10 Value</p>
                 <p className="text-xl font-black text-orange-600">${stats.totalFlame.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
@@ -116,7 +105,6 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* MAIN DATA GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
           <div className="lg:col-span-2 space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
@@ -142,10 +130,10 @@ const Scoretable = () => {
                     <tbody className="divide-y divide-white/5 text-white">
                       {leaders.map((agent, index) => (
                         <tr key={agent.id} className="hover:bg-orange-600/10 transition-colors group">
-                          <td className="p-6 font-black italic text-xl">{isSearching ? "-" : `#${index + 1}`}</td>
+                          <td className="p-6 font-black italic text-xl">#{index + 1}</td>
                           <td className="p-6">
                             <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name}</p>
-                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Scout"}</span>
+                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Normie"}</span>
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
                             ${calculateFlameDollars(agent.points).toLocaleString(undefined, {minimumFractionDigits: 2})}
@@ -165,21 +153,17 @@ const Scoretable = () => {
             </div>
           </div>
 
-          {/* ELITE ACTIVITY FEED */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <div className="relative">
-                <Activity size={18} className="text-orange-600" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" />
-              </div>
+              <div className="relative"><Activity size={18} className="text-orange-600" /><div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" /></div>
               Live Activity
             </h3>
-            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto shadow-inner">
+            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto">
               <div className="space-y-6">
                 {leaders.slice(0, 8).map((agent, i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0">
                     <p className="text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">
-                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase tracking-tight">{agent.display_name}</span> is currently active at Rank #{i + 1} with {agent.points?.toLocaleString()} NETWORK.
+                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase">{agent.display_name}</span> is currently active at Rank #{i + 1}.
                     </p>
                   </div>
                 ))}
@@ -188,25 +172,18 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* REWARDS SECTION (Thresholds Removed) */}
         <div className="space-y-6 pt-12 border-t border-zinc-200 dark:border-zinc-800">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <Gift size={18} className="text-orange-600" /> Foundation Rewards
-            </h3>
-          </div>
+          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+            <Gift size={18} className="text-orange-600" /> Foundation Rewards
+          </h3>
           <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl">
-            <div className="hidden md:grid grid-cols-12 bg-zinc-100 dark:bg-zinc-900 text-[10px] font-black uppercase p-6 border-b border-zinc-200 dark:border-zinc-800">
-              <div className="col-span-4">Class Designation</div>
-              <div className="col-span-8 text-right">Class-Specific Rewards & Privileges</div>
-            </div>
             {classRewards.map((tier) => (
               <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-100 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <div className="col-span-4 flex items-center gap-4">
-                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded group-hover:bg-orange-600/10 transition-colors">{tier.icon}</div>
+                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded">{tier.icon}</div>
                   <h4 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">{tier.class}</h4>
                 </div>
-                <div className="col-span-8 text-right flex flex-wrap justify-end gap-2 md:gap-4">
+                <div className="col-span-8 text-right flex flex-wrap justify-end gap-2">
                   {tier.rewards.map((r, i) => (
                     <span key={i} className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 px-3 py-1 border border-zinc-200 dark:border-zinc-800">
                       {r}
