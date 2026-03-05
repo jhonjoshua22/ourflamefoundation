@@ -6,23 +6,24 @@ import { Flame, ChevronRight, Video, Star } from "lucide-react";
 import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/stormtrooper.png";
 import angelImg from "../assets/angel.png";
+import farmerImg from "../assets/angel.png"; // Placeholder for SuperFarmers
 
 const FlameGame = () => {
   const tiers = [
     {
-      role: "Scouts",
+      role: "Normies",
       image: scoutImg,
       price: "Forever Free",
-      benefit: "Target: $1/mo pay-out",
-      color: "border-border bg-card/50", 
-      glowClass: "shadow-[0_0_50px_rgba(205,127,50,0.6),0_0_20px_rgba(205,127,50,0.4)]",
-      button: "Join Scouts",
+      benefit: "Normies Do Good, Share Content, Win Prizes",
+      color: "border-zinc-200 dark:border-zinc-800 bg-card/50", 
+      glowClass: "shadow-[0_0_40px_rgba(161,161,170,0.3)]",
+      button: "Join Normies",
     },
     {
       role: "SuperHeros",
       image: stormtrooperImg,
       price: "From $10 pm",
-      benefit: "7% Revenue Share",
+      benefit: "Recruit Normies, Educate All, Launch Products",
       color: "border-orange-600 bg-orange-600/10 shadow-[0_0_20px_rgba(234,88,12,0.1)]",
       glowClass: "shadow-[0_0_50px_rgba(255,255,255,0.5),0_0_20px_rgba(148,163,184,0.4)]",
       button: "Recruit Me",
@@ -32,10 +33,19 @@ const FlameGame = () => {
       role: "Angels",
       image: angelImg,
       price: "From $100 pm",
-      benefit: "0.7% Revenue Share",
-      color: "border-border bg-card/50",
+      benefit: "Recruit SuperHeros, Mentor & Coach, Angel Fund",
+      color: "border-zinc-200 dark:border-zinc-800 bg-card/50",
       glowClass: "shadow-[0_0_60px_rgba(255,215,0,0.7),0_0_25px_rgba(255,165,0,0.4)]",
       button: "Become Angel",
+    },
+    {
+      role: "SuperFarmers",
+      image: farmerImg,
+      price: "Seed Investors",
+      benefit: "Recruit Angels, Mentor & Coach, Seed Fund",
+      color: "border-green-600/30 bg-green-600/5",
+      glowClass: "shadow-[0_0_60px_rgba(34,197,94,0.4),0_0_25px_rgba(34,197,94,0.2)]",
+      button: "Plant Seeds",
     },
   ];
 
@@ -75,9 +85,8 @@ const FlameGame = () => {
         }
       `}} />
 
-      <div className="container mx-auto max-w-6xl relative z-10">
+      <div className="container mx-auto max-w-7xl relative z-10">
         
-        {/* Header Section */}
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-5xl md:text-7xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white">
             Welcome to the <span className="text-orange-600">Flame Game</span>
@@ -88,7 +97,6 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* 3 Steps Process */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {steps.map((item, idx) => {
             const isExternal = item.link?.startsWith('http');
@@ -110,58 +118,36 @@ const FlameGame = () => {
               </div>
             );
 
-            if (isExternal) {
-              return (
-                <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="block h-full">
-                  {CardContent}
-                </a>
-              );
-            }
-
-            if (isAnchor) {
-              return (
-                <a key={idx} href={item.link} className="block h-full">
-                  {CardContent}
-                </a>
-              );
-            }
-
-            return (
-              <Link key={idx} to={item.link || "#"} className="block h-full">
-                {CardContent}
-              </Link>
+            return isExternal ? (
+              <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="block h-full">{CardContent}</a>
+            ) : isAnchor ? (
+              <a key={idx} href={item.link} className="block h-full">{CardContent}</a>
+            ) : (
+              <Link key={idx} to={item.link || "#"} className="block h-full">{CardContent}</Link>
             );
           })}
         </div>
 
-        {/* Tiers Grid */}
-        <div id="tiers" className="scroll-mt-24 grid grid-cols-1 md:grid-cols-3 gap-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
+        <div id="tiers" className="scroll-mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
           {tiers.map((tier, i) => (
-            <div 
-              key={i} 
-              className={`p-10 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}
-            >
-              <div className="relative mb-10 mt-4">
-                <div className={`w-32 h-32 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
-                  <img 
-                    src={tier.image} 
-                    alt={tier.role} 
-                    className="w-full h-full object-cover transition-all duration-500"
-                  />
+            <div key={i} className={`p-8 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}>
+              <div className="relative mb-8 mt-4">
+                <div className={`w-24 h-24 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
+                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                 </div>
               </div>
 
-              <h4 className="text-3xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
-              <div className="text-orange-600 font-bold text-lg mb-1">{tier.price}</div>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-8">{tier.benefit}</p>
+              <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
+              <div className="text-orange-600 font-bold text-sm mb-1">{tier.price}</div>
+              <p className="text-zinc-500 dark:text-zinc-400 text-xs mb-8 min-h-[40px]">{tier.benefit}</p>
               
               <Link 
                 to="/login" 
-                className={`w-full py-4 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 ${
+                className={`w-full py-4 font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${
                   tier.featured ? "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.4)]" : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
                 }`}
               >
-                {tier.button} <ChevronRight size={16} />
+                {tier.button} <ChevronRight size={14} />
               </Link>
             </div>
           ))}
