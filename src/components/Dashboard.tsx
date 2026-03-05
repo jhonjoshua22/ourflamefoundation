@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { CheckCircle2, Star, Shield, Zap, Flame, Sprout, Trophy, Loader2, ChevronRight } from "lucide-react";
+import { CheckCircle2, Zap, Flame, Loader2, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -12,23 +12,29 @@ const Dashboard = () => {
   }, []);
 
   const fetchProfile = async () => {
+    // 1. Check for session immediately
     const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-
-      if (!error) {
-        const todayUTC = new Date().toISOString().split('T')[0];
-        // If it's a new day, clear the visual completion status
-        if (data.last_reset_date !== todayUTC) {
-          data.completed_tasks = [];
-        }
-        setProfile(data);
-      }
+    
+    if (!session?.user) {
+      setLoading(false);
+      return; // Exit: Profile stays null, component renders nothing
     }
+
+    // 2. Fetch profile data
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
+
+    if (!error && data) {
+      const todayUTC = new Date().toISOString().split('T')[0];
+      if (data.last_reset_date !== todayUTC) {
+        data.completed_tasks = [];
+      }
+      setProfile(data);
+    }
+    
     setLoading(false);
   };
 
@@ -38,10 +44,8 @@ const Dashboard = () => {
     setUpdatingId(taskId);
 
     try {
-      // Create new array for the text[] column
       const newCompletedTasks = [...(profile.completed_tasks || []), taskId];
       
-      // UPDATE: Only increment points, keep network static
       const { error } = await supabase
         .from("profiles")
         .update({ 
@@ -67,13 +71,9 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) return null;
-  if (!profile) return (
-    <div className="py-48 text-center bg-black min-h-screen">
-      <h2 className="text-white font-black uppercase italic text-4xl tracking-tighter">Access Denied</h2>
-      <p className="text-zinc-500 mt-4 uppercase text-xs tracking-widest font-bold">No profile found for this session.</p>
-    </div>
-  );
+  // CRITICAL: If still loading or if no profile was found (logged out), 
+  // we return null. React renders nothing to the DOM.
+  if (loading || !profile) return null;
 
   const taskData = [
     { 
@@ -173,7 +173,7 @@ const Dashboard = () => {
                                 onClick={() => handleTaskDone(row.id, taskValue)}
                                 className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${
                                   isTaskDone 
-                                  ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' 
+                                  ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none' 
                                   : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02] active:scale-95 shadow-xl'
                                 }`}
                               >
