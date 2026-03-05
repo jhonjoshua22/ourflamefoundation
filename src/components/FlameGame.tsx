@@ -6,7 +6,7 @@ import { Flame, ChevronRight, Video, Star } from "lucide-react";
 import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/stormtrooper.png";
 import angelImg from "../assets/angel.png";
-import farmerImg from "../assets/angel.png"; // Placeholder for SuperFarmers
+import farmerImg from "../assets/angel.png"; 
 
 const FlameGame = () => {
   const tiers = [
@@ -62,7 +62,7 @@ const FlameGame = () => {
       title: "Daily Mission", 
       desc: "Follow AI-monitored task programs with smart prompts.", 
       icon: <Flame />, 
-      link: "#dashboard" 
+      link: "/login" // Redirected to login for public view
     },
     { 
       step: "03", 
