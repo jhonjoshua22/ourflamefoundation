@@ -19,7 +19,7 @@ const FlameGame = () => {
       button: "Join Scouts",
     },
     {
-      role: "Supertroopers",
+      role: "SuperHeros",
       image: stormtrooperImg,
       price: "From $10 pm",
       benefit: "7% Revenue Share",
@@ -59,7 +59,7 @@ const FlameGame = () => {
       title: "Claim Rewards", 
       desc: "Saturday 0700 UTC: Enjoy your magical rewards.", 
       icon: <Star />, 
-      link: "https://calendar.google.com" // Link to Google Calendar
+      link: "https://calendar.google.com" 
     }
   ];
 
