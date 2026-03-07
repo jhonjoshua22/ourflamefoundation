@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Flame, ChevronRight, Video, Star } from "lucide-react";
+import clickSound from "../assets/button.m4a"; // Added import
 
 // Asset Imports
 import scoutImg from "../assets/scout.png";
@@ -9,6 +10,11 @@ import angelImg from "../assets/angel.png";
 import farmerImg from "../assets/angel.png"; 
 
 const FlameGame = () => {
+  // Added sound helper function
+  const playClickSound = () => {
+    new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
+  };
+
   const tiers = [
     {
       role: "Normies",
@@ -62,7 +68,7 @@ const FlameGame = () => {
       title: "Daily Mission", 
       desc: "Follow AI-monitored task programs with smart prompts.", 
       icon: <Flame />, 
-      link: "/login" // Redirected to login for public view
+      link: "/login"
     },
     { 
       step: "03", 
@@ -103,7 +109,7 @@ const FlameGame = () => {
             const isAnchor = item.link?.startsWith('#');
 
             const CardContent = (
-              <div className="relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 hover:border-orange-600 hover:scale-[1.02] cursor-pointer">
+              <div onClick={playClickSound} className="relative h-full p-8 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 hover:border-orange-600 hover:scale-[1.02] cursor-pointer">
                 <span className="text-6xl font-black text-zinc-900/5 dark:text-white/5 absolute top-4 right-4 group-hover:text-orange-600/10 transition-colors">
                   {item.step}
                 </span>
@@ -142,7 +148,8 @@ const FlameGame = () => {
               <p className="text-zinc-500 dark:text-zinc-400 text-xs mb-8 min-h-[40px]">{tier.benefit}</p>
               
               <Link 
-                to="/login" 
+                to="/login"
+                onClick={playClickSound}
                 className={`w-full py-4 font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${
                   tier.featured ? "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.4)]" : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
                 }`}
