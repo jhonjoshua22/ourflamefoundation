@@ -57,7 +57,7 @@ const PartnerSection = () => {
         <div className="flex flex-col gap-12">
           <div className="flex items-end gap-4 mb-8">
             <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
-              Core <span className="text-orange-600">Command</span>
+              Core <span className="text-orange-600">People</span>
             </h2>
           </div>
 
