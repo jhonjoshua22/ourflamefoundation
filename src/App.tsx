@@ -6,10 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Intro Asset
 import introVideo from "./assets/intro.mp4";
 
-// Layout & Pages
 import MainLayout from "./layouts/MainLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
