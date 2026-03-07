@@ -11,8 +11,14 @@ import {
   Compass,
   Medal
 } from "lucide-react";
+import clickSound from "../assets/button.m4a"; // Added import
 
 const ProcessSection = () => {
+  // Added sound helper function
+  const playClickSound = () => {
+    new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
+  };
+
   const steps = [
     { 
       number: "01", 
@@ -166,6 +172,7 @@ const ProcessSection = () => {
                   href="https://drive.google.com/drive/folders/1aFXb-glex8tp_zs3Ltf6KoMN8nYH7xen" 
                   target="_blank" 
                   rel="noreferrer"
+                  onClick={playClickSound}
                   className="text-orange-600 hover:text-orange-400 transition-colors inline-flex items-center gap-1 group"
                 >
                   ACCESS DRIVE
