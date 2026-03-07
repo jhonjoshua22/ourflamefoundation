@@ -1,20 +1,17 @@
 import React from "react";
 
-// Partner Assets
 import google from "../assets/google.png";
 import xLogo from "../assets/x.png";
 import meta from "../assets/meta.png";
 import microsoft from "../assets/microsoft.png";
 import nhs from "../assets/nhs.png";
 
-// Core People Assets
 import MauriceB from "../assets/MauriceB.jpg";
 import MartinH from "../assets/MartinH.jpg";
 import GrahamR from "../assets/GrahamR.jpg";
 import JoshuaH from "../assets/JoshuaH.jpg";
 import defaultAvatar from "../assets/default-user.jpg";
 
-// Trusted People Assets
 import ClaireN from "../assets/ClaireN.jpg";
 import ReemE from "../assets/ReemE.jpg";
 import PatrickS from "../assets/PatrickS.jpg";
@@ -62,7 +59,6 @@ const PartnerSection = () => {
     <section id="people" className="bg-white dark:bg-black py-24 transition-colors duration-500">
       <div className="container mx-auto px-6">
         
-        {/* STRATEGIC ALLIANCE */}
         <div className="flex flex-col gap-8 mb-32">
           <div className="flex items-center gap-4">
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Partners</h4>
@@ -77,7 +73,6 @@ const PartnerSection = () => {
           </div>
         </div>
 
-        {/* CORE COMMAND */}
         <div className="mb-32">
           <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Core <span className="text-orange-600">People</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -94,7 +89,6 @@ const PartnerSection = () => {
           </div>
         </div>
 
-        {/* TRUSTED PEOPLE */}
         <div>
           <h2 className="text-4xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Trusted <span className="text-orange-600">People</span></h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
