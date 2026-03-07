@@ -14,6 +14,18 @@ import GrahamR from "../assets/GrahamR.jpg";
 import JoshuaH from "../assets/JoshuaH.jpg";
 import defaultAvatar from "../assets/default-user.jpg";
 
+// Trusted People Assets
+import ClaireN from "../assets/ClaireN.jpg";
+import ReemE from "../assets/ReemE.jpg";
+import PatrickS from "../assets/PatrickS.jpg";
+import SharonD from "../assets/SharonD.jpg";
+import MartinG from "../assets/MartinG.jpg";
+import DaveB from "../assets/DaveB.jpg";
+import GrahamT from "../assets/GrahamT.jpg";
+import AndreiB from "../assets/AndreiB.jpg";
+import RichardS from "../assets/RichardS.jpg";
+import JohnT from "../assets/JohnT.jpg";
+
 const partnerLogos = [
   { id: 1, src: google, alt: "Google", color: "rgba(251,191,36,0.4)" },
   { id: 2, src: xLogo, alt: "X", color: "rgba(203,213,225,0.4)" },
@@ -31,74 +43,69 @@ const corePeople = [
   { id: 6, name: "Joshua H.", position: "Investor Relations", image: JoshuaH, linkedin: "https://www.linkedin.com/in/joshuah1/" }
 ];
 
+const trustedPeople = [
+  { id: 7, name: "Claire Newman", position: "Recruitment Specialist", image: ClaireN, linkedin: "https://www.linkedin.com/in/clairenewmanbluetree/" },
+  { id: 8, name: "Reem Elfeitury", position: "Managing Director", image: ReemE, linkedin: "https://www.linkedin.com/in/reem-elfeitury-31a42b3b/" },
+  { id: 9, name: "Patrick Shalow", position: "Founder & CEO", image: PatrickS, linkedin: "https://www.linkedin.com/in/patrickshallow/" },
+  { id: 10, name: "Sharon D'Cruz", position: "Head of Marketing", image: SharonD, linkedin: "https://www.linkedin.com/in/sharondcruz/" },
+  { id: 11, name: "Martin Gormley", position: "Marketing Director", image: MartinG, linkedin: "https://www.linkedin.com/in/martin-gormley/" },
+  { id: 12, name: "Dave Brewis", position: "Project Manager", image: DaveB, linkedin: "https://www.linkedin.com/in/davebrewis/" },
+  { id: 13, name: "Graham Teece", position: "Managing Partner", image: GrahamT, linkedin: "https://www.linkedin.com/in/graham-teece-28211532/" },
+  { id: 14, name: "Andrei Bgatov", position: "Sales Director", image: AndreiB, linkedin: "https://www.linkedin.com/in/andreibgatov/" },
+  { id: 15, name: "Richard Skinner", position: "Agency Owner", image: RichardS, linkedin: "https://www.linkedin.com/in/richardskinner1/" },
+  { id: 16, name: "John Thew", position: "Founder/MD", image: JohnT, linkedin: "https://www.linkedin.com/in/johnthew/" },
+  { id: 17, name: "David Flynn", position: "Founder", image: null, linkedin: "https://www.linkedin.com/in/david-flynn-485ab61/" }
+];
+
 const PartnerSection = () => {
   return (
     <section id="people" className="bg-white dark:bg-black py-24 transition-colors duration-500">
       <div className="container mx-auto px-6">
         
-        {/* PARTNERS SECTION */}
+        {/* STRATEGIC ALLIANCE */}
         <div className="flex flex-col gap-8 mb-32">
           <div className="flex items-center gap-4">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Strategic Alliance</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Partners</h4>
             <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
           </div>
-          
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {partnerLogos.map((partner) => (
-              <div key={partner.id} className="group relative aspect-square bg-zinc-50 dark:bg-white/5 flex items-center justify-center overflow-hidden transition-all duration-500 rounded-xl border border-zinc-100 dark:border-white/5 hover:border-orange-600/30">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl" style={{ backgroundColor: partner.color }} />
-                <img src={partner.src} alt={partner.alt} className="relative z-10 w-1/2 h-1/2 object-contain opacity-60 transition-all duration-500 hover:opacity-100 hover:scale-110" />
+            {partnerLogos.map((p) => (
+              <div key={p.id} className="group relative aspect-square bg-zinc-50 dark:bg-white/5 flex items-center justify-center rounded-xl border border-zinc-100 dark:border-white/5">
+                <img src={p.src} alt={p.alt} className="w-1/2 h-1/2 object-contain opacity-60 transition-all duration-500 hover:opacity-100" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* CORE PEOPLE */}
-        <div className="flex flex-col gap-12">
-          <div className="flex items-end gap-4 mb-8">
-            <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
-              Core <span className="text-orange-600">People</span>
-            </h2>
-          </div>
-
+        {/* CORE COMMAND */}
+        <div className="mb-32">
+          <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Core <span className="text-orange-600">People</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {corePeople.map((person) => (
-              <div key={person.id} className="flex flex-col items-center text-center p-8 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
-                
-                {/* Circular Photo */}
-                <div className="w-32 h-32 mb-6 rounded-full overflow-hidden border-4 border-zinc-100 dark:border-zinc-800 shadow-xl">
-                  <img 
-                    src={person.image || defaultAvatar} 
-                    alt={person.name} 
-                    className="w-full h-full object-cover" 
-                  />
+            {corePeople.map((p) => (
+              <div key={p.id} className="flex flex-col items-center text-center p-8 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
+                <div className="w-32 h-32 mb-6 rounded-full overflow-hidden border-4 border-zinc-100 dark:border-zinc-800">
+                  <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover" />
                 </div>
-                
-                {/* Info */}
-                <div className="space-y-1 mb-6">
-                  <h3 className="text-xl font-black uppercase italic tracking-tighter dark:text-white">
-                    {person.name}
-                  </h3>
-                  <p className="text-orange-600 text-[14px] font-black uppercase tracking-widest">
-                    {person.position}
-                  </p>
+                <h3 className="text-xl font-black uppercase italic dark:text-white">{p.name}</h3>
+                <p className="text-orange-600 font-black uppercase text-sm mb-4">{p.position}</p>
+                {p.linkedin && <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase font-bold text-zinc-400 hover:text-blue-500">LinkedIn</a>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* TRUSTED PEOPLE */}
+        <div>
+          <h2 className="text-4xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Trusted <span className="text-orange-600">People</span></h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            {trustedPeople.map((p) => (
+              <div key={p.id} className="flex flex-col items-center text-center p-4 bg-zinc-50 dark:bg-zinc-900/20 border border-zinc-100 dark:border-zinc-800 rounded-2xl">
+                <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-zinc-200 dark:border-zinc-700">
+                  <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover" />
                 </div>
-                
-                {/* LinkedIn Link */}
-                {person.linkedin ? (
-                  <a 
-                    href={person.linkedin} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 hover:text-blue-500 transition-colors border border-zinc-200 dark:border-zinc-800 px-4 py-2 rounded-lg"
-                  >
-                    LinkedIn
-                  </a>
-                ) : (
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600 border border-zinc-200 dark:border-zinc-800 px-4 py-2 rounded-lg cursor-not-allowed">
-                    No Profile
-                  </span>
-                )}
+                <h3 className="text-xs font-black uppercase dark:text-white">{p.name}</h3>
+                <p className="text-orange-600 font-bold uppercase text-[9px] mb-2">{p.position}</p>
+                {p.linkedin && <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-[9px] uppercase font-bold text-zinc-500 hover:text-blue-500">LinkedIn</a>}
               </div>
             ))}
           </div>
