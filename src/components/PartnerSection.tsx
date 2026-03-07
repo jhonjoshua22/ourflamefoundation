@@ -7,10 +7,10 @@ import microsoft from "../assets/microsoft.png";
 import nhs from "../assets/nhs.png";
 
 // Core People Assets
-import MauriceB from "../assets/MauriceB.png";
-import MartinH from "../assets/MartinH.png";
-import GrahamR from "../assets/GrahamR.png";
-import JoshuaH from "../assets/JoshuaH.png";
+import MauriceB from "../assets/MauriceB.jpg";
+import MartinH from "../assets/MartinH.jpg";
+import GrahamR from "../assets/GrahamR.jpg";
+import JoshuaH from "../assets/JoshuaH.jpg";
 
 const partnerLogos = [
   { id: 1, src: google, alt: "Google", color: "rgba(251,191,36,0.4)" },
