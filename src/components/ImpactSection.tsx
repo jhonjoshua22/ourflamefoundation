@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Calendar, Youtube } from "lucide-react";
+import clickSound from "@/assets/button.m4a";
 
 // --- ASSET IMPORTS ---
 import community1 from "@/assets/jobs.png";
@@ -30,8 +31,11 @@ import aitraining from "@/assets/aitraining.jpeg";
 import homecare from "@/assets/homecare.jpeg";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
-// This link forces an event creation screen that invites your gmail account automatically
 const BOOKING_LINK = "https://calendar.google.com/calendar/u/0/r/eventedit?add=ourflamefoundation@gmail.com";
+
+const playClickSound = () => {
+  new Audio(clickSound).play().catch(() => {});
+};
 
 const lessonItems = [
   { image: community1, title: "FLAME JOBS", description: "Live Mon 10:00 EMEA", details: "Description coming soon" },
@@ -75,7 +79,10 @@ const otherServiceItems = [
 
 const ItemCard = ({ item, onClick }) => (
   <button 
-    onClick={() => onClick(item)}
+    onClick={() => {
+      playClickSound();
+      onClick(item);
+    }}
     className="group relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 rounded-none border border-zinc-200/10 text-left outline-none"
   >
     <img
@@ -117,7 +124,10 @@ const CategorySection = ({ title, items, onItemClick }) => {
         </h3>
         {items.length > 3 && (
           <button 
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => {
+              playClickSound();
+              setIsExpanded(!isExpanded);
+            }}
             className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2"
           >
             {isExpanded ? "Collapse" : `View All ${items.length}`}
@@ -138,6 +148,11 @@ const CategorySection = ({ title, items, onItemClick }) => {
 const ImpactSection = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
+  const handleClose = () => {
+    playClickSound();
+    setSelectedItem(null);
+  };
+
   return (
     <section id="services" className="py-24 bg-white dark:bg-black font-sans relative">
       <div className="container mx-auto px-6 max-w-7xl">
@@ -157,7 +172,6 @@ const ImpactSection = () => {
           <CategorySection title="Humanitarian Services" items={otherServiceItems} onItemClick={setSelectedItem} />
         </div>
 
-        {/* --- TRUSTPILOT WIDGET --- */}
         <div className="mt-24 pt-12 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
             <div 
@@ -169,18 +183,16 @@ const ImpactSection = () => {
               data-style-width="100%" 
               data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
             >
-                <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
+              <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
             </div>
         </div>
       </div>
 
-      {/* --- DETAIL MODAL --- */}
       {selectedItem && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800">
-            {/* Close Button */}
             <button 
-              onClick={() => setSelectedItem(null)}
+              onClick={handleClose}
               className="absolute top-4 right-4 z-[110] p-2 bg-black/50 text-white rounded-full hover:bg-orange-600 transition-colors"
             >
               <X size={24} />
@@ -203,6 +215,7 @@ const ImpactSection = () => {
                 <div className="mt-auto space-y-3">
                   <a 
                     href={YOUTUBE_LINK} 
+                    onClick={playClickSound}
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-black uppercase tracking-widest text-xs transition-colors"
@@ -211,6 +224,7 @@ const ImpactSection = () => {
                   </a>
                   <a 
                     href={BOOKING_LINK}
+                    onClick={playClickSound}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-3 w-full py-4 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white font-black uppercase tracking-widest text-xs hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
@@ -221,8 +235,7 @@ const ImpactSection = () => {
               </div>
             </div>
           </div>
-          {/* Click Outside to Close */}
-          <div className="absolute inset-0 -z-10" onClick={() => setSelectedItem(null)} />
+          <div className="absolute inset-0 -z-10" onClick={handleClose} />
         </div>
       )}
     </section>
