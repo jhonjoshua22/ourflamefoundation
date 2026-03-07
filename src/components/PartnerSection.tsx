@@ -33,7 +33,7 @@ const corePeople = [
 
 const PartnerSection = () => {
   return (
-    <section className="bg-white dark:bg-black py-24 transition-colors duration-500">
+    <section id="people" className="bg-white dark:bg-black py-24 transition-colors duration-500">
       <div className="container mx-auto px-6">
         
         {/* PARTNERS SECTION */}
