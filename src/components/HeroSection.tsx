@@ -1,14 +1,19 @@
 import { ArrowRight, Users, Flag, ThumbsUp } from "lucide-react";
 import heroImage from "@/assets/hero-professionals.png";
+import clickSound from "@/assets/button.m4a"; // Added import
 
 const HeroSection = () => {
+  // Added sound helper function
+  const playClickSound = () => {
+    new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
+  };
+
   return (
     <section
       id="home"
-      /* Back to dynamic background: bg-background (standard) or bg-white dark:bg-[#0a0a0a] */
       className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-background transition-colors duration-500"
     >
-      {/* Background Container - IMAGE IS UNTOUCHED, only filtered for legibility */}
+      {/* Background Container */}
       <div className="absolute inset-0 z-0">
         <img
           src={heroImage}
@@ -19,7 +24,6 @@ const HeroSection = () => {
                      transition-all duration-700"
         />
         
-        {/* Dynamic Gradients: Adapts to Light/Dark mode via 'from-background' */}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent transition-all duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
       </div>
@@ -28,14 +32,12 @@ const HeroSection = () => {
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-3xl">
           
-          {/* Sharp Badge - Removed all rounding */}
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none mb-8 backdrop-blur-sm">
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600">
               Empowering Communities Since 1876
             </span>
           </div>
 
-          {/* Heading - Uses 'text-foreground' to swap between Black/White automatically */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-8 text-foreground uppercase italic tracking-tighter">
             Ignite <span className="text-orange-600 not-italic">Change</span>,<br />
             <span>Transform Lives</span>
@@ -56,10 +58,11 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Sharp Buttons */}
+          {/* Sharp Buttons - Added onClick handlers */}
           <div className="flex flex-col sm:flex-row gap-4 mb-20">
             <a
               href="https://www.youtube.com/@MagicworldsTV"
+              onClick={playClickSound}
               className="inline-flex items-center justify-center gap-3 bg-orange-600 px-10 py-5 rounded-none font-black text-xs uppercase tracking-[0.2em] text-white hover:bg-orange-500 transition-all active:scale-95"
             >
               Start Learning
@@ -67,13 +70,14 @@ const HeroSection = () => {
             </a>
             <a
               href="#impact"
+              onClick={playClickSound}
               className="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-none font-black text-xs uppercase tracking-[0.2em] border border-border bg-background/40 text-foreground hover:bg-foreground hover:text-background transition-all"
             >
               Our Hot Topics
             </a>
           </div>
 
-          {/* Stats Section - Colors switch based on theme */}
+          {/* Stats Section */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-12 pt-12 border-t border-border">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
