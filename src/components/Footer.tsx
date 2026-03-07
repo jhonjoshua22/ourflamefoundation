@@ -123,7 +123,7 @@ const UnifiedFooter = () => {
                 <a href="https://wa.me/447762293742" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-orange-600 transition-colors">
                     <MessageCircle size={14} className="text-orange-600"/> +44 7762 293742
                 </a>
-                <p className="flex items-center gap-2"><Mail size={14} className="text-orange-600"/> mflynn1999@gmail.com</p>
+                <p className="flex items-center gap-2"><Mail size={14} className="text-orange-600"/> help@ourflamefoundation.org</p>
               </div>
             </div>
           </div>
