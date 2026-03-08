@@ -12,15 +12,12 @@ import NewsEventsSection from "@/components/NewsEventsSection";
 const Index = () => {
   return (
     <div className="flex flex-col">
-      {/* 
-          This page renders inside the <Outlet /> of MainLayout. 
-      */}
       
-      <HeroSection />
       
       {/* The Flame Game & Dashboard Sections */}
       <FlameGame />
       <Dashboard />
+      <HeroSection />
       
       {/* Infrastructure & Social Proof */}
       <GlobalMap />
