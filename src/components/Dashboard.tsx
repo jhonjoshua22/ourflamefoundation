@@ -162,7 +162,7 @@ const Dashboard = () => {
                       const isTaskDone = profile.completed_tasks?.includes(row.id);
 
                       return (
-                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-orange-600/[0.03]' : 'opacity-40'}`}>
+                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-orange-600/[0.03]' : 'opacity-80'}`}>
                           <div className="flex flex-col h-full justify-between gap-8">
                             <p className={`text-sm leading-relaxed ${isUserRank ? 'text-zinc-900 dark:text-zinc-100 font-bold' : 'text-zinc-500'}`}>
                               {taskText}
