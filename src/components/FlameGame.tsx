@@ -80,7 +80,7 @@ const FlameGame = () => {
   ];
 
   return (
-    <section id="flame-game" className="relative py-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
+    <section id="flame-game" className="relative pt-40 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes breathe {
           0%, 100% { transform: scale(1); filter: brightness(100%); }
