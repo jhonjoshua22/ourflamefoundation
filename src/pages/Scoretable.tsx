@@ -13,7 +13,6 @@ const Scoretable = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalFlame: 0, totalMembers: 0 });
 
-  // Synced to use networkVal
   const calculateFlameDollars = (networkVal: number) => {
     return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
   };
@@ -23,13 +22,22 @@ const Scoretable = () => {
       setLoading(true);
       const { count } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
       
-      // Changed points -> network here
-      let supabaseQuery = supabase.from("profiles").select("id, display_name, email, network, rank, received");
+      // Updated query to include team_lead join
+      let supabaseQuery = supabase.from("profiles").select(`
+        id, 
+        display_name, 
+        email, 
+        network, 
+        rank, 
+        received,
+        team:team_lead (
+          full_name
+        )
+      `);
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       } else {
-        // Changed points -> network here
         supabaseQuery = supabaseQuery.order("network", { ascending: false }).limit(20);
       }
 
@@ -37,13 +45,11 @@ const Scoretable = () => {
       if (error) throw error;
 
       if (data) {
-        // Changed points -> network here for sorting
         const sortedData = [...data].sort((a, b) => (b.network || 0) - (a.network || 0));
         
         if (!query) {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
-          // Changed points -> network here for calculation
           const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.network), 0);
           setStats({ totalFlame, totalMembers: count || 0 });
         } else {
@@ -130,6 +136,7 @@ const Scoretable = () => {
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                         <th className="p-6">Rank</th>
                         <th className="p-6">Name</th>
+                        <th className="p-6">Team</th>
                         <th className="p-6 text-right">Flame $</th>
                         <th className="p-6 text-right text-green-500">Received</th>
                       </tr>
@@ -142,11 +149,15 @@ const Scoretable = () => {
                             <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name}</p>
                             <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Normie"}</span>
                           </td>
+                          <td className="p-6">
+                             {/* Display Team Lead Name extracted from the join */}
+                             <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
+                                {agent.team?.full_name || "Independent"}
+                             </p>
+                          </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
-                            {/* Changed points -> network here */}
                             ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
                             <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold">
-                              {/* Changed points -> network here */}
                               <NetworkIcon size={10} /> {agent.network?.toLocaleString()} NETWORK
                             </div>
                           </td>
