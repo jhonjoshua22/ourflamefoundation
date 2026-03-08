@@ -31,7 +31,7 @@ const Scoretable = () => {
         rank, 
         received,
         team:team_lead (
-          full_name
+          display_name
         )
       `);
 
@@ -152,7 +152,7 @@ const Scoretable = () => {
                           <td className="p-6">
                              {/* Display Team Lead Name extracted from the join */}
                              <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
-                                {agent.team?.full_name || "Independent"}
+                                {agent.team?.display_name || "Independent"}
                              </p>
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
