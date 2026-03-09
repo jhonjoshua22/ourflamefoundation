@@ -5,9 +5,9 @@ import clickSound from "../assets/button.m4a"; // Added import
 
 // Asset Imports
 import scoutImg from "../assets/scout.png";
-import stormtrooperImg from "../assets/stormtrooper.png";
+import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
-import farmerImg from "../assets/angel.png"; 
+import farmerImg from "../assets/superfarmer.png"; 
 
 const FlameGame = () => {
   // Added sound helper function
