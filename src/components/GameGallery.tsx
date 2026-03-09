@@ -11,7 +11,7 @@ const GameGallery = () => {
   const images = [g1, g2, g3, g4];
 
   return (
-    <section className="bg-white dark:bg-black py-24 px-6 border-t border-zinc-100 dark:border-zinc-800">
+    <section id="gallery" className="bg-white dark:bg-black py-24 px-6 border-t border-zinc-100 dark:border-zinc-800">
       <div className="container mx-auto max-w-7xl">
         <h2 className="text-5xl md:text-6xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white mb-16 text-center">
           Game <span className="text-orange-600">Gallery</span>
