@@ -134,7 +134,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* NEW NAVIGATION ROW */}
+        {/* Navigation Rail */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {[
             { label: "Clapmi", url: "https://app.clapmi.com/" },
@@ -159,7 +159,52 @@ const Dashboard = () => {
         <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[1200px]">
-              {/* ... table remains exactly the same ... */}
+              <thead>
+                <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                  <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Mission</th>
+                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-blue-500 font-black italic uppercase tracking-tighter text-xl">Normies</th>
+                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-orange-600 font-black italic uppercase tracking-tighter text-xl">SuperHeroes</th>
+                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-yellow-500 font-black italic uppercase tracking-tighter text-xl">Angels</th>
+                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-green-500 font-black italic uppercase tracking-tighter text-xl">SuperFarmers</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
+                {taskData.map((row) => (
+                  <tr key={row.id}>
+                    <td className="p-8 font-black text-4xl text-zinc-200 dark:text-zinc-800">{row.id}</td>
+                    {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rankType) => {
+                      const isUserRank = profile.rank === rankType;
+                      const taskText = rankType === 'Normie' ? row.normies : rankType === 'SuperHero' ? row.superheros : rankType === 'Angel' ? row.angels : row.superfarmers;
+                      const taskValue = (row.pts as any)[rankType];
+                      const isTaskDone = profile.completed_tasks?.includes(row.id);
+
+                      return (
+                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-orange-600/[0.03]' : 'opacity-80'}`}>
+                          <div className="flex flex-col h-full justify-between gap-8">
+                            <p className={`text-sm leading-relaxed ${isUserRank ? 'text-zinc-900 dark:text-zinc-100 font-bold' : 'text-zinc-500'}`}>
+                              {taskText}
+                            </p>
+                            {isUserRank && (
+                              <button
+                                disabled={isTaskDone || updatingId === row.id}
+                                onClick={() => handleTaskDone(row.id, taskValue)}
+                                className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${
+                                  isTaskDone 
+                                  ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none' 
+                                  : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02] active:scale-95 shadow-xl'
+                                }`}
+                              >
+                                {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} className="fill-current text-orange-600" />}
+                                {isTaskDone ? "Mission Secured" : `Execute for ${taskValue} Pts`}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </div>
