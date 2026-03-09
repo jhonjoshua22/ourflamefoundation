@@ -138,7 +138,7 @@ const FlameGame = () => {
           {tiers.map((tier, i) => (
             <div key={i} className={`p-8 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}>
               <div className="relative mb-8 mt-4">
-                <div className={`w-24 h-24 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
+                <div className={`w-44 h-44 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
                   <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                 </div>
               </div>
