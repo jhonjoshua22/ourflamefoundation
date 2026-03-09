@@ -60,6 +60,7 @@ const Navbar = () => {
     { name: "Home", href: "/#home" },
     { name: "About", href: "/#about" },
     { name: "Flame Game", href: "/#flame-game" },
+    { name: "GameGallery", href: "/#gallery" },
     { name: "Scoretable", href: "/scoretable", isPage: true },
     { name: "Services", href: "/#services" },
     { name: "Presence", href: "/#presence" },
