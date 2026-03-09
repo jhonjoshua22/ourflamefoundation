@@ -69,8 +69,6 @@ const Dashboard = () => {
     }
   };
 
-  if (loading || !profile) return null;
-
   const taskData = [
     { 
       id: "01", 
@@ -97,6 +95,15 @@ const Dashboard = () => {
       pts: { Normie: 150, SuperHero: 500, Angel: 2000, SuperFarmer: 10000 } 
     },
   ];
+
+  const columnLinks = {
+    Normie: { label: "Clapmi", url: "https://app.clapmi.com/" },
+    SuperHero: { label: "Itch.io", url: "https://magicworlds.itch.io/magic-world" },
+    Angel: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" },
+    SuperFarmer: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" }
+  };
+
+  if (loading || !profile) return null;
 
   return (
     <section id="dashboard" className="w-full py-24 px-4 bg-white dark:bg-black min-h-screen">
@@ -134,27 +141,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Navigation Rail */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {[
-            { label: "Clapmi", url: "https://app.clapmi.com/" },
-            { label: "Itch.io", url: "https://magicworlds.itch.io/magic-world" },
-            { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" },
-            { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" }
-          ].map((link, i) => (
-            <a 
-              key={i} 
-              href={link.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 hover:border-orange-600 transition-colors group"
-            >
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white group-hover:text-orange-600">{link.label}</span>
-              <ExternalLink size={12} className="text-zinc-400" />
-            </a>
-          ))}
-        </div>
-
         {/* Task Table */}
         <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
           <div className="overflow-x-auto">
@@ -162,16 +148,36 @@ const Dashboard = () => {
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800">
                   <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Mission</th>
-                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-blue-500 font-black italic uppercase tracking-tighter text-xl">Normies</th>
-                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-orange-600 font-black italic uppercase tracking-tighter text-xl">SuperHeroes</th>
-                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-yellow-500 font-black italic uppercase tracking-tighter text-xl">Angels</th>
-                  <th className="p-8 border-l border-zinc-100 dark:border-zinc-900 text-green-500 font-black italic uppercase tracking-tighter text-xl">SuperFarmers</th>
+                  {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rank) => (
+                    <th key={rank} className="p-8 border-l border-zinc-100 dark:border-zinc-900">
+                      <div className="flex flex-col gap-4">
+                        <span className={`font-black italic uppercase tracking-tighter text-xl ${
+                          rank === 'Normie' ? 'text-blue-500' : 
+                          rank === 'SuperHero' ? 'text-orange-600' : 
+                          rank === 'Angel' ? 'text-yellow-500' : 'text-green-500'
+                        }`}>
+                          {rank}s
+                        </span>
+                        <a 
+                          href={columnLinks[rank as keyof typeof columnLinks].url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-2 border border-zinc-200 dark:border-zinc-800 hover:border-orange-600 transition-colors group"
+                        >
+                          <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-orange-600">
+                            {columnLinks[rank as keyof typeof columnLinks].label}
+                          </span>
+                          <ExternalLink size={10} className="text-zinc-400" />
+                        </a>
+                      </div>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
                 {taskData.map((row) => (
                   <tr key={row.id}>
-                    <td className="p-8 font-black text-4xl text-zinc-200 dark:text-zinc-800">{row.id}</td>
+                    <td className="p-8 font-black text-4xl text-zinc-200 dark:border-zinc-800">{row.id}</td>
                     {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rankType) => {
                       const isUserRank = profile.rank === rankType;
                       const taskText = rankType === 'Normie' ? row.normies : rankType === 'SuperHero' ? row.superheros : rankType === 'Angel' ? row.angels : row.superfarmers;
