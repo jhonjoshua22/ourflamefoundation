@@ -1,4 +1,4 @@
-import { Menu, X, User, LogOut, Sun, Moon, Trophy } from "lucide-react";
+import { Menu, X, User, LogOut, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
@@ -11,13 +11,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Helper function to play the sound
   const playClickSound = () => {
     const audio = new Audio(clickSound);
     audio.play().catch(e => console.log("Audio playback failed", e));
   };
   
-  // Theme State
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("theme");
@@ -26,7 +24,6 @@ const Navbar = () => {
     return false; 
   });
 
-  // THEME EFFECT: This is what makes light/dark mode actually work
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
@@ -38,7 +35,6 @@ const Navbar = () => {
     }
   }, [isDark]);
 
-  // Auth Listener
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -76,8 +72,6 @@ const Navbar = () => {
 
   const NavItem = ({ link, className }: { link: any, className: string }) => {
     const isHome = location.pathname === "/";
-    
-    // Logic: If we are on a different page, ALWAYS use <Link> to go home first
     if (link.isPage || !isHome) {
       return (
         <Link to={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
@@ -85,8 +79,6 @@ const Navbar = () => {
         </Link>
       );
     }
-
-    // If on home, use <a> for smooth scrolling
     return (
       <a href={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
         {link.name}
@@ -96,7 +88,8 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0a0a0a] dark:bg-black text-white border-b border-white/10 font-sans">
-      <div className="container mx-auto px-4 md:px-6">
+      {/* FIX 1: Removed 'container mx-auto' and used 'w-full px-2' to remove crowding */}
+      <div className="w-full px-2 md:px-4">
         <div className="flex items-center justify-between h-20">
           
           <Link to="/" className="flex items-center gap-2 shrink-0" onClick={() => { playClickSound(); setIsOpen(false); }}>
@@ -109,13 +102,14 @@ const Navbar = () => {
             </div>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-4">
-            <div className="flex items-center gap-4 xl:gap-6">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-2">
+            <div className="flex items-center gap-2 xl:gap-4">
               {navLinks.map((link) => (
                 <NavItem 
                   key={link.name} 
                   link={link} 
-                  className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
+                  className={`text-[9px] xl:text-[10px] font-black uppercase tracking-widest transition-colors ${
                     location.pathname === link.href ? "text-orange-600" : "text-gray-400 hover:text-white"
                   }`} 
                 />
@@ -146,7 +140,15 @@ const Navbar = () => {
             </div>
           </div>
 
+          {/* Mobile Controls */}
           <div className="flex lg:hidden items-center gap-2">
+            {/* FIX 2: Added Sign In button directly to mobile bar so it is visible */}
+            {!user && (
+              <Link to="/login" onClick={playClickSound} className="text-[9px] font-black uppercase tracking-widest px-3 py-2 border border-orange-600/30 text-orange-600 hover:bg-orange-600/10 transition-all">
+                Sign In
+              </Link>
+            )}
+            
             <button onClick={() => { playClickSound(); setIsDark(!isDark); }} className="p-2 text-white bg-white/5 border border-white/10">
               {isDark ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} className="text-gray-400" />}
             </button>
@@ -167,6 +169,9 @@ const Navbar = () => {
               className="text-2xl font-black uppercase italic tracking-tighter text-white border-b border-white/5 py-4 block" 
             />
           ))}
+          {user && (
+             <button onClick={handleLogout} className="text-2xl font-black uppercase italic tracking-tighter text-red-500 py-4 block text-left">Logout</button>
+          )}
         </div>
       </div>
     </nav>
