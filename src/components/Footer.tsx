@@ -81,7 +81,7 @@ const UnifiedFooter = () => {
           </div>
 
           {/* COLUMN 2: CONTACT FORM */}
-          <div className="lg:col-span-5 bg-zinc-900/30 p-8 md:p-10 border border-zinc-900">
+          <div id="contacts" className="lg:col-span-5 bg-zinc-900/30 p-8 md:p-10 border border-zinc-900">
             <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.4em] mb-8">Contact Us</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input 
@@ -111,7 +111,7 @@ const UnifiedFooter = () => {
           {/* COLUMN 3: DIRECTORY */}
           <div className="lg:col-span-3 space-y-12 lg:pl-10">
             <div className="space-y-4">
-              <h4 className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Resources</h4>
+              <h4 id="socials" className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Resources</h4>
               <div className="flex flex-col gap-3">
                 {resources.map((link, i) => (
                   <a key={i} href={link.href} onClick={playClickSound} className="text-[13px] text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
