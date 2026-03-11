@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Gamepad2 } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 // Assets
 import promoGif from "./assets/intro.gif";
@@ -67,32 +67,44 @@ const App = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={closePopup}
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/90 backdrop-blur-md"
               />
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="relative bg-zinc-900 border border-zinc-800 p-2 rounded-3xl max-w-md w-full"
+                className="relative bg-zinc-900 border border-white/10 p-2 rounded-3xl max-w-sm w-full shadow-[0_0_50px_rgba(234,88,12,0.3)]"
               >
                 <button 
                   onClick={closePopup}
-                  className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-orange-600 rounded-full text-white transition-colors"
+                  className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-zinc-800 rounded-full text-white transition-colors"
                 >
                   <X size={20} strokeWidth={3} />
                 </button>
 
-                <div className="rounded-2xl overflow-hidden aspect-square bg-black">
+                <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5">
                   <img src={promoGif} alt="Intro" className="w-full h-full object-cover" />
                 </div>
 
                 <div className="p-6 text-center">
-                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">
-                    Welcome to <span className="text-orange-600">Our Flame Foundation</span>
+                  <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white mb-6">
+                    READY TO <span className="text-orange-600">PLAY?</span>
                   </h2>
-                  <p className="text-zinc-400 text-sm font-medium leading-relaxed">
-                    Igniting potential and building a legacy that lasts. <br />
-                    Join us in fueling the change our community deserves.
+                  
+                  {/* PROMOTIONAL ACTION */}
+                  <BrowserRouter>
+                    <Link 
+                      to="/login"
+                      onClick={closePopup}
+                      className="group relative flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-black uppercase italic tracking-widest transition-all transform hover:scale-[1.02] active:scale-95"
+                    >
+                      <Gamepad2 size={24} className="group-hover:rotate-12 transition-transform" />
+                      Play Now
+                    </Link>
+                  </BrowserRouter>
+
+                  <p className="mt-4 text-zinc-500 text-[10px] uppercase font-bold tracking-[0.2em]">
+                    Limited Time Access • Join the Legacy
                   </p>
                 </div>
               </motion.div>
