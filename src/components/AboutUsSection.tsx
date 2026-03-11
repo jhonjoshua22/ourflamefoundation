@@ -76,6 +76,11 @@ const AboutUsSection = () => {
       { name: "2026 I Dream For", url: "https://2026idreamfor.vercel.app/" },
       { name: "Magic Money", url: "http://34.14.136.156:8080/login"},
       { name: "Flame Tablets", url: "https://flametablets.vercel.app/" },
+    ],
+    "Team Projects": [
+      { name: "cheetahhpvq", url: "https://cheetahhpvq-develop-frontend.onrender.com" },
+      { name: "crowd-fund", url: "https://crowd-funding-orpin.vercel.app/" },
+      { name: "2026 I dream for", url: "https://2026idreamfor.vercel.app/" },
     ]
   };
 
@@ -86,6 +91,26 @@ const AboutUsSection = () => {
     { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
   ];
+
+  const NavItem = ({ link, className }: { link: any, className: string }) => {
+    const isHome = location.pathname === "/";
+    
+    // Logic: If we are on a different page, ALWAYS use <Link> to go home first
+    if (link.isPage || !isHome) {
+      return (
+        <Link to={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
+          {link.name}
+        </Link>
+      );
+    }
+
+    // If on home, use <a> for smooth scrolling
+    return (
+      <a href={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
+        {link.name}
+      </a>
+    );
+  };
 
   return (
     <section id="about" className="py-24 bg-white dark:bg-black transition-colors duration-500 overflow-hidden font-sans">
@@ -167,7 +192,7 @@ const AboutUsSection = () => {
                       <span className="text-[11px] font-black uppercase tracking-widest text-zinc-700 dark:text-zinc-300">{link.name}</span>
                       <ArrowRight size={14} className="opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all text-orange-600" />
                     </a>
-                    {activeTab === 'New Products' && (
+                    {(activeTab === 'New Products' || activeTab === 'Team Projects') && (
                       <button 
                         onClick={(e) => handleCopy(e, link.url, link.name)}
                         className="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-orange-600"
