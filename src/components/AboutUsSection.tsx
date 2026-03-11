@@ -181,7 +181,7 @@ const AboutUsSection = () => {
             </div>
 
             {/* Brand Resources Section */}
-            <div className="space-y-4">
+            <div id="resources" className="space-y-4">
               <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
               <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
                 {brandFiles.map((file) => (
