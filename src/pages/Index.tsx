@@ -19,7 +19,6 @@ const Index = () => {
       <FlameGame />
       <Dashboard />
       <GameGallery />
-      <HeroSection />
       
       {/* Infrastructure & Social Proof */}
       <GlobalMap />
@@ -31,6 +30,7 @@ const Index = () => {
       
       {/* Partnership Ecosystem */}
       <PartnerSection />
+      <HeroSection />
       <AboutUsSection />
       <ProcessSection />
     </div>
