@@ -48,7 +48,6 @@ const GameGallery = () => {
             rel="noopener noreferrer"
             className="block group relative overflow-hidden rounded-xl border-4 border-zinc-800 shadow-2xl"
           >
-            <div className="absolute inset-0 bg-orange-600/20 group-hover:bg-transparent transition-colors z-10" />
             <img 
               src={gameCollage} 
               alt="Game Snippets Collage" 
