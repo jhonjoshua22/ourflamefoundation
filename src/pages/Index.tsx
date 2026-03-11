@@ -23,6 +23,7 @@ const Index = () => {
       {/* Infrastructure & Social Proof */}
       <GlobalMap />
       <Testimonials />
+      <AboutUsSection />
       
       {/* Foundation Details */}
       <NewsEventsSection />
@@ -31,7 +32,6 @@ const Index = () => {
       {/* Partnership Ecosystem */}
       <PartnerSection />
       <HeroSection />
-      <AboutUsSection />
       <ProcessSection />
     </div>
   );
