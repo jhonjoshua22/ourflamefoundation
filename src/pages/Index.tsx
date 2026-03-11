@@ -23,16 +23,16 @@ const Index = () => {
       
       {/* Infrastructure & Social Proof */}
       <GlobalMap />
-      <ProcessSection />
       <Testimonials />
       
       {/* Foundation Details */}
-      <AboutUsSection />
       <NewsEventsSection />
       <ImpactSection />
       
       {/* Partnership Ecosystem */}
       <PartnerSection />
+      <AboutUsSection />
+      <ProcessSection />
     </div>
   );
 };
