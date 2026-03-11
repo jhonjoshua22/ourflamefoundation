@@ -147,7 +147,7 @@ const AboutUsSection = () => {
             
             {/* The Tabbed Series Explorer */}
             <div className="space-y-6">
-              <div className="flex flex-wrap bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800">
+              <div id="products" className="flex flex-wrap bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800">
                 {Object.keys(linkCategories).map(cat => (
                   <button
                     key={cat}
