@@ -57,18 +57,21 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Home", href: "/#home" },
-    { name: "About", href: "/#about" },
     { name: "Flame Game", href: "/#flame-game" },
-    { name: "GameGallery", href: "/#gallery" },
-    { name: "Scoretable", href: "/scoretable", isPage: true },
-    { name: "Services", href: "/#services" },
-    { name: "Presence", href: "/#presence" },
-    { name: "News", href: "/#news" },
-    { name: "Process", href: "/#process" },
-    { name: "Impact", href: "/#impact" },
-    { name: "Partners", href: "/#people" },
-    { name: "Contact", href: "/#footer" },
+    { name: "Play", href: "/#flame-game" },
+    { name: "Ranks", href: "/#tiers" },
+    { name: "Our Games", href: "/#gallery" },
+    { name: "Rewards", href: "/scoretable", isPage: true },
+    { name: "Growth", href: "/#presence" },
+    { name: "Reviews", href: "/#impact" },
+    { name: "Products", href: "/#products" },
+    { name: "Resources", href: "/#resources" },
+    { name: "Events", href: "/#news" },
+    { name: "New", href: "/#services" },
+    { name: "Support", href: "/#people" },
+    { name: "Contact", href: "/#contacts" },
+    { name: "Social", href: "/#socials" },
+    { name: "About", href: "/#home" },
   ];
 
   const NavItem = ({ link, className }: { link: any, className: string }) => {
