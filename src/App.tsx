@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 // Assets
-import promoGif from "./assets/intro.gif";
+import promoGif from "./assets/ourgames.mp4";
 import introAudio from "./assets/intro.mp3";
 
 // Layout & Pages
