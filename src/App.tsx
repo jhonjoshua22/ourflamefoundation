@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
 // Assets
-import promoGif from "./assets/ourgames.mp4";
+import promoVideo from "./assets/ourgames.mp4"; // Renamed for clarity
 import introAudio from "./assets/intro.mp3";
 
 // Layout & Pages
@@ -58,41 +58,54 @@ const App = () => {
         <Toaster />
         <Sonner />
 
-        {/* POPUP MODAL */}
-        <AnimatePresence>
-          {showPopup && (
-            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={closePopup}
-                className="absolute inset-0 bg-black/90 backdrop-blur-md"
-              />
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="relative bg-zinc-900 border border-white/10 p-2 rounded-3xl max-w-sm w-full shadow-[0_0_50px_rgba(234,88,12,0.3)]"
-              >
-                <button 
+        <BrowserRouter>
+          {/* POPUP MODAL - Nested inside BrowserRouter so <Link> works */}
+          <AnimatePresence>
+            {showPopup && (
+              <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   onClick={closePopup}
-                  className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-zinc-800 rounded-full text-white transition-colors"
+                  className="absolute inset-0 bg-black/90 backdrop-blur-md"
+                />
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className="relative bg-zinc-900 border border-white/10 p-2 rounded-3xl max-w-sm w-full shadow-[0_0_50px_rgba(234,88,12,0.3)]"
                 >
-                  <X size={20} strokeWidth={3} />
-                </button>
+                  <button 
+                    onClick={closePopup}
+                    className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-zinc-800 rounded-full text-white transition-colors"
+                  >
+                    <X size={20} strokeWidth={3} />
+                  </button>
 
-                <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5">
-                  <img src={promoGif} alt="Intro" className="w-full h-full object-cover" />
-                </div>
+                  <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5">
+                    {/* VIDEO TAG FOR MP4 SUPPORT */}
+                    <video 
+                      src={promoVideo} 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
 
-                <div className="p-6 text-center">
-                  <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white mb-6">
-                    READY TO <span className="text-orange-600">PLAY?</span>
-                  </h2>
-                  
-                  {/* PROMOTIONAL ACTION */}
-                  <BrowserRouter>
+                  <div className="p-6 text-center">
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white mb-2">
+                      IGNITE YOUR <span className="text-orange-600">LEGACY.</span>
+                    </h2>
+                    
+                    <p className="text-zinc-400 text-sm font-medium leading-relaxed mb-6">
+                      The universe is expanding and the Flame is rising. Don't just watch the change—drive it. 
+                      Your seat at the Foundation is waiting.
+                    </p>
+                    
+                    {/* PROMOTIONAL ACTION */}
                     <Link 
                       to="/login"
                       onClick={closePopup}
@@ -101,19 +114,17 @@ const App = () => {
                       <Gamepad2 size={24} className="group-hover:rotate-12 transition-transform" />
                       Play Now
                     </Link>
-                  </BrowserRouter>
 
-                  <p className="mt-4 text-zinc-500 text-[10px] uppercase font-bold tracking-[0.2em]">
-                    Limited Time Access • Join the Legacy
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+                    <p className="mt-4 text-zinc-500 text-[10px] uppercase font-bold tracking-[0.2em]">
+                      Limited Time Access • Join the Collective
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
 
-        {/* ROUTING */}
-        <BrowserRouter>
+          {/* ROUTING */}
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Index />} />
