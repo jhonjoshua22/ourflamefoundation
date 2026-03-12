@@ -1,15 +1,15 @@
 import React from "react";
-import { Star, CheckCircle, Rocket } from "lucide-react"; // Added Rocket for your specific highlight
+import { Star, CheckCircle, Rocket, Linkedin } from "lucide-react"; // Added Linkedin icon
 
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "You", // Your name can go here
+      name: "You", 
       role: "Web Developer",
       content: "I started as a Social Media Manager and am now their Web Developer. This journey helped me grow my skills and secure a wide range of clients through the foundation's incredible network.",
-      initials: "YD", // Your initials
+      initials: "YD", 
       accent: "border-orange-600",
-      isHighlight: true // Flag to give your story extra flair
+      isHighlight: true 
     },
     {
       name: "Joshua",
@@ -48,11 +48,9 @@ const Testimonials = () => {
     }
   ];
 
-  // Double for seamless loop
   const infiniteTestimonials = [...testimonials, ...testimonials];
 
   return (
-    // Added id="impact" here
     <section id="impact" className="py-24 bg-white dark:bg-zinc-950 border-y border-zinc-100 dark:border-zinc-900 overflow-hidden">
       <style>{`
         @keyframes marquee {
@@ -129,19 +127,37 @@ const Testimonials = () => {
       </div>
 
       <div className="mt-24 pt-12 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
-            <div 
-              className="trustpilot-widget" 
-              data-locale="en-US" 
-              data-template-id="56278e9abfbbba0bdcd568bc" 
-              data-businessunit-id="699ebadf007f4226955833d3" 
-              data-style-height="52px" 
-              data-style-width="100%" 
-              data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
-            >
-              <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
-            </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
+        
+        {/* Verification Links Wrapper */}
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          {/* Trustpilot */}
+          <div 
+            className="trustpilot-widget" 
+            data-locale="en-US" 
+            data-template-id="56278e9abfbbba0bdcd568bc" 
+            data-businessunit-id="699ebadf007f4226955833d3" 
+            data-style-height="52px" 
+            data-style-width="100%" 
+            data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
+          >
+            <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
+          </div>
+
+          {/* LinkedIn Link */}
+          <a 
+            href="https://www.linkedin.com/company/flamefoundation/people/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-6 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors group"
+          >
+            <Linkedin size={20} className="text-[#0077B5] fill-[#0077B5]" />
+            <span className="text-sm font-bold text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100">
+              LinkedIn <span className="text-[10px] font-medium opacity-50">Verified People</span>
+            </span>
+          </a>
         </div>
+      </div>
 
       <div className="mt-20 flex justify-center gap-12 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">24-Hour Innovation Cycle</span>
