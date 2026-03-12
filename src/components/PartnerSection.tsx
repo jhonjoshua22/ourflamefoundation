@@ -1,4 +1,5 @@
 import React from "react";
+import { ExternalLink, Users } from "lucide-react"; // Added for better UI icons
 
 import google from "../assets/google.png";
 import xLogo from "../assets/x.png";
@@ -59,9 +60,10 @@ const PartnerSection = () => {
     <section id="people" className="bg-white dark:bg-black py-24 transition-colors duration-500">
       <div className="container mx-auto px-6">
         
-        <div className="flex flex-col gap-8 mb-32">
+        {/* PARTNERS LOGO GRID */}
+        <div className="flex flex-col gap-8 mb-16">
           <div className="flex items-center gap-4">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Partners</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 whitespace-nowrap">Official Partners</h4>
             <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -73,6 +75,28 @@ const PartnerSection = () => {
           </div>
         </div>
 
+        {/* PARTNER ACTION LINKS */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-32 p-8 bg-zinc-50 dark:bg-zinc-900/40 rounded-3xl border border-zinc-100 dark:border-zinc-800">
+           <a 
+            href="https://drive.google.com/drive/folders/1aFXb-glex8tp_zs3Ltf6KoMN8nYH7xen" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-6 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:border-orange-600 transition-all group"
+          >
+            <ExternalLink size={14} className="group-hover:text-orange-600" />
+            View Partner Assets
+          </a>
+          
+          <a 
+            href="#contacts" 
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-6 py-3 bg-orange-600 text-white hover:bg-orange-500 transition-all shadow-lg shadow-orange-600/20"
+          >
+            <Users size={14} />
+            Become a Partner
+          </a>
+        </div>
+
+        {/* CORE PEOPLE */}
         <div className="mb-32">
           <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Core <span className="text-orange-600">People</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -89,6 +113,7 @@ const PartnerSection = () => {
           </div>
         </div>
 
+        {/* TRUSTED PEOPLE */}
         <div>
           <h2 className="text-4xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Trusted <span className="text-orange-600">People</span></h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
