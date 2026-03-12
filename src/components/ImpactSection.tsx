@@ -171,21 +171,6 @@ const ImpactSection = () => {
           <CategorySection title="The Worlds" items={ourWorldItems} onItemClick={setSelectedItem} />
           <CategorySection title="Humanitarian Services" items={otherServiceItems} onItemClick={setSelectedItem} />
         </div>
-
-        <div className="mt-24 pt-12 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
-            <div 
-              className="trustpilot-widget" 
-              data-locale="en-US" 
-              data-template-id="56278e9abfbbba0bdcd568bc" 
-              data-businessunit-id="699ebadf007f4226955833d3" 
-              data-style-height="52px" 
-              data-style-width="100%" 
-              data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
-            >
-              <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
-            </div>
-        </div>
       </div>
 
       {selectedItem && (
