@@ -90,6 +90,7 @@ const Testimonials = () => {
                   ? 'bg-orange-50/50 dark:bg-orange-950/10 border-orange-600' 
                   : 'bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800'}`}
             >
+              {/* Testimonial Content */}
               <div>
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex gap-1">
@@ -99,26 +100,20 @@ const Testimonials = () => {
                   </div>
                   {item.isHighlight && <Rocket size={16} className="text-orange-600 animate-pulse" />}
                 </div>
-                
                 <blockquote className="text-zinc-600 dark:text-zinc-400 text-lg leading-relaxed font-serif italic mb-10">
                   "{item.content}"
                 </blockquote>
               </div>
-              
               <div className="flex items-center gap-5">
                 <div className="w-12 h-12 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 font-bold text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
                   {item.initials}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm tracking-wide uppercase">
-                      {item.name}
-                    </p>
+                    <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm tracking-wide uppercase">{item.name}</p>
                     <CheckCircle size={12} className="text-orange-600" />
                   </div>
-                  <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest mt-1">
-                    {item.role}
-                  </p>
+                  <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest mt-1">{item.role}</p>
                 </div>
               </div>
             </div>
@@ -129,31 +124,31 @@ const Testimonials = () => {
       <div className="mt-24 pt-12 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
         
-        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
           {/* Google Reviews */}
           <a 
             href="https://maps.app.goo.gl/p1LM7Dg2smJc73vH9" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-6 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group"
+            className="flex items-center gap-3 px-6 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group"
           >
             <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
             <span className="text-sm font-bold text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100">
-              Google <span className="text-[10px] font-medium opacity-50">Reviews</span>
+              Google Reviews
             </span>
           </a>
 
-          {/* Trustpilot - Border removed as requested */}
+          {/* Trustpilot (Restored to original style) */}
           <div 
-            className="trustpilot-widget flex items-center" 
+            className="trustpilot-widget" 
             data-locale="en-US" 
             data-template-id="56278e9abfbbba0bdcd568bc" 
             data-businessunit-id="699ebadf007f4226955833d3" 
-            data-style-height="28px" 
+            data-style-height="52px" 
             data-style-width="100%" 
             data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
           >
-            <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-zinc-600 dark:text-zinc-400">Trustpilot</a>
+            <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer">Trustpilot</a>
           </div>
 
           {/* LinkedIn Link */}
@@ -161,9 +156,9 @@ const Testimonials = () => {
             href="https://www.linkedin.com/company/flamefoundation/people/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors group"
+            className="flex items-center gap-2 px-6 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors group"
           >
-            <Linkedin size={18} className="text-[#0077B5] fill-[#0077B5]" />
+            <Linkedin size={20} className="text-[#0077B5] fill-[#0077B5]" />
             <span className="text-sm font-bold text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100">
               LinkedIn <span className="text-[10px] font-medium opacity-50">Verified People</span>
             </span>
