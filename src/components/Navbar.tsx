@@ -85,7 +85,7 @@ const Navbar = () => {
     const isHome = location.pathname === "/";
 
     const linkContent = (
-      <span className="flex items-center gap-2 uppercase tracking-[0.2em] font-black italic whitespace-nowrap">
+      <span className="flex items-center gap-2 uppercase tracking-[0.2em] font-black whitespace-nowrap">
         {item.name}
         {hasDropdown && <ChevronDown size={12} className={`transition-transform duration-300 ${activeDropdown === item.name ? 'rotate-180 text-orange-600' : ''}`} />}
       </span>
@@ -134,7 +134,7 @@ const Navbar = () => {
                 href={sub.href}
                 onClick={() => { playClickSound(); setIsOpen(false); }}
                 className={`${isMobile 
-                  ? 'text-lg text-gray-400 py-2 italic font-bold uppercase' 
+                  ? 'text-lg text-gray-400 py-2 font-bold uppercase' 
                   : 'block px-6 py-3 text-[10px] text-gray-400 hover:text-orange-600 hover:bg-white/5 font-black uppercase tracking-widest transition-all'}`}
               >
                 {sub.name}
@@ -214,9 +214,9 @@ const Navbar = () => {
           
           <div className="pt-10">
             {user ? (
-              <button onClick={handleLogout} className="text-3xl font-black uppercase italic tracking-tighter text-red-500 py-4 block">Logout</button>
+              <button onClick={handleLogout} className="text-3xl font-black uppercase tracking-tighter text-red-500 py-4 block">Logout</button>
             ) : (
-              <Link to="/login" onClick={() => { playClickSound(); setIsOpen(false); }} className="text-4xl font-black uppercase italic tracking-tighter text-orange-600">Sign In</Link>
+              <Link to="/login" onClick={() => { playClickSound(); setIsOpen(false); }} className="text-4xl font-black uppercase tracking-tighter text-orange-600">Sign In</Link>
             )}
           </div>
         </div>
