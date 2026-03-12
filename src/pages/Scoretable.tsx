@@ -22,7 +22,6 @@ const Scoretable = () => {
       setLoading(true);
       const { count } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
       
-      // Updated query to include team_lead join
       let supabaseQuery = supabase.from("profiles").select(`
         id, 
         display_name, 
@@ -30,6 +29,7 @@ const Scoretable = () => {
         network, 
         rank, 
         received,
+        Rebirth,
         team:team_lead (
           display_name
         )
@@ -137,6 +137,7 @@ const Scoretable = () => {
                         <th className="p-6">Rank</th>
                         <th className="p-6">Name</th>
                         <th className="p-6">Team</th>
+                        <th className="p-6">Rebirth</th>
                         <th className="p-6 text-right">Flame $</th>
                         <th className="p-6 text-right text-green-500">Received</th>
                       </tr>
@@ -150,10 +151,12 @@ const Scoretable = () => {
                             <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Normie"}</span>
                           </td>
                           <td className="p-6">
-                             {/* Display Team Lead Name extracted from the join */}
                              <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
                                 {agent.team?.display_name || "Independent"}
                              </p>
+                          </td>
+                          <td className="p-6 text-xs font-bold text-zinc-300">
+                            June of {agent.Rebirth}
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
                             ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
