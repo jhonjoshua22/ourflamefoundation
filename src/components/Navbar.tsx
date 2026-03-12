@@ -1,4 +1,4 @@
-import { Menu, X, User, LogOut, Sun, Moon } from "lucide-react";
+import { Menu, X, User, LogOut, Sun, Moon, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
@@ -7,6 +7,7 @@ import clickSound from "../assets/button.m4a";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,46 +53,107 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const navLinks = [
-    { name: "Flame Game", href: "/#flame-game" },
-    { name: "Play", href: "/#flame-game" },
-    { name: "Ranks", href: "/#tiers" },
-    { name: "Our Games", href: "/#gallery" },
-    { name: "Rewards", href: "/scoretable", isPage: true },
-    { name: "Growth", href: "/#presence" },
+  // Structured Nav Data
+  const navigation = [
+    { 
+      name: "Flame Game", 
+      href: "/#flame-game",
+      dropdown: [
+        { name: "Ranks", href: "/#tiers" },
+        { name: "Our Games", href: "/#gallery" },
+        { name: "Play", href: "/#flame-game" },
+      ]
+    },
+    { 
+      name: "About", 
+      href: "/#home",
+      dropdown: [
+        { name: "Growth", href: "/#presence" },
+        { name: "Products", href: "/#products" },
+        { name: "Resources", href: "/#resources" },
+        { name: "Events", href: "/#news" },
+        { name: "New", href: "/#services" },
+        { name: "Support", href: "/#people" },
+      ]
+    },
     { name: "Reviews", href: "/#impact" },
-    { name: "Products", href: "/#products" },
-    { name: "Resources", href: "/#resources" },
-    { name: "Events", href: "/#news" },
-    { name: "New", href: "/#services" },
-    { name: "Support", href: "/#people" },
-    { name: "Contact", href: "/#contacts" },
-    { name: "Social", href: "/#socials" },
-    { name: "About", href: "/#home" },
+    { name: "Rewards", href: "/scoretable", isPage: true },
+    { name: "Contacts", href: "/#contacts" },
   ];
 
-  const NavItem = ({ link, className }: { link: any, className: string }) => {
+  const NavItem = ({ item, isMobile = false }: { item: any, isMobile?: boolean }) => {
+    const hasDropdown = !!item.dropdown;
     const isHome = location.pathname === "/";
-    if (link.isPage || !isHome) {
-      return (
-        <Link to={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
-          {link.name}
-        </Link>
-      );
-    }
+
+    const linkContent = (
+      <span className="flex items-center gap-1 uppercase tracking-widest font-black italic">
+        {item.name}
+        {hasDropdown && <ChevronDown size={12} className={`transition-transform ${activeDropdown === item.name ? 'rotate-180' : ''}`} />}
+      </span>
+    );
+
+    const handleClick = () => {
+      if (isMobile && hasDropdown) {
+        setActiveDropdown(activeDropdown === item.name ? null : item.name);
+      } else {
+        playClickSound();
+        setIsOpen(false);
+      }
+    };
+
     return (
-      <a href={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
-        {link.name}
-      </a>
+      <div 
+        className={`relative group ${isMobile ? 'w-full' : ''}`}
+        onMouseEnter={() => !isMobile && setActiveDropdown(item.name)}
+        onMouseLeave={() => !isMobile && setActiveDropdown(null)}
+      >
+        {item.isPage || !isHome ? (
+          <Link 
+            to={item.href} 
+            className={`${isMobile ? 'text-2xl py-4 border-b border-white/5 w-full block' : 'text-[10px] text-gray-400 hover:text-white px-3 py-2 transition-colors'}`}
+            onClick={handleClick}
+          >
+            {linkContent}
+          </Link>
+        ) : (
+          <a 
+            href={item.href} 
+            className={`${isMobile ? 'text-2xl py-4 border-b border-white/5 w-full block' : 'text-[10px] text-gray-400 hover:text-white px-3 py-2 transition-colors'}`}
+            onClick={handleClick}
+          >
+            {linkContent}
+          </a>
+        )}
+
+        {/* Dropdown Menu */}
+        {hasDropdown && (activeDropdown === item.name) && (
+          <div className={`${isMobile 
+            ? 'flex flex-col pl-6 bg-white/5 border-l-2 border-orange-600 space-y-2 py-4' 
+            : 'absolute top-full left-0 w-48 bg-zinc-900 border border-white/10 shadow-2xl py-2 z-[110]'}`}>
+            {item.dropdown.map((sub: any) => (
+              <a 
+                key={sub.name}
+                href={sub.href}
+                onClick={() => { playClickSound(); setIsOpen(false); }}
+                className={`${isMobile 
+                  ? 'text-lg text-gray-400 py-2 italic font-bold uppercase' 
+                  : 'block px-4 py-3 text-[10px] text-gray-400 hover:text-orange-600 hover:bg-white/5 font-black uppercase tracking-widest'}`}
+              >
+                {sub.name}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
     );
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0a0a0a] dark:bg-black text-white border-b border-white/10 font-sans">
-      {/* FIX 1: Removed 'container mx-auto' and used 'w-full px-2' to remove crowding */}
-      <div className="w-full px-2 md:px-4">
+    <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0a0a0a] text-white border-b border-white/10">
+      <div className="w-full px-4 md:px-8">
         <div className="flex items-center justify-between h-20">
           
+          {/* Logo Area */}
           <Link to="/" className="flex items-center gap-2 shrink-0" onClick={() => { playClickSound(); setIsOpen(false); }}>
             <img src={logo} alt="Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
             <div className="flex flex-col text-left">
@@ -103,28 +165,22 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-2">
-            <div className="flex items-center gap-2 xl:gap-4">
-              {navLinks.map((link) => (
-                <NavItem 
-                  key={link.name} 
-                  link={link} 
-                  className={`text-[9px] xl:text-[10px] font-black uppercase tracking-widest transition-colors ${
-                    location.pathname === link.href ? "text-orange-600" : "text-gray-400 hover:text-white"
-                  }`} 
-                />
+          <div className="hidden lg:flex items-center gap-4">
+            <div className="flex items-center">
+              {navigation.map((item) => (
+                <NavItem key={item.name} item={item} />
               ))}
             </div>
 
             <div className="h-6 w-px bg-white/10 mx-2" />
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <button onClick={() => { playClickSound(); setIsDark(!isDark); }} className="p-2 hover:bg-white/5 transition-all outline-none">
                 {isDark ? <Sun size={16} className="text-yellow-500" /> : <Moon size={16} className="text-gray-400" />}
               </button>
 
               {user ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <Link to="/profile" onClick={playClickSound} className="text-gray-400 hover:text-white transition-colors">
                     <User size={18} />
                   </Link>
@@ -133,7 +189,7 @@ const Navbar = () => {
                   </button>
                 </div>
               ) : (
-                <Link to="/login" onClick={playClickSound} className="text-[10px] font-black uppercase tracking-widest px-3 py-2 border border-white/10 hover:bg-white/5 transition-all">
+                <Link to="/login" onClick={playClickSound} className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-orange-600 text-white hover:bg-orange-500 transition-all shadow-lg shadow-orange-600/20">
                   Sign In
                 </Link>
               )}
@@ -141,14 +197,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Controls */}
-          <div className="flex lg:hidden items-center gap-2">
-            {/* FIX 2: Added Sign In button directly to mobile bar so it is visible */}
-            {!user && (
-              <Link to="/login" onClick={playClickSound} className="text-[9px] font-black uppercase tracking-widest px-3 py-2 border border-orange-600/30 text-orange-600 hover:bg-orange-600/10 transition-all">
-                Sign In
-              </Link>
-            )}
-            
+          <div className="flex lg:hidden items-center gap-3">
             <button onClick={() => { playClickSound(); setIsDark(!isDark); }} className="p-2 text-white bg-white/5 border border-white/10">
               {isDark ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} className="text-gray-400" />}
             </button>
@@ -160,18 +209,19 @@ const Navbar = () => {
       </div>
 
       {/* MOBILE MENU */}
-      <div className={`lg:hidden fixed inset-x-0 top-20 bottom-0 bg-[#0a0a0a] z-[99] transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="flex flex-col h-full overflow-y-auto bg-[#0a0a0a] p-6 pb-12 space-y-4">
-          {navLinks.map((link) => (
-            <NavItem 
-              key={link.name} 
-              link={link} 
-              className="text-2xl font-black uppercase italic tracking-tighter text-white border-b border-white/5 py-4 block" 
-            />
+      <div className={`lg:hidden fixed inset-x-0 top-20 bottom-0 bg-[#0a0a0a] z-[99] transform transition-transform duration-500 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="flex flex-col h-full overflow-y-auto bg-[#0a0a0a] p-8 space-y-2">
+          {navigation.map((item) => (
+            <NavItem key={item.name} item={item} isMobile={true} />
           ))}
-          {user && (
-             <button onClick={handleLogout} className="text-2xl font-black uppercase italic tracking-tighter text-red-500 py-4 block text-left">Logout</button>
-          )}
+          
+          <div className="pt-8">
+            {user ? (
+              <button onClick={handleLogout} className="text-2xl font-black uppercase italic tracking-tighter text-red-500 py-4 block">Logout</button>
+            ) : (
+              <Link to="/login" onClick={() => { playClickSound(); setIsOpen(false); }} className="text-3xl font-black uppercase italic tracking-tighter text-orange-600">Sign In</Link>
+            )}
+          </div>
         </div>
       </div>
     </nav>
