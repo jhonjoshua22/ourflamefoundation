@@ -15,7 +15,7 @@ const TermsOfUse: React.FC = () => {
         {/* HEADER */}
         <div className="mb-12 border-b border-zinc-800 pb-8 text-center md:text-left">
           <h1 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter mb-4">
-            MAGIC WORLD <br/><span className="text-orange-600 not-italic text-2xl md:text-4xl">TERMS OF USE</span>
+            Our Flame Foundation CIC <br/><span className="text-orange-600 not-italic text-2xl md:text-4xl">TERMS OF USE</span>
           </h1>
           <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-bold uppercase tracking-widest text-zinc-500">
             <span>Created: February 25th, 2025</span>
@@ -23,6 +23,11 @@ const TermsOfUse: React.FC = () => {
             <span>Last Updated: October 18th, 2025</span>
           </div>
         </div>
+
+        <section className="mb-12">
+          <h2 className="text-white font-bold uppercase mb-4 tracking-wider border-b border-orange-600 inline-block pb-1"> OUR 10 COMMANDMENTS</h2>
+          <p className="text-sm">I. Prioritize human legacy over capital; II. drive progress through a relentless 24-hour innovation cycle; III. lead as servants who empower the overlooked; IV. operate with radical transparency; V. use only ethical, sustainable capital; VI. protect family sovereignty through decentralized tools; VII. foster global-local impact via our Geo Leaders; VIII. maintain a state of perpetual, high-speed incubation; IX. build with open-source integrity; and X. ensure every member acts as a superhero, building the foundation for others to rise.</p>
+        </section>
 
         {/* 1. OUR SERVICES */}
         <section className="mb-12">
