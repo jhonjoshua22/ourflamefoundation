@@ -143,13 +143,13 @@ const Testimonials = () => {
             </span>
           </a>
 
-          {/* Trustpilot */}
+          {/* Trustpilot - Border removed as requested */}
           <div 
-            className="trustpilot-widget px-6 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg" 
+            className="trustpilot-widget flex items-center" 
             data-locale="en-US" 
             data-template-id="56278e9abfbbba0bdcd568bc" 
             data-businessunit-id="699ebadf007f4226955833d3" 
-            data-style-height="24px" 
+            data-style-height="28px" 
             data-style-width="100%" 
             data-token="4e8d4fbe-5696-46e2-b37e-ae0f6476f3a2"
           >
