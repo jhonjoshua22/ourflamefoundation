@@ -58,15 +58,16 @@ const Navbar = () => {
       name: "Flame Game", 
       href: "/#flame-game",
       dropdown: [
+        { name: "Flame Game", href: "/#flame-game" },
         { name: "Ranks", href: "/#tiers" },
         { name: "Our Games", href: "/#gallery" },
-        { name: "Play", href: "/#flame-game" },
       ]
     },
     { 
       name: "About", 
       href: "/#home",
       dropdown: [
+        { name: "About", href: "/#home" },
         { name: "Growth", href: "/#presence" },
         { name: "Products", href: "/#products" },
         { name: "Resources", href: "/#resources" },
