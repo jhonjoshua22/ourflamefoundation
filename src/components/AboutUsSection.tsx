@@ -1,6 +1,5 @@
 import { useState } from "react";
 import clickSound from "../assets/button.m4a"; // Added import
-// Import PDFs from the assets folder
 import SchedulePDF from "../assets/schedule.pdf";
 import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
 import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
