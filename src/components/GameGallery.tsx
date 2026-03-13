@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 // 1. Import them at the top
 import g1 from "../assets/g1.png";
 import g2 from "../assets/g2.png";
 import g3 from "../assets/g3.png";
 import g4 from "../assets/g4.png";
 import g5 from "../assets/g5.mp4";
-import gameCollage from "../assets/gamecollage.png"; // New Import
+import magicWorlds from "../assets/magicworlds.mp4"; // New Video Import
+import gameCollage from "../assets/gamecollage.png"; 
 
 const GameGallery = () => {
+  // State for Lightbox (clicked image)
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+
   // 2. Array for the small grid images
   const images = [g1, g2, g3, g4];
 
@@ -18,18 +22,29 @@ const GameGallery = () => {
           PLAY & <span className="text-orange-600">EDUCATE</span>
         </h2>
 
-        {/* Top Section: Video and 4-Grid */}
+        {/* Top Section: Videos and 4-Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
-          <div className="w-full">
+          <div className="w-full space-y-8">
+            {/* First Video */}
             <video controls className="w-full aspect-video rounded-xl shadow-2xl border-4 border-zinc-800 bg-zinc-900">
               <source src={g5} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            
+            {/* New Video: Magic Worlds */}
+            <video controls className="w-full aspect-video rounded-xl shadow-2xl border-4 border-zinc-800 bg-zinc-900">
+              <source src={magicWorlds} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             {images.map((img, i) => (
-              <div key={i} className="overflow-hidden rounded-lg shadow-lg border border-zinc-800">
+              <div 
+                key={i} 
+                className="overflow-hidden rounded-lg shadow-lg border border-zinc-800 cursor-zoom-in"
+                onClick={() => setSelectedImg(img)}
+              >
                 <img 
                   src={img} 
                   alt={`Game Scene ${i + 1}`} 
@@ -62,6 +77,28 @@ const GameGallery = () => {
           </a>
         </div>
       </div>
+
+      {/* Lightbox Overlay (Hidden until an image is clicked) */}
+      {selectedImg && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 md:p-12 cursor-pointer"
+          onClick={() => setSelectedImg(null)}
+        >
+          <div className="relative max-w-5xl w-full h-full flex items-center justify-center">
+            <button 
+              className="absolute top-0 right-0 text-white text-4xl p-4 font-light hover:text-orange-600"
+              onClick={() => setSelectedImg(null)}
+            >
+              &times;
+            </button>
+            <img 
+              src={selectedImg} 
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300" 
+              alt="Expanded view"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };
