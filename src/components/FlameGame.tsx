@@ -28,7 +28,7 @@ const FlameGame = () => {
     {
       role: "SuperHeros",
       image: stormtrooperImg,
-      price: "From $10 pm",
+      price: "From $5 pm est",
       benefit: "Do Good, Enjoy Rewards, Get Superbot 10x Powers",
       color: "border-orange-600 bg-orange-600/10 shadow-[0_0_20px_rgba(234,88,12,0.1)]",
       glowClass: "shadow-[0_0_50px_rgba(255,255,255,0.5),0_0_20px_rgba(148,163,184,0.4)]",
@@ -38,7 +38,7 @@ const FlameGame = () => {
     {
       role: "Angels",
       image: angelImg,
-      price: "From $100 pm",
+      price: "From $50 pm est",
       benefit: "Provide Funds, Enjoy Rewards, Get SuperBot 10x Powers",
       color: "border-zinc-200 dark:border-zinc-800 bg-card/50",
       glowClass: "shadow-[0_0_60px_rgba(255,215,0,0.7),0_0_25px_rgba(255,165,0,0.4)]",
@@ -47,7 +47,7 @@ const FlameGame = () => {
     {
       role: "SuperFarmers",
       image: farmerImg,
-      price: "Seed Investors",
+      price: "From $500 pm est",
       benefit: "Boost Funds, Enjoy Rewards, Share Friends",
       color: "border-green-600/30 bg-green-600/5",
       glowClass: "shadow-[0_0_60px_rgba(34,197,94,0.4),0_0_25px_rgba(34,197,94,0.2)]",
