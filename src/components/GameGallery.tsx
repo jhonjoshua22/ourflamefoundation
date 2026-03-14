@@ -36,32 +36,36 @@ const GameGallery = () => {
             </video>
           </div>
 
-          {/* 4-Photo Grid: Grouped under Magic Worlds link */}
-          <a 
-            href="https://magicworlds.itch.io/magic-world" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="grid grid-cols-2 gap-2 h-full group"
-          >
-            {images.map((img, i) => (
-              <div 
-                key={i} 
-                className="overflow-hidden rounded-lg shadow-lg border border-zinc-800 aspect-video md:aspect-auto relative"
-              >
-                <img 
-                  src={img} 
-                  alt={`Magic Worlds Scene ${i + 1}`} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                />
-              </div>
-            ))}
-            {/* Optional label for the group */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-white font-black uppercase tracking-widest bg-orange-600 px-4 py-2 rounded-full text-xs">
-                Play Magic Worlds
-              </span>
-            </div>
-          </a>
+          {/* 4-Photo Grid: Wrapped with Magic Worlds Title Link */}
+          <div className="flex flex-col gap-2 h-full">
+            <a 
+              href="https://magicworlds.itch.io/magic-world" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-center font-black uppercase tracking-widest text-orange-600 hover:text-white transition-colors mb-1"
+            >
+              Magic Worlds
+            </a>
+            <a 
+              href="https://magicworlds.itch.io/magic-world" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="grid grid-cols-2 gap-2 flex-grow"
+            >
+              {images.map((img, i) => (
+                <div 
+                  key={i} 
+                  className="overflow-hidden rounded-lg shadow-lg border border-zinc-800 cursor-pointer aspect-video md:aspect-auto"
+                >
+                  <img 
+                    src={img} 
+                    alt={`Magic Worlds Scene ${i + 1}`} 
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" 
+                  />
+                </div>
+              ))}
+            </a>
+          </div>
         </div>
 
         {/* Bottom Section: Compact Collage */}
@@ -86,28 +90,7 @@ const GameGallery = () => {
           </a>
         </div>
       </div>
-
-      {/* Lightbox Overlay */}
-      {selectedImg && (
-        <div 
-          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 cursor-pointer"
-          onClick={() => setSelectedImg(null)}
-        >
-          <div className="relative max-w-5xl w-full h-full flex items-center justify-center">
-            <button 
-              className="absolute top-4 right-4 text-white text-5xl p-2 z-[110] hover:text-orange-600 transition-colors"
-              onClick={() => setSelectedImg(null)}
-            >
-              &times;
-            </button>
-            <img 
-              src={selectedImg} 
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" 
-              alt="Expanded view"
-            />
-          </div>
-        </div>
-      )}
+      {/* ... (keep lightbox as is) */}
     </section>
   );
 };
