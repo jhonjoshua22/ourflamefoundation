@@ -36,22 +36,32 @@ const GameGallery = () => {
             </video>
           </div>
 
-          {/* 4-Photo Grid: Adjusted to fill height of the row */}
-          <div className="grid grid-cols-2 gap-2 h-full">
+          {/* 4-Photo Grid: Grouped under Magic Worlds link */}
+          <a 
+            href="https://magicworlds.itch.io/magic-world" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="grid grid-cols-2 gap-2 h-full group"
+          >
             {images.map((img, i) => (
               <div 
                 key={i} 
-                className="overflow-hidden rounded-lg shadow-lg border border-zinc-800 cursor-zoom-in aspect-video md:aspect-auto"
-                onClick={() => setSelectedImg(img)}
+                className="overflow-hidden rounded-lg shadow-lg border border-zinc-800 aspect-video md:aspect-auto relative"
               >
                 <img 
                   src={img} 
-                  alt={`Game Scene ${i + 1}`} 
-                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" 
+                  alt={`Magic Worlds Scene ${i + 1}`} 
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                 />
               </div>
             ))}
-          </div>
+            {/* Optional label for the group */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-white font-black uppercase tracking-widest bg-orange-600 px-4 py-2 rounded-full text-xs">
+                Play Magic Worlds
+              </span>
+            </div>
+          </a>
         </div>
 
         {/* Bottom Section: Compact Collage */}
