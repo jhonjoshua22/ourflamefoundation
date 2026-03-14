@@ -1,6 +1,6 @@
 import { Menu, X, User, LogOut, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import logo from "../assets/ourflamelogo.png"; 
 import clickSound from "../assets/button.m4a"; 
@@ -9,7 +9,6 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
   
   const playClickSound = () => {
     const audio = new Audio(clickSound);
@@ -52,31 +51,20 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const navigation = [
-    { 
-      name: "Flame Game", 
-      href: "/#flame-game",
-      dropdown: [
-        { name: "Flame Game", href: "/#flame-game" },
-        { name: "Ranks", href: "/#tiers" },
-        { name: "Our Games", href: "/#gallery" },
-      ]
-    },
-    { 
-      name: "About", 
-      href: "/#home",
-      dropdown: [
-        { name: "About", href: "/#home" },
-        { name: "Growth", href: "/#presence" },
-        { name: "Products", href: "/#products" },
-        { name: "Resources", href: "/#resources" },
-        { name: "Events", href: "/#news" },
-        { name: "New", href: "/#services" },
-        { name: "Support", href: "/#people" },
-      ]
-    },
+  // Flattened navigation structure
+  const flatNavigation = [
+    { name: "Flame Game", href: "/#flame-game" },
+    { name: "Ranks", href: "/#tiers" },
+    { name: "Our Games", href: "/#gallery" },
+    { name: "About", href: "/#home" },
+    { name: "Growth", href: "/#presence" },
+    { name: "Products", href: "/#products" },
+    { name: "Resources", href: "/#resources" },
+    { name: "Events", href: "/#news" },
+    { name: "New", href: "/#services" },
+    { name: "Support", href: "/#people" },
     { name: "Reviews", href: "/#impact" },
-    { name: "Rewards", href: "/scoretable", isPage: true },
+    { name: "Rewards", href: "/scoretable" },
     { name: "Contacts", href: "/#contacts" },
   ];
 
@@ -96,32 +84,23 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6">
             <div className="flex items-center gap-6">
-              {navigation.map((item) => (
-                <div key={item.name} className="flex items-center gap-6">
-                  {/* Render Main Item */}
-                  <a href={item.href} className="text-[11px] text-gray-400 hover:text-white uppercase tracking-[0.2em] font-black whitespace-nowrap" onClick={playClickSound}>
-                    {item.name}
-                  </a>
-                  {/* Render Flattened Dropdown Items */}
-                  {item.dropdown?.map((sub) => (
-                    <a key={sub.name} href={sub.href} className="text-[10px] text-gray-500 hover:text-orange-600 uppercase tracking-widest font-bold whitespace-nowrap" onClick={playClickSound}>
-                      {sub.name}
-                    </a>
-                  ))}
-                </div>
+              {flatNavigation.map((item) => (
+                <a key={item.name} href={item.href} className="text-[10px] text-gray-400 hover:text-white uppercase tracking-widest font-black whitespace-nowrap transition-colors" onClick={playClickSound}>
+                  {item.name}
+                </a>
               ))}
             </div>
 
             <div className="h-6 w-px bg-white/20" />
 
-            <div className="flex items-center gap-6">
-              <button onClick={() => { playClickSound(); setIsDark(!isDark); }} className="p-2 hover:bg-white/5 transition-all outline-none">
+            <div className="flex items-center gap-4">
+              <button onClick={() => { playClickSound(); setIsDark(!isDark); }} className="p-2 hover:bg-white/5 transition-all">
                 {isDark ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} className="text-gray-400" />}
               </button>
               {user ? (
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4">
                   <Link to="/profile" onClick={playClickSound} className="text-gray-400 hover:text-white"><User size={20} /></Link>
                   <button onClick={handleLogout} className="text-gray-400 hover:text-red-500"><LogOut size={20} /></button>
                 </div>
@@ -145,20 +124,17 @@ const Navbar = () => {
 
       {/* MOBILE MENU */}
       <div className={`lg:hidden fixed inset-x-0 top-20 bottom-0 bg-[#0a0a0a] z-[99] transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="flex flex-col h-full overflow-y-auto p-10 space-y-6">
-          {navigation.map((item) => (
-            <div key={item.name} className="flex flex-col gap-2">
-              <a href={item.href} className="text-2xl font-black uppercase text-white border-b border-white/10 py-2" onClick={() => { playClickSound(); setIsOpen(false); }}>{item.name}</a>
-              {item.dropdown?.map((sub) => (
-                <a key={sub.name} href={sub.href} className="text-lg text-gray-400 pl-4 uppercase" onClick={() => { playClickSound(); setIsOpen(false); }}>{sub.name}</a>
-              ))}
-            </div>
+        <div className="flex flex-col h-full p-10 space-y-4">
+          {flatNavigation.map((item) => (
+            <a key={item.name} href={item.href} className="text-xl font-bold uppercase text-gray-300 hover:text-white py-2 border-b border-white/5" onClick={() => { playClickSound(); setIsOpen(false); }}>
+              {item.name}
+            </a>
           ))}
-          <div className="pt-10">
+          <div className="pt-6">
             {user ? (
-              <button onClick={handleLogout} className="text-3xl font-black text-red-500 uppercase">Logout</button>
+              <button onClick={handleLogout} className="text-2xl font-black text-red-500 uppercase">Logout</button>
             ) : (
-              <Link to="/login" onClick={() => { playClickSound(); setIsOpen(false); }} className="text-4xl font-black text-orange-600 uppercase">Sign In</Link>
+              <Link to="/login" onClick={() => { playClickSound(); setIsOpen(false); }} className="text-2xl font-black text-orange-600 uppercase">Sign In</Link>
             )}
           </div>
         </div>
