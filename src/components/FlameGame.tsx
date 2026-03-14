@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Flame, ChevronRight, Video, Star } from "lucide-react";
-import clickSound from "../assets/button.m4a"; // Added import
+import clickSound from "../assets/button.m4a"; 
 
 // Asset Imports
 import scoutImg from "../assets/scout.png";
@@ -103,6 +103,34 @@ const FlameGame = () => {
           </p>
         </div>
 
+        {/* Tiers Grid Moved to the Top */}
+        <div id="tiers" className="scroll-mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden mb-20">
+          {tiers.map((tier, i) => (
+            <div key={i} className={`p-8 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}>
+              <div className="relative mb-8 mt-4">
+                <div className={`w-44 h-44 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
+                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
+                </div>
+              </div>
+
+              <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
+              <div className="text-orange-600 font-bold text-sm mb-1">{tier.price}</div>
+              <p className="text-zinc-500 dark:text-zinc-400 text-xs mb-8 min-h-[40px]">{tier.benefit}</p>
+              
+              <Link 
+                to="/login"
+                onClick={playClickSound}
+                className={`w-full py-4 font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${
+                  tier.featured ? "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.4)]" : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
+                }`}
+              >
+                {tier.button} <ChevronRight size={14} />
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* Steps Grid Moved Below */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {steps.map((item, idx) => {
             const isExternal = item.link?.startsWith('http');
@@ -134,31 +162,6 @@ const FlameGame = () => {
           })}
         </div>
 
-        <div id="tiers" className="scroll-mt-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-zinc-100 dark:border-zinc-800 overflow-hidden">
-          {tiers.map((tier, i) => (
-            <div key={i} className={`p-8 flex flex-col items-center text-center transition-all border-zinc-100 dark:border-zinc-800 border ${tier.color}`}>
-              <div className="relative mb-8 mt-4">
-                <div className={`w-44 h-44 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
-                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
-                </div>
-              </div>
-
-              <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
-              <div className="text-orange-600 font-bold text-sm mb-1">{tier.price}</div>
-              <p className="text-zinc-500 dark:text-zinc-400 text-xs mb-8 min-h-[40px]">{tier.benefit}</p>
-              
-              <Link 
-                to="/login"
-                onClick={playClickSound}
-                className={`w-full py-4 font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 ${
-                  tier.featured ? "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.4)]" : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
-                }`}
-              >
-                {tier.button} <ChevronRight size={14} />
-              </Link>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
