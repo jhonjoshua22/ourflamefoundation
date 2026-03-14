@@ -7,21 +7,23 @@ import {
   Facebook,
   MessageSquare,
   Zap,
-  Linkedin, // Added Linkedin icon
+  Linkedin,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/ourflamelogo.png";
 
 const AuthPage: React.FC = () => {
-  // Added "linkedin" to the allowed provider types
+  // 1. Updated provider type to include "linkedin_oidc"
   const handleOAuthLogin = async (
-    provider: "google" | "discord" | "facebook" | "github" | "linkedin"
+    provider: "google" | "discord" | "facebook" | "github" | "linkedin_oidc"
   ): Promise<void> => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider, // This will now receive "linkedin_oidc"
         options: {
           redirectTo: window.location.origin,
+          // Scopes are critical for OIDC to successfully fetch user info
+          scopes: 'openid profile email', 
         },
       });
 
@@ -37,10 +39,8 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
-      {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[120px] -z-10" />
 
-      {/* Back Button */}
       <Link
         to="/"
         className="absolute top-8 left-8 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-[10px] font-black tracking-[0.2em]"
@@ -70,7 +70,6 @@ const AuthPage: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {/* Google */}
             <button
               onClick={() => handleOAuthLogin("google")}
               className="w-full flex items-center justify-center gap-3 bg-white hover:bg-zinc-200 text-black py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -79,16 +78,15 @@ const AuthPage: React.FC = () => {
               Continue with Google
             </button>
 
-            {/* LinkedIn */}
+            {/* 2. Updated to "linkedin_oidc" */}
             <button
-              onClick={() => handleOAuthLogin("linkedin")}
+              onClick={() => handleOAuthLogin("linkedin_oidc")}
               className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#004182] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
             >
               <Linkedin size={18} />
               Continue with LinkedIn
             </button>
 
-            {/* Discord */}
             <button
               onClick={() => handleOAuthLogin("discord")}
               className="w-full flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -97,7 +95,6 @@ const AuthPage: React.FC = () => {
               Continue with Discord
             </button>
 
-            {/* Facebook */}
             <button
               onClick={() => handleOAuthLogin("facebook")}
               className="w-full flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -106,7 +103,6 @@ const AuthPage: React.FC = () => {
               Continue with Facebook
             </button>
 
-            {/* GitHub */}
             <button
               onClick={() => handleOAuthLogin("github")}
               className="w-full flex items-center justify-center gap-3 bg-zinc-800 hover:bg-zinc-900 text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -117,7 +113,6 @@ const AuthPage: React.FC = () => {
               Continue with GitHub
             </button>
 
-            {/* Clapmi Link */}
             <a
               href="https://clapmi.com/"
               target="_blank"
@@ -128,7 +123,6 @@ const AuthPage: React.FC = () => {
               Continue with Clapmi
             </a>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 py-6">
               <div className="h-[1px] bg-white/5 flex-1"></div>
               <span className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.3em]">
