@@ -25,7 +25,7 @@ const GameGallery = () => {
               href="https://magicworlds.itch.io/magic-world" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-3xl font-black uppercase tracking-tight text-white hover:text-orange-600 transition-colors"
+              className="text-3xl font-black uppercase tracking-tight text-black transition-colors"
             >
               Magic Worlds
             </a>
