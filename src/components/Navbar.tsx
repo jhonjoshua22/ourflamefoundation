@@ -51,7 +51,6 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  // Flattened navigation structure
   const flatNavigation = [
     { name: "Flame Game", href: "/#flame-game" },
     { name: "Ranks", href: "/#tiers" },
@@ -72,7 +71,6 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-[#0a0a0a] text-white border-b border-white/10">
       <div className="w-full px-6 md:px-12">
         <div className="flex items-center justify-between h-20">
-          
           <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => { playClickSound(); setIsOpen(false); }}>
             <img src={logo} alt="Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
             <div className="flex flex-col text-left">
@@ -92,9 +90,7 @@ const Navbar = () => {
                 </a>
               ))}
             </div>
-
             <div className="h-6 w-px bg-white/20" />
-
             <div className="flex items-center gap-4">
               <button onClick={() => { playClickSound(); setIsDark(!isDark); }} className="p-2 hover:bg-white/5 transition-all">
                 {isDark ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} className="text-gray-400" />}
