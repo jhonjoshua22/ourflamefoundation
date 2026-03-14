@@ -35,63 +35,65 @@ const partnerLogos = [
 
 const PartnerSection = () => {
   const [people, setPeople] = useState({
-    servantLeaders: [],
+    servantLeaders: [
+      { name: "Maurice Flynn", position: "CEO / COO", image: MauriceB },
+      { name: "Martin Hall", position: "CGO / CMO", image: MartinH },
+      { name: "Graham Richard", position: "CFO", image: GrahamR },
+      { name: "Joshua H.", position: "Investor Relations", image: JoshuaH }
+    ],
     geoLeaders: [],
-    superheros: []
+    superheros: [
+      { name: "Claire Newman", position: "Recruitment Specialist", image: ClaireN },
+      { name: "Reem Elfeitury", position: "Managing Director", image: ReemE },
+      { name: "Patrick Shalow", position: "Founder & CEO", image: PatrickS },
+      { name: "Sharon D'Cruz", position: "Head of Marketing", image: SharonD },
+      { name: "Martin Gormley", position: "Marketing Director", image: MartinG },
+      { name: "Dave Brewis", position: "Project Manager", image: DaveB },
+      { name: "Graham Teece", position: "Managing Partner", image: GrahamT },
+      { name: "Andrei Bgatov", position: "Sales Director", image: AndreiB },
+      { name: "Richard Skinner", position: "Agency Owner", image: RichardS },
+      { name: "John Thew", position: "Founder/MD", image: JohnT }
+    ]
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPeople = async () => {
-      setLoading(true);
+    const fetchDBPeople = async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('display_name, role, image_url');
 
       if (!error && data) {
-        setPeople({
-          servantLeaders: data.filter(p => p.role === 'SuperFarmer'),
-          geoLeaders: data.filter(p => p.role === 'Angel'),
-          superheros: data.filter(p => p.role === 'SuperHero')
-        });
+        setPeople(prev => ({
+          servantLeaders: [...prev.servantLeaders, ...data.filter(p => p.role === 'SuperFarmer').map(p => ({ name: p.display_name, position: 'Servant Leader', image: p.image_url }))],
+          geoLeaders: data.filter(p => p.role === 'Angel').map(p => ({ name: p.display_name, position: 'Geo Leader', image: p.image_url })),
+          superheros: [...prev.superheros, ...data.filter(p => p.role === 'SuperHero').map(p => ({ name: p.display_name, position: 'Superhero', image: p.image_url }))]
+        }));
       }
-      setLoading(false);
     };
-    fetchPeople();
+    fetchDBPeople();
   }, []);
 
-  if (loading) return <div className="py-24 text-center text-white">Loading Leaders...</div>;
-
   return (
-    <section id="people" className="bg-white dark:bg-black py-24 transition-colors duration-500">
+    <section id="people" className="bg-white dark:bg-black py-24">
       <div className="container mx-auto px-6">
-        
-        {/* PARTNERS LOGO GRID */}
-        <div className="flex flex-col gap-8 mb-16">
-          <div className="flex items-center gap-4">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 whitespace-nowrap">Official Partners</h4>
-            <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {partnerLogos.map((p) => (
-              <div key={p.id} className="group relative aspect-square bg-zinc-50 dark:bg-white/5 flex items-center justify-center rounded-xl border border-zinc-100 dark:border-white/5">
-                <img src={p.src} alt={p.alt} className="w-1/2 h-1/2 object-contain opacity-60 transition-all duration-500 hover:opacity-100" />
-              </div>
-            ))}
-          </div>
+        {/* Partners */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-16">
+          {partnerLogos.map((p) => (
+            <div key={p.id} className="bg-zinc-50 dark:bg-white/5 flex items-center justify-center rounded-xl p-4 border border-zinc-100 dark:border-zinc-800">
+              <img src={p.src} alt={p.alt} className="h-12 object-contain opacity-60" />
+            </div>
+          ))}
         </div>
 
         {/* SERVANT LEADERS */}
         <div className="mb-32">
-          <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Servant <span className="text-orange-600">Leaders</span></h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <h2 className="text-6xl font-black uppercase italic text-zinc-900 dark:text-white mb-12">Servant <span className="text-orange-600">Leaders</span></h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {people.servantLeaders.map((p: any, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-8 bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
-                <div className="w-32 h-32 mb-6 rounded-full overflow-hidden border-4 border-zinc-100 dark:border-zinc-800">
-                  <img src={p.image_url || defaultAvatar} alt={p.display_name} className="w-full h-full object-cover" />
-                </div>
-                <h3 className="text-xl font-black uppercase italic dark:text-white">{p.display_name}</h3>
-                <p className="text-orange-600 font-black uppercase text-sm">Servant Leader</p>
+              <div key={i} className="flex flex-col items-center p-8 bg-zinc-50 dark:bg-zinc-900/40 rounded-3xl border border-zinc-200 dark:border-zinc-800">
+                <img src={p.image || defaultAvatar} alt={p.name} className="w-32 h-32 mb-6 rounded-full object-cover border-4 border-zinc-100" />
+                <h3 className="text-xl font-black uppercase italic dark:text-white">{p.name}</h3>
+                <p className="text-orange-600 font-black uppercase text-sm">{p.position}</p>
               </div>
             ))}
           </div>
@@ -99,14 +101,12 @@ const PartnerSection = () => {
 
         {/* GEO LEADERS */}
         <div className="mb-32">
-          <h2 className="text-4xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12">Geo <span className="text-orange-600">Leaders</span></h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-8">
+          <h2 className="text-4xl font-black uppercase italic text-zinc-900 dark:text-white mb-12">Geo <span className="text-orange-600">Leaders</span></h2>
+          <div className="grid grid-cols-3 gap-8">
             {people.geoLeaders.map((p: any, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 border border-zinc-100 dark:border-zinc-800 rounded-2xl">
-                <div className="w-24 h-24 mb-4 rounded-full overflow-hidden border-2 border-orange-600/20">
-                  <img src={p.image_url || defaultAvatar} alt={p.display_name} className="w-full h-full object-cover" />
-                </div>
-                <h3 className="text-md font-black uppercase dark:text-white">{p.display_name}</h3>
+              <div key={i} className="flex flex-col items-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border border-zinc-800">
+                <img src={p.image || defaultAvatar} alt={p.name} className="w-24 h-24 mb-4 rounded-full object-cover" />
+                <h3 className="text-md font-black uppercase dark:text-white">{p.name}</h3>
               </div>
             ))}
           </div>
@@ -114,22 +114,14 @@ const PartnerSection = () => {
 
         {/* SUPERHEROS */}
         <div>
-          <h2 className="text-4xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white mb-12"><span className="text-orange-600">Super</span>heros</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+          <h2 className="text-4xl font-black uppercase italic text-zinc-900 dark:text-white mb-12"><span className="text-orange-600">Super</span>heros</h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {people.superheros.map((p: any, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-4 bg-zinc-50 dark:bg-zinc-900/20 border border-zinc-100 dark:border-zinc-800 rounded-2xl">
-                <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-zinc-200 dark:border-zinc-700">
-                  <img src={p.image_url || defaultAvatar} alt={p.display_name} className="w-full h-full object-cover" />
-                </div>
-                <h3 className="text-xs font-black uppercase dark:text-white">{p.display_name}</h3>
+              <div key={i} className="flex flex-col items-center p-4 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border border-zinc-800">
+                <img src={p.image || defaultAvatar} alt={p.name} className="w-20 h-20 mb-4 rounded-full object-cover" />
+                <h3 className="text-xs font-black uppercase dark:text-white">{p.name}</h3>
               </div>
             ))}
-            <a href="/login" className="flex flex-col items-center justify-center text-center p-4 bg-orange-600/5 border-2 border-dashed border-orange-600/20 rounded-2xl hover:bg-orange-600/10 transition-all">
-              <div className="w-20 h-20 mb-4 rounded-full flex items-center justify-center bg-orange-600 text-white shadow-lg shadow-orange-600/20">
-                <UserPlus size={32} />
-              </div>
-              <h3 className="text-xs font-black uppercase dark:text-white">Join Them</h3>
-            </a>
           </div>
         </div>
       </div>
