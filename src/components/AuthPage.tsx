@@ -6,14 +6,16 @@ import {
   ShieldCheck,
   Facebook,
   MessageSquare,
-  Zap, // Added for Clapmi icon
+  Zap,
+  Linkedin, // Added Linkedin icon
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/ourflamelogo.png";
 
 const AuthPage: React.FC = () => {
+  // Added "linkedin" to the allowed provider types
   const handleOAuthLogin = async (
-    provider: "google" | "discord" | "facebook" | "github"
+    provider: "google" | "discord" | "facebook" | "github" | "linkedin"
   ): Promise<void> => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -77,6 +79,15 @@ const AuthPage: React.FC = () => {
               Continue with Google
             </button>
 
+            {/* LinkedIn */}
+            <button
+              onClick={() => handleOAuthLogin("linkedin")}
+              className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#004182] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
+            >
+              <Linkedin size={18} />
+              Continue with LinkedIn
+            </button>
+
             {/* Discord */}
             <button
               onClick={() => handleOAuthLogin("discord")}
@@ -106,7 +117,7 @@ const AuthPage: React.FC = () => {
               Continue with GitHub
             </button>
 
-            {/* Clapmi Link - Matches OAuth Style */}
+            {/* Clapmi Link */}
             <a
               href="https://clapmi.com/"
               target="_blank"
