@@ -3,7 +3,8 @@ import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient"; 
 import { 
   Trophy, Target, Zap, Star, Shield, Activity, 
-  Loader2, Search, X, Network as NetworkIcon, Gift, Sprout
+  Loader2, Search, X, Network as NetworkIcon, Gift, Sprout,
+  Filter
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -12,12 +13,13 @@ const Scoretable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalFlame: 0, totalMembers: 0 });
+  const [sortBy, setSortBy] = useState("network"); // Default filter
 
   const calculateFlameDollars = (networkVal: number) => {
     return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
   };
 
-  const fetchScores = async (query = "") => {
+  const fetchScores = async (query = "", currentSort = sortBy) => {
     try {
       setLoading(true);
       
@@ -37,20 +39,28 @@ const Scoretable = () => {
         received,
         Rebirth,
         rank,
-        world
+        world,
+        followers
       `);
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       } else {
-        supabaseQuery = supabaseQuery.order("network", { ascending: false }).limit(20);
+        // Apply dynamic sorting based on filter
+        supabaseQuery = supabaseQuery.order(currentSort, { ascending: false }).limit(20);
       }
 
       const { data: tableData, error: tableError } = await supabaseQuery;
       if (tableError) throw tableError;
 
       if (tableData) {
-        const sortedData = [...tableData].sort((a, b) => (b.network || 0) - (a.network || 0));
+        // Sort helper for local state management
+        const sortedData = [...tableData].sort((a, b) => {
+          if (currentSort === 'rank') {
+            return (a.rank || "").localeCompare(b.rank || "");
+          }
+          return (b[currentSort] || 0) - (a[currentSort] || 0);
+        });
         
         if (!query) {
           const top10 = sortedData.slice(0, 10);
@@ -69,20 +79,26 @@ const Scoretable = () => {
   };
 
   useEffect(() => {
-    fetchScores();
+    fetchScores(searchQuery, sortBy);
     const channel = supabase.channel("live-scoreboard")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        if (!searchQuery) fetchScores();
+        if (!searchQuery) fetchScores(searchQuery, sortBy);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [sortBy]); // Refetch when sortBy changes
 
   const classRewards = [
     { class: "Normie", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Do Good", "Share Content", "Win Prizes"] },
     { class: "SuperHero", icon: <Star size={20} className="text-orange-600" />, rewards: ["Recruit Normies", "Educate All", "Launch Products"] },
     { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, rewards: ["Recruit SuperHeros", "Mentor & Coach", "Angel Fund"] },
     { class: "SuperFarmer", icon: <Sprout size={20} className="text-green-500" />, rewards: ["Recruit Angels", "Mentor & Coach", "Seed Fund"] }
+  ];
+
+  const filterOptions = [
+    { label: "Network", value: "network" },
+    { label: "Rank", value: "rank" },
+    { label: "Followers", value: "followers" }
   ];
 
   return (
@@ -101,17 +117,36 @@ const Scoretable = () => {
           </div>
           
           <div className="flex flex-col gap-4 w-full md:w-auto">
-            <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group">
-              <input 
-                type="text" 
-                placeholder="Search Agent..." 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
-            </form>
+            {/* SEARCH AND FILTER BAR */}
+            <div className="flex flex-col sm:flex-row gap-2">
+                <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group flex-1">
+                  <input 
+                    type="text" 
+                    placeholder="Search Agent..." 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-64 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+                  {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
+                </form>
+
+                <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-1">
+                    {filterOptions.map((opt) => (
+                        <button
+                            key={opt.value}
+                            onClick={() => setSortBy(opt.value)}
+                            className={`px-3 py-2 text-[9px] font-black uppercase tracking-tighter transition-all ${
+                                sortBy === opt.value 
+                                ? "bg-orange-600 text-white" 
+                                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                            }`}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
               <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
@@ -130,7 +165,7 @@ const Scoretable = () => {
           {/* MAIN TABLE */}
           <div className="lg:col-span-2 space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : "Live Scoreboard"}
+              <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : `Live Scoreboard (By ${sortBy})`}
             </h3>
             
             <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[500px] shadow-2xl bg-zinc-950">
@@ -169,6 +204,9 @@ const Scoretable = () => {
                             ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
                             <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold tracking-tighter">
                               <NetworkIcon size={10} /> {agent.network?.toLocaleString() || 0} NETWORK
+                            </div>
+                            <div className="text-[8px] text-zinc-500 flex items-center justify-end gap-1 font-bold">
+                              {agent.followers?.toLocaleString() || 0} FOLLOWERS
                             </div>
                           </td>
                           <td className="p-6 text-right font-mono text-green-500 font-bold">
