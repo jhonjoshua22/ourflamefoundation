@@ -20,16 +20,25 @@ const Scoretable = () => {
   const fetchScores = async (query = "") => {
     try {
       setLoading(true);
-      const { count } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
+      
+      // Updated: Fetching sum of all followers across all profiles
+      const { data: allFollowers, error: followerError } = await supabase
+        .from("profiles")
+        .select("followers");
+
+      if (followerError) throw followerError;
+
+      // Calculate total members based on sum of followers
+      const totalFollowerCount = allFollowers?.reduce((acc, curr) => acc + (curr.followers || 0), 0) || 0;
       
       let supabaseQuery = supabase.from("profiles").select(`
         id, 
         display_name, 
         email, 
         network, 
-        rank, 
         received,
         Rebirth,
+        role,
         team:team_lead (
           display_name
         )
@@ -51,7 +60,7 @@ const Scoretable = () => {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
           const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.network), 0);
-          setStats({ totalFlame, totalMembers: count || 0 });
+          setStats({ totalFlame, totalMembers: totalFollowerCount });
         } else {
           setLeaders(sortedData);
         }
@@ -134,7 +143,7 @@ const Scoretable = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                        <th className="p-6">Rank</th>
+                        <th className="p-6">#</th>
                         <th className="p-6">Name</th>
                         <th className="p-6">Team</th>
                         <th className="p-6">Rebirth</th>
@@ -148,7 +157,7 @@ const Scoretable = () => {
                           <td className="p-6 font-black italic text-xl">#{index + 1}</td>
                           <td className="p-6">
                             <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name}</p>
-                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.rank || "Normie"}</span>
+                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.role || "Normie"}</span>
                           </td>
                           <td className="p-6">
                              <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
