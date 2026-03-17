@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import { 
   Trophy, Target, Zap, Star, Shield, Activity, 
   Loader2, Search, X, Network as NetworkIcon, Gift, Sprout,
-  Filter
+  Users
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -13,7 +13,7 @@ const Scoretable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalFlame: 0, totalMembers: 0 });
-  const [sortBy, setSortBy] = useState("network"); // Default filter
+  const [sortBy, setSortBy] = useState("network");
 
   const calculateFlameDollars = (networkVal: number) => {
     return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
@@ -46,7 +46,6 @@ const Scoretable = () => {
       if (query) {
         supabaseQuery = supabaseQuery.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       } else {
-        // Apply dynamic sorting based on filter
         supabaseQuery = supabaseQuery.order(currentSort, { ascending: false }).limit(20);
       }
 
@@ -54,7 +53,6 @@ const Scoretable = () => {
       if (tableError) throw tableError;
 
       if (tableData) {
-        // Sort helper for local state management
         const sortedData = [...tableData].sort((a, b) => {
           if (currentSort === 'rank') {
             return (a.rank || "").localeCompare(b.rank || "");
@@ -86,7 +84,7 @@ const Scoretable = () => {
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [sortBy]); // Refetch when sortBy changes
+  }, [sortBy]);
 
   const classRewards = [
     { class: "Normie", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Do Good", "Share Content", "Win Prizes"] },
@@ -117,7 +115,6 @@ const Scoretable = () => {
           </div>
           
           <div className="flex flex-col gap-4 w-full md:w-auto">
-            {/* SEARCH AND FILTER BAR */}
             <div className="flex flex-col sm:flex-row gap-2">
                 <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group flex-1">
                   <input 
@@ -181,6 +178,7 @@ const Scoretable = () => {
                         <th className="p-6">Agent</th>
                         <th className="p-6">World</th>
                         <th className="p-6">Rebirth</th>
+                        <th className="p-6">Followers</th>
                         <th className="p-6 text-right">Flame Value</th>
                         <th className="p-6 text-right text-green-500">Received</th>
                       </tr>
@@ -200,13 +198,16 @@ const Scoretable = () => {
                           <td className="p-6 text-xs font-bold text-zinc-300 italic">
                             {agent.Rebirth || 2026}
                           </td>
+                          <td className="p-6 text-xs font-bold text-zinc-300">
+                            <div className="flex items-center gap-2">
+                                <Users size={12} className="text-orange-600" />
+                                {Number(agent.followers || 0).toLocaleString()}
+                            </div>
+                          </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
                             ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
                             <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold tracking-tighter">
                               <NetworkIcon size={10} /> {agent.network?.toLocaleString() || 0} NETWORK
-                            </div>
-                            <div className="text-[8px] text-zinc-500 flex items-center justify-end gap-1 font-bold">
-                              {agent.followers?.toLocaleString() || 0} FOLLOWERS
                             </div>
                           </td>
                           <td className="p-6 text-right font-mono text-green-500 font-bold">
