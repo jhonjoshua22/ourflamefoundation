@@ -21,18 +21,16 @@ const Scoretable = () => {
     try {
       setLoading(true);
       
-      // 1. Fetch ALL profiles to calculate the aggregate follower count
-      // We select only 'followers' and 'network' to keep the payload small
+      // 1. Fetch data for stats calculation
       const { data: allData, error: fetchError } = await supabase
         .from("profiles")
         .select("followers, network");
 
       if (fetchError) throw fetchError;
 
-      // Calculate Member count from total followers
       const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
 
-      // 2. Fetch Detailed Leaderboard Data (Rank column removed from query)
+      // 2. Fetch Detailed Leaderboard Data - Switched team relation to world column
       let supabaseQuery = supabase.from("profiles").select(`
         id, 
         display_name, 
@@ -41,9 +39,7 @@ const Scoretable = () => {
         received,
         Rebirth,
         rank,
-        team:team_lead (
-          display_name
-        )
+        world
       `);
 
       if (query) {
@@ -61,7 +57,6 @@ const Scoretable = () => {
         if (!query) {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
-          // Calculate Total Flame Value for Top 10
           const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.network), 0);
           setStats({ totalFlame, totalMembers: totalFollowerSum });
         } else {
@@ -152,7 +147,7 @@ const Scoretable = () => {
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                         <th className="p-6">#</th>
                         <th className="p-6">Agent</th>
-                        <th className="p-6">Team</th>
+                        <th className="p-6">World</th>
                         <th className="p-6">Rebirth</th>
                         <th className="p-6 text-right">Flame Value</th>
                         <th className="p-6 text-right text-green-500">Received</th>
@@ -168,7 +163,7 @@ const Scoretable = () => {
                           </td>
                           <td className="p-6">
                              <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
-                                {agent.team?.display_name || "Independent"}
+                                {agent.world || "Universal"}
                              </p>
                           </td>
                           <td className="p-6 text-xs font-bold text-zinc-300 italic">
