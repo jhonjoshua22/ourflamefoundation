@@ -1,18 +1,15 @@
 import { chromium } from 'playwright';
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (V2.6 - Buffer Mode)...");
+  console.log("🔥 Starting Flame Foundation Master Sync (V3.1 - Stable API)...");
   
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const apiKey = process.env.GEMINI_API_KEY;
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    viewport: { width: 1280, height: 800 }
   });
   const page = await context.newPage();
 
@@ -25,32 +22,37 @@ async function runMasterSync() {
   for (const target of targets) {
     try {
       console.log(`📸 Processing ${target.name}...`);
-      
       await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.waitForTimeout(10000); 
       
-      // Capture as a raw Buffer instead of base64 string
-      const screenshotBuffer = await page.screenshot();
-      const base64Data = screenshotBuffer.toString('base64');
+      const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      const prompt = `Extract the follower count and engagement rate from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`;
+      // UPDATED URL: Changed v1beta to v1
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-      // Using the most explicit part-based generation
-      const result = await model.generateContent([
-        prompt,
-        {
-          inlineData: {
-            data: base64Data,
-            mimeType: "image/png",
-          },
-        },
-      ]);
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}` },
+              { inline_data: { mime_type: "image/png", data: screenshot } }
+            ]
+          }]
+        })
+      });
 
-      const response = await result.response;
-      const text = response.text();
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(`Gemini API Error: ${result.error?.message || JSON.stringify(result)}`);
+      }
+
+      const text = result.candidates[0].content.parts[0].text;
       const jsonMatch = text.match(/\{.*\}/s);
       
-      if (!jsonMatch) throw new Error("No JSON found");
+      if (!jsonMatch) throw new Error("AI did not return valid JSON");
       const data = JSON.parse(jsonMatch[0]);
 
       const { error } = await supabase.from('social_stats').upsert({
@@ -62,7 +64,7 @@ async function runMasterSync() {
       }, { onConflict: 'platform' });
 
       if (error) throw error;
-      console.log(`✅ ${target.name} Synced: ${data.followers}`);
+      console.log(`✅ ${target.name} Synced: ${data.followers} followers.`);
 
     } catch (err) {
       console.error(`❌ ${target.name} Failed:`, err.message);
