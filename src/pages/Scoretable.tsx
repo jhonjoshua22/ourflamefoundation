@@ -127,7 +127,7 @@ const Scoretable = () => {
               </div>
               <div className="bg-white dark:bg-zinc-950 p-4">
                 <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Members</p>
-                <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.totalMembers.toLocaleString()}</p>
+                <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.totalMembers.toLocaleString()} + </p>
               </div>
             </div>
           </div>
