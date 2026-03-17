@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (V2.3 - Final Payload Fix)...");
+  console.log("🔥 Starting Flame Foundation Master Sync (V2.6 - Buffer Mode)...");
   
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -29,20 +29,28 @@ async function runMasterSync() {
       await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
       await page.waitForTimeout(10000); 
       
-      const screenshot = await page.screenshot({ encoding: 'base64' });
+      // Capture as a raw Buffer instead of base64 string
+      const screenshotBuffer = await page.screenshot();
+      const base64Data = screenshotBuffer.toString('base64');
 
-      // THE EXACT STRUCTURE REQUIRED BY THE SDK:
       const prompt = `Extract the follower count and engagement rate from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`;
-      
+
+      // Using the most explicit part-based generation
       const result = await model.generateContent([
-        prompt, 
-        { inlineData: { data: screenshot, mimeType: "image/png" } }
+        prompt,
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType: "image/png",
+          },
+        },
       ]);
 
-      const rawText = result.response.text();
-      const jsonMatch = rawText.match(/\{.*\}/s);
+      const response = await result.response;
+      const text = response.text();
+      const jsonMatch = text.match(/\{.*\}/s);
       
-      if (!jsonMatch) throw new Error("No JSON found in AI response");
+      if (!jsonMatch) throw new Error("No JSON found");
       const data = JSON.parse(jsonMatch[0]);
 
       const { error } = await supabase.from('social_stats').upsert({
@@ -62,7 +70,6 @@ async function runMasterSync() {
   }
 
   await browser.close();
-  console.log("🏁 Sync attempt finished.");
 }
 
 runMasterSync().catch(err => {
