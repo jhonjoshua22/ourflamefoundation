@@ -1,12 +1,9 @@
-// sync.js - FINAL WORKING VERSION (March 2026)
-// Lightweight, no browser, no vision AI
-
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (stable version)...");
+  console.log("🔥 Starting Flame Foundation Master Sync (no YouTube)...");
 
   const supabase = createClient(
     process.env.SUPABASE_URL,
@@ -28,13 +25,8 @@ async function runMasterSync() {
       platform: 'LinkedIn',
       url: 'https://www.linkedin.com/company/flamefoundation/',
       handle: 'flamefoundation'
-    },
-    {
-      platform: 'YouTube',
-      url: 'https://www.youtube.com/@FlameFoundationTV',
-      handle: 'UCxxxxxxxxxxxxxxxxxxxxxx', // ← CHANGE TO YOUR REAL CHANNEL ID
-      useApi: true
     }
+    // YouTube removed as requested
   ];
 
   for (const target of targets) {
@@ -44,51 +36,43 @@ async function runMasterSync() {
       let followers = 0;
       let engagementRate = 0.0;
 
-      // ==================== YOUTUBE - OFFICIAL API (best) ====================
-      if (target.platform === 'YouTube' && process.env.YOUTUBE_API_KEY) {
-        const apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${target.handle}&key=${process.env.YOUTUBE_API_KEY}`;
-        const res = await axios.get(apiUrl, { timeout: 10000 });
-        const stats = res.data.items?.[0]?.statistics;
+      const res = await axios.get(target.url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+        },
+        timeout: 15000
+      });
 
-        if (stats) {
-          followers = parseInt(stats.subscriberCount || 0);
-          console.log(`✅ YouTube API success: ${followers.toLocaleString()} subscribers`);
-        }
-      }
-      // ==================== X, FACEBOOK, LINKEDIN - LIGHT SCRAPING ====================
-      else {
-        const res = await axios.get(target.url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
-          },
-          timeout: 15000
+      const $ = cheerio.load(res.data);
+
+      let countText = '';
+
+      if (target.platform === 'X') {
+        // Try to find followers in JSON data inside script tags
+        $('script').each((i, el) => {
+          const script = $(el).html() || '';
+          const match = script.match(/"followers_count":\s*(\d+)/);
+          if (match) countText = match[1];
         });
-
-        const $ = cheerio.load(res.data);
-
-        let countText = '';
-
-        if (target.platform === 'X') {
-          // X stores data in JSON inside script tags
-          $('script').each((i, el) => {
-            const script = $(el).html() || '';
-            const match = script.match(/"followers_count":\s*(\d+)/);
-            if (match) countText = match[1];
-          });
-        } else {
-          // Facebook / LinkedIn - common patterns
-          countText = $('.followers, .text-followers, span:contains("followers"), span:contains("Followers"), [data-testid*="followers"]')
-            .first()
-            .text()
-            .replace(/[^0-9KMB.]/g, '') || '0';
-        }
-
-        // Convert K/M/B
-        if (countText.includes('K')) followers = Math.floor(parseFloat(countText) * 1000);
-        else if (countText.includes('M')) followers = Math.floor(parseFloat(countText) * 1_000_000);
-        else if (countText.includes('B')) followers = Math.floor(parseFloat(countText) * 1_000_000_000);
-        else followers = parseInt(countText) || 0;
+      } else if (target.platform === 'Facebook') {
+        // Facebook often shows likes/followers in meta or visible text
+        countText = $('meta[property="og:description"], [data-pagelet*="followers"], span:contains("followers"), span:contains("Likes")')
+          .first()
+          .text()
+          .replace(/[^0-9KMB.]/g, '') || '0';
+      } else if (target.platform === 'LinkedIn') {
+        // LinkedIn company pages show followers in specific elements
+        countText = $('[data-test-id="followers-count"], .followers-count, span:contains("followers")')
+          .first()
+          .text()
+          .replace(/[^0-9KMB.]/g, '') || '0';
       }
+
+      // Convert K/M/B shorthand
+      if (countText.includes('K')) followers = Math.floor(parseFloat(countText) * 1000);
+      else if (countText.includes('M')) followers = Math.floor(parseFloat(countText) * 1_000_000);
+      else if (countText.includes('B')) followers = Math.floor(parseFloat(countText) * 1_000_000_000);
+      else followers = parseInt(countText.replace(/,/g, '')) || 0;
 
       // Upsert to social_stats
       const { error } = await supabase
@@ -109,7 +93,7 @@ async function runMasterSync() {
     }
   }
 
-  console.log("🏁 Master Sync completed – social_stats updated every hour.");
+  console.log("🏁 Master Sync completed – social_stats updated (X, Facebook, LinkedIn only).");
 }
 
 runMasterSync().catch(err => {
