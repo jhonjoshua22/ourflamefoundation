@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (V3.1 - Stable API)...");
+  console.log("🔥 Starting Flame Foundation Master Sync (V3.2 - Flat JSON)...");
   
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   const apiKey = process.env.GEMINI_API_KEY;
@@ -27,32 +27,40 @@ async function runMasterSync() {
       
       const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      // UPDATED URL: Changed v1beta to v1
-      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+      // THE FIX: Using 'inlineData' (camelCase) but inside a strictly flat 'parts' array
+      // Some API versions are extremely picky about 'inline_data' vs 'inlineData'
+      const payload = {
+        contents: [{
+          parts: [
+            { text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}` },
+            { 
+              inlineData: { 
+                mimeType: "image/png", 
+                data: screenshot 
+              } 
+            }
+          ]
+        }]
+      };
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}` },
-              { inline_data: { mime_type: "image/png", data: screenshot } }
-            ]
-          }]
-        })
+        body: JSON.stringify(payload)
       });
 
       const result = await response.json();
       
       if (!response.ok) {
-        throw new Error(`Gemini API Error: ${result.error?.message || JSON.stringify(result)}`);
+        // If it fails again, this will print the EXACT reason from Google
+        console.error(`🔴 API REJECTED PAYLOAD: ${JSON.stringify(result)}`);
+        throw new Error(result.error?.message || "Unknown API Error");
       }
 
       const text = result.candidates[0].content.parts[0].text;
       const jsonMatch = text.match(/\{.*\}/s);
-      
-      if (!jsonMatch) throw new Error("AI did not return valid JSON");
       const data = JSON.parse(jsonMatch[0]);
 
       const { error } = await supabase.from('social_stats').upsert({
@@ -64,7 +72,7 @@ async function runMasterSync() {
       }, { onConflict: 'platform' });
 
       if (error) throw error;
-      console.log(`✅ ${target.name} Synced: ${data.followers} followers.`);
+      console.log(`✅ ${target.name} Synced: ${data.followers}`);
 
     } catch (err) {
       console.error(`❌ ${target.name} Failed:`, err.message);
