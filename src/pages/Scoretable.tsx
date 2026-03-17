@@ -21,7 +21,6 @@ const Scoretable = () => {
     try {
       setLoading(true);
       
-      // 1. Fetch data for stats calculation
       const { data: allData, error: fetchError } = await supabase
         .from("profiles")
         .select("followers, network");
@@ -30,7 +29,6 @@ const Scoretable = () => {
 
       const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
 
-      // 2. Fetch Detailed Leaderboard Data - Switched team relation to world column
       let supabaseQuery = supabase.from("profiles").select(`
         id, 
         display_name, 
@@ -145,7 +143,6 @@ const Scoretable = () => {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                        <th className="p-6">#</th>
                         <th className="p-6">Agent</th>
                         <th className="p-6">World</th>
                         <th className="p-6">Rebirth</th>
@@ -154,9 +151,8 @@ const Scoretable = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 text-white">
-                      {leaders.map((agent, index) => (
+                      {leaders.map((agent) => (
                         <tr key={agent.id} className="hover:bg-orange-600/10 transition-colors group">
-                          <td className="p-6 font-black italic text-xl text-zinc-500 group-hover:text-white">#{index + 1}</td>
                           <td className="p-6">
                             <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name || "Unknown Agent"}</p>
                             <span className="text-[8px] font-black uppercase bg-zinc-800 px-1.5 py-0.5 rounded-sm text-zinc-400 border border-white/5">{agent.rank}</span>
@@ -198,7 +194,7 @@ const Scoretable = () => {
                 {leaders.slice(0, 12).map((agent, i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0">
                     <p className="text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">
-                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase">{agent.display_name}</span> has synced with the foundation at Rank #{i + 1}.
+                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase">{agent.display_name}</span> has synced with the foundation.
                     </p>
                   </div>
                 ))}
