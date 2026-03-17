@@ -3,7 +3,8 @@ import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Zap, Star, Shield, Activity,
-  Loader2, Search, X, Users, Filter, Percent, Globe, Heart, DollarSign, Lightbulb
+  Loader2, Search, X, Network as NetworkIcon, Gift, Sprout,
+  Users, Filter, BarChart3, Percent, Globe, Heart, DollarSign, Lightbulb
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -19,12 +20,16 @@ const Scoretable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // Rank priority (unchanged)
+  // Rank priority
   const rankPriority: Record<string, number> = {
     "SuperFarmer": 1,
     "Angel": 2,
     "SuperHero": 3,
     "Normie": 4
+  };
+
+  const calculateFlameDollars = (networkVal: number) => {
+    return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
   };
 
   // Close filter dropdown on outside click
@@ -41,7 +46,7 @@ const Scoretable = () => {
   // Fetch functions
   const fetchLeaderboard = async (query = "", currentSort = sortBy) => {
     try {
-      const { data: allData } = await supabase.from("profiles").select("followers");
+      const { data: allData } = await supabase.from("profiles").select("followers, network");
       const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
 
       let queryBuilder = supabase.from("profiles").select(`
@@ -68,7 +73,8 @@ const Scoretable = () => {
         });
 
         if (!query) {
-          setLeaders(sorted.slice(0, 20)); // show more now that no flame calc
+          const top10 = sorted.slice(0, 10);
+          setLeaders(top10);
           setStats({ totalMembers: totalFollowerSum });
         } else {
           setLeaders(sorted);
@@ -89,6 +95,7 @@ const Scoretable = () => {
         `)
         .eq("active", true)
         .order("own_percentage", { ascending: false });
+
       setOwnershipEntries(data || []);
     } catch (err) {
       console.error("Ownership fetch error:", err);
@@ -102,13 +109,13 @@ const Scoretable = () => {
         .select("*")
         .order("snapshot_at", { ascending: false })
         .limit(1);
+
       if (data?.[0]) setKpiSnapshot(data[0]);
     } catch (err) {
       console.error("KPI fetch error:", err);
     }
   };
 
-  // Initial load + realtime
   useEffect(() => {
     setLoading(true);
     const loadAll = async () => {
@@ -157,7 +164,7 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-white dark:bg-black min-h-screen transition-colors duration-500 font-sans">
       <div className="container mx-auto max-w-7xl">
 
-        {/* HEADER – Total Flame Value removed */}
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
@@ -182,7 +189,7 @@ const Scoretable = () => {
             </form>
 
             <div className="flex justify-end">
-              <div className="bg-white dark:bg-zinc-950 p-4 border border-zinc-200 dark:border-zinc-800 min-w-[180px]">
+              <div className="bg-white dark:bg-zinc-950 p-4 border border-zinc-200 dark:border-zinc-800 min-w-[220px]">
                 <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Members</p>
                 <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.totalMembers.toLocaleString()} +</p>
               </div>
@@ -264,6 +271,7 @@ const Scoretable = () => {
                             <th className="p-6">World</th>
                             <th className="p-6">Rebirth</th>
                             <th className="p-6">Followers</th>
+                            <th className="p-6 text-right">Flame Value</th>
                             <th className="p-6 text-right text-green-400">Received</th>
                           </tr>
                         </thead>
@@ -282,6 +290,12 @@ const Scoretable = () => {
                                 <div className="flex items-center gap-2">
                                   <Users size={14} className="text-orange-600" />
                                   {Number(agent.followers || 0).toLocaleString()}
+                                </div>
+                              </td>
+                              <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
+                                ${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
+                                  <NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}
                                 </div>
                               </td>
                               <td className="p-6 text-right font-mono text-xl font-black text-green-400">
@@ -424,6 +438,10 @@ const Scoretable = () => {
                     <div>
                       <p className="text-sm text-zinc-500 uppercase">Total Network</p>
                       <p className="text-3xl font-black text-orange-400">{kpiSnapshot?.total_network?.toLocaleString() || "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-zinc-500 uppercase">Total Flame Value</p>
+                      <p className="text-3xl font-black text-green-400">${kpiSnapshot?.total_flame_value?.toLocaleString() || "—"}</p>
                     </div>
                     <div>
                       <p className="text-sm text-zinc-500 uppercase">Last Update</p>
