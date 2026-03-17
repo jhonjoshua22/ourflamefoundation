@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import scoretableBg from "../assets/scoretable.png"; 
 import { supabase } from "../lib/supabaseClient"; 
 import { 
   Trophy, Target, Zap, Star, Shield, Activity, 
   Loader2, Search, X, Network as NetworkIcon, Gift, Sprout,
-  Users
+  Users, Filter
 } from "lucide-react";
 
 const Scoretable = () => {
@@ -14,10 +14,30 @@ const Scoretable = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalFlame: 0, totalMembers: 0 });
   const [sortBy, setSortBy] = useState("network");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Custom Priority for Ranks
+  const rankPriority: Record<string, number> = {
+    "SuperFarmer": 1,
+    "Angel": 2,
+    "SuperHero": 3,
+    "Normie": 4
+  };
 
   const calculateFlameDollars = (networkVal: number) => {
     return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fetchScores = async (query = "", currentSort = sortBy) => {
     try {
@@ -28,25 +48,19 @@ const Scoretable = () => {
         .select("followers, network");
 
       if (fetchError) throw fetchError;
-
       const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
 
       let supabaseQuery = supabase.from("profiles").select(`
-        id, 
-        display_name, 
-        email, 
-        network, 
-        received,
-        Rebirth,
-        rank,
-        world,
-        followers
+        id, display_name, email, network, received, Rebirth, rank, world, followers
       `);
 
       if (query) {
         supabaseQuery = supabaseQuery.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
-      } else {
+      } 
+      else if (currentSort !== 'rank') {
         supabaseQuery = supabaseQuery.order(currentSort, { ascending: false }).limit(20);
+      } else {
+        supabaseQuery = supabaseQuery.limit(50); 
       }
 
       const { data: tableData, error: tableError } = await supabaseQuery;
@@ -55,7 +69,9 @@ const Scoretable = () => {
       if (tableData) {
         const sortedData = [...tableData].sort((a, b) => {
           if (currentSort === 'rank') {
-            return (a.rank || "").localeCompare(b.rank || "");
+            const priorityA = rankPriority[a.rank] || 99;
+            const priorityB = rankPriority[b.rank] || 99;
+            return priorityA - priorityB;
           }
           return (b[currentSort] || 0) - (a[currentSort] || 0);
         });
@@ -115,35 +131,17 @@ const Scoretable = () => {
           </div>
           
           <div className="flex flex-col gap-4 w-full md:w-auto">
-            <div className="flex flex-col sm:flex-row gap-2">
-                <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group flex-1">
-                  <input 
-                    type="text" 
-                    placeholder="Search Agent..." 
-                    value={searchQuery} 
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-64 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
-                  />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-                  {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
-                </form>
-
-                <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-1">
-                    {filterOptions.map((opt) => (
-                        <button
-                            key={opt.value}
-                            onClick={() => setSortBy(opt.value)}
-                            className={`px-3 py-2 text-[9px] font-black uppercase tracking-tighter transition-all ${
-                                sortBy === opt.value 
-                                ? "bg-orange-600 text-white" 
-                                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                            }`}
-                        >
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            <form onSubmit={(e) => { e.preventDefault(); fetchScores(searchQuery); setIsSearching(true); }} className="relative group">
+              <input 
+                type="text" 
+                placeholder="Search Agent..." 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none" 
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+              {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
+            </form>
 
             <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
               <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
@@ -159,11 +157,45 @@ const Scoretable = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
-          {/* MAIN TABLE */}
-          <div className="lg:col-span-2 space-y-6">
-            <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
-              <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : `Live Scoreboard (By ${sortBy})`}
-            </h3>
+          <div className="lg:col-span-2 space-y-4">
+            {/* LABEL AND FILTER SECTION */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+                <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : `Live Scoreboard (By ${sortBy})`}
+              </h3>
+
+              {/* FILTER DROPDOWN MOVED BELOW H3 */}
+              <div className="relative inline-block" ref={filterRef}>
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="px-4 py-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white hover:border-orange-600 transition-colors flex items-center gap-3"
+                >
+                  <Filter size={14} className={isFilterOpen ? "text-orange-600" : "text-zinc-400"} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Sort: {sortBy}</span>
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-2xl z-[100] overflow-hidden">
+                    {filterOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => {
+                          setSortBy(opt.value);
+                          setIsFilterOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                          sortBy === opt.value 
+                          ? "bg-orange-600 text-white" 
+                          : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
             
             <div className="relative border border-zinc-200 dark:border-zinc-800 overflow-hidden min-h-[500px] shadow-2xl bg-zinc-950">
               <div className="absolute inset-0 z-0 bg-cover opacity-30" style={{ backgroundImage: `url(${scoretableBg})` }} />
@@ -172,7 +204,7 @@ const Scoretable = () => {
                 {loading ? (
                   <div className="flex h-[500px] items-center justify-center"><Loader2 className="animate-spin text-orange-600" size={32} /></div>
                 ) : (
-                  <table className="w-full text-left border-collapse">
+                  <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                         <th className="p-6">Agent</th>
@@ -190,10 +222,8 @@ const Scoretable = () => {
                             <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name || "Unknown Agent"}</p>
                             <span className="text-[8px] font-black uppercase bg-zinc-800 px-1.5 py-0.5 rounded-sm text-zinc-400 border border-white/5">{agent.rank}</span>
                           </td>
-                          <td className="p-6">
-                             <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
-                                {agent.world || "Universal"}
-                             </p>
+                          <td className="p-6 italic text-[10px] uppercase text-zinc-400">
+                             {agent.world || "Universal"}
                           </td>
                           <td className="p-6 text-xs font-bold text-zinc-300 italic">
                             {agent.Rebirth || 2026}
@@ -206,7 +236,7 @@ const Scoretable = () => {
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
                             ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
-                            <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold tracking-tighter">
+                            <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold tracking-tighter uppercase">
                               <NetworkIcon size={10} /> {agent.network?.toLocaleString() || 0} NETWORK
                             </div>
                           </td>
@@ -222,7 +252,6 @@ const Scoretable = () => {
             </div>
           </div>
 
-          {/* SIDEBAR ACTIVITY */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
               <div className="relative"><Activity size={18} className="text-orange-600" /><div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" /></div>
