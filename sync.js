@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 async function runMasterSync() {
   console.log("🔥 Starting Flame Foundation Master Sync...");
   
-  // 1. Initialize Clients using Environment Variables from GitHub Secrets
+  // 1. Setup Clients
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -13,7 +13,7 @@ async function runMasterSync() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  // 2. Define your Social Media Targets
+  // 2. Your Exact Links
   const targets = [
     { name: 'X', url: 'https://x.com/OurFlameFoundtn' },
     { name: 'Facebook', url: 'https://www.facebook.com/OurFlameFoundation/' },
@@ -23,32 +23,29 @@ async function runMasterSync() {
 
   for (const target of targets) {
     try {
-      console.log(`📸 Syncing ${target.name}...`);
+      console.log(`📸 Processing ${target.name}...`);
       
-      // Navigate to the profile
+      // Navigate and wait for content (LinkedIn/X are heavy)
       await page.goto(target.url, { waitUntil: 'networkidle', timeout: 60000 });
+      await page.waitForTimeout(8000); 
       
-      // Wait for the UI to settle so numbers are visible
-      await page.waitForTimeout(7000); 
-      
-      // Take the screenshot for Gemini to "read"
       const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      // 3. Prompt Gemini to extract the data as JSON
-      const prompt = `Extract the follower/subscriber count and an estimated engagement rate percentage from this ${target.name} page screenshot. 
-      Return ONLY a raw JSON object: {"followers": 1234, "engagement": 2.5}. 
-      Do not include markdown formatting or backticks.`;
+      // 3. The "AI Eye" Prompt
+      const prompt = `Extract the follower count and an estimated engagement rate from this ${target.name} page. 
+      Return ONLY a JSON object: {"followers": 1234, "engagement": 2.5}. 
+      No markdown, no backticks, no text.`;
       
       const result = await model.generateContent([
         prompt,
         { inlineData: { data: screenshot, mimeType: "image/png" } }
       ]);
 
-      // Clean the response string (removing any accidental backticks from AI)
-      const cleanJson = result.response.text().replace(/```json|```/g, "").trim();
-      const data = JSON.parse(cleanJson);
+      // Clean the AI's response in case it adds extra formatting
+      const responseText = result.response.text().replace(/```json|```/g, "").trim();
+      const data = JSON.parse(responseText);
 
-      // 4. Update your Supabase 'social_stats' table
+      // 4. Push to your Supabase social_stats table
       const { error } = await supabase.from('social_stats').upsert({
         platform: target.name,
         handle: target.url.split('/').filter(Boolean).pop(),
@@ -58,7 +55,7 @@ async function runMasterSync() {
       }, { onConflict: 'platform' });
 
       if (error) throw error;
-      console.log(`✅ ${target.name} Updated | Followers: ${data.followers} | Engagement: ${data.engagement}%`);
+      console.log(`✅ ${target.name} Success: ${data.followers} followers.`);
 
     } catch (err) {
       console.error(`❌ ${target.name} Failed:`, err.message);
@@ -66,11 +63,11 @@ async function runMasterSync() {
   }
 
   await browser.close();
-  console.log("🏁 Master Sync Complete.");
+  console.log("🏁 All platforms synced to Scoretable.");
 }
 
-// Execute the function
+// Start the engine
 runMasterSync().catch(err => {
-  console.error("💥 Critical Sync Failure:", err);
+  console.error("💥 Script exploded:", err);
   process.exit(1);
 });
