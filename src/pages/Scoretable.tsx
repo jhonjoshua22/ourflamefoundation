@@ -21,16 +21,18 @@ const Scoretable = () => {
     try {
       setLoading(true);
       
-      // Updated: Fetching sum of all followers across all profiles
-      const { data: allFollowers, error: followerError } = await supabase
+      // 1. Fetch ALL profiles to calculate the aggregate follower count
+      // We select only 'followers' and 'network' to keep the payload small
+      const { data: allData, error: fetchError } = await supabase
         .from("profiles")
-        .select("followers");
+        .select("followers, network");
 
-      if (followerError) throw followerError;
+      if (fetchError) throw fetchError;
 
-      // Calculate total members based on sum of followers
-      const totalFollowerCount = allFollowers?.reduce((acc, curr) => acc + (curr.followers || 0), 0) || 0;
-      
+      // Calculate Member count from total followers
+      const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
+
+      // 2. Fetch Detailed Leaderboard Data (Rank column removed from query)
       let supabaseQuery = supabase.from("profiles").select(`
         id, 
         display_name, 
@@ -38,7 +40,7 @@ const Scoretable = () => {
         network, 
         received,
         Rebirth,
-        role,
+        rank,
         team:team_lead (
           display_name
         )
@@ -50,17 +52,18 @@ const Scoretable = () => {
         supabaseQuery = supabaseQuery.order("network", { ascending: false }).limit(20);
       }
 
-      const { data, error } = await supabaseQuery;
-      if (error) throw error;
+      const { data: tableData, error: tableError } = await supabaseQuery;
+      if (tableError) throw tableError;
 
-      if (data) {
-        const sortedData = [...data].sort((a, b) => (b.network || 0) - (a.network || 0));
+      if (tableData) {
+        const sortedData = [...tableData].sort((a, b) => (b.network || 0) - (a.network || 0));
         
         if (!query) {
           const top10 = sortedData.slice(0, 10);
           setLeaders(top10);
+          // Calculate Total Flame Value for Top 10
           const totalFlame = top10.reduce((acc, curr) => acc + calculateFlameDollars(curr.network), 0);
-          setStats({ totalFlame, totalMembers: totalFollowerCount });
+          setStats({ totalFlame, totalMembers: totalFollowerSum });
         } else {
           setLeaders(sortedData);
         }
@@ -74,9 +77,11 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchScores();
-    const channel = supabase.channel("live-scoreboard").on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-      if (!searchQuery) fetchScores();
-    }).subscribe();
+    const channel = supabase.channel("live-scoreboard")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+        if (!searchQuery) fetchScores();
+      })
+      .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
 
@@ -91,6 +96,7 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-white dark:bg-black min-h-screen transition-colors duration-500 font-sans">
       <div className="container mx-auto max-w-6xl">
         
+        {/* HEADER & STATS */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
@@ -120,7 +126,7 @@ const Scoretable = () => {
                 <p className="text-xl font-black text-orange-600">${stats.totalFlame.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
               </div>
               <div className="bg-white dark:bg-zinc-950 p-4">
-                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Members</p>
+                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Members</p>
                 <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.totalMembers.toLocaleString()}</p>
               </div>
             </div>
@@ -128,6 +134,7 @@ const Scoretable = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
+          {/* MAIN TABLE */}
           <div className="lg:col-span-2 space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
               <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : "Live Scoreboard"}
@@ -144,33 +151,33 @@ const Scoretable = () => {
                     <thead>
                       <tr className="bg-black/60 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-zinc-400">
                         <th className="p-6">#</th>
-                        <th className="p-6">Name</th>
+                        <th className="p-6">Agent</th>
                         <th className="p-6">Team</th>
                         <th className="p-6">Rebirth</th>
-                        <th className="p-6 text-right">Flame $</th>
+                        <th className="p-6 text-right">Flame Value</th>
                         <th className="p-6 text-right text-green-500">Received</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 text-white">
                       {leaders.map((agent, index) => (
                         <tr key={agent.id} className="hover:bg-orange-600/10 transition-colors group">
-                          <td className="p-6 font-black italic text-xl">#{index + 1}</td>
+                          <td className="p-6 font-black italic text-xl text-zinc-500 group-hover:text-white">#{index + 1}</td>
                           <td className="p-6">
-                            <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name}</p>
-                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1 py-0.5 rounded-sm">{agent.role || "Normie"}</span>
+                            <p className="font-bold uppercase text-sm leading-none mb-1">{agent.display_name || "Unknown Agent"}</p>
+                            <span className="text-[8px] font-black uppercase bg-zinc-800 px-1.5 py-0.5 rounded-sm text-zinc-400 border border-white/5">{agent.rank}</span>
                           </td>
                           <td className="p-6">
                              <p className="text-[10px] font-black uppercase italic text-zinc-400 leading-none">
                                 {agent.team?.display_name || "Independent"}
                              </p>
                           </td>
-                          <td className="p-6 text-xs font-bold text-zinc-300">
-                            June of {agent.Rebirth}
+                          <td className="p-6 text-xs font-bold text-zinc-300 italic">
+                            {agent.Rebirth || 2026}
                           </td>
                           <td className="p-6 text-right font-mono text-lg font-black">
                             ${calculateFlameDollars(agent.network).toLocaleString(undefined, {minimumFractionDigits: 2})}
-                            <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold">
-                              <NetworkIcon size={10} /> {agent.network?.toLocaleString()} NETWORK
+                            <div className="text-[9px] text-orange-600 flex items-center justify-end gap-1 font-bold tracking-tighter">
+                              <NetworkIcon size={10} /> {agent.network?.toLocaleString() || 0} NETWORK
                             </div>
                           </td>
                           <td className="p-6 text-right font-mono text-green-500 font-bold">
@@ -185,17 +192,18 @@ const Scoretable = () => {
             </div>
           </div>
 
+          {/* SIDEBAR ACTIVITY */}
           <div className="space-y-6">
             <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
               <div className="relative"><Activity size={18} className="text-orange-600" /><div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" /></div>
               Live Activity
             </h3>
-            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto">
+            <div className="border border-zinc-200 dark:border-zinc-800 p-6 bg-zinc-50 dark:bg-zinc-950 h-[500px] overflow-y-auto custom-scrollbar">
               <div className="space-y-6">
-                {leaders.slice(0, 8).map((agent, i) => (
+                {leaders.slice(0, 12).map((agent, i) => (
                   <div key={i} className="text-[11px] border-b border-zinc-200 dark:border-zinc-800 pb-4 last:border-0">
                     <p className="text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed">
-                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase">{agent.display_name}</span> is currently active at Rank #{i + 1}.
+                      Agent <span className="text-zinc-900 dark:text-white font-black italic uppercase">{agent.display_name}</span> has synced with the foundation at Rank #{i + 1}.
                     </p>
                   </div>
                 ))}
@@ -204,6 +212,7 @@ const Scoretable = () => {
           </div>
         </div>
 
+        {/* REWARDS GRID */}
         <div className="space-y-6 pt-12 border-t border-zinc-200 dark:border-zinc-800">
           <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
             <Gift size={18} className="text-orange-600" /> Foundation Rewards
@@ -212,7 +221,7 @@ const Scoretable = () => {
             {classRewards.map((tier) => (
               <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-100 dark:border-zinc-900 last:border-0 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                 <div className="col-span-4 flex items-center gap-4">
-                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded">{tier.icon}</div>
+                  <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded group-hover:bg-orange-600 group-hover:text-white transition-colors">{tier.icon}</div>
                   <h4 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white">{tier.class}</h4>
                 </div>
                 <div className="col-span-8 text-right flex flex-wrap justify-end gap-2">
