@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (V2.2 - API Fix)...");
+  console.log("🔥 Starting Flame Foundation Master Sync (V2.3 - Final Payload Fix)...");
   
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -31,22 +31,18 @@ async function runMasterSync() {
       
       const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      // --- THE FIX IS HERE ---
+      // THE EXACT STRUCTURE REQUIRED BY THE SDK:
+      const prompt = `Extract the follower count and engagement rate from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`;
+      
       const result = await model.generateContent([
-        `Task: Extract the exact follower count and an estimated engagement rate from this ${target.name} page.
-         Rules: Return ONLY a raw JSON object: {"followers": 1234, "engagement": 2.1}`,
-        {
-          inlineData: {
-            data: screenshot, // Corrected: This is now a direct string
-            mimeType: "image/png"
-          }
-        }
+        prompt, 
+        { inlineData: { data: screenshot, mimeType: "image/png" } }
       ]);
 
       const rawText = result.response.text();
       const jsonMatch = rawText.match(/\{.*\}/s);
       
-      if (!jsonMatch) throw new Error("AI failed to provide valid JSON");
+      if (!jsonMatch) throw new Error("No JSON found in AI response");
       const data = JSON.parse(jsonMatch[0]);
 
       const { error } = await supabase.from('social_stats').upsert({
@@ -58,7 +54,7 @@ async function runMasterSync() {
       }, { onConflict: 'platform' });
 
       if (error) throw error;
-      console.log(`✅ ${target.name} Synced: ${data.followers} followers.`);
+      console.log(`✅ ${target.name} Synced: ${data.followers}`);
 
     } catch (err) {
       console.error(`❌ ${target.name} Failed:`, err.message);
@@ -66,7 +62,7 @@ async function runMasterSync() {
   }
 
   await browser.close();
-  console.log("🏁 Core platforms sync complete.");
+  console.log("🏁 Sync attempt finished.");
 }
 
 runMasterSync().catch(err => {
