@@ -1,10 +1,11 @@
-const { chromium } = require('playwright');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { createClient } = require('@supabase/supabase-js');
+import { chromium } from 'playwright';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
   console.log("🔥 Starting Flame Foundation Master Sync...");
   
+  // 1. Initialize Clients using Environment Variables from GitHub Secrets
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -12,60 +13,55 @@ async function runMasterSync() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
-  // --- 1. YOUTUBE (API Method) ---
-  try {
-    // This ID is extracted from your @FlameFoundationTV handle
-    const ytChannelId = "UC3_8P9_kZ8mXm6S7GvH0W_A"; 
-    const ytUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${ytChannelId}&key=${process.env.YOUTUBE_API_KEY}`;
-    const ytRes = await fetch(ytUrl);
-    const ytData = await ytRes.json();
-    const ytSubs = ytData.items[0].statistics.subscriberCount;
-
-    await supabase.from('social_stats').upsert({
-      platform: 'YouTube',
-      followers_count: parseInt(ytSubs),
-      handle: '@FlameFoundationTV',
-      engagement_rate: 0 // YouTube API doesn't give this for free easily
-    }, { onConflict: 'platform' });
-    console.log("✅ YouTube Synced:", ytSubs);
-  } catch (e) { console.error("❌ YouTube Error:", e.message); }
-
-  // --- 2. VISUAL SYNC (X, Facebook, LinkedIn) ---
-  const visualTargets = [
+  // 2. Define your Social Media Targets
+  const targets = [
     { name: 'X', url: 'https://x.com/OurFlameFoundtn' },
     { name: 'Facebook', url: 'https://www.facebook.com/OurFlameFoundation/' },
-    { name: 'LinkedIn', url: 'https://www.linkedin.com/company/flamefoundation/' }
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/company/flamefoundation/' },
+    { name: 'YouTube', url: 'https://www.youtube.com/@FlameFoundationTV' }
   ];
 
-  for (const target of visualTargets) {
+  for (const target of targets) {
     try {
-      console.log(`📸 Capturing ${target.name}...`);
-      await page.goto(target.url, { waitUntil: 'networkidle', timeout: 60000 });
-      await page.waitForTimeout(5000); 
+      console.log(`📸 Syncing ${target.name}...`);
       
+      // Navigate to the profile
+      await page.goto(target.url, { waitUntil: 'networkidle', timeout: 60000 });
+      
+      // Wait for the UI to settle so numbers are visible
+      await page.waitForTimeout(7000); 
+      
+      // Take the screenshot for Gemini to "read"
       const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      const prompt = `Look at this ${target.name} profile. Find the follower count. 
-      Return ONLY JSON: {"followers": 1842}. 
-      If you see "1.8K", try to find the exact number. If not, convert to 1800.`;
-
+      // 3. Prompt Gemini to extract the data as JSON
+      const prompt = `Extract the follower/subscriber count and an estimated engagement rate percentage from this ${target.name} page screenshot. 
+      Return ONLY a raw JSON object: {"followers": 1234, "engagement": 2.5}. 
+      Do not include markdown formatting or backticks.`;
+      
       const result = await model.generateContent([
         prompt,
         { inlineData: { data: screenshot, mimeType: "image/png" } }
       ]);
 
-      const data = JSON.parse(result.response.text().replace(/```json|```/g, ""));
+      // Clean the response string (removing any accidental backticks from AI)
+      const cleanJson = result.response.text().replace(/```json|```/g, "").trim();
+      const data = JSON.parse(cleanJson);
 
-      await supabase.from('social_stats').upsert({
+      // 4. Update your Supabase 'social_stats' table
+      const { error } = await supabase.from('social_stats').upsert({
         platform: target.name,
-        followers_count: data.followers,
         handle: target.url.split('/').filter(Boolean).pop(),
-        engagement_rate: 0
+        followers_count: parseInt(data.followers) || 0,
+        engagement_rate: parseFloat(data.engagement) || 0.0,
+        last_updated: new Date().toISOString()
       }, { onConflict: 'platform' });
 
-      console.log(`✅ ${target.name} Synced:`, data.followers);
+      if (error) throw error;
+      console.log(`✅ ${target.name} Updated | Followers: ${data.followers} | Engagement: ${data.engagement}%`);
+
     } catch (err) {
-      console.error(`❌ ${target.name} Sync Failed:`, err.message);
+      console.error(`❌ ${target.name} Failed:`, err.message);
     }
   }
 
@@ -73,4 +69,8 @@ async function runMasterSync() {
   console.log("🏁 Master Sync Complete.");
 }
 
-runMasterSync();
+// Execute the function
+runMasterSync().catch(err => {
+  console.error("💥 Critical Sync Failure:", err);
+  process.exit(1);
+});
