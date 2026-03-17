@@ -143,12 +143,8 @@ const Scoretable = () => {
               {isSearching && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer" size={14} onClick={() => { setSearchQuery(""); setIsSearching(false); fetchScores(); }} />}
             </form>
 
-            <div className="grid grid-cols-2 gap-px bg-zinc-200 dark:border-zinc-800">
-              <div className="bg-white dark:bg-zinc-950 p-4 min-w-[150px]">
-                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Top 10 Value</p>
-                <p className="text-xl font-black text-orange-600">${stats.totalFlame.toLocaleString(undefined, {maximumFractionDigits: 0})}</p>
-              </div>
-              <div className="bg-white dark:bg-zinc-950 p-4">
+            <div className="flex justify-end">
+              <div className="bg-white dark:bg-zinc-950 p-4 border border-zinc-200 dark:border-zinc-800 min-w-[180px]">
                 <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Members</p>
                 <p className="text-xl font-black text-zinc-900 dark:text-white">{stats.totalMembers.toLocaleString()} + </p>
               </div>
@@ -164,7 +160,6 @@ const Scoretable = () => {
                 <Target size={18} className="text-orange-600" /> {isSearching ? "Search Results" : `Live Scoreboard (By ${sortBy})`}
               </h3>
 
-              {/* FILTER DROPDOWN MOVED BELOW H3 */}
               <div className="relative inline-block" ref={filterRef}>
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
