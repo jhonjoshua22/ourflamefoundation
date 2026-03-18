@@ -16,6 +16,7 @@ const Scoretable = () => {
   const [socialStats, setSocialStats] = useState<any[]>([]);
   const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tabLoading, setTabLoading] = useState<{ [key: string]: boolean }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
@@ -30,50 +31,8 @@ const Scoretable = () => {
     "Normie": 4
   };
 
-  // NEW FLAME $ FORMULA
-  const calculateFlameDollars = (networkVal: number, agentWorld?: string) => {
-    const currentYear = new Date().getFullYear(); // e.g. 2026
-    const startYear = 2020;
-    const yearNumber = currentYear - startYear + 1; // 2020=1, 2026=7
-    const sumOfYears = (yearNumber * (yearNumber + 1)) / 2; // 1+2+...+7 = 28 for 2026
-
-    const totalPool = 75000000; // $75,000,000
-    const yearlyAllocation = totalPool * (yearNumber / sumOfYears); // e.g. 7/28 = $18,750,000 for 2026
-
-    // Get total people in this agent's world (or fallback to global)
-    const worldCounts = stats.worldCounts || {};
-    const totalInWorld = worldCounts[agentWorld || "Unknown"] || stats.totalMembers || 1;
-
-    const perPersonBase = yearlyAllocation / totalInWorld;
-
-    // World weightings (exactly as specified)
-    const worldWeights: Record<string, number> = {
-      Money: 0.50,
-      Gaming: 0.25,
-      Education: 0.125,
-      Health: 0.0625,
-      Legal: 0.03125,
-      Sport: 0.015625
-    };
-
-    // Remaining percentage for "Other 25 Worlds" (1.5625% total → 0.000625 per world)
-    const otherTotalPct = 1 - Object.values(worldWeights).reduce((a, b) => a + b, 0);
-    const otherPerWorldPct = otherTotalPct / 25;
-
-    // Calculate total Flame $ for this person in their world
-    let totalFlame = 0;
-
-    // Main worlds
-    const agentWorldLower = (agentWorld || "").toLowerCase();
-    const mainWeight = worldWeights[Object.keys(worldWeights).find(k => k.toLowerCase() === agentWorldLower) || "Other"] || otherPerWorldPct;
-    totalFlame += perPersonBase * mainWeight;
-
-    // If in "Other" or unknown world → use per-other-world pct
-    if (!worldWeights[Object.keys(worldWeights).find(k => k.toLowerCase() === agentWorldLower)]) {
-      totalFlame = perPersonBase * otherPerWorldPct;
-    }
-
-    return totalFlame;
+  const calculateFlameDollars = (networkVal: number) => {
+    return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
   };
 
   useEffect(() => {
@@ -88,10 +47,11 @@ const Scoretable = () => {
 
   const fetchSocialStats = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("social_stats")
         .select("platform, handle, followers_count, engagement_rate")
         .order("followers_count", { ascending: false });
+      if (error) throw error;
       setSocialStats(data || []);
     } catch (err) {
       console.error("Social stats fetch error:", err);
@@ -116,7 +76,9 @@ const Scoretable = () => {
         queryBuilder = queryBuilder.limit(50);
       }
 
-      const { data: tableData } = await queryBuilder;
+      const { data: tableData, error } = await queryBuilder;
+      if (error) throw error;
+
       if (tableData) {
         const sorted = [...tableData].sort((a, b) => {
           if (currentSort === 'rank') {
@@ -139,25 +101,32 @@ const Scoretable = () => {
   };
 
   const fetchOwnership = async () => {
+    setTabLoading(prev => ({ ...prev, ownership: true }));
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("scoretable_entries")
-        .select(`*, tribes!left (name, description)`)
+        .select(`*, tribes!left (name, description)`)  // Changed to LEFT join so null tribe_id rows show
         .eq("active", true)
         .order("own_percentage", { ascending: false });
+
+      if (error) throw error;
+      console.log("Ownership entries fetched:", data); // DEBUG: check browser console
       setOwnershipEntries(data || []);
     } catch (err) {
       console.error("Ownership fetch error:", err);
+    } finally {
+      setTabLoading(prev => ({ ...prev, ownership: false }));
     }
   };
 
   const fetchLatestKpi = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("kpi_snapshots")
         .select("*")
         .order("snapshot_at", { ascending: false })
         .limit(1);
+      if (error) throw error;
       if (data?.[0]) setKpiSnapshot(data[0]);
     } catch (err) {
       console.error("KPI fetch error:", err);
@@ -165,15 +134,19 @@ const Scoretable = () => {
   };
 
   const fetchMissions = async () => {
+    setTabLoading(prev => ({ ...prev, missions: true }));
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("missions")
         .select("id, title, description, type, status, predicted_impact, grok_generated, created_at")
         .order("created_at", { ascending: false })
         .limit(10);
+      if (error) throw error;
       setMissions(data || []);
     } catch (err) {
       console.error("Missions fetch error:", err);
+    } finally {
+      setTabLoading(prev => ({ ...prev, missions: false }));
     }
   };
 
@@ -347,14 +320,9 @@ const Scoretable = () => {
                               </td>
                               <td className="p-6 italic text-sm text-zinc-400">{agent.world || "Universal"}</td>
                               <td className="p-6 text-sm font-bold text-zinc-300">{agent.Rebirth || 2026}</td>
-                              <td className="p-6">
-                                <div className="flex items-center gap-2">
-                                  <Users size={14} className="text-orange-600" />
-                                  {Number(agent.followers || 0).toLocaleString()}
-                                </div>
-                              </td>
+                              <td className="p-6"><div className="flex items-center gap-2"><Users size={14} className="text-orange-600" />{Number(agent.followers || 0).toLocaleString()}</div></td>
                               <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
-                                ${calculateFlameDollars(agent.network, agent.world).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                ${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
                                   <NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}
                                 </div>
@@ -552,14 +520,21 @@ const Scoretable = () => {
                 <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
                   <Target size={24} /> Grok-Generated Missions (Latest 10)
                 </h3>
-                {missions.length === 0 ? (
+                {tabLoading.missions ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
+                  </div>
+                ) : missions.length === 0 ? (
                   <div className="text-center py-12 text-zinc-500 italic">
                     No missions generated yet — Grok creates them hourly based on foundation KPIs
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {missions.map((mission) => (
-                      <div key={mission.id} className="border border-zinc-700 p-6 rounded-lg hover:border-orange-600/50 transition-colors bg-zinc-900/30">
+                      <div
+                        key={mission.id}
+                        className="border border-zinc-700 p-6 rounded-lg hover:border-orange-600/50 transition-colors bg-zinc-900/30"
+                      >
                         <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
                           <div>
                             <h4 className="text-lg font-bold text-white mb-1">{mission.title}</h4>
