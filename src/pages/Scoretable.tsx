@@ -376,81 +376,92 @@ const Scoretable = () => {
               </div>
             )}
 
-            {/* OWNERSHIP & VALUATION TAB */}
+            {/* OWNERSHIP & VALUATION TAB - FORCED DARK THEME */}
             {activeTab === "ownership" && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
-                <div className="p-8 border-b border-zinc-800">
+                {/* Header */}
+                <div className="p-8 border-b border-zinc-800 bg-black/20">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 flex items-center gap-3">
                     <Percent size={24} /> Ownership & Valuation Table
                   </h3>
                   <p className="text-zinc-500 text-sm mt-2">Grok-optimized distribution of solutions, valuations & ownership %</p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
-                        <th className="p-6">WHO (Name + Tribe + Logins)</th>
-                        <th className="p-6">Solution 1</th>
-                        <th className="p-6">Valuation 1</th>
-                        <th className="p-6">Solution 2</th>
-                        <th className="p-6">Valuation 2</th>
-                        <th className="p-6">Solution 3</th>
-                        <th className="p-6">Valuation 3</th>
-                        <th className="p-6 text-right text-green-400">OWN %</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800/50">
-                      {ownershipEntries.length === 0 ? (
-                        <tr>
-                          <td colSpan={8} className="p-12 text-center text-zinc-500 italic">
-                            No ownership entries yet — Grok swarm will populate soon
-                          </td>
+            
+                {tabLoading.ownership ? (
+                  <div className="p-12 text-center bg-zinc-950">
+                    <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
+                  </div>
+                ) : ownershipEntries.length === 0 ? (
+                  <div className="p-12 text-center text-zinc-500 italic bg-zinc-950">
+                    No ownership entries yet — Grok swarm will populate soon
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto bg-zinc-950">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
+                          <th className="p-6">WHO (Name + Tribe + Logins)</th>
+                          <th className="p-6">Solution 1</th>
+                          <th className="p-6">Valuation 1</th>
+                          <th className="p-6">Solution 2</th>
+                          <th className="p-6">Valuation 2</th>
+                          <th className="p-6">Solution 3</th>
+                          <th className="p-6">Valuation 3</th>
+                          <th className="p-6 text-right text-green-400">OWN %</th>
                         </tr>
-                      ) : (
-                        ownershipEntries.map(entry => (
-                          <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors">
-                            <td className="p-6 font-medium">
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/50">
+                        {ownershipEntries.map(entry => (
+                          <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors group">
+                            {/* WHO - Always White */}
+                            <td className="p-6 font-medium text-white">
                               {entry.who_full || (entry.tribes?.name ? `${entry.tribes.name} - ${entry.tribes.description || ''}` : "No Tribe Assigned")}
                             </td>
+            
+                            {/* Solutions - Always Blue */}
                             <td className="p-6">
                               {entry.solution_link_1 ? (
-                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
                                   Link 1
                                 </a>
-                              ) : '-'}
+                              ) : <span className="text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-sm font-mono">
+                            <td className="p-6 text-sm font-mono text-zinc-300">
                               {entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : '-'}
                             </td>
+            
                             <td className="p-6">
                               {entry.solution_link_2 ? (
-                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
                                   Link 2
                                 </a>
-                              ) : '-'}
+                              ) : <span className="text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-sm font-mono">
+                            <td className="p-6 text-sm font-mono text-zinc-300">
                               {entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : '-'}
                             </td>
+            
                             <td className="p-6">
                               {entry.solution_link_3 ? (
-                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
                                   Link 3
                                 </a>
-                              ) : '-'}
+                              ) : <span className="text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-sm font-mono">
+                            <td className="p-6 text-sm font-mono text-zinc-300">
                               {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}
                             </td>
+            
+                            {/* OWN % - Always Green */}
                             <td className="p-6 text-right text-xl font-black text-green-400">
                               {entry.own_percentage ? `${entry.own_percentage}%` : '-'}
                             </td>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
 
