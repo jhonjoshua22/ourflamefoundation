@@ -16,6 +16,7 @@ const Scoretable = () => {
   const [socialStats, setSocialStats] = useState<any[]>([]);
   const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tabLoading, setTabLoading] = useState<{ [key: string]: boolean }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
@@ -46,10 +47,11 @@ const Scoretable = () => {
 
   const fetchSocialStats = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("social_stats")
         .select("platform, handle, followers_count, engagement_rate")
         .order("followers_count", { ascending: false });
+      if (error) throw error;
       setSocialStats(data || []);
     } catch (err) {
       console.error("Social stats fetch error:", err);
@@ -60,10 +62,12 @@ const Scoretable = () => {
     try {
       const { data: allData } = await supabase.from("profiles").select("followers, network");
       const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
+
       let queryBuilder = supabase.from("profiles").select(`
         id, display_name, email, network, received, "Rebirth", rank, world, followers,
         happiness_score, curiosity_score, econ_score
       `);
+
       if (query) {
         queryBuilder = queryBuilder.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       } else if (currentSort !== 'rank') {
@@ -71,7 +75,10 @@ const Scoretable = () => {
       } else {
         queryBuilder = queryBuilder.limit(50);
       }
-      const { data: tableData } = await queryBuilder;
+
+      const { data: tableData, error } = await queryBuilder;
+      if (error) throw error;
+
       if (tableData) {
         const sorted = [...tableData].sort((a, b) => {
           if (currentSort === 'rank') {
@@ -79,6 +86,7 @@ const Scoretable = () => {
           }
           return (b[currentSort] || 0) - (a[currentSort] || 0);
         });
+
         if (!query) {
           const top10 = sorted.slice(0, 10);
           setLeaders(top10);
@@ -93,25 +101,32 @@ const Scoretable = () => {
   };
 
   const fetchOwnership = async () => {
+    setTabLoading(prev => ({ ...prev, ownership: true }));
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("scoretable_entries")
-        .select(`*, tribes!inner (name, description)`)
+        .select(`*, tribes!left (name, description)`)  // Changed to LEFT join so null tribe_id rows show
         .eq("active", true)
         .order("own_percentage", { ascending: false });
+
+      if (error) throw error;
+      console.log("Ownership entries fetched:", data); // DEBUG: check browser console
       setOwnershipEntries(data || []);
     } catch (err) {
       console.error("Ownership fetch error:", err);
+    } finally {
+      setTabLoading(prev => ({ ...prev, ownership: false }));
     }
   };
 
   const fetchLatestKpi = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("kpi_snapshots")
         .select("*")
         .order("snapshot_at", { ascending: false })
         .limit(1);
+      if (error) throw error;
       if (data?.[0]) setKpiSnapshot(data[0]);
     } catch (err) {
       console.error("KPI fetch error:", err);
@@ -119,15 +134,19 @@ const Scoretable = () => {
   };
 
   const fetchMissions = async () => {
+    setTabLoading(prev => ({ ...prev, missions: true }));
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("missions")
         .select("id, title, description, type, status, predicted_impact, grok_generated, created_at")
         .order("created_at", { ascending: false })
         .limit(10);
+      if (error) throw error;
       setMissions(data || []);
     } catch (err) {
       console.error("Missions fetch error:", err);
+    } finally {
+      setTabLoading(prev => ({ ...prev, missions: false }));
     }
   };
 
@@ -219,29 +238,29 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* TABS - now includes "Grok Missions" */}
+        {/* TABS */}
         <div className="flex justify-center mb-10 overflow-x-auto">
           <div className="inline-flex bg-zinc-900 border border-zinc-800 rounded-full p-1 flex-wrap gap-1">
-            <button 
-              onClick={() => setActiveTab("leaderboard")} 
+            <button
+              onClick={() => setActiveTab("leaderboard")}
               className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "leaderboard" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
             >
               Leaderboard
             </button>
-            <button 
-              onClick={() => setActiveTab("ownership")} 
+            <button
+              onClick={() => setActiveTab("ownership")}
               className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "ownership" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
             >
-              Ownership
+              Ownership & Valuation
             </button>
-            <button 
-              onClick={() => setActiveTab("kpis")} 
+            <button
+              onClick={() => setActiveTab("kpis")}
               className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "kpis" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
             >
               Global KPIs
             </button>
-            <button 
-              onClick={() => setActiveTab("missions")} 
+            <button
+              onClick={() => setActiveTab("missions")}
               className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "missions" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
             >
               Grok Missions
@@ -302,8 +321,15 @@ const Scoretable = () => {
                               <td className="p-6 italic text-sm text-zinc-400">{agent.world || "Universal"}</td>
                               <td className="p-6 text-sm font-bold text-zinc-300">{agent.Rebirth || 2026}</td>
                               <td className="p-6"><div className="flex items-center gap-2"><Users size={14} className="text-orange-600" />{Number(agent.followers || 0).toLocaleString()}</div></td>
-                              <td className="p-6 text-right font-mono text-lg font-black text-orange-400">${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}<div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1"><NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}</div></td>
-                              <td className="p-6 text-right font-mono text-xl font-black text-green-400">${Number(agent.received || 0).toLocaleString()}</td>
+                              <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
+                                ${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
+                                  <NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}
+                                </div>
+                              </td>
+                              <td className="p-6 text-right font-mono text-xl font-black text-green-400">
+                                ${Number(agent.received || 0).toLocaleString()}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -311,6 +337,7 @@ const Scoretable = () => {
                     </div>
                   </div>
                 </div>
+
                 <div className="space-y-6">
                   <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
                     <div className="relative">
@@ -334,7 +361,7 @@ const Scoretable = () => {
               </div>
             )}
 
-            {/* OWNERSHIP TAB */}
+            {/* OWNERSHIP & VALUATION TAB - FIXED */}
             {activeTab === "ownership" && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
                 <div className="p-8 border-b border-zinc-800">
@@ -343,32 +370,35 @@ const Scoretable = () => {
                   </h3>
                   <p className="text-zinc-500 text-sm mt-2">Grok-optimized distribution of solutions, valuations & ownership %</p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
-                        <th className="p-6">WHO (Name + Tribe + Logins)</th>
-                        <th className="p-6">Solution 1</th>
-                        <th className="p-6">Valuation 1</th>
-                        <th className="p-6">Solution 2</th>
-                        <th className="p-6">Valuation 2</th>
-                        <th className="p-6">Solution 3</th>
-                        <th className="p-6">Valuation 3</th>
-                        <th className="p-6 text-right text-green-400">OWN %</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800/50">
-                      {ownershipEntries.length === 0 ? (
-                        <tr>
-                          <td colSpan={8} className="p-12 text-center text-zinc-500 italic">
-                            No ownership entries yet — Grok swarm will populate soon
-                          </td>
+
+                {tabLoading.ownership ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
+                  </div>
+                ) : ownershipEntries.length === 0 ? (
+                  <div className="p-12 text-center text-zinc-500 italic">
+                    No ownership entries yet — Grok swarm will populate soon
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
+                          <th className="p-6">WHO (Name + Tribe + Logins)</th>
+                          <th className="p-6">Solution 1</th>
+                          <th className="p-6">Valuation 1</th>
+                          <th className="p-6">Solution 2</th>
+                          <th className="p-6">Valuation 2</th>
+                          <th className="p-6">Solution 3</th>
+                          <th className="p-6">Valuation 3</th>
+                          <th className="p-6 text-right text-green-400">OWN %</th>
                         </tr>
-                      ) : (
-                        ownershipEntries.map(entry => (
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/50">
+                        {ownershipEntries.map(entry => (
                           <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors">
                             <td className="p-6 font-medium">
-                              {entry.who_full || `${entry.tribes?.name} - ${entry.tribes?.description || ''}`}
+                              {entry.who_full || (entry.tribes?.name ? `${entry.tribes.name} - ${entry.tribes.description || ''}` : "No Tribe Assigned")}
                             </td>
                             <td className="p-6">
                               {entry.solution_link_1 ? (
@@ -401,14 +431,14 @@ const Scoretable = () => {
                               {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}
                             </td>
                             <td className="p-6 text-right text-xl font-black text-green-400">
-                              {entry.own_percentage}%
+                              {entry.own_percentage ? `${entry.own_percentage}%` : '-'}
                             </td>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
 
@@ -429,7 +459,6 @@ const Scoretable = () => {
                   </div>
                 ))}
 
-                {/* GLOBAL NETWORK SNAPSHOT */}
                 <div className="md:col-span-3 bg-zinc-950 border border-zinc-800 rounded-xl p-8 mt-4">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
                     <Globe size={24} /> Global Network Snapshot
@@ -483,16 +512,19 @@ const Scoretable = () => {
                 <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
                   <Target size={24} /> Grok-Generated Missions (Latest 10)
                 </h3>
-
-                {missions.length === 0 ? (
+                {tabLoading.missions ? (
+                  <div className="p-12 text-center">
+                    <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
+                  </div>
+                ) : missions.length === 0 ? (
                   <div className="text-center py-12 text-zinc-500 italic">
                     No missions generated yet — Grok creates them hourly based on foundation KPIs
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {missions.map((mission) => (
-                      <div 
-                        key={mission.id} 
+                      <div
+                        key={mission.id}
                         className="border border-zinc-700 p-6 rounded-lg hover:border-orange-600/50 transition-colors bg-zinc-900/30"
                       >
                         <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
@@ -548,7 +580,7 @@ const Scoretable = () => {
           </>
         )}
 
-        {/* FOUNDATION REWARDS SECTION */}
+        {/* FOUNDATION REWARDS */}
         <div className="space-y-6 pt-16 border-t border-zinc-800">
           <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
             <Gift size={18} className="text-orange-600" /> Foundation Rewards
