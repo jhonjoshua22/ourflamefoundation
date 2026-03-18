@@ -32,12 +32,14 @@ async function runMasterSync() {
       const payload = {
         contents: [{
           parts: [
-            { text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}` },
-            { 
-              inlineData: { 
-                mimeType: "image/png", 
-                data: screenshot 
-              } 
+            {
+              text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`
+            },
+            {
+              inline_data: {
+                mime_type: "image/png",
+                data: screenshot
+              }
             }
           ]
         }]
