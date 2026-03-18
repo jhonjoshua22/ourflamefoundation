@@ -31,41 +31,48 @@ const Scoretable = () => {
   };
 
   // NEW FLAME $ FORMULA
-  const calculateFlameDollars = (networkVal: number, joinYear?: number) => {
+  const calculateFlameDollars = (networkVal: number, agentWorld?: string) => {
     const currentYear = new Date().getFullYear(); // e.g. 2026
-    const yearsSince2020 = currentYear - 2020;   // 6 for 2026
-    if (yearsSince2020 <= 0) return 0;
-  
-    const totalPool = 75000000; // $75M total annual pool
-    const yearAllocation = totalPool; // Full $75M allocated in current year (you can change divisor if multi-year spread)
-  
-    const totalPeople = stats.totalMembers || 1; // avoid divide by zero
-    let perPersonBase = yearAllocation / totalPeople;
-  
-    // Time-weighting: earlier joiners get more (e.g. joinYear 2020 = max boost)
-    let timeMultiplier = 1;
-    if (joinYear && joinYear >= 2020 && joinYear <= currentYear) {
-      const yearsEarly = currentYear - joinYear + 1; // +1 so 2026 joiner = 1, 2020 joiner = 7
-      timeMultiplier = yearsEarly / yearsSince2020; // 2020 joiner gets 7/6 ≈ 1.166× more
-    }
-  
-    perPersonBase *= timeMultiplier;
-  
-    // World splits
-    const worldSplits = {
+    const startYear = 2020;
+    const yearNumber = currentYear - startYear + 1; // 2020=1, 2026=7
+    const sumOfYears = (yearNumber * (yearNumber + 1)) / 2; // 1+2+...+7 = 28 for 2026
+
+    const totalPool = 75000000; // $75,000,000
+    const yearlyAllocation = totalPool * (yearNumber / sumOfYears); // e.g. 7/28 = $18,750,000 for 2026
+
+    // Get total people in this agent's world (or fallback to global)
+    const worldCounts = stats.worldCounts || {};
+    const totalInWorld = worldCounts[agentWorld || "Unknown"] || stats.totalMembers || 1;
+
+    const perPersonBase = yearlyAllocation / totalInWorld;
+
+    // World weightings (exactly as specified)
+    const worldWeights: Record<string, number> = {
       Money: 0.50,
       Gaming: 0.25,
       Education: 0.125,
       Health: 0.0625,
       Legal: 0.03125,
-      Sport: 0.015625,
-      // Remaining 1.5625% split across 25 other worlds (0.000625 each)
-      Other25: (0.015625) / 25
+      Sport: 0.015625
     };
-  
-    // Total Flame $ per person = sum across all worlds
-    const totalFlame = Object.values(worldSplits).reduce((sum, pct) => sum + (perPersonBase * pct), 0);
-  
+
+    // Remaining percentage for "Other 25 Worlds" (1.5625% total → 0.000625 per world)
+    const otherTotalPct = 1 - Object.values(worldWeights).reduce((a, b) => a + b, 0);
+    const otherPerWorldPct = otherTotalPct / 25;
+
+    // Calculate total Flame $ for this person in their world
+    let totalFlame = 0;
+
+    // Main worlds
+    const agentWorldLower = (agentWorld || "").toLowerCase();
+    const mainWeight = worldWeights[Object.keys(worldWeights).find(k => k.toLowerCase() === agentWorldLower) || "Other"] || otherPerWorldPct;
+    totalFlame += perPersonBase * mainWeight;
+
+    // If in "Other" or unknown world → use per-other-world pct
+    if (!worldWeights[Object.keys(worldWeights).find(k => k.toLowerCase() === agentWorldLower)]) {
+      totalFlame = perPersonBase * otherPerWorldPct;
+    }
+
     return totalFlame;
   };
 
@@ -347,7 +354,7 @@ const Scoretable = () => {
                                 </div>
                               </td>
                               <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
-                                ${calculateFlameDollars(agent.network, agent.joinYear || 2026).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                ${calculateFlameDollars(agent.network, agent.world).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
                                   <NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}
                                 </div>
