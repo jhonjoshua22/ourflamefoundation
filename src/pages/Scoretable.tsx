@@ -363,7 +363,7 @@ const Scoretable = () => {
                   <h3 className="text-3xl font-black">Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power</h3>
                   <p className="text-lg mt-2">Your unique link (auto-copied):</p>
                   <input value={`https://ourflamefoundation.vercel.app/?ref=${user.referral_code}`} readOnly className="..." />
-                  <button onClick={() => navigator.share({url: ...})} className="...">Share to X / IG / WhatsApp (Instant Mission Reward)</button>
+                  <button onClick={() => navigator.share({url: www.ourflamefoundation.org/})} className="...">Share to X / IG / WhatsApp (Instant Mission Reward)</button>
                   <p className="text-xs mt-4">Live: {referred_count} friends joined • +{kpi_lift}% happiness boost (Grok calc)</p>
                 </div>
               </div>
