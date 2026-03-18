@@ -361,29 +361,35 @@ const Scoretable = () => {
               </div>
             )}
 
-            {/* OWNERSHIP & VALUATION TAB - FIXED */}
+            {/* OWNERSHIP & VALUATION TAB - FULL ADAPTIVE VERSION */}
             {activeTab === "ownership" && (
-              <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
-                <div className="p-8 border-b border-zinc-800">
+              <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xl dark:shadow-2xl transition-all duration-300">
+                
+                {/* Header Section */}
+                <div className="p-8 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-transparent">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 flex items-center gap-3">
                     <Percent size={24} /> Ownership & Valuation Table
                   </h3>
-                  <p className="text-zinc-500 text-sm mt-2">Grok-optimized distribution of solutions, valuations & ownership %</p>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-2 font-medium">
+                    Grok-optimized distribution of solutions, valuations & ownership %
+                  </p>
                 </div>
-
+            
+                {/* Table Content */}
                 {tabLoading.ownership ? (
-                  <div className="p-12 text-center">
+                  <div className="p-12 text-center bg-white dark:bg-zinc-950">
                     <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
+                    <p className="text-zinc-400 mt-4 text-sm animate-pulse">Syncing Tribe Data...</p>
                   </div>
                 ) : ownershipEntries.length === 0 ? (
-                  <div className="p-12 text-center text-zinc-500 italic">
+                  <div className="p-12 text-center text-zinc-400 dark:text-zinc-500 italic bg-white dark:bg-zinc-950">
                     No ownership entries yet — Grok swarm will populate soon
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
+                        <tr className="bg-zinc-100 dark:bg-black/60 text-[10px] md:text-xs font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
                           <th className="p-6">WHO (Name + Tribe + Logins)</th>
                           <th className="p-6">Solution 1</th>
                           <th className="p-6">Valuation 1</th>
@@ -391,47 +397,59 @@ const Scoretable = () => {
                           <th className="p-6">Valuation 2</th>
                           <th className="p-6">Solution 3</th>
                           <th className="p-6">Valuation 3</th>
-                          <th className="p-6 text-right text-green-400">OWN %</th>
+                          <th className="p-6 text-right text-green-600 dark:text-green-400">OWN %</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-zinc-800/50">
+                      <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/50 bg-white dark:bg-zinc-950">
                         {ownershipEntries.map(entry => (
-                          <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors">
-                            <td className="p-6 font-medium">
+                          <tr 
+                            key={entry.id} 
+                            className="hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors group text-zinc-800 dark:text-zinc-200"
+                          >
+                            {/* Identity Cell */}
+                            <td className="p-6 font-bold text-sm">
                               {entry.who_full || (entry.tribes?.name ? `${entry.tribes.name} - ${entry.tribes.description || ''}` : "No Tribe Assigned")}
                             </td>
+            
+                            {/* Solution 1 */}
                             <td className="p-6">
                               {entry.solution_link_1 ? (
-                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
-                                  Link 1
+                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-bold uppercase">
+                                  View Source
                                 </a>
-                              ) : '-'}
+                              ) : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-sm font-mono">
-                              {entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : '-'}
+                            <td className="p-6 text-sm font-mono font-semibold">
+                              {entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
+            
+                            {/* Solution 2 */}
                             <td className="p-6">
                               {entry.solution_link_2 ? (
-                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
-                                  Link 2
+                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-bold uppercase">
+                                  View Source
                                 </a>
-                              ) : '-'}
+                              ) : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-sm font-mono">
-                              {entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : '-'}
+                            <td className="p-6 text-sm font-mono font-semibold">
+                              {entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
+            
+                            {/* Solution 3 */}
                             <td className="p-6">
                               {entry.solution_link_3 ? (
-                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
-                                  Link 3
+                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-bold uppercase">
+                                  View Source
                                 </a>
-                              ) : '-'}
+                              ) : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-sm font-mono">
-                              {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}
+                            <td className="p-6 text-sm font-mono font-semibold">
+                              {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
-                            <td className="p-6 text-right text-xl font-black text-green-400">
-                              {entry.own_percentage ? `${entry.own_percentage}%` : '-'}
+            
+                            {/* Ownership Percentage */}
+                            <td className="p-6 text-right text-xl font-black text-green-600 dark:text-green-400 tabular-nums">
+                              {entry.own_percentage ? `${entry.own_percentage}%` : <span className="text-zinc-300 dark:text-zinc-700">-</span>}
                             </td>
                           </tr>
                         ))}
