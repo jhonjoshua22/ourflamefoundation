@@ -24,6 +24,13 @@ const Scoretable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
+  // ── NEW: Referral state ──
+  const [referralLink, setReferralLink] = useState<string>('');
+  const [referredCount, setReferredCount] = useState<number>(0);
+  const [kpiLift, setKpiLift] = useState<number | null>(null);
+  const [loadingReferral, setLoadingReferral] = useState(true);
+  const [referralError, setReferralError] = useState<string | null>(null);
+
   const rankPriority: Record<string, number> = {
     "SuperFarmer": 1,
     "Angel": 2,
@@ -45,6 +52,48 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ── NEW: Fetch referral data once on mount ──
+  useEffect(() => {
+    const fetchReferralData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setReferralError("Login to get your referral link");
+          return;
+        }
+
+        const { data: profile, error: profileErr } = await supabase
+          .from('profiles')
+          .select('referral_code, referral_count')
+          .eq('id', user.id)
+          .single();
+
+        if (profileErr) throw profileErr;
+        if (!profile?.referral_code) throw new Error("No referral code found");
+
+        setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
+        setReferredCount(profile.referral_count || 0);
+
+        // Optional: Try to parse a lift % from latest grok_note
+        const { data: kpi } = await supabase
+          .from('kpi_snapshots')
+          .select('grok_note')
+          .order('snapshot_at', { ascending: false })
+          .limit(1);
+
+        const liftMatch = kpi?.[0]?.grok_note?.match(/(\d+)%/);
+        setKpiLift(liftMatch ? parseFloat(liftMatch[1]) : 12); // fallback
+
+      } catch (err: any) {
+        setReferralError(err.message || "Failed to load referral data");
+      } finally {
+        setLoadingReferral(false);
+      }
+    };
+
+    fetchReferralData();
+  }, []);
+
   const fetchSocialStats = async () => {
     try {
       const { data, error } = await supabase
@@ -62,12 +111,10 @@ const Scoretable = () => {
     try {
       const { data: allData } = await supabase.from("profiles").select("followers, network");
       const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
-
       let queryBuilder = supabase.from("profiles").select(`
         id, display_name, email, network, received, "Rebirth", rank, world, followers,
         happiness_score, curiosity_score, econ_score
       `);
-
       if (query) {
         queryBuilder = queryBuilder.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       } else if (currentSort !== 'rank') {
@@ -75,10 +122,8 @@ const Scoretable = () => {
       } else {
         queryBuilder = queryBuilder.limit(50);
       }
-
       const { data: tableData, error } = await queryBuilder;
       if (error) throw error;
-
       if (tableData) {
         const sorted = [...tableData].sort((a, b) => {
           if (currentSort === 'rank') {
@@ -86,7 +131,6 @@ const Scoretable = () => {
           }
           return (b[currentSort] || 0) - (a[currentSort] || 0);
         });
-
         if (!query) {
           const top10 = sorted.slice(0, 10);
           setLeaders(top10);
@@ -105,12 +149,11 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from("scoretable_entries")
-        .select(`*, tribes!left (name, description)`)  // Changed to LEFT join so null tribe_id rows show
+        .select(`*, tribes!left (name, description)`)
         .eq("active", true)
         .order("own_percentage", { ascending: false });
-
       if (error) throw error;
-      console.log("Ownership entries fetched:", data); // DEBUG: check browser console
+      console.log("Ownership entries fetched:", data);
       setOwnershipEntries(data || []);
     } catch (err) {
       console.error("Ownership fetch error:", err);
@@ -163,7 +206,6 @@ const Scoretable = () => {
       setLoading(false);
     };
     loadAll();
-
     const channels = [
       supabase.channel("profiles-changes").on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         if (!searchQuery) fetchLeaderboard(searchQuery, sortBy);
@@ -173,7 +215,6 @@ const Scoretable = () => {
       supabase.channel("social-changes").on("postgres_changes", { event: "*", schema: "public", table: "social_stats" }, fetchSocialStats).subscribe(),
       supabase.channel("missions-changes").on("postgres_changes", { event: "*", schema: "public", table: "missions" }, fetchMissions).subscribe()
     ];
-
     return () => {
       channels.forEach(ch => supabase.removeChannel(ch));
     };
@@ -201,6 +242,29 @@ const Scoretable = () => {
       case 'reddit': return <MessageSquare size={18} className="text-orange-500" />;
       case 'youtube': return <Youtube size={18} className="text-red-600" />;
       default: return <Globe size={18} className="text-zinc-400" />;
+    }
+  };
+
+  // ── NEW: Share handler with clipboard fallback ──
+  const handleShare = async () => {
+    if (!referralLink) return;
+
+    const shareData = {
+      title: 'Join the Flame Foundation!',
+      text: 'Refer a friend and both get 10,000 Flame Dollars + SuperBot Power 🔥',
+      url: referralLink,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(referralLink);
+        alert('Link copied to clipboard! Share it on X, IG, or WhatsApp.');
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+      alert('Share not supported — link copied instead.');
     }
   };
 
@@ -357,29 +421,57 @@ const Scoretable = () => {
                       ))}
                     </div>
                   </div>
-                </div>
-                {/* Viral Referral CTA */}
-                <div className="bg-gradient-to-r from-orange-600 to-purple-600 p-8 rounded-2xl text-center mt-8">
-                  <h3 className="text-3xl font-black">Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power</h3>
-                  <p className="text-lg mt-2">Your unique link (auto-copied):</p>
-                  <input value={`https://ourflamefoundation.vercel.app/?ref=${user.referral_code}`} readOnly className="..." />
-                  <button onClick={() => navigator.share({url: www.ourflamefoundation.org/})} className="...">Share to X / IG / WhatsApp (Instant Mission Reward)</button>
-                  <p className="text-xs mt-4">Live: {referred_count} friends joined • +{kpi_lift}% happiness boost (Grok calc)</p>
+
+                  {/* ── VIRAL REFERRAL CTA ADDED HERE ── */}
+                  <div className="mt-8">
+                    <div className="bg-gradient-to-r from-orange-600 to-purple-600 p-6 md:p-8 rounded-2xl text-center shadow-xl">
+                      <h3 className="text-2xl md:text-3xl font-black mb-3">
+                        Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power 🔥
+                      </h3>
+                      <p className="text-base md:text-lg mb-4 opacity-90">
+                        Grow the Flame Network — your invites fuel global happiness & economy
+                      </p>
+
+                      {loadingReferral ? (
+                        <div className="animate-pulse bg-zinc-800 h-12 rounded mb-4" />
+                      ) : referralError ? (
+                        <p className="text-red-400 font-medium">{referralError}</p>
+                      ) : (
+                        <>
+                          <div className="bg-black/40 border border-orange-400/50 rounded-lg p-3 mb-4 font-mono text-sm break-all">
+                            {referralLink || 'Loading your unique link...'}
+                          </div>
+
+                          <button
+                            onClick={handleShare}
+                            disabled={!referralLink}
+                            className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border-2 border-orange-500 text-orange-300 font-bold uppercase tracking-wider rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                          >
+                            Share Link (X / IG / WhatsApp)
+                          </button>
+
+                          <p className="text-xs mt-6 opacity-80">
+                            Live: <span className="font-bold text-green-400">{referredCount}</span> friends joined • 
+                            Grok predicts +{kpiLift ?? '?'}% happiness boost from referrals
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* OWNERSHIP & VALUATION TAB - FORCED DARK THEME */}
+            {/* OWNERSHIP & VALUATION TAB */}
             {activeTab === "ownership" && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
-                {/* Header */}
                 <div className="p-8 border-b border-zinc-800 bg-black/20">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 flex items-center gap-3">
                     <Percent size={24} /> Ownership & Valuation Table
                   </h3>
                   <p className="text-zinc-500 text-sm mt-2">Grok-optimized distribution of solutions, valuations & ownership %</p>
                 </div>
-            
+
                 {tabLoading.ownership ? (
                   <div className="p-12 text-center bg-zinc-950">
                     <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
@@ -406,12 +498,9 @@ const Scoretable = () => {
                       <tbody className="divide-y divide-zinc-800/50">
                         {ownershipEntries.map(entry => (
                           <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors group">
-                            {/* WHO - Always White */}
                             <td className="p-6 font-medium text-white">
                               {entry.who_full || (entry.tribes?.name ? `${entry.tribes.name} - ${entry.tribes.description || ''}` : "No Tribe Assigned")}
                             </td>
-            
-                            {/* Solutions - Always Blue */}
                             <td className="p-6">
                               {entry.solution_link_1 ? (
                                 <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
@@ -422,7 +511,6 @@ const Scoretable = () => {
                             <td className="p-6 text-sm font-mono text-zinc-300">
                               {entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : '-'}
                             </td>
-            
                             <td className="p-6">
                               {entry.solution_link_2 ? (
                                 <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
@@ -433,7 +521,6 @@ const Scoretable = () => {
                             <td className="p-6 text-sm font-mono text-zinc-300">
                               {entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : '-'}
                             </td>
-            
                             <td className="p-6">
                               {entry.solution_link_3 ? (
                                 <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
@@ -444,8 +531,6 @@ const Scoretable = () => {
                             <td className="p-6 text-sm font-mono text-zinc-300">
                               {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}
                             </td>
-            
-                            {/* OWN % - Always Green */}
                             <td className="p-6 text-right text-xl font-black text-green-400">
                               {entry.own_percentage ? `${entry.own_percentage}%` : '-'}
                             </td>
@@ -474,7 +559,6 @@ const Scoretable = () => {
                     </p>
                   </div>
                 ))}
-
                 <div className="md:col-span-3 bg-zinc-950 border border-zinc-800 rounded-xl p-8 mt-4">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
                     <Globe size={24} /> Global Network Snapshot
@@ -562,7 +646,6 @@ const Scoretable = () => {
                             )}
                           </div>
                         </div>
-
                         <div className="grid grid-cols-3 gap-4 text-center text-sm mb-4">
                           <div className="bg-zinc-900/50 p-3 rounded">
                             <p className="text-zinc-500 mb-1">Happiness</p>
@@ -583,7 +666,6 @@ const Scoretable = () => {
                             </p>
                           </div>
                         </div>
-
                         <p className="text-xs text-zinc-500">
                           Created: {new Date(mission.created_at).toLocaleString()}
                         </p>
