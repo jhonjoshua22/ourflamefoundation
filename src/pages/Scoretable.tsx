@@ -9,11 +9,12 @@ import {
 } from "lucide-react";
 
 const Scoretable = () => {
-  const [activeTab, setActiveTab] = useState<"leaderboard" | "ownership" | "kpis">("leaderboard");
+  const [activeTab, setActiveTab] = useState<"leaderboard" | "ownership" | "kpis" | "missions">("leaderboard");
   const [leaders, setLeaders] = useState<any[]>([]);
   const [ownershipEntries, setOwnershipEntries] = useState<any[]>([]);
   const [kpiSnapshot, setKpiSnapshot] = useState<any>(null);
-  const [socialStats, setSocialStats] = useState<any[]>([]); // New state for social data
+  const [socialStats, setSocialStats] = useState<any[]>([]);
+  const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -117,6 +118,19 @@ const Scoretable = () => {
     }
   };
 
+  const fetchMissions = async () => {
+    try {
+      const { data } = await supabase
+        .from("missions")
+        .select("id, title, description, type, status, predicted_impact, grok_generated, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      setMissions(data || []);
+    } catch (err) {
+      console.error("Missions fetch error:", err);
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     const loadAll = async () => {
@@ -124,19 +138,23 @@ const Scoretable = () => {
         fetchLeaderboard(searchQuery, sortBy),
         fetchOwnership(),
         fetchLatestKpi(),
-        fetchSocialStats()
+        fetchSocialStats(),
+        fetchMissions()
       ]);
       setLoading(false);
     };
     loadAll();
+
     const channels = [
       supabase.channel("profiles-changes").on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         if (!searchQuery) fetchLeaderboard(searchQuery, sortBy);
       }).subscribe(),
       supabase.channel("scoretable-changes").on("postgres_changes", { event: "*", schema: "public", table: "scoretable_entries" }, fetchOwnership).subscribe(),
       supabase.channel("kpi-changes").on("postgres_changes", { event: "*", schema: "public", table: "kpi_snapshots" }, fetchLatestKpi).subscribe(),
-      supabase.channel("social-changes").on("postgres_changes", { event: "*", schema: "public", table: "social_stats" }, fetchSocialStats).subscribe()
+      supabase.channel("social-changes").on("postgres_changes", { event: "*", schema: "public", table: "social_stats" }, fetchSocialStats).subscribe(),
+      supabase.channel("missions-changes").on("postgres_changes", { event: "*", schema: "public", table: "missions" }, fetchMissions).subscribe()
     ];
+
     return () => {
       channels.forEach(ch => supabase.removeChannel(ch));
     };
@@ -155,7 +173,6 @@ const Scoretable = () => {
     { class: "SuperFarmer", icon: <Sprout size={20} className="text-green-500" />, rewards: ["Recruit Angels", "Mentor & Coach", "Seed Fund"] }
   ];
 
-  // Helper to get Social Icons
   const getSocialIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case 'facebook': return <Facebook size={18} className="text-blue-600" />;
@@ -202,12 +219,33 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* TABS */}
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex bg-zinc-900 border border-zinc-800 rounded-full p-1">
-            <button onClick={() => setActiveTab("leaderboard")} className={`px-6 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "leaderboard" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}>Leaderboard</button>
-            <button onClick={() => setActiveTab("ownership")} className={`px-6 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "ownership" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}>Ownership & Valuation</button>
-            <button onClick={() => setActiveTab("kpis")} className={`px-6 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "kpis" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}>Global KPIs</button>
+        {/* TABS - now includes "Grok Missions" */}
+        <div className="flex justify-center mb-10 overflow-x-auto">
+          <div className="inline-flex bg-zinc-900 border border-zinc-800 rounded-full p-1 flex-wrap gap-1">
+            <button 
+              onClick={() => setActiveTab("leaderboard")} 
+              className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "leaderboard" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
+            >
+              Leaderboard
+            </button>
+            <button 
+              onClick={() => setActiveTab("ownership")} 
+              className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "ownership" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
+            >
+              Ownership
+            </button>
+            <button 
+              onClick={() => setActiveTab("kpis")} 
+              className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "kpis" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
+            >
+              Global KPIs
+            </button>
+            <button 
+              onClick={() => setActiveTab("missions")} 
+              className={`px-5 py-2 text-sm font-bold uppercase tracking-wider rounded-full transition-all ${activeTab === "missions" ? "bg-orange-600 text-white" : "text-zinc-400 hover:text-white"}`}
+            >
+              Grok Missions
+            </button>
           </div>
         </div>
 
@@ -217,6 +255,7 @@ const Scoretable = () => {
           </div>
         ) : (
           <>
+            {/* LEADERBOARD TAB */}
             {activeTab === "leaderboard" && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
                 <div className="lg:col-span-2 space-y-6">
@@ -273,11 +312,21 @@ const Scoretable = () => {
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3"><div className="relative"><Activity size={18} className="text-orange-600" /><div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" /></div>Live Activity</h3>
+                  <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+                    <div className="relative">
+                      <Activity size={18} className="text-orange-600" />
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-600 rounded-full animate-ping" />
+                    </div>
+                    Live Activity
+                  </h3>
                   <div className="border border-zinc-800 p-6 bg-zinc-950 h-[500px] overflow-y-auto custom-scrollbar rounded-lg">
                     <div className="space-y-6">
                       {leaders.slice(0, 12).map((agent, i) => (
-                        <div key={i} className="text-sm border-b border-zinc-800 pb-4 last:border-0"><p className="text-zinc-400 leading-relaxed">Agent <span className="text-white font-black italic uppercase">{agent.display_name}</span> has synced with the foundation.</p></div>
+                        <div key={i} className="text-sm border-b border-zinc-800 pb-4 last:border-0">
+                          <p className="text-zinc-400 leading-relaxed">
+                            Agent <span className="text-white font-black italic uppercase">{agent.display_name}</span> has synced with the foundation.
+                          </p>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -285,10 +334,13 @@ const Scoretable = () => {
               </div>
             )}
 
+            {/* OWNERSHIP TAB */}
             {activeTab === "ownership" && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
                 <div className="p-8 border-b border-zinc-800">
-                  <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 flex items-center gap-3"><Percent size={24} /> Ownership & Valuation Table</h3>
+                  <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 flex items-center gap-3">
+                    <Percent size={24} /> Ownership & Valuation Table
+                  </h3>
                   <p className="text-zinc-500 text-sm mt-2">Grok-optimized distribution of solutions, valuations & ownership %</p>
                 </div>
                 <div className="overflow-x-auto">
@@ -307,18 +359,50 @@ const Scoretable = () => {
                     </thead>
                     <tbody className="divide-y divide-zinc-800/50">
                       {ownershipEntries.length === 0 ? (
-                        <tr><td colSpan={8} className="p-12 text-center text-zinc-500 italic">No ownership entries yet — Grok swarm will populate soon</td></tr>
+                        <tr>
+                          <td colSpan={8} className="p-12 text-center text-zinc-500 italic">
+                            No ownership entries yet — Grok swarm will populate soon
+                          </td>
+                        </tr>
                       ) : (
                         ownershipEntries.map(entry => (
                           <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors">
-                            <td className="p-6 font-medium">{entry.who_full || `${entry.tribes?.name} - ${entry.tribes?.description || ''}`}</td>
-                            <td className="p-6">{entry.solution_link_1 ? <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">Link 1</a> : '-'}</td>
-                            <td className="p-6 text-sm font-mono">{entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : '-'}</td>
-                            <td className="p-6">{entry.solution_link_2 ? <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">Link 2</a> : '-'}</td>
-                            <td className="p-6 text-sm font-mono">{entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : '-'}</td>
-                            <td className="p-6">{entry.solution_link_3 ? <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">Link 3</a> : '-'}</td>
-                            <td className="p-6 text-sm font-mono">{entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}</td>
-                            <td className="p-6 text-right text-xl font-black text-green-400">{entry.own_percentage}%</td>
+                            <td className="p-6 font-medium">
+                              {entry.who_full || `${entry.tribes?.name} - ${entry.tribes?.description || ''}`}
+                            </td>
+                            <td className="p-6">
+                              {entry.solution_link_1 ? (
+                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                                  Link 1
+                                </a>
+                              ) : '-'}
+                            </td>
+                            <td className="p-6 text-sm font-mono">
+                              {entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : '-'}
+                            </td>
+                            <td className="p-6">
+                              {entry.solution_link_2 ? (
+                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                                  Link 2
+                                </a>
+                              ) : '-'}
+                            </td>
+                            <td className="p-6 text-sm font-mono">
+                              {entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : '-'}
+                            </td>
+                            <td className="p-6">
+                              {entry.solution_link_3 ? (
+                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                                  Link 3
+                                </a>
+                              ) : '-'}
+                            </td>
+                            <td className="p-6 text-sm font-mono">
+                              {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}
+                            </td>
+                            <td className="p-6 text-right text-xl font-black text-green-400">
+                              {entry.own_percentage}%
+                            </td>
                           </tr>
                         ))
                       )}
@@ -328,6 +412,7 @@ const Scoretable = () => {
               </div>
             )}
 
+            {/* GLOBAL KPIs TAB */}
             {activeTab === "kpis" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[
@@ -338,16 +423,17 @@ const Scoretable = () => {
                   <div key={item.title} className="bg-zinc-950 border border-zinc-800 rounded-xl p-8 text-center shadow-2xl hover:border-orange-600/50 transition-colors">
                     <div className="mb-4">{item.icon}</div>
                     <h4 className="text-lg font-black uppercase tracking-wider text-zinc-400 mb-2">{item.title}</h4>
-                    <p className={`text-5xl font-black ${item.color === "pink" ? "text-pink-500" : item.color === "green" ? "text-green-500" : "text-yellow-500"}`}>{item.value ? item.value.toFixed(1) : "—"}%</p>
+                    <p className={`text-5xl font-black ${item.color === "pink" ? "text-pink-500" : item.color === "green" ? "text-green-500" : "text-yellow-500"}`}>
+                      {item.value ? item.value.toFixed(1) : "—"}%
+                    </p>
                   </div>
                 ))}
-                
-                {/* NEW GLOBAL NETWORK SNAPSHOT - 4 COLUMN SOCIAL TABLE */}
+
+                {/* GLOBAL NETWORK SNAPSHOT */}
                 <div className="md:col-span-3 bg-zinc-950 border border-zinc-800 rounded-xl p-8 mt-4">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
                     <Globe size={24} /> Global Network Snapshot
                   </h3>
-                  
                   <div className="overflow-x-auto">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {socialStats.length > 0 ? (
@@ -376,39 +462,123 @@ const Scoretable = () => {
                           </div>
                         ))
                       ) : (
-                        <div className="col-span-4 py-8 text-center text-zinc-500 italic">No social stats synchronized yet.</div>
+                        <div className="col-span-4 py-8 text-center text-zinc-500 italic">
+                          No social stats synchronized yet.
+                        </div>
                       )}
                     </div>
                   </div>
-
                   {kpiSnapshot?.grok_note && (
-                    <p className="mt-6 text-zinc-400 italic text-center border-t border-zinc-800 pt-4">Grok note: {kpiSnapshot.grok_note}</p>
+                    <p className="mt-6 text-zinc-400 italic text-center border-t border-zinc-800 pt-4">
+                      Grok note: {kpiSnapshot.grok_note}
+                    </p>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* GROK MISSIONS TAB */}
+            {activeTab === "missions" && (
+              <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl p-8">
+                <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
+                  <Target size={24} /> Grok-Generated Missions (Latest 10)
+                </h3>
+
+                {missions.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-500 italic">
+                    No missions generated yet — Grok creates them hourly based on foundation KPIs
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {missions.map((mission) => (
+                      <div 
+                        key={mission.id} 
+                        className="border border-zinc-700 p-6 rounded-lg hover:border-orange-600/50 transition-colors bg-zinc-900/30"
+                      >
+                        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+                          <div>
+                            <h4 className="text-lg font-bold text-white mb-1">{mission.title}</h4>
+                            <p className="text-sm text-zinc-400">{mission.description}</p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="text-xs uppercase px-3 py-1 rounded-full bg-orange-600/30 text-orange-300">
+                              {mission.type}
+                            </span>
+                            <span className="text-xs uppercase px-3 py-1 rounded-full bg-zinc-700 text-zinc-300">
+                              {mission.status}
+                            </span>
+                            {mission.grok_generated && (
+                              <span className="text-xs uppercase px-3 py-1 rounded-full bg-purple-600/30 text-purple-300">
+                                Grok
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-center text-sm mb-4">
+                          <div className="bg-zinc-900/50 p-3 rounded">
+                            <p className="text-zinc-500 mb-1">Happiness</p>
+                            <p className="font-bold text-pink-400 text-xl">
+                              +{mission.predicted_impact?.happiness || 0}
+                            </p>
+                          </div>
+                          <div className="bg-zinc-900/50 p-3 rounded">
+                            <p className="text-zinc-500 mb-1">Economy</p>
+                            <p className="font-bold text-green-400 text-xl">
+                              +{mission.predicted_impact?.econ || 0}
+                            </p>
+                          </div>
+                          <div className="bg-zinc-900/50 p-3 rounded">
+                            <p className="text-zinc-500 mb-1">Curiosity</p>
+                            <p className="font-bold text-yellow-400 text-xl">
+                              +{mission.predicted_impact?.curiosity || 0}
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-zinc-500">
+                          Created: {new Date(mission.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </>
         )}
 
+        {/* FOUNDATION REWARDS SECTION */}
         <div className="space-y-6 pt-16 border-t border-zinc-800">
-          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3"><Gift size={18} className="text-orange-600" /> Foundation Rewards</h3>
+          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+            <Gift size={18} className="text-orange-600" /> Foundation Rewards
+          </h3>
           <div className="border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl rounded-lg">
             {classRewards.map(tier => (
               <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-800 last:border-0 group hover:bg-zinc-900/50 transition-colors">
                 <div className="col-span-4 flex items-center gap-4">
-                  <div className="p-4 bg-zinc-800 rounded group-hover:bg-orange-600/30 transition-colors">{tier.icon}</div>
-                  <h4 className="text-2xl font-black uppercase italic tracking-tighter text-white">{tier.class}</h4>
+                  <div className="p-4 bg-zinc-800 rounded group-hover:bg-orange-600/30 transition-colors">
+                    {tier.icon}
+                  </div>
+                  <h4 className="text-2xl font-black uppercase italic tracking-tighter text-white">
+                    {tier.class}
+                  </h4>
                 </div>
                 <div className="col-span-8 text-right flex flex-wrap justify-end gap-3">
                   {tier.rewards.map((r, i) => (
-                    <span key={i} className="text-xs font-bold uppercase text-zinc-400 bg-zinc-900 px-4 py-2 border border-zinc-700 rounded">{r}</span>
+                    <span key={i} className="text-xs font-bold uppercase text-zinc-400 bg-zinc-900 px-4 py-2 border border-zinc-700 rounded">
+                      {r}
+                    </span>
                   ))}
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <p className="text-center text-zinc-600 text-xs mt-16">Database-driven | Real-time | Optimized by Grok + AI Swarm</p>
+
+        <p className="text-center text-zinc-600 text-xs mt-16">
+          Database-driven | Real-time | Optimized by Grok + AI Swarm
+        </p>
       </div>
     </div>
   );
