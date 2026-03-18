@@ -17,16 +17,13 @@ jobs:
         with:
           node-version: 20
 
-      # We use 'npm install' instead of 'npm ci' to avoid the lockfile sync error
       - name: Install Dependencies
         run: |
-          npm install @google/generative-ai @supabase/supabase-js playwright
+          npm install @supabase/supabase-js playwright
           npx playwright install chromium --with-deps
 
       - name: Run Social Stats Sync
         env:
-          # These must match the names in your GitHub Secrets exactly
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node sync.js
