@@ -16,7 +16,6 @@ const Scoretable = () => {
   const [socialStats, setSocialStats] = useState<any[]>([]);
   const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tabLoading, setTabLoading] = useState<{ [key: string]: boolean }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
@@ -31,8 +30,33 @@ const Scoretable = () => {
     "Normie": 4
   };
 
+  // NEW FLAME $ FORMULA
   const calculateFlameDollars = (networkVal: number) => {
-    return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
+    const currentYear = new Date().getFullYear(); // e.g. 2026
+    const yearsSince2020 = currentYear - 2020;   // 6 for 2026
+    if (yearsSince2020 <= 0) return 0;
+
+    const totalPool = 75000000; // $75M
+    const yearAllocation = totalPool * (yearsSince2020 / yearsSince2020); // full $75M in current year (adjust divisor if multi-year spread)
+
+    const totalPeople = stats.totalMembers || 1; // avoid divide by zero
+    const perPerson = yearAllocation / totalPeople;
+
+    // World splits
+    const splits = {
+      Money: 0.50,
+      Gaming: 0.25,
+      Education: 0.125,
+      Health: 0.0625,
+      Legal: 0.03125,
+      Sport: 0.015625,
+      // "Other 25 Worlds" get remaining 1.5625% split equally (0.000625 each)
+      Other: (1 - 0.50 - 0.25 - 0.125 - 0.0625 - 0.03125 - 0.015625) / 25
+    };
+
+    // Return total Flame $ per person (sum of all worlds)
+    // You can also return object with per-world breakdown if needed later
+    return Object.values(splits).reduce((sum, pct) => sum + (perPerson * pct), 0);
   };
 
   useEffect(() => {
@@ -47,11 +71,10 @@ const Scoretable = () => {
 
   const fetchSocialStats = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("social_stats")
         .select("platform, handle, followers_count, engagement_rate")
         .order("followers_count", { ascending: false });
-      if (error) throw error;
       setSocialStats(data || []);
     } catch (err) {
       console.error("Social stats fetch error:", err);
@@ -76,9 +99,7 @@ const Scoretable = () => {
         queryBuilder = queryBuilder.limit(50);
       }
 
-      const { data: tableData, error } = await queryBuilder;
-      if (error) throw error;
-
+      const { data: tableData } = await queryBuilder;
       if (tableData) {
         const sorted = [...tableData].sort((a, b) => {
           if (currentSort === 'rank') {
@@ -101,32 +122,25 @@ const Scoretable = () => {
   };
 
   const fetchOwnership = async () => {
-    setTabLoading(prev => ({ ...prev, ownership: true }));
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("scoretable_entries")
-        .select(`*, tribes!left (name, description)`)  // Changed to LEFT join so null tribe_id rows show
+        .select(`*, tribes!left (name, description)`)
         .eq("active", true)
         .order("own_percentage", { ascending: false });
-
-      if (error) throw error;
-      console.log("Ownership entries fetched:", data); // DEBUG: check browser console
       setOwnershipEntries(data || []);
     } catch (err) {
       console.error("Ownership fetch error:", err);
-    } finally {
-      setTabLoading(prev => ({ ...prev, ownership: false }));
     }
   };
 
   const fetchLatestKpi = async () => {
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("kpi_snapshots")
         .select("*")
         .order("snapshot_at", { ascending: false })
         .limit(1);
-      if (error) throw error;
       if (data?.[0]) setKpiSnapshot(data[0]);
     } catch (err) {
       console.error("KPI fetch error:", err);
@@ -134,19 +148,15 @@ const Scoretable = () => {
   };
 
   const fetchMissions = async () => {
-    setTabLoading(prev => ({ ...prev, missions: true }));
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("missions")
         .select("id, title, description, type, status, predicted_impact, grok_generated, created_at")
         .order("created_at", { ascending: false })
         .limit(10);
-      if (error) throw error;
       setMissions(data || []);
     } catch (err) {
       console.error("Missions fetch error:", err);
-    } finally {
-      setTabLoading(prev => ({ ...prev, missions: false }));
     }
   };
 
@@ -320,7 +330,12 @@ const Scoretable = () => {
                               </td>
                               <td className="p-6 italic text-sm text-zinc-400">{agent.world || "Universal"}</td>
                               <td className="p-6 text-sm font-bold text-zinc-300">{agent.Rebirth || 2026}</td>
-                              <td className="p-6"><div className="flex items-center gap-2"><Users size={14} className="text-orange-600" />{Number(agent.followers || 0).toLocaleString()}</div></td>
+                              <td className="p-6">
+                                <div className="flex items-center gap-2">
+                                  <Users size={14} className="text-orange-600" />
+                                  {Number(agent.followers || 0).toLocaleString()}
+                                </div>
+                              </td>
                               <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
                                 ${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
@@ -361,92 +376,81 @@ const Scoretable = () => {
               </div>
             )}
 
-            {/* OWNERSHIP & VALUATION TAB - FORCED DARK THEME */}
+            {/* OWNERSHIP & VALUATION TAB */}
             {activeTab === "ownership" && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
-                {/* Header */}
-                <div className="p-8 border-b border-zinc-800 bg-black/20">
+                <div className="p-8 border-b border-zinc-800">
                   <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 flex items-center gap-3">
                     <Percent size={24} /> Ownership & Valuation Table
                   </h3>
                   <p className="text-zinc-500 text-sm mt-2">Grok-optimized distribution of solutions, valuations & ownership %</p>
                 </div>
-            
-                {tabLoading.ownership ? (
-                  <div className="p-12 text-center bg-zinc-950">
-                    <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
-                  </div>
-                ) : ownershipEntries.length === 0 ? (
-                  <div className="p-12 text-center text-zinc-500 italic bg-zinc-950">
-                    No ownership entries yet — Grok swarm will populate soon
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto bg-zinc-950">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
-                          <th className="p-6">WHO (Name + Tribe + Logins)</th>
-                          <th className="p-6">Solution 1</th>
-                          <th className="p-6">Valuation 1</th>
-                          <th className="p-6">Solution 2</th>
-                          <th className="p-6">Valuation 2</th>
-                          <th className="p-6">Solution 3</th>
-                          <th className="p-6">Valuation 3</th>
-                          <th className="p-6 text-right text-green-400">OWN %</th>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-black/60 text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-800">
+                        <th className="p-6">WHO (Name + Tribe + Logins)</th>
+                        <th className="p-6">Solution 1</th>
+                        <th className="p-6">Valuation 1</th>
+                        <th className="p-6">Solution 2</th>
+                        <th className="p-6">Valuation 2</th>
+                        <th className="p-6">Solution 3</th>
+                        <th className="p-6">Valuation 3</th>
+                        <th className="p-6 text-right text-green-400">OWN %</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/50">
+                      {ownershipEntries.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-12 text-center text-zinc-500 italic">
+                            No ownership entries yet — Grok swarm will populate soon
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-800/50">
-                        {ownershipEntries.map(entry => (
-                          <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors group">
-                            {/* WHO - Always White */}
-                            <td className="p-6 font-medium text-white">
+                      ) : (
+                        ownershipEntries.map(entry => (
+                          <tr key={entry.id} className="hover:bg-orange-950/20 transition-colors">
+                            <td className="p-6 font-medium">
                               {entry.who_full || (entry.tribes?.name ? `${entry.tribes.name} - ${entry.tribes.description || ''}` : "No Tribe Assigned")}
                             </td>
-            
-                            {/* Solutions - Always Blue */}
                             <td className="p-6">
                               {entry.solution_link_1 ? (
-                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
+                                <a href={entry.solution_link_1} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
                                   Link 1
                                 </a>
-                              ) : <span className="text-zinc-700">-</span>}
+                              ) : '-'}
                             </td>
-                            <td className="p-6 text-sm font-mono text-zinc-300">
+                            <td className="p-6 text-sm font-mono">
                               {entry.valuation_1 ? `$${entry.valuation_1.toLocaleString()}` : '-'}
                             </td>
-            
                             <td className="p-6">
                               {entry.solution_link_2 ? (
-                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
+                                <a href={entry.solution_link_2} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
                                   Link 2
                                 </a>
-                              ) : <span className="text-zinc-700">-</span>}
+                              ) : '-'}
                             </td>
-                            <td className="p-6 text-sm font-mono text-zinc-300">
+                            <td className="p-6 text-sm font-mono">
                               {entry.valuation_2 ? `$${entry.valuation_2.toLocaleString()}` : '-'}
                             </td>
-            
                             <td className="p-6">
                               {entry.solution_link_3 ? (
-                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline text-sm font-bold">
+                                <a href={entry.solution_link_3} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
                                   Link 3
                                 </a>
-                              ) : <span className="text-zinc-700">-</span>}
+                              ) : '-'}
                             </td>
-                            <td className="p-6 text-sm font-mono text-zinc-300">
+                            <td className="p-6 text-sm font-mono">
                               {entry.valuation_3 ? `$${entry.valuation_3.toLocaleString()}` : '-'}
                             </td>
-            
-                            {/* OWN % - Always Green */}
                             <td className="p-6 text-right text-xl font-black text-green-400">
                               {entry.own_percentage ? `${entry.own_percentage}%` : '-'}
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
@@ -520,21 +524,14 @@ const Scoretable = () => {
                 <h3 className="text-xl font-black uppercase tracking-wider text-orange-600 mb-6 flex items-center gap-3">
                   <Target size={24} /> Grok-Generated Missions (Latest 10)
                 </h3>
-                {tabLoading.missions ? (
-                  <div className="p-12 text-center">
-                    <Loader2 className="animate-spin text-orange-600 mx-auto" size={32} />
-                  </div>
-                ) : missions.length === 0 ? (
+                {missions.length === 0 ? (
                   <div className="text-center py-12 text-zinc-500 italic">
                     No missions generated yet — Grok creates them hourly based on foundation KPIs
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {missions.map((mission) => (
-                      <div
-                        key={mission.id}
-                        className="border border-zinc-700 p-6 rounded-lg hover:border-orange-600/50 transition-colors bg-zinc-900/30"
-                      >
+                      <div key={mission.id} className="border border-zinc-700 p-6 rounded-lg hover:border-orange-600/50 transition-colors bg-zinc-900/30">
                         <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
                           <div>
                             <h4 className="text-lg font-bold text-white mb-1">{mission.title}</h4>
