@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (V3.2 - Flat JSON)...");
+  console.log("🔥 Starting Flame Foundation Master Sync (V3.3 - Spec-Perfect)...");
   
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   const apiKey = process.env.GEMINI_API_KEY;
@@ -27,25 +27,25 @@ async function runMasterSync() {
       
       const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      // THE FIX: Using 'inlineData' (camelCase) but inside a strictly flat 'parts' array
-      // Some API versions are extremely picky about 'inline_data' vs 'inlineData'
+      // THE ULTIMATE FIX: 
+      // 1. Use the STABLE v1 endpoint
+      // 2. Use 'inline_data' (snake_case) as required by the REST API spec
+      // 3. Use 'mime_type' (snake_case) as required by the REST API spec
+      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
       const payload = {
         contents: [{
           parts: [
-            {
-              text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`
-            },
-            {
-              inline_data: {
-                mime_type: "image/png",
-                data: screenshot
-              }
+            { text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}` },
+            { 
+              inline_data: { 
+                mime_type: "image/png", 
+                data: screenshot 
+              } 
             }
           ]
         }]
       };
-
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -56,8 +56,7 @@ async function runMasterSync() {
       const result = await response.json();
       
       if (!response.ok) {
-        // If it fails again, this will print the EXACT reason from Google
-        console.error(`🔴 API REJECTED PAYLOAD: ${JSON.stringify(result)}`);
+        console.error("🔴 FULL ERROR LOG:", JSON.stringify(result, null, 2));
         throw new Error(result.error?.message || "Unknown API Error");
       }
 
