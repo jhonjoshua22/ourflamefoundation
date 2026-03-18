@@ -1,19 +1,16 @@
 import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (FINAL - SDK FIX)...");
+  console.log("🔥 Starting Social Sync (NO AI VERSION)...");
 
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
   const browser = await chromium.launch({ headless: true });
+
   const context = await browser.newContext({
     userAgent:
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36',
@@ -29,55 +26,36 @@ async function runMasterSync() {
 
   for (const target of targets) {
     try {
-      console.log(`📸 Processing ${target.name}...`);
+      console.log(`📡 Scraping ${target.name}...`);
 
       await page.goto(target.url, {
         waitUntil: 'domcontentloaded',
         timeout: 60000,
       });
 
-      await page.waitForTimeout(8000);
+      await page.waitForTimeout(6000);
 
-      // ✅ SMALL + COMPRESSED IMAGE
-      await page.setViewportSize({ width: 600, height: 400 });
+      let text = "";
 
-      const screenshotBuffer = await page.screenshot({
-        type: 'jpeg',
-        quality: 40,
-        fullPage: false,
-      });
-
-      const screenshot = screenshotBuffer.toString('base64');
-
-      console.log("📦 Image size:", screenshot.length);
-
-      // ✅ GEMINI SDK (NO MORE PAYLOAD ERRORS)
-      const result = await model.generateContent([
-        `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`,
-        {
-          inlineData: {
-            data: screenshot,
-            mimeType: "image/jpeg",
-          },
-        },
-      ]);
-
-      const response = await result.response;
-      const text = response.text();
-
-      console.log(`🧠 AI RAW RESPONSE (${target.name}):`, text);
-
-      // ✅ SAFE JSON EXTRACTION
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-
-      if (!jsonMatch) {
-        throw new Error("AI did not return valid JSON");
+      // 🔵 PLATFORM-SPECIFIC SELECTORS
+      if (target.name === "X") {
+        text = await page.locator('a[href$="/followers"] span').first().innerText();
       }
 
-      const data = JSON.parse(jsonMatch[0]);
+      if (target.name === "Facebook") {
+        text = await page.locator('text=/followers/i').first().innerText();
+      }
 
-      const followers = parseInt(data.followers) || 0;
-      const engagement = parseFloat(data.engagement) || 0;
+      if (target.name === "LinkedIn") {
+        text = await page.locator('text=/followers/i').first().innerText();
+      }
+
+      console.log(`📊 Raw text (${target.name}):`, text);
+
+      // ✅ CLEAN NUMBER
+      const followers = parseInt(text.replace(/[^\d]/g, '')) || 0;
+
+      console.log(`✅ Parsed followers (${target.name}):`, followers);
 
       // ✅ SAVE TO SUPABASE
       const { error } = await supabase.from('social_stats').upsert(
@@ -85,7 +63,7 @@ async function runMasterSync() {
           platform: target.name,
           handle: target.url.split('/').filter(Boolean).pop(),
           followers_count: followers,
-          engagement_rate: engagement,
+          engagement_rate: 0, // optional for now
           last_updated: new Date().toISOString(),
         },
         { onConflict: 'platform' }
@@ -93,7 +71,7 @@ async function runMasterSync() {
 
       if (error) throw error;
 
-      console.log(`✅ ${target.name} Synced: ${followers}`);
+      console.log(`💾 Saved ${target.name}`);
 
     } catch (err) {
       console.error(`❌ ${target.name} Failed:`, err.message);
@@ -103,7 +81,6 @@ async function runMasterSync() {
   await browser.close();
 }
 
-// RUN
 runMasterSync().catch((err) => {
   console.error("💥 Critical Failure:", err);
   process.exit(1);
