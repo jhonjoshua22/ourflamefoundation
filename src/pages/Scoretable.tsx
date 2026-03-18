@@ -31,32 +31,42 @@ const Scoretable = () => {
   };
 
   // NEW FLAME $ FORMULA
-  const calculateFlameDollars = (networkVal: number) => {
+  const calculateFlameDollars = (networkVal: number, joinYear?: number) => {
     const currentYear = new Date().getFullYear(); // e.g. 2026
     const yearsSince2020 = currentYear - 2020;   // 6 for 2026
     if (yearsSince2020 <= 0) return 0;
-
-    const totalPool = 75000000; // $75M
-    const yearAllocation = totalPool * (yearsSince2020 / yearsSince2020); // full $75M in current year (adjust divisor if multi-year spread)
-
+  
+    const totalPool = 75000000; // $75M total annual pool
+    const yearAllocation = totalPool; // Full $75M allocated in current year (you can change divisor if multi-year spread)
+  
     const totalPeople = stats.totalMembers || 1; // avoid divide by zero
-    const perPerson = yearAllocation / totalPeople;
-
+    let perPersonBase = yearAllocation / totalPeople;
+  
+    // Time-weighting: earlier joiners get more (e.g. joinYear 2020 = max boost)
+    let timeMultiplier = 1;
+    if (joinYear && joinYear >= 2020 && joinYear <= currentYear) {
+      const yearsEarly = currentYear - joinYear + 1; // +1 so 2026 joiner = 1, 2020 joiner = 7
+      timeMultiplier = yearsEarly / yearsSince2020; // 2020 joiner gets 7/6 ≈ 1.166× more
+    }
+  
+    perPersonBase *= timeMultiplier;
+  
     // World splits
-    const splits = {
+    const worldSplits = {
       Money: 0.50,
       Gaming: 0.25,
       Education: 0.125,
       Health: 0.0625,
       Legal: 0.03125,
       Sport: 0.015625,
-      // "Other 25 Worlds" get remaining 1.5625% split equally (0.000625 each)
-      Other: (1 - 0.50 - 0.25 - 0.125 - 0.0625 - 0.03125 - 0.015625) / 25
+      // Remaining 1.5625% split across 25 other worlds (0.000625 each)
+      Other25: (0.015625) / 25
     };
-
-    // Return total Flame $ per person (sum of all worlds)
-    // You can also return object with per-world breakdown if needed later
-    return Object.values(splits).reduce((sum, pct) => sum + (perPerson * pct), 0);
+  
+    // Total Flame $ per person = sum across all worlds
+    const totalFlame = Object.values(worldSplits).reduce((sum, pct) => sum + (perPersonBase * pct), 0);
+  
+    return totalFlame;
   };
 
   useEffect(() => {
@@ -337,7 +347,7 @@ const Scoretable = () => {
                                 </div>
                               </td>
                               <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
-                                ${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                ${calculateFlameDollars(agent.network, agent.joinYear || 2026).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
                                   <NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}
                                 </div>
