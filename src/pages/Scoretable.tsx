@@ -55,31 +55,44 @@ const Scoretable = () => {
   useEffect(() => {
     const fetchReferral = async () => {
       setLoadingReferral(true);
+      setReferralError(null);
+  
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setReferralError("Login to see your referral link");
+        const { data: { user }, error: authErr } = await supabase.auth.getUser();
+        if (authErr || !user) {
+          setReferralError("Please log in to see your referral link");
           return;
         }
-
-        const { data: profile, error } = await supabase
+  
+        console.log("Fetching profile for user ID:", user.id); // DEBUG
+  
+        const { data: profile, error: profileErr } = await supabase
           .from('profiles')
           .select('referral_code, referral_count')
           .eq('id', user.id)
           .single();
-
-        if (error) throw error;
-        if (!profile?.referral_code) throw new Error("No referral code found");
-
+  
+        if (profileErr) {
+          console.error("Profile fetch error:", profileErr);
+          throw profileErr;
+        }
+  
+        if (!profile) {
+          throw new Error("No profile found for this user");
+        }
+  
+        console.log("Profile data:", profile); // DEBUG - check console
+  
         setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
         setReferredCount(profile.referral_count || 0);
       } catch (err: any) {
-        setReferralError(err.message || "Couldn't load referral info");
+        console.error("Referral fetch failed:", err);
+        setReferralError(err.message || "Failed to load your referral info");
       } finally {
         setLoadingReferral(false);
       }
     };
-
+  
     fetchReferral();
   }, []);
 
