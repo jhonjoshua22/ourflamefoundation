@@ -24,10 +24,9 @@ const Scoretable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // ── NEW: Referral state ──
+  // Referral display states
   const [referralLink, setReferralLink] = useState<string>('');
   const [referredCount, setReferredCount] = useState<number>(0);
-  const [kpiLift, setKpiLift] = useState<number | null>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
   const [referralError, setReferralError] = useState<string | null>(null);
 
@@ -52,46 +51,36 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ── NEW: Fetch referral data once on mount ──
+  // Fetch referral data (code + count)
   useEffect(() => {
-    const fetchReferralData = async () => {
+    const fetchReferral = async () => {
+      setLoadingReferral(true);
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          setReferralError("Login to get your referral link");
+          setReferralError("Login to see your referral link");
           return;
         }
 
-        const { data: profile, error: profileErr } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('referral_code, referral_count')
           .eq('id', user.id)
           .single();
 
-        if (profileErr) throw profileErr;
+        if (error) throw error;
         if (!profile?.referral_code) throw new Error("No referral code found");
 
         setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
         setReferredCount(profile.referral_count || 0);
-
-        // Optional: Try to parse a lift % from latest grok_note
-        const { data: kpi } = await supabase
-          .from('kpi_snapshots')
-          .select('grok_note')
-          .order('snapshot_at', { ascending: false })
-          .limit(1);
-
-        const liftMatch = kpi?.[0]?.grok_note?.match(/(\d+)%/);
-        setKpiLift(liftMatch ? parseFloat(liftMatch[1]) : 12); // fallback
-
       } catch (err: any) {
-        setReferralError(err.message || "Failed to load referral data");
+        setReferralError(err.message || "Couldn't load referral info");
       } finally {
         setLoadingReferral(false);
       }
     };
 
-    fetchReferralData();
+    fetchReferral();
   }, []);
 
   const fetchSocialStats = async () => {
@@ -245,27 +234,11 @@ const Scoretable = () => {
     }
   };
 
-  // ── NEW: Share handler with clipboard fallback ──
-  const handleShare = async () => {
+  // Copy to clipboard handler
+  const copyReferralLink = () => {
     if (!referralLink) return;
-
-    const shareData = {
-      title: 'Join the Flame Foundation!',
-      text: 'Refer a friend and both get 10,000 Flame Dollars + SuperBot Power 🔥',
-      url: referralLink,
-    };
-
-    try {
-      if (navigator.share && navigator.canShare?.(shareData)) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(referralLink);
-        alert('Link copied to clipboard! Share it on X, IG, or WhatsApp.');
-      }
-    } catch (err) {
-      console.error('Share failed:', err);
-      alert('Share not supported — link copied instead.');
-    }
+    navigator.clipboard.writeText(referralLink);
+    alert('Referral link copied! Share it on X, IG, WhatsApp or anywhere 🔥');
   };
 
   return (
@@ -422,47 +395,44 @@ const Scoretable = () => {
                     </div>
                   </div>
 
-                  {/* ── VIRAL REFERRAL CTA ADDED HERE ── */}
-                  <div className="mt-8">
-                    <div className="bg-gradient-to-r from-orange-600 to-purple-600 p-6 md:p-8 rounded-2xl text-center shadow-xl">
-                      <h3 className="text-2xl md:text-3xl font-black mb-3">
-                        Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power 🔥
-                      </h3>
-                      <p className="text-base md:text-lg mb-4 opacity-90">
-                        Grow the Flame Network — your invites fuel global happiness & economy
-                      </p>
+                  {/* REFERRAL DISPLAY – NOW VISIBLE */}
+                  <div className="mt-8 bg-gradient-to-br from-orange-600/90 to-purple-600/90 p-6 rounded-2xl text-center shadow-2xl border border-orange-400/30">
+                    <h3 className="text-2xl md:text-3xl font-black mb-3 text-white">
+                      Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power 🔥
+                    </h3>
+                    <p className="text-base mb-4 opacity-90 text-white">
+                      Grow the Flame Network — your invites fuel global happiness & economy
+                    </p>
 
-                      {loadingReferral ? (
-                        <div className="animate-pulse bg-zinc-800 h-12 rounded mb-4" />
-                      ) : referralError ? (
-                        <p className="text-red-400 font-medium">{referralError}</p>
-                      ) : (
-                        <>
-                          <div className="bg-black/40 border border-orange-400/50 rounded-lg p-3 mb-4 font-mono text-sm break-all">
-                            {referralLink || 'Loading your unique link...'}
-                          </div>
+                    {loadingReferral ? (
+                      <div className="animate-pulse bg-zinc-800 h-10 rounded mb-4" />
+                    ) : referralError ? (
+                      <p className="text-red-300 font-medium mb-4">{referralError}</p>
+                    ) : (
+                      <>
+                        <div className="bg-black/50 border border-orange-400/50 rounded-lg p-4 mb-4 font-mono text-sm break-all text-orange-200">
+                          {referralLink || 'Loading your unique link...'}
+                        </div>
 
-                          <button
-                            onClick={handleShare}
-                            disabled={!referralLink}
-                            className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border-2 border-orange-500 text-orange-300 font-bold uppercase tracking-wider rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                          >
-                            Share Link (X / IG / WhatsApp)
-                          </button>
+                        <button
+                          onClick={copyReferralLink}
+                          disabled={!referralLink}
+                          className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border-2 border-orange-500 text-orange-300 font-bold uppercase tracking-wider rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg w-full md:w-auto"
+                        >
+                          Copy & Share Link
+                        </button>
 
-                          <p className="text-xs mt-6 opacity-80">
-                            Live: <span className="font-bold text-green-400">{referredCount}</span> friends joined • 
-                            Grok predicts +{kpiLift ?? '?'}% happiness boost from referrals
-                          </p>
-                        </>
-                      )}
-                    </div>
+                        <p className="text-sm mt-6 text-white/90">
+                          Live: <span className="font-bold text-green-300">{referredCount}</span> friends joined
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* OWNERSHIP & VALUATION TAB */}
+            {/* OWNERSHIP TAB */}
             {activeTab === "ownership" && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
                 <div className="p-8 border-b border-zinc-800 bg-black/20">
