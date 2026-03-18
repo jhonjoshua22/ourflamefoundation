@@ -54,16 +54,9 @@ const Navbar = () => {
 
   const flatNavigation = [
     { name: "Flame Game", href: "/#flame-game" },
-    { name: "Ranks", href: "/#tiers" },
-    { name: "Our Games", href: "/#gallery" },
     { name: "Rewards", href: "/scoretable" },
-    { name: "Growth", href: "/#presence" },
     { name: "Reviews", href: "/#impact" },
     { name: "Products", href: "/#products" },
-    { name: "Resources", href: "/#resources" },
-    { name: "Events", href: "/#news" },
-    { name: "New", href: "/#services" },
-    { name: "Support", href: "/#people" },
     { name: "About", href: "/#home" },
     { name: "Contacts", href: "/#contacts" },
   ];
