@@ -1,81 +1,99 @@
 import { chromium } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 async function runMasterSync() {
-  console.log("🔥 Starting Flame Foundation Master Sync (V3.5 - Scalar Fix)...");
-  
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const apiKey = process.env.GEMINI_API_KEY;
+  console.log("🔥 Starting Flame Foundation Master Sync (FINAL - SDK FIX)...");
+
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36',
   });
+
   const page = await context.newPage();
 
   const targets = [
     { name: 'X', url: 'https://x.com/OurFlameFoundtn' },
     { name: 'Facebook', url: 'https://www.facebook.com/OurFlameFoundation/' },
-    { name: 'LinkedIn', url: 'https://www.linkedin.com/company/flamefoundation/' }
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/company/flamefoundation/' },
   ];
 
   for (const target of targets) {
     try {
       console.log(`📸 Processing ${target.name}...`);
-      await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-      await page.waitForTimeout(10000); 
-      
-      const screenshot = await page.screenshot({ encoding: 'base64' });
 
-      // THE FIX: Use v1beta + camelCase keys (inlineData and mimeType)
-      // This matches the specific "scalar" expectation of the Gemini 1.5 REST endpoint
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-      const payload = {
-        contents: [{
-          parts: [
-            { text: `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}` },
-            { 
-              inlineData: { 
-                mimeType: "image/png", 
-                data: screenshot 
-              } 
-            }
-          ]
-        }]
-      };
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      await page.goto(target.url, {
+        waitUntil: 'domcontentloaded',
+        timeout: 60000,
       });
 
-      const result = await response.json();
-      
-      if (!response.ok) {
-        console.error("🔴 API REJECTION:", JSON.stringify(result, null, 2));
-        throw new Error(result.error?.message || "Check API Rejection logs");
+      await page.waitForTimeout(8000);
+
+      // ✅ SMALL + COMPRESSED IMAGE
+      await page.setViewportSize({ width: 600, height: 400 });
+
+      const screenshotBuffer = await page.screenshot({
+        type: 'jpeg',
+        quality: 40,
+        fullPage: false,
+      });
+
+      const screenshot = screenshotBuffer.toString('base64');
+
+      console.log("📦 Image size:", screenshot.length);
+
+      // ✅ GEMINI SDK (NO MORE PAYLOAD ERRORS)
+      const result = await model.generateContent([
+        `Extract follower count and engagement % from this ${target.name} page. Return ONLY JSON: {"followers": 1234, "engagement": 2.1}`,
+        {
+          inlineData: {
+            data: screenshot,
+            mimeType: "image/jpeg",
+          },
+        },
+      ]);
+
+      const response = await result.response;
+      const text = response.text();
+
+      console.log(`🧠 AI RAW RESPONSE (${target.name}):`, text);
+
+      // ✅ SAFE JSON EXTRACTION
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+      if (!jsonMatch) {
+        throw new Error("AI did not return valid JSON");
       }
 
-      // Extract text and parse JSON
-      const text = result.candidates[0].content.parts[0].text;
-      const jsonMatch = text.match(/\{.*\}/s);
-      
-      if (!jsonMatch) throw new Error("AI response did not contain valid JSON");
       const data = JSON.parse(jsonMatch[0]);
 
-      // Update Supabase
-      const { error } = await supabase.from('social_stats').upsert({
-        platform: target.name,
-        handle: target.url.split('/').filter(Boolean).pop(),
-        followers_count: parseInt(data.followers) || 0,
-        engagement_rate: parseFloat(data.engagement) || 0.0,
-        last_updated: new Date().toISOString()
-      }, { onConflict: 'platform' });
+      const followers = parseInt(data.followers) || 0;
+      const engagement = parseFloat(data.engagement) || 0;
+
+      // ✅ SAVE TO SUPABASE
+      const { error } = await supabase.from('social_stats').upsert(
+        {
+          platform: target.name,
+          handle: target.url.split('/').filter(Boolean).pop(),
+          followers_count: followers,
+          engagement_rate: engagement,
+          last_updated: new Date().toISOString(),
+        },
+        { onConflict: 'platform' }
+      );
 
       if (error) throw error;
-      console.log(`✅ ${target.name} Synced: ${data.followers}`);
+
+      console.log(`✅ ${target.name} Synced: ${followers}`);
 
     } catch (err) {
       console.error(`❌ ${target.name} Failed:`, err.message);
@@ -85,7 +103,8 @@ async function runMasterSync() {
   await browser.close();
 }
 
-runMasterSync().catch(err => {
+// RUN
+runMasterSync().catch((err) => {
   console.error("💥 Critical Failure:", err);
   process.exit(1);
 });
