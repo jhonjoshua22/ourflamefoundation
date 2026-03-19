@@ -3,7 +3,7 @@ import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Zap, Star, Shield, Activity,
-  Loader2, Search, X, Network as NetworkIcon, Gift, Sprout,
+  Loader2, Search, X, Gift, Sprout,
   Users, Filter, BarChart3, Percent, Globe, Heart, DollarSign, Lightbulb,
   Facebook, Twitter, Linkedin, MessageSquare, Youtube, Instagram
 } from "lucide-react";
@@ -13,14 +13,13 @@ const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [ownershipEntries, setOwnershipEntries] = useState<any[]>([]);
   const [kpiSnapshot, setKpiSnapshot] = useState<any>(null);
-  const [socialStats, setSocialStats] = useState<any[]>([]);
   const [missions, setMissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [tabLoading, setTabLoading] = useState<{ [key: string]: boolean }>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
-  const [sortBy, setSortBy] = useState("network");
+  const [sortBy, setSortBy] = useState("followers"); // Default to followers now
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -37,10 +36,6 @@ const Scoretable = () => {
     "Normie": 4
   };
 
-  const calculateFlameDollars = (networkVal: number) => {
-    return (1000000000 * 0.0001533 * (networkVal || 0)) / 50000;
-  };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
@@ -51,95 +46,86 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch referral data (code + count)
+  // Fetch referral data
   useEffect(() => {
     const fetchReferral = async () => {
       setLoadingReferral(true);
       setReferralError(null);
-  
+
       try {
         const { data: { user }, error: authErr } = await supabase.auth.getUser();
         if (authErr || !user) {
           setReferralError("Please log in to see your referral link");
           return;
         }
-  
-        console.log("Fetching profile for user ID:", user.id); // DEBUG
-  
+
         const { data: profile, error: profileErr } = await supabase
           .from('profiles')
           .select('referral_code, referral_count')
           .eq('id', user.id)
           .single();
-  
-        if (profileErr) {
-          console.error("Profile fetch error:", profileErr);
-          throw profileErr;
-        }
-  
-        if (!profile) {
-          throw new Error("No profile found for this user");
-        }
-  
-        console.log("Profile data:", profile); // DEBUG - check console
-  
+
+        if (profileErr) throw profileErr;
+        if (!profile) throw new Error("No profile found");
+
         setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
         setReferredCount(profile.referral_count || 0);
       } catch (err: any) {
-        console.error("Referral fetch failed:", err);
-        setReferralError(err.message || "Failed to load your referral info");
+        setReferralError(err.message || "Failed to load referral info");
       } finally {
         setLoadingReferral(false);
       }
     };
-  
+
     fetchReferral();
   }, []);
 
-  const fetchSocialStats = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("social_stats")
-        .select("platform, handle, followers_count, engagement_rate")
-        .order("followers_count", { ascending: false });
-      if (error) throw error;
-      setSocialStats(data || []);
-    } catch (err) {
-      console.error("Social stats fetch error:", err);
-    }
-  };
-
   const fetchLeaderboard = async (query = "", currentSort = sortBy) => {
     try {
-      const { data: allData } = await supabase.from("profiles").select("followers, network");
-      const totalFollowerSum = allData?.reduce((acc, curr) => acc + (Number(curr.followers) || 0), 0) || 0;
       let queryBuilder = supabase.from("profiles").select(`
-        id, display_name, email, network, received, "Rebirth", rank, world, followers,
-        happiness_score, curiosity_score, econ_score
+        id, display_name, email, received, "Rebirth", rank, world,
+        happiness_score, curiosity_score, econ_score,
+        tribe_id, valuation,
+        facebook, linkedin   -- assuming these column names in profiles
       `);
-      if (query) {
-        queryBuilder = queryBuilder.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
-      } else if (currentSort !== 'rank') {
-        queryBuilder = queryBuilder.order(currentSort, { ascending: false }).limit(20);
-      } else {
-        queryBuilder = queryBuilder.limit(50);
-      }
+
       const { data: tableData, error } = await queryBuilder;
       if (error) throw error;
-      if (tableData) {
-        const sorted = [...tableData].sort((a, b) => {
-          if (currentSort === 'rank') {
-            return (rankPriority[a.rank] || 99) - (rankPriority[b.rank] || 99);
-          }
-          return (b[currentSort] || 0) - (a[currentSort] || 0);
-        });
-        if (!query) {
-          const top10 = sorted.slice(0, 10);
-          setLeaders(top10);
-          setStats({ totalMembers: totalFollowerSum });
-        } else {
-          setLeaders(sorted);
+
+      const leadersWithFollowers = (tableData || []).map(profile => ({
+        ...profile,
+        followers: (profile.facebook || 0) + (profile.linkedin || 0)
+      }));
+
+      // Filter by search
+      let filtered = leadersWithFollowers;
+      if (query) {
+        filtered = filtered.filter(p =>
+          p.display_name?.toLowerCase().includes(query.toLowerCase()) ||
+          p.email?.toLowerCase().includes(query.toLowerCase())
+        );
+      }
+
+      // Sort
+      const sorted = [...filtered].sort((a, b) => {
+        if (currentSort === 'rank') {
+          return (rankPriority[a.rank] || 99) - (rankPriority[b.rank] || 99);
         }
+        if (currentSort === 'followers') {
+          return (b.followers || 0) - (a.followers || 0);
+        }
+        if (currentSort === 'valuation') {
+          return (b.valuation || 0) - (a.valuation || 0);
+        }
+        return 0;
+      });
+
+      if (!query) {
+        const top10 = sorted.slice(0, 10);
+        setLeaders(top10);
+        setStats({ totalMembers: leadersWithFollowers.length });
+      } else {
+        setLeaders(sorted);
       }
     } catch (err) {
       console.error("Leaderboard fetch error:", err);
@@ -155,7 +141,6 @@ const Scoretable = () => {
         .eq("active", true)
         .order("own_percentage", { ascending: false });
       if (error) throw error;
-      console.log("Ownership entries fetched:", data);
       setOwnershipEntries(data || []);
     } catch (err) {
       console.error("Ownership fetch error:", err);
@@ -202,19 +187,18 @@ const Scoretable = () => {
         fetchLeaderboard(searchQuery, sortBy),
         fetchOwnership(),
         fetchLatestKpi(),
-        fetchSocialStats(),
         fetchMissions()
       ]);
       setLoading(false);
     };
     loadAll();
+
     const channels = [
       supabase.channel("profiles-changes").on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         if (!searchQuery) fetchLeaderboard(searchQuery, sortBy);
       }).subscribe(),
       supabase.channel("scoretable-changes").on("postgres_changes", { event: "*", schema: "public", table: "scoretable_entries" }, fetchOwnership).subscribe(),
       supabase.channel("kpi-changes").on("postgres_changes", { event: "*", schema: "public", table: "kpi_snapshots" }, fetchLatestKpi).subscribe(),
-      supabase.channel("social-changes").on("postgres_changes", { event: "*", schema: "public", table: "social_stats" }, fetchSocialStats).subscribe(),
       supabase.channel("missions-changes").on("postgres_changes", { event: "*", schema: "public", table: "missions" }, fetchMissions).subscribe()
     ];
     return () => {
@@ -223,9 +207,10 @@ const Scoretable = () => {
   }, [sortBy, searchQuery]);
 
   const filterOptions = [
-    { label: "Network", value: "network" },
+    { label: "Tribe", value: "tribe_id" },
     { label: "Rank", value: "rank" },
-    { label: "Followers", value: "followers" }
+    { label: "Followers", value: "followers" },
+    { label: "Valuation", value: "valuation" }
   ];
 
   const classRewards = [
@@ -235,19 +220,6 @@ const Scoretable = () => {
     { class: "SuperFarmer", icon: <Sprout size={20} className="text-green-500" />, rewards: ["Recruit Angels", "Mentor & Coach", "Seed Fund"] }
   ];
 
-  const getSocialIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'facebook': return <Facebook size={18} className="text-blue-600" />;
-      case 'instagram': return <Instagram size={18} className="text-pink-500" />;
-      case 'x': return <Twitter size={18} className="text-zinc-200" />;
-      case 'linkedin': return <Linkedin size={18} className="text-blue-700" />;
-      case 'reddit': return <MessageSquare size={18} className="text-orange-500" />;
-      case 'youtube': return <Youtube size={18} className="text-red-600" />;
-      default: return <Globe size={18} className="text-zinc-400" />;
-    }
-  };
-
-  // Copy to clipboard handler
   const copyReferralLink = () => {
     if (!referralLink) return;
     navigator.clipboard.writeText(referralLink);
@@ -354,10 +326,10 @@ const Scoretable = () => {
                         <thead>
                           <tr className="bg-black/70 border-b border-orange-900/50 text-xs font-black uppercase tracking-widest text-zinc-400">
                             <th className="p-6">Agent</th>
-                            <th className="p-6">World</th>
+                            <th className="p-6">Tribe</th>
                             <th className="p-6">Rebirth</th>
-                            <th className="p-6">Followers</th>
-                            <th className="p-6 text-right">Flame Value</th>
+                            <th className="p-6">Followers (FB + LI)</th>
+                            <th className="p-6 text-right">Valuation</th>
                             <th className="p-6 text-right text-green-400">Received</th>
                           </tr>
                         </thead>
@@ -368,14 +340,18 @@ const Scoretable = () => {
                                 <p className="font-bold uppercase text-sm mb-1">{agent.display_name || "Unknown Agent"}</p>
                                 <span className="text-[10px] font-black uppercase bg-zinc-800 px-2 py-0.5 rounded text-zinc-300 border border-zinc-700">{agent.rank}</span>
                               </td>
-                              <td className="p-6 italic text-sm text-zinc-400">{agent.world || "Universal"}</td>
+                              <td className="p-6 text-sm text-zinc-300">
+                                {agent.tribe_id || "No Tribe"}
+                              </td>
                               <td className="p-6 text-sm font-bold text-zinc-300">{agent.Rebirth || 2026}</td>
-                              <td className="p-6"><div className="flex items-center gap-2"><Users size={14} className="text-orange-600" />{Number(agent.followers || 0).toLocaleString()}</div></td>
-                              <td className="p-6 text-right font-mono text-lg font-black text-orange-400">
-                                ${calculateFlameDollars(agent.network).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                <div className="text-[10px] text-zinc-500 flex items-center justify-end gap-1">
-                                  <NetworkIcon size={12} /> {agent.network?.toLocaleString() || 0}
+                              <td className="p-6">
+                                <div className="flex items-center gap-2">
+                                  <Users size={14} className="text-orange-600" />
+                                  {agent.followers?.toLocaleString() || "0"}
                                 </div>
+                              </td>
+                              <td className="p-6 text-right font-mono text-lg font-black text-purple-400">
+                                ${agent.valuation?.toLocaleString() || "0"}
                               </td>
                               <td className="p-6 text-right font-mono text-xl font-black text-green-400">
                                 ${Number(agent.received || 0).toLocaleString()}
@@ -408,7 +384,7 @@ const Scoretable = () => {
                     </div>
                   </div>
 
-                  {/* REFERRAL DISPLAY – NOW VISIBLE */}
+                  {/* REFERRAL DISPLAY */}
                   <div className="mt-8 bg-gradient-to-br from-orange-600/90 to-purple-600/90 p-6 rounded-2xl text-center shadow-2xl border border-orange-400/30">
                     <h3 className="text-2xl md:text-3xl font-black mb-3 text-white">
                       Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power 🔥
@@ -416,7 +392,6 @@ const Scoretable = () => {
                     <p className="text-base mb-4 opacity-90 text-white">
                       Grow the Flame Network — your invites fuel global happiness & economy
                     </p>
-
                     {loadingReferral ? (
                       <div className="animate-pulse bg-zinc-800 h-10 rounded mb-4" />
                     ) : referralError ? (
@@ -426,15 +401,16 @@ const Scoretable = () => {
                         <div className="bg-black/50 border border-orange-400/50 rounded-lg p-4 mb-4 font-mono text-sm break-all text-orange-200">
                           {referralLink || 'Loading your unique link...'}
                         </div>
-
                         <button
-                          onClick={copyReferralLink}
+                          onClick={() => {
+                            navigator.clipboard.writeText(referralLink);
+                            alert('Referral link copied! Share it 🔥');
+                          }}
                           disabled={!referralLink}
                           className="px-8 py-4 bg-zinc-900 hover:bg-zinc-800 border-2 border-orange-500 text-orange-300 font-bold uppercase tracking-wider rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg w-full md:w-auto"
                         >
                           Copy & Share Link
                         </button>
-
                         <p className="text-sm mt-6 text-white/90">
                           Live: <span className="font-bold text-green-300">{referredCount}</span> friends joined
                         </p>
@@ -548,36 +524,10 @@ const Scoretable = () => {
                   </h3>
                   <div className="overflow-x-auto">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      {socialStats.length > 0 ? (
-                        socialStats.map((stat, idx) => (
-                          <div key={idx} className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-lg hover:border-orange-600/30 transition-all group">
-                            <div className="flex items-center gap-3 mb-4">
-                              {getSocialIcon(stat.platform)}
-                              <p className="text-xs font-black uppercase tracking-widest text-zinc-300">{stat.platform}</p>
-                            </div>
-                            <div className="space-y-3">
-                              <div>
-                                <p className="text-[10px] text-zinc-500 uppercase font-bold">Handle</p>
-                                <p className="text-sm font-bold text-white truncate">{stat.handle || '—'}</p>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-800">
-                                <div>
-                                  <p className="text-[10px] text-zinc-500 uppercase font-bold">Followers</p>
-                                  <p className="text-lg font-black text-orange-400">{stat.followers_count?.toLocaleString() || 0}</p>
-                                </div>
-                                <div>
-                                  <p className="text-[10px] text-zinc-500 uppercase font-bold">Engage</p>
-                                  <p className="text-lg font-black text-green-400">{stat.engagement_rate}%</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="col-span-4 py-8 text-center text-zinc-500 italic">
-                          No social stats synchronized yet.
-                        </div>
-                      )}
+                      {/* Social stats removed since followers now from profiles */}
+                      <div className="col-span-4 py-8 text-center text-zinc-500 italic">
+                        Followers data now sourced from profiles (Facebook + LinkedIn)
+                      </div>
                     </div>
                   </div>
                   {kpiSnapshot?.grok_note && (
