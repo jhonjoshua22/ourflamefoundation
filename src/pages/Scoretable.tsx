@@ -2,20 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
-  Trophy, Target, Zap, Star, Shield, Sprout,
-  Loader2, Search, X, Gift, Users, Filter,
-  Heart, DollarSign, Lightbulb,
+  Trophy, Target, Users, Filter, Loader2, Search, X,
+  Heart, DollarSign, Lightbulb, Gift, Zap, Star, Shield, Sprout,
 } from "lucide-react";
 
 const Scoretable = () => {
-  const [combinedData, setCombinedData] = useState<any[]>([]);
-  const [topLeaders, setTopLeaders] = useState<any[]>([]);
+  const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [stats, setStats] = useState({ totalMembers: 0 });
   const [sortBy, setSortBy] = useState("followers");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Referral states
@@ -43,14 +40,14 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get current user ID for row highlighting
+  // Get current user for highlighting
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setCurrentUserId(data.user.id);
     });
   }, []);
 
-  // Fetch referral data
+  // Referral fetch
   useEffect(() => {
     const fetchReferral = async () => {
       setLoadingReferral(true);
@@ -58,7 +55,7 @@ const Scoretable = () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          setReferralError("Please log in to see your referral link");
+          setReferralError("Log in to see your referral link");
           return;
         }
         const { data: profile, error } = await supabase
@@ -72,7 +69,7 @@ const Scoretable = () => {
           setReferredCount(profile.referral_count || 0);
         }
       } catch (err: any) {
-        setReferralError(err.message || "Failed to load referral info");
+        setReferralError(err.message || "Failed to load referral");
       } finally {
         setLoadingReferral(false);
       }
@@ -80,53 +77,37 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  const fetchCombined = async (query = "", currentSort = sortBy) => {
+  const fetchData = async (query = "", currentSort = sortBy) => {
+    setLoading(true);
     try {
-      // Total members calculation (facebook + linkedin)
-      const { data: allProfiles } = await supabase
-        .from("profiles")
-        .select("facebook, linkedin");
-      const totalMembers = (allProfiles || []).reduce((sum, row) => {
-        return sum + Number(row.facebook || 0) + Number(row.linkedin || 0);
-      }, 0);
-      setStats({ totalMembers });
+      // Total members
+      const { data: all } = await supabase.from("profiles").select("facebook, linkedin");
+      const total = (all || []).reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
+      setStats({ totalMembers: total });
 
-      // Main combined query
-      let queryBuilder = supabase
-        .from('profiles')
-        .select(`
-          id, display_name, rank, Rebirth, facebook, linkedin, valuation, received,
-          happiness_score, curiosity_score, econ_score, tribe_id,
-          scoretable_entries!left (
-            own_percentage, valuation_1, valuation_2, valuation_3,
-            solution_link_1, solution_link_2, solution_link_3,
-            tribes!left (name, description)
-          )
-        `);
+      // Main query
+      let qb = supabase.from('profiles').select(`
+        id, display_name, rank, Rebirth, facebook, linkedin, valuation, received,
+        happiness_score, curiosity_score, econ_score, tribe_id
+      `);
 
       if (query) {
-        queryBuilder = queryBuilder.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
+        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       }
 
       if (!query) {
         if (currentSort === "valuation") {
-          queryBuilder = queryBuilder.order("valuation", { ascending: false });
+          qb = qb.order("valuation", { ascending: false });
         }
-        queryBuilder = queryBuilder.limit(50);
+        qb = qb.limit(50);
       }
 
-      const { data, error } = await queryBuilder;
+      const { data, error } = await qb;
       if (error) throw error;
 
       const processed = (data || []).map(item => ({
         ...item,
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
-        tribe_name: item.scoretable_entries?.[0]?.tribes?.name || 'Normie',
-        own_percentage: item.scoretable_entries?.[0]?.own_percentage || 0,
-        total_valuation: 
-          (item.scoretable_entries?.[0]?.valuation_1 || 0) +
-          (item.scoretable_entries?.[0]?.valuation_2 || 0) +
-          (item.scoretable_entries?.[0]?.valuation_3 || 0),
       }));
 
       let sorted = [...processed];
@@ -136,32 +117,27 @@ const Scoretable = () => {
       } else if (currentSort === "rank") {
         sorted.sort((a, b) => (rankPriority[a.rank] || 99) - (rankPriority[b.rank] || 99));
       } else if (currentSort === "valuation") {
-        sorted.sort((a, b) => b.valuation - a.valuation);
+        sorted.sort((a, b) => (b.valuation || 0) - (a.valuation || 0));
       }
 
-      setCombinedData(sorted);
-      setTopLeaders(sorted.slice(0, 10));
+      setLeaders(sorted.slice(0, 10));
     } catch (err) {
-      console.error("Combined fetch error:", err);
+      console.error("Fetch error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    setLoading(true);
-    fetchCombined(searchQuery, sortBy);
+    fetchData(searchQuery, sortBy);
 
-    const channels = [
-      supabase.channel("profiles-changes").on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        if (!searchQuery) fetchCombined("", sortBy);
-      }).subscribe(),
-      supabase.channel("scoretable-changes").on("postgres_changes", { event: "*", schema: "public", table: "scoretable_entries" }, () => fetchCombined(searchQuery, sortBy)).subscribe(),
-    ];
+    const sub = supabase.channel("profiles-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+        if (!searchQuery) fetchData("", sortBy);
+      })
+      .subscribe();
 
-    return () => {
-      channels.forEach(ch => supabase.removeChannel(ch));
-    };
+    return () => { supabase.removeChannel(sub); };
   }, [sortBy, searchQuery]);
 
   const filterOptions = [
@@ -170,105 +146,89 @@ const Scoretable = () => {
     { label: "Rank", value: "rank" }
   ];
 
-  const copyReferralLink = () => {
-    if (!referralLink) return;
-    navigator.clipboard.writeText(referralLink);
-    alert('Referral link copied! Share it on X, IG, WhatsApp or anywhere 🔥');
+  const copyReferral = () => {
+    if (referralLink) {
+      navigator.clipboard.writeText(referralLink);
+      alert("Referral link copied!");
+    }
   };
 
   return (
-    <div className="pt-32 pb-24 px-6 bg-white dark:bg-black min-h-screen transition-colors duration-500 font-sans">
+    <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
-        {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-12">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-800 pb-12">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
+            <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-widest text-xs">
               <Trophy size={16} /> Global Flame Network
             </div>
-            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
+            <h1 className="text-5xl md:text-6xl font-black uppercase italic tracking-tighter text-white">
               Flame Foundation <span className="text-orange-600">Scoretable</span>
             </h1>
           </div>
           <div className="flex flex-col gap-4 w-full md:w-auto">
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                fetchCombined(searchQuery);
-                setIsSearching(true);
-              }}
-              className="relative group"
+              onSubmit={(e) => { e.preventDefault(); fetchData(searchQuery); }}
+              className="relative"
             >
               <input
                 type="text"
                 placeholder="Search Agent..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-3 pl-10 pr-12 text-[10px] font-bold uppercase tracking-widest w-full md:w-80 text-zinc-900 dark:text-white focus:border-orange-600 outline-none"
+                className="bg-zinc-900 border border-zinc-700 py-3 pl-10 pr-12 text-sm w-full md:w-80 focus:border-orange-600 outline-none rounded"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
-              {isSearching && (
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+              {searchQuery && (
                 <X
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 cursor-pointer"
-                  size={14}
-                  onClick={() => {
-                    setSearchQuery("");
-                    setIsSearching(false);
-                    fetchCombined();
-                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 cursor-pointer"
+                  size={16}
+                  onClick={() => { setSearchQuery(""); fetchData(); }}
                 />
               )}
             </form>
-            <div className="flex justify-end">
-              <div className="bg-white dark:bg-zinc-950 p-4 border border-zinc-200 dark:border-zinc-800 min-w-[220px]">
-                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Total Members</p>
-                <p className="text-xl font-black text-zinc-900 dark:text-white">
-                  {stats.totalMembers.toLocaleString()} +
-                </p>
-              </div>
+            <div className="bg-zinc-900 p-4 border border-zinc-700 rounded min-w-[220px] text-center">
+              <p className="text-xs text-zinc-400 uppercase mb-1">Total Members</p>
+              <p className="text-2xl font-black">{stats.totalMembers.toLocaleString()} +</p>
             </div>
           </div>
         </div>
 
-        {/* UNIFIED SCORETABLE */}
+        {/* Unified Table */}
         {loading ? (
-          <div className="flex justify-center items-center h-96">
+          <div className="flex justify-center py-32">
             <Loader2 className="animate-spin text-orange-600" size={48} />
           </div>
         ) : (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
-            <div className="p-8 border-b border-zinc-800 bg-black/30 relative">
-              <div className="absolute inset-0 z-0 bg-cover opacity-20" style={{ backgroundImage: `url(${scoretableBg})` }} />
-              <div className="relative z-10">
-                <h2 className="text-4xl font-black uppercase text-orange-600 flex items-center gap-4 mb-3">
-                  <Trophy size={32} /> Unified Flame Scoretable
-                </h2>
-                <p className="text-zinc-400">Rank • Followers • Valuation • Ownership Stake • Climb & Own the Flame</p>
-              </div>
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-zinc-800 bg-black/40 relative">
+              <div className="absolute inset-0 bg-cover opacity-10" style={{ backgroundImage: `url(${scoretableBg})` }} />
+              <h2 className="relative text-3xl font-black uppercase text-orange-600 flex items-center gap-3">
+                <Trophy size={28} /> Unified Flame Scoretable
+              </h2>
+              <p className="text-zinc-400 mt-2">Agent • Tribe • Followers • Valuation • Personal Scores</p>
             </div>
 
-            <div className="flex items-center justify-between p-6 border-b border-zinc-800 bg-black/20">
-              <h3 className="text-lg font-black text-zinc-300 flex items-center gap-3">
-                <Target size={20} className="text-orange-600" /> Top Agents
+            <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <Target size={18} className="text-orange-600" /> Top Agents
               </h3>
-              <div className="relative inline-block" ref={filterRef}>
+              <div className="relative" ref={filterRef}>
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="px-4 py-2 bg-zinc-900 border border-zinc-800 text-white hover:border-orange-600 transition-colors flex items-center gap-3 rounded"
+                  className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded flex items-center gap-2 hover:border-orange-600"
                 >
-                  <Filter size={14} className={isFilterOpen ? "text-orange-600" : "text-zinc-400"} />
-                  <span className="text-xs font-black uppercase">Sort: {sortBy}</span>
+                  <Filter size={14} />
+                  Sort: {sortBy}
                 </button>
                 {isFilterOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-zinc-950 border border-zinc-800 shadow-2xl z-50">
+                  <div className="absolute right-0 mt-2 w-44 bg-zinc-900 border border-zinc-700 rounded shadow-xl z-50">
                     {filterOptions.map(opt => (
                       <button
                         key={opt.value}
-                        onClick={() => {
-                          setSortBy(opt.value);
-                          setIsFilterOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-xs font-black uppercase ${
-                          sortBy === opt.value ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800"
+                        onClick={() => { setSortBy(opt.value); setIsFilterOpen(false); }}
+                        className={`w-full text-left px-4 py-3 text-sm hover:bg-zinc-800 ${
+                          sortBy === opt.value ? "bg-orange-600/30" : ""
                         }`}
                       >
                         {opt.label}
@@ -280,129 +240,103 @@ const Scoretable = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1000px] text-left">
+              <table className="w-full min-w-[900px]">
                 <thead>
-                  <tr className="bg-black/60 text-xs uppercase tracking-widest text-zinc-400 border-b border-zinc-700">
-                    <th className="p-6">Rank</th>
-                    <th className="p-6">Agent / Tribe</th>
-                    <th className="p-6">Followers</th>
-                    <th className="p-6">Valuation</th>
-                    <th className="p-6 text-center">Scores</th>
-                    <th className="p-6 text-right text-green-400">Ownership %</th>
-                    <th className="p-6 text-right">Total Stake</th>
+                  <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+                    <th className="p-5 text-left">Rank</th>
+                    <th className="p-5 text-left">Agent</th>
+                    <th className="p-5 text-left">Tribe</th>
+                    <th className="p-5 text-left">Followers</th>
+                    <th className="p-5 text-left">Valuation</th>
+                    <th className="p-5 text-center">Scores</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/50">
-                  {topLeaders.map((agent, idx) => {
+                <tbody className="divide-y divide-zinc-800">
+                  {leaders.map((agent, idx) => {
                     const isYou = agent.id === currentUserId;
                     return (
                       <tr
                         key={agent.id}
-                        className={`hover:bg-orange-950/30 transition-colors ${
-                          isYou ? 'bg-orange-950/50 border-l-4 border-orange-600 font-bold' : ''
-                        }`}
+                        className={`hover:bg-zinc-900/70 ${isYou ? 'bg-orange-950/40 border-l-4 border-orange-600' : ''}`}
                       >
-                        <td className="p-6 text-orange-400 font-black text-lg">{idx + 1}</td>
-                        <td className="p-6">
-                          <div className="font-bold text-white">{agent.display_name || 'Anonymous'}</div>
-                          <span className="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-300">
-                            {agent.rank} • {agent.tribe_name}
-                          </span>
-                          {isYou && <span className="ml-2 text-xs text-orange-400">(You)</span>}
+                        <td className="p-5 text-orange-400 font-black">{idx + 1}</td>
+                        <td className="p-5">
+                          <div className="font-bold">{agent.display_name || "Anonymous"}</div>
+                          <div className="text-xs text-zinc-500">{agent.rank}</div>
+                          {isYou && <div className="text-xs text-orange-400 mt-1">(You)</div>}
                         </td>
-                        <td className="p-6">
+                        <td className="p-5 text-zinc-300">{agent.tribe_id || "—"}</td>
+                        <td className="p-5">
                           <div className="flex items-center gap-2">
                             <Users size={16} className="text-orange-600" />
                             {agent.followers.toLocaleString()}
                           </div>
                         </td>
-                        <td className="p-6 text-purple-400 font-mono">
-                          ${agent.valuation?.toLocaleString() || '0'}
+                        <td className="p-5 text-purple-400 font-mono">
+                          ${agent.valuation?.toLocaleString() || "0"}
                         </td>
-                        <td className="p-6 text-center">
+                        <td className="p-5 text-center">
                           <div className="flex justify-center gap-4 text-xs">
-                            <Heart size={16} className="text-pink-500" /> {agent.happiness_score?.toFixed(1)}%
-                            <DollarSign size={16} className="text-green-500" /> {agent.econ_score?.toFixed(1)}%
-                            <Lightbulb size={16} className="text-yellow-500" /> {agent.curiosity_score?.toFixed(1)}%
+                            <Heart size={16} className="text-pink-500" /> {agent.happiness_score?.toFixed(1) || 0}%
+                            <DollarSign size={16} className="text-green-500" /> {agent.econ_score?.toFixed(1) || 0}%
+                            <Lightbulb size={16} className="text-yellow-500" /> {agent.curiosity_score?.toFixed(1) || 0}%
                           </div>
-                        </td>
-                        <td className="p-6 text-right text-xl font-black text-green-400">
-                          {agent.own_percentage}%
-                        </td>
-                        <td className="p-6 text-right text-zinc-300 font-mono">
-                          ${agent.total_valuation.toLocaleString() || '—'}
                         </td>
                       </tr>
                     );
                   })}
-                  {topLeaders.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="p-12 text-center text-zinc-500 italic">
-                        No agents found — start recruiting to climb the Flame!
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>
           </div>
         )}
 
-        {/* REFERRAL CTA - kept prominent */}
-        <div className="mt-12 bg-gradient-to-br from-orange-600/90 to-purple-600/90 p-8 rounded-2xl text-center shadow-2xl border border-orange-400/30">
-          <h3 className="text-3xl font-black mb-4 text-white">
-            Refer a Friend → Both Get 10,000 Flame Dollars + SuperBot Power 🔥
-          </h3>
-          <p className="text-lg mb-6 opacity-90 text-white">
-            Grow the Flame Network — your invites fuel global happiness & economy
-          </p>
+        {/* Referral CTA */}
+        <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-8 rounded-2xl text-center border border-orange-500/30 shadow-2xl">
+          <h3 className="text-3xl font-black mb-4">Refer Friends → Earn Flame Dollars + Powers 🔥</h3>
           {loadingReferral ? (
-            <div className="animate-pulse bg-zinc-800 h-12 rounded mb-6" />
+            <div className="h-12 bg-zinc-800 animate-pulse rounded mb-6" />
           ) : referralError ? (
-            <p className="text-red-300 font-medium mb-6">{referralError}</p>
+            <p className="text-red-300 mb-6">{referralError}</p>
           ) : (
             <>
-              <div className="bg-black/50 border border-orange-400/50 rounded-lg p-5 mb-6 font-mono text-base break-all text-orange-200">
-                {referralLink || 'Loading your unique link...'}
+              <div className="bg-black/60 p-4 rounded mb-6 font-mono break-all text-orange-200">
+                {referralLink || 'Loading link...'}
               </div>
               <button
-                onClick={copyReferralLink}
+                onClick={copyReferral}
                 disabled={!referralLink}
-                className="px-10 py-5 bg-zinc-900 hover:bg-zinc-800 border-2 border-orange-500 text-orange-300 font-bold uppercase tracking-wider rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg text-lg w-full md:w-auto"
+                className="px-10 py-4 bg-zinc-900 border-2 border-orange-500 text-orange-300 font-bold uppercase rounded-full hover:bg-zinc-800 transition disabled:opacity-50"
               >
-                Copy & Share Link
+                Copy & Share
               </button>
-              <p className="text-base mt-6 text-white/90">
-                Live: <span className="font-bold text-green-300">{referredCount}</span> friends joined
+              <p className="mt-6 text-lg">
+                <span className="font-bold text-green-300">{referredCount}</span> friends already joined
               </p>
             </>
           )}
         </div>
 
-        {/* Foundation Rewards - kept as is */}
-        <div className="space-y-6 pt-16 border-t border-zinc-800">
-          <h3 className="text-sm font-black uppercase tracking-[0.4em] text-zinc-500 flex items-center gap-3">
+        {/* Rewards section */}
+        <div className="mt-16 border-t border-zinc-800 pt-12">
+          <h3 className="text-sm uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-3">
             <Gift size={18} className="text-orange-600" /> Foundation Rewards
           </h3>
-          <div className="border border-zinc-800 bg-zinc-950 overflow-hidden shadow-2xl rounded-lg">
+          <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-950">
             {[
               { class: "Normie", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Do Good", "Share Content", "Win Prizes"] },
               { class: "SuperHero", icon: <Star size={20} className="text-orange-600" />, rewards: ["Recruit Normies", "Educate All", "Launch Products"] },
               { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, rewards: ["Recruit SuperHeros", "Mentor & Coach", "Angel Fund"] },
               { class: "SuperFarmer", icon: <Sprout size={20} className="text-green-500" />, rewards: ["Recruit Angels", "Mentor & Coach", "Seed Fund"] }
             ].map(tier => (
-              <div key={tier.class} className="grid grid-cols-1 md:grid-cols-12 items-center p-8 border-b border-zinc-800 last:border-0 group hover:bg-zinc-900/50 transition-colors">
-                <div className="col-span-4 flex items-center gap-4">
-                  <div className="p-4 bg-zinc-800 rounded group-hover:bg-orange-600/30 transition-colors">
-                    {tier.icon}
-                  </div>
-                  <h4 className="text-2xl font-black uppercase italic tracking-tighter text-white">
-                    {tier.class}
-                  </h4>
+              <div key={tier.class} className="grid md:grid-cols-12 p-6 border-b border-zinc-800 last:border-0 hover:bg-zinc-900/50">
+                <div className="md:col-span-4 flex items-center gap-4 mb-4 md:mb-0">
+                  <div className="p-3 bg-zinc-800 rounded">{tier.icon}</div>
+                  <h4 className="text-xl font-black">{tier.class}</h4>
                 </div>
-                <div className="col-span-8 text-right flex flex-wrap justify-end gap-3">
-                  {tier.rewards.map((r, i) => (
-                    <span key={i} className="text-xs font-bold uppercase text-zinc-400 bg-zinc-900 px-4 py-2 border border-zinc-700 rounded">
+                <div className="md:col-span-8 flex flex-wrap gap-3 justify-end">
+                  {tier.rewards.map(r => (
+                    <span key={r} className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded text-sm">
                       {r}
                     </span>
                   ))}
@@ -412,8 +346,8 @@ const Scoretable = () => {
           </div>
         </div>
 
-        <p className="text-center text-zinc-600 text-xs mt-16">
-          Database-driven | Real-time | Optimized by Grok + AI Swarm
+        <p className="text-center text-zinc-600 text-sm mt-12">
+          Real-time • Database-powered • Grok-optimized
         </p>
       </div>
     </div>
