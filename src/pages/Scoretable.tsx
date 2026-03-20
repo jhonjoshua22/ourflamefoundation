@@ -10,12 +10,16 @@ import {
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [tribeChallenges, setTribeChallenges] = useState<any[]>([]);
+  const [tribeLeaderboard, setTribeLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingChallenges, setLoadingChallenges] = useState(true);
+  const [loadingTribeLb, setLoadingTribeLb] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("followers");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [userTribeId, setUserTribeId] = useState<string | null>(null); // NEW: store user's tribe
 
   // Referral states
   const [referralLink, setReferralLink] = useState<string>('');
@@ -43,10 +47,21 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get current user
+  // Get current user + their tribe_id
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setCurrentUserId(data.user.id);
+      if (data.user) {
+        setCurrentUserId(data.user.id);
+        // Fetch user's tribe
+        supabase
+          .from('profiles')
+          .select('tribe_id')
+          .eq('id', data.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile?.tribe_id) setUserTribeId(profile.tribe_id);
+          });
+      }
     });
   }, []);
 
@@ -80,18 +95,61 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  // Fetch Tribe Challenges
+  // Fetch Tribe Challenges – filtered to user's tribe + today's only
   const fetchTribeChallenges = async () => {
+    setLoadingChallenges(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('tribe_challenges')
         .select('*')
         .gt('ends_at', new Date().toISOString())
+        .gte('created_at', new Date().toISOString().split('T')[0] + 'T00:00:00Z') // Today only
         .order('ends_at', { ascending: true });
+
+      // Only show challenges for user's tribe (if logged in)
+      if (userTribeId) {
+        query = query.eq('tribe_id', userTribeId);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       setTribeChallenges(data || []);
     } catch (err) {
       console.error("Challenges fetch error:", err);
+      setTribeChallenges([]);
+    } finally {
+      setLoadingChallenges(false);
+    }
+  };
+
+  // NEW: Tribe Leaderboard (separate from main table)
+  const fetchTribeLeaderboard = async () => {
+    setLoadingTribeLb(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          tribe_id,
+          tribe:tribes!tribe_id (name),
+          count:id,
+          total_network:sum(network),
+          avg_happiness:avg(happiness_score),
+          avg_econ:avg(econ_score),
+          avg_curiosity:avg(curiosity_score),
+          avg_streak:avg(current_streak)
+        `)
+        .not('tribe_id', 'is', null)
+        .group('tribe_id, tribes.name')
+        .order('total_network', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setTribeLeaderboard(data || []);
+    } catch (err) {
+      console.error("Tribe leaderboard error:", err);
+      setTribeLeaderboard([]);
+    } finally {
+      setLoadingTribeLb(false);
     }
   };
 
@@ -103,7 +161,6 @@ const Scoretable = () => {
       const total = (all || []).reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
       setStats({ totalMembers: total });
 
-      // Main leaderboard query (includes current_streak for sorting)
       let qb = supabase.from('profiles').select(`
         id, display_name, rank, Rebirth, facebook, linkedin, valuation, received,
         happiness_score, curiosity_score, econ_score, tribe_id,
@@ -117,7 +174,6 @@ const Scoretable = () => {
       if (!query) {
         if (currentSort === "valuation") qb = qb.order("valuation", { ascending: false });
         if (currentSort === "referrals") qb = qb.order("referral_count", { ascending: false });
-        // NEW: Streak sort (descending so highest streak first)
         if (currentSort === "streak") qb = qb.order("current_streak", { ascending: false });
         qb = qb.limit(50);
       }
@@ -132,7 +188,6 @@ const Scoretable = () => {
       }));
 
       let sorted = [...processed];
-
       if (currentSort === "followers") {
         sorted.sort((a, b) => b.followers - a.followers);
       } else if (currentSort === "rank") {
@@ -157,6 +212,7 @@ const Scoretable = () => {
   useEffect(() => {
     fetchData(searchQuery, sortBy);
     fetchTribeChallenges();
+    fetchTribeLeaderboard(); // NEW: load tribe leaderboard
 
     const sub = supabase.channel("profiles-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
@@ -172,14 +228,14 @@ const Scoretable = () => {
       supabase.removeChannel(sub);
       supabase.removeChannel(challengeSub);
     };
-  }, [sortBy, searchQuery]);
+  }, [sortBy, searchQuery, userTribeId]); // Re-fetch challenges when userTribeId is known
 
   const filterOptions = [
     { label: "Followers", value: "followers" },
     { label: "Valuation", value: "valuation" },
     { label: "Rank", value: "rank" },
     { label: "Referrals", value: "referrals" },
-    { label: "Streak", value: "streak" } // <--- NEW: Added Streak sort option
+    { label: "Streak", value: "streak" }
   ];
 
   const copyReferral = () => {
@@ -189,7 +245,6 @@ const Scoretable = () => {
     }
   };
 
-  // SHAREABLE SCORE CARD (unchanged)
   const generateShareCard = async (agent: any) => {
     const canvas = document.createElement("canvas");
     canvas.width = 800;
@@ -364,14 +419,20 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* TRIBE WARS / CHALLENGES */}
+        {/* TRIBE WARS / CHALLENGES – now filtered to user's tribe + today */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
-            <TribeIcon size={28} className="text-orange-600" /> Tribe Wars – Live Challenges
+            <TribeIcon size={28} className="text-orange-600" /> Your Tribe Wars – Today's Challenges
           </h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            {tribeChallenges.length > 0 ? (
-              tribeChallenges.map((challenge) => {
+
+          {loadingChallenges ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="animate-spin text-orange-600" size={32} />
+              <span className="ml-3 text-zinc-400">Loading your tribe's challenges...</span>
+            </div>
+          ) : tribeChallenges.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-6">
+              {tribeChallenges.map((challenge) => {
                 const progress = Math.min((challenge.progress / challenge.target) * 100, 100);
                 return (
                   <div key={challenge.id} className="border border-zinc-700 p-6 rounded-xl hover:border-orange-500 transition">
@@ -386,11 +447,59 @@ const Scoretable = () => {
                     </div>
                   </div>
                 );
-              })
-            ) : (
-              <p className="text-zinc-500 col-span-2 text-center py-8">No active tribe challenges yet — Grok will create them hourly</p>
-            )}
-          </div>
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-zinc-500 italic">
+              No challenges for your tribe today — check back tomorrow or recruit to unlock more!
+            </div>
+          )}
+        </div>
+
+        {/* NEW: Tribe Leaderboard */}
+        <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
+          <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
+            <Trophy size={28} className="text-orange-600" /> Tribe Leaderboard
+          </h3>
+
+          {loadingTribeLb ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="animate-spin text-orange-600" size={32} />
+            </div>
+          ) : tribeLeaderboard.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
+                <thead>
+                  <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+                    <th className="p-5 text-left">Tribe</th>
+                    <th className="p-5 text-left">Members</th>
+                    <th className="p-5 text-left">Total Network</th>
+                    <th className="p-5 text-left">Avg Happiness</th>
+                    <th className="p-5 text-left">Avg Economy</th>
+                    <th className="p-5 text-left">Avg Curiosity</th>
+                    <th className="p-5 text-left">Avg Streak</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  {tribeLeaderboard.map((tribe, idx) => (
+                    <tr key={tribe.tribe_id} className="hover:bg-zinc-900/70">
+                      <td className="p-5 font-bold">{tribe.tribe?.name || "Unknown Tribe"}</td>
+                      <td className="p-5">{tribe.count}</td>
+                      <td className="p-5 text-orange-400">{tribe.total_network?.toLocaleString() || "0"}</td>
+                      <td className="p-5 text-pink-400">{tribe.avg_happiness?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-green-400">{tribe.avg_econ?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-yellow-400">{tribe.avg_curiosity?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-green-400">{tribe.avg_streak?.toFixed(1) || "0"} days</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-center py-8 text-zinc-500 italic">
+              No tribe data yet — recruit more to climb the leaderboard!
+            </p>
+          )}
         </div>
 
         {/* REFERRAL CTA */}
