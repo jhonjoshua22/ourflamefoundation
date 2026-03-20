@@ -28,36 +28,26 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Guard to prevent multiple streak updates in the same session
-  const hasUpdatedStreak = useRef(false);
-
+  // Streak logic – now with DB-level guard (only updates if last_streak_date != today)
   const updateStreak = async (userId: string) => {
-    // Only run once per session/mount
-    if (hasUpdatedStreak.current) {
-      console.log("[STREAK] Already updated this session – skipping");
-      return;
-    }
-    hasUpdatedStreak.current = true;
-
-    console.log("[STREAK] Starting update for user:", userId);
-
     try {
       const today = new Date().toISOString().split("T")[0];
 
-      let { data: profile, error } = await supabase
+      // First check if we already updated today (prevents race conditions)
+      const { data: profile, error: fetchError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("last_streak_date, current_streak, longest_streak")
         .eq("id", userId)
         .single();
 
-      if (error && error.code !== "PGRST116") {
-        console.error("[STREAK] Fetch error:", error);
+      if (fetchError && fetchError.code !== "PGRST116") {
+        console.error("[STREAK] Fetch error:", fetchError);
         return;
       }
 
       if (!profile) {
-        console.log("[STREAK] No profile – creating");
-        const { data: newProfile, error: insertError } = await supabase
+        // First login – create profile with streak 1
+        const { error: insertError } = await supabase
           .from("profiles")
           .insert({
             id: userId,
@@ -71,83 +61,82 @@ const App = () => {
             curiosity_score: 0,
             econ_score: 0,
             last_active: new Date().toISOString(),
-          })
-          .select()
-          .single();
+          });
 
         if (insertError) {
           console.error("[STREAK] Insert error:", insertError);
           return;
         }
-        profile = newProfile;
+
+        console.log("[STREAK] New user – streak set to 1");
+        return;
       }
 
+      // If already updated today, skip
       const lastDate = profile.last_streak_date
         ? new Date(profile.last_streak_date).toISOString().split("T")[0]
         : null;
 
-      if (lastDate !== today) {
-        let newStreak = 1;
-        if (lastDate) {
-          const diffDays = Math.floor(
-            (new Date(today).getTime() - new Date(lastDate).getTime()) / (1000 * 60 * 60 * 24)
-          );
-          newStreak = diffDays === 1 ? (profile.current_streak || 0) + 1 : 1;
-        }
+      if (lastDate === today) {
+        console.log("[STREAK] Already updated today – skipping");
+        return;
+      }
 
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({
-            current_streak: newStreak,
-            longest_streak: Math.max(profile.longest_streak || 0, newStreak),
-            last_streak_date: today,
-            last_active: new Date().toISOString(),
-          })
-          .eq("id", userId);
+      // Calculate new streak
+      let newStreak = 1;
+      if (lastDate) {
+        const diffDays = Math.floor(
+          (new Date(today).getTime() - new Date(lastDate).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        newStreak = diffDays === 1 ? (profile.current_streak || 0) + 1 : 1;
+      }
 
-        if (updateError) {
-          console.error("[STREAK] Update error:", updateError);
-        } else {
-          console.log(`[STREAK] SUCCESS – Updated to ${newStreak} days`);
-        }
+      // Update DB
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          current_streak: newStreak,
+          longest_streak: Math.max(profile.longest_streak || 0, newStreak),
+          last_streak_date: today,
+          last_active: new Date().toISOString(),
+        })
+        .eq("id", userId);
+
+      if (updateError) {
+        console.error("[STREAK] Update error:", updateError);
       } else {
-        console.log("[STREAK] Already updated today – no change");
+        console.log(`[STREAK] SUCCESS – Updated to ${newStreak} days`);
       }
     } catch (err) {
-      console.error("[STREAK] Error:", err);
+      console.error("[STREAK] Fatal error:", err);
     }
   };
 
+  // Auth listener – only trigger streak on SIGNED_IN
   useEffect(() => {
-    console.log("[AUTH] Setting up listener");
-
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log("[AUTH] Event:", event);
         if (event === "SIGNED_IN" && session?.user?.id) {
-          console.log("[AUTH] SIGNED_IN – updating streak");
+          console.log("[AUTH] SIGNED_IN – triggering streak update");
           updateStreak(session.user.id);
         }
       }
     );
 
-    // Check on mount
+    // Check existing session on app load (only once)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
-        console.log("[AUTH] Session exists on mount");
+        console.log("[AUTH] Existing session on mount – updating streak");
         updateStreak(session.user.id);
       }
     });
 
     return () => {
-      console.log("[AUTH] Cleaning up");
       authListener.subscription.unsubscribe();
-      // Reset guard on unmount (for hot reloads)
-      hasUpdatedStreak.current = false;
     };
-  }, []);
+  }, []); // Empty dependency array – runs once on mount
 
-  // Your original popup/audio code – unchanged
+  // Your original popup + audio logic – unchanged
   useEffect(() => {
     audioRef.current = new Audio(introAudio);
     audioRef.current.loop = true;
