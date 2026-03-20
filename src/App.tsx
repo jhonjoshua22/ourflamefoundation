@@ -6,7 +6,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { supabase } from "./lib/supabaseClient"; // Make sure this import exists
+import { supabase } from "./lib/supabaseClient";
 
 // Assets
 import promoVideo from "./assets/ourgames.mp4";
@@ -28,25 +28,26 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Streak update logic (runs after login)
+  // Streak update logic with debug logs
   const updateStreak = async (userId: string) => {
+    console.log("[STREAK] Starting update for user:", userId);
     try {
       const today = new Date().toISOString().split("T")[0];
+      console.log("[STREAK] Today:", today);
 
-      // Get or create profile
       let { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (error && error.code !== "PGRST116") { // PGRST116 = not found
-        console.error("Profile fetch error:", error);
+      if (error && error.code !== "PGRST116") {
+        console.error("[STREAK] Profile fetch error:", error);
         return;
       }
 
       if (!profile) {
-        // Create minimal profile on first login
+        console.log("[STREAK] No profile found → creating new one");
         const { data: newProfile, error: insertError } = await supabase
           .from("profiles")
           .insert({
@@ -66,16 +67,19 @@ const App = () => {
           .single();
 
         if (insertError) {
-          console.error("Profile creation error:", insertError);
+          console.error("[STREAK] Profile creation error:", insertError);
           return;
         }
         profile = newProfile;
+        console.log("[STREAK] New profile created");
+      } else {
+        console.log("[STREAK] Existing profile found");
       }
 
-      // Check if today is a new day for streak
       const lastDate = profile.last_streak_date
         ? new Date(profile.last_streak_date).toISOString().split("T")[0]
         : null;
+      console.log("[STREAK] Last streak date:", lastDate);
 
       if (lastDate !== today) {
         let newStreak = 1;
@@ -85,6 +89,8 @@ const App = () => {
           );
           newStreak = diffDays === 1 ? (profile.current_streak || 0) + 1 : 1;
         }
+
+        console.log("[STREAK] Calculated new streak:", newStreak);
 
         const { error: updateError } = await supabase
           .from("profiles")
@@ -97,40 +103,48 @@ const App = () => {
           .eq("id", userId);
 
         if (updateError) {
-          console.error("Streak update error:", updateError);
+          console.error("[STREAK] Update error:", updateError);
         } else {
-          console.log(`Streak updated to ${newStreak} for user ${userId}`);
-          // Optional: You could trigger a toast here, create a mission, etc.
+          console.log(`[STREAK] SUCCESS – Updated to ${newStreak} days`);
         }
+      } else {
+        console.log("[STREAK] Already logged in today – no update needed");
       }
     } catch (err) {
-      console.error("Streak logic error:", err);
+      console.error("[STREAK] Full error:", err);
     }
   };
 
-  // Listen for auth state changes globally
+  // Global auth listener
   useEffect(() => {
+    console.log("[AUTH] Setting up auth state listener");
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("[AUTH] Event:", event);
         if (event === "SIGNED_IN" && session?.user?.id) {
+          console.log("[AUTH] SIGNED_IN – User ID:", session.user.id);
           updateStreak(session.user.id);
         }
       }
     );
 
-    // Check existing session on app load (e.g. page refresh)
+    // Check current session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
+        console.log("[AUTH] Existing session found on mount – User ID:", session.user.id);
         updateStreak(session.user.id);
+      } else {
+        console.log("[AUTH] No existing session on mount");
       }
     });
 
     return () => {
       authListener.subscription.unsubscribe();
+      console.log("[AUTH] Listener cleaned up");
     };
   }, []);
 
-  // Existing popup + audio logic
+  // Popup + audio
   useEffect(() => {
     audioRef.current = new Audio(introAudio);
     audioRef.current.loop = true;
@@ -159,7 +173,6 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* POPUP MODAL */}
           <AnimatePresence>
             {showPopup && (
               <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
@@ -217,7 +230,6 @@ const App = () => {
             )}
           </AnimatePresence>
 
-          {/* ROUTING */}
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<Index />} />
