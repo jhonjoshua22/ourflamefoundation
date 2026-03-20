@@ -28,104 +28,49 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // === STREAK FIX: Only update once per day, even across page loads/navigations ===
-  const lastStreakUpdate = useRef<string | null>(null); // Tracks last date we attempted update
-
-  const updateStreak = async (userId: string) => {
-    const today = new Date().toISOString().split("T")[0];
-
-    // Skip if we already tried today
-    if (lastStreakUpdate.current === today) {
-      console.log("[STREAK] Already attempted update today – skipping");
-      return;
-    }
-
-    lastStreakUpdate.current = today;
-    console.log("[STREAK] Attempting update for user:", userId, "on", today);
-
+  // Simple touch function – triggers DB trigger
+  const touchForStreak = async (userId: string) => {
     try {
-      // Fetch current profile
-      const { data: profile, error: fetchError } = await supabase
+      const { error } = await supabase
         .from("profiles")
-        .select("current_streak, longest_streak, last_streak_date")
-        .eq("id", userId)
-        .single();
-
-      if (fetchError && fetchError.code !== "PGRST116") {
-        console.error("[STREAK] Fetch error:", fetchError);
-        return;
-      }
-
-      let currentStreak = profile?.current_streak || 0;
-      let longestStreak = profile?.longest_streak || 0;
-      const lastDate = profile?.last_streak_date
-        ? new Date(profile.last_streak_date).toISOString().split("T")[0]
-        : null;
-
-      // If already updated today, do nothing
-      if (lastDate === today) {
-        console.log("[STREAK] Already updated today in DB – no change");
-        return;
-      }
-
-      // Calculate new streak
-      let newStreak = 1;
-      if (lastDate) {
-        const diffDays = Math.floor(
-          (new Date(today).getTime() - new Date(lastDate).getTime()) / (1000 * 60 * 60 * 24)
-        );
-        newStreak = diffDays === 1 ? currentStreak + 1 : 1;
-      }
-
-      // Update DB
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          current_streak: newStreak,
-          longest_streak: Math.max(longestStreak, newStreak),
-          last_streak_date: today,
-          last_active: new Date().toISOString(),
-        })
+        .update({ last_active: new Date().toISOString() }) // Just touch this field
         .eq("id", userId);
 
-      if (updateError) {
-        console.error("[STREAK] DB update error:", updateError);
+      if (error) {
+        console.error("[STREAK] Touch failed:", error.message);
       } else {
-        console.log(`[STREAK] SUCCESS – Updated to ${newStreak} days`);
+        console.log("[STREAK] Touch sent – DB trigger will handle streak");
       }
     } catch (err) {
-      console.error("[STREAK] Fatal error:", err);
+      console.error("[STREAK] Error:", err);
     }
   };
 
-  // Auth listener + mount check
+  // Auth listener – only touch on actual SIGNED_IN or mount if logged in
   useEffect(() => {
-    console.log("[AUTH] Mounting auth listener");
-
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "SIGNED_IN" && session?.user?.id) {
-          console.log("[AUTH] SIGNED_IN – updating streak");
-          updateStreak(session.user.id);
+          console.log("[AUTH] SIGNED_IN – touching for streak");
+          touchForStreak(session.user.id);
         }
       }
     );
 
-    // Check session on mount (only once)
+    // Check on mount (once)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
-        console.log("[AUTH] Session exists on mount – checking streak");
-        updateStreak(session.user.id);
+        console.log("[AUTH] Session on mount – touching for streak");
+        touchForStreak(session.user.id);
       }
     });
 
     return () => {
-      console.log("[AUTH] Cleaning up listener");
       authListener.subscription.unsubscribe();
     };
-  }, []); // Empty deps – runs ONCE on app mount
+  }, []); // Empty deps – runs once
 
-  // Your original popup + audio logic (unchanged)
+  // Your original popup + audio – unchanged
   useEffect(() => {
     audioRef.current = new Audio(introAudio);
     audioRef.current.loop = true;
