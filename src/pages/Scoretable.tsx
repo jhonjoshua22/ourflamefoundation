@@ -19,7 +19,8 @@ const Scoretable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [userTribeId, setUserTribeId] = useState<string | null>(null); // NEW: store user's tribe
+  const [userRank, setUserRank] = useState<string | null>(null); // Use rank as tribe identifier
+  const [challengeError, setChallengeError] = useState<string | null>(null); // NEW: visible error
 
   // Referral states
   const [referralLink, setReferralLink] = useState<string>('');
@@ -47,25 +48,29 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get current user + their tribe_id
+  // Get current user + their RANK (not tribe_id)
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         setCurrentUserId(data.user.id);
-        // Fetch user's tribe
         supabase
           .from('profiles')
-          .select('tribe_id')
+          .select('rank')
           .eq('id', data.user.id)
           .single()
-          .then(({ data: profile }) => {
-            if (profile?.tribe_id) setUserTribeId(profile.tribe_id);
+          .then(({ data: profile, error }) => {
+            if (error) {
+              console.error("Failed to fetch user rank:", error);
+            } else if (profile?.rank) {
+              setUserRank(profile.rank);
+              console.log("[USER] Rank loaded:", profile.rank);
+            }
           });
       }
     });
   }, []);
 
-  // Fetch referral
+  // Fetch referral (unchanged)
   useEffect(() => {
     const fetchReferral = async () => {
       setLoadingReferral(true);
@@ -95,9 +100,10 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  // Fetch Tribe Challenges – filtered to user's tribe + today's only
+  // Fetch Tribe Challenges – filtered by user's RANK (tribe_id is text = rank name)
   const fetchTribeChallenges = async () => {
     setLoadingChallenges(true);
+    setChallengeError(null);
     try {
       let query = supabase
         .from('tribe_challenges')
@@ -106,31 +112,36 @@ const Scoretable = () => {
         .gte('created_at', new Date().toISOString().split('T')[0] + 'T00:00:00Z') // Today only
         .order('ends_at', { ascending: true });
 
-      // Only show challenges for user's tribe (if logged in)
-      if (userTribeId) {
-        query = query.eq('tribe_id', userTribeId);
+      // Filter by user's rank (tribe_id stores rank string like 'Normie')
+      if (userRank) {
+        query = query.eq('tribe_id', userRank);
+        console.log("[CHALLENGES] Filtering by rank/tribe_id:", userRank);
+      } else {
+        console.log("[CHALLENGES] No user rank – showing all challenges");
       }
 
       const { data, error } = await query;
       if (error) throw error;
+
+      console.log("[CHALLENGES] Raw data from Supabase:", data); // DEBUG: see what comes back
       setTribeChallenges(data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Challenges fetch error:", err);
+      setChallengeError("Failed to load challenges: " + (err.message || "Unknown error"));
       setTribeChallenges([]);
     } finally {
       setLoadingChallenges(false);
     }
   };
 
-  // NEW: Tribe Leaderboard (separate from main table)
+  // Tribe Leaderboard – group by rank (since ranks are the effective tribes)
   const fetchTribeLeaderboard = async () => {
     setLoadingTribeLb(true);
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select(`
-          tribe_id,
-          tribe:tribes!tribe_id (name),
+          rank,
           count:id,
           total_network:sum(network),
           avg_happiness:avg(happiness_score),
@@ -138,8 +149,7 @@ const Scoretable = () => {
           avg_curiosity:avg(curiosity_score),
           avg_streak:avg(current_streak)
         `)
-        .not('tribe_id', 'is', null)
-        .group('tribe_id, tribes.name')
+        .group('rank')
         .order('total_network', { ascending: false })
         .limit(10);
 
@@ -156,7 +166,6 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      // Total members
       const { data: all } = await supabase.from("profiles").select("facebook, linkedin");
       const total = (all || []).reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
       setStats({ totalMembers: total });
@@ -208,11 +217,10 @@ const Scoretable = () => {
     }
   };
 
-  // Main data + realtime
   useEffect(() => {
     fetchData(searchQuery, sortBy);
     fetchTribeChallenges();
-    fetchTribeLeaderboard(); // NEW: load tribe leaderboard
+    fetchTribeLeaderboard();
 
     const sub = supabase.channel("profiles-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
@@ -228,7 +236,7 @@ const Scoretable = () => {
       supabase.removeChannel(sub);
       supabase.removeChannel(challengeSub);
     };
-  }, [sortBy, searchQuery, userTribeId]); // Re-fetch challenges when userTribeId is known
+  }, [sortBy, searchQuery, userRank]); // Re-fetch when rank changes
 
   const filterOptions = [
     { label: "Followers", value: "followers" },
@@ -323,7 +331,7 @@ const Scoretable = () => {
               <h2 className="relative text-3xl font-black uppercase text-orange-600 flex items-center gap-3">
                 <Trophy size={28} /> Unified Flame Scoretable
               </h2>
-              <p className="text-zinc-400 mt-2">Rank • Streak • Referrals • Valuation • Tribe Wars</p>
+              <p className="text-zinc-400 mt-2">Rank • Streak • Referrals • Valuation • Rank Wars</p>
             </div>
 
             <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
@@ -356,7 +364,7 @@ const Scoretable = () => {
                   <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
                     <th className="p-5 text-left">Rank</th>
                     <th className="p-5 text-left">Agent</th>
-                    <th className="p-5 text-left">Tribe</th>
+                    <th className="p-5 text-left">Rank (Tribe)</th>
                     <th className="p-5 text-left">Streak 🔥</th>
                     <th className="p-5 text-left">Followers</th>
                     <th className="p-5 text-left">Referrals</th>
@@ -379,7 +387,7 @@ const Scoretable = () => {
                           <div className="text-xs text-zinc-500">{agent.rank}</div>
                           {isYou && <div className="text-xs text-orange-400 mt-1">(YOU)</div>}
                         </td>
-                        <td className="p-5 text-zinc-300">{agent.tribe_id || "—"}</td>
+                        <td className="p-5 text-zinc-300">{agent.rank || "—"}</td>
                         <td className="p-5">
                           <div className="flex items-center gap-2 font-mono text-lg text-green-400">
                             <Zap size={20} /> {agent.current_streak || 0}d
@@ -419,17 +427,19 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* TRIBE WARS / CHALLENGES – now filtered to user's tribe + today */}
+        {/* TRIBE WARS / CHALLENGES – filtered by user's rank */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
-            <TribeIcon size={28} className="text-orange-600" /> Your Tribe Wars – Today's Challenges
+            <TribeIcon size={28} className="text-orange-600" /> Your Rank Wars – Today's Challenges
           </h3>
 
           {loadingChallenges ? (
             <div className="flex justify-center py-8">
               <Loader2 className="animate-spin text-orange-600" size={32} />
-              <span className="ml-3 text-zinc-400">Loading your tribe's challenges...</span>
+              <span className="ml-3 text-zinc-400">Loading your rank's challenges...</span>
             </div>
+          ) : challengeError ? (
+            <div className="text-red-400 text-center py-8">{challengeError}</div>
           ) : tribeChallenges.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-6">
               {tribeChallenges.map((challenge) => {
@@ -451,15 +461,15 @@ const Scoretable = () => {
             </div>
           ) : (
             <div className="text-center py-12 text-zinc-500 italic">
-              No challenges for your tribe today — check back tomorrow or recruit to unlock more!
+              No challenges for your rank today — check back tomorrow or recruit to unlock more!
             </div>
           )}
         </div>
 
-        {/* NEW: Tribe Leaderboard */}
+        {/* Tribe Leaderboard – grouped by rank */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
-            <Trophy size={28} className="text-orange-600" /> Tribe Leaderboard
+            <Trophy size={28} className="text-orange-600" /> Rank Leaderboard
           </h3>
 
           {loadingTribeLb ? (
@@ -471,7 +481,7 @@ const Scoretable = () => {
               <table className="w-full min-w-[800px]">
                 <thead>
                   <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
-                    <th className="p-5 text-left">Tribe</th>
+                    <th className="p-5 text-left">Rank</th>
                     <th className="p-5 text-left">Members</th>
                     <th className="p-5 text-left">Total Network</th>
                     <th className="p-5 text-left">Avg Happiness</th>
@@ -481,15 +491,15 @@ const Scoretable = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
-                  {tribeLeaderboard.map((tribe, idx) => (
-                    <tr key={tribe.tribe_id} className="hover:bg-zinc-900/70">
-                      <td className="p-5 font-bold">{tribe.tribe?.name || "Unknown Tribe"}</td>
-                      <td className="p-5">{tribe.count}</td>
-                      <td className="p-5 text-orange-400">{tribe.total_network?.toLocaleString() || "0"}</td>
-                      <td className="p-5 text-pink-400">{tribe.avg_happiness?.toFixed(1) || "0"}%</td>
-                      <td className="p-5 text-green-400">{tribe.avg_econ?.toFixed(1) || "0"}%</td>
-                      <td className="p-5 text-yellow-400">{tribe.avg_curiosity?.toFixed(1) || "0"}%</td>
-                      <td className="p-5 text-green-400">{tribe.avg_streak?.toFixed(1) || "0"} days</td>
+                  {tribeLeaderboard.map((rankGroup, idx) => (
+                    <tr key={rankGroup.rank} className="hover:bg-zinc-900/70">
+                      <td className="p-5 font-bold">{rankGroup.rank || "Unknown Rank"}</td>
+                      <td className="p-5">{rankGroup.count}</td>
+                      <td className="p-5 text-orange-400">{rankGroup.total_network?.toLocaleString() || "0"}</td>
+                      <td className="p-5 text-pink-400">{rankGroup.avg_happiness?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-green-400">{rankGroup.avg_econ?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-yellow-400">{rankGroup.avg_curiosity?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-green-400">{rankGroup.avg_streak?.toFixed(1) || "0"} days</td>
                     </tr>
                   ))}
                 </tbody>
@@ -497,7 +507,7 @@ const Scoretable = () => {
             </div>
           ) : (
             <p className="text-center py-8 text-zinc-500 italic">
-              No tribe data yet — recruit more to climb the leaderboard!
+              No rank data yet — recruit more to climb the leaderboard!
             </p>
           )}
         </div>
