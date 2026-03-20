@@ -28,33 +28,25 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Streak update with detailed debug logs
+  // === STREAK UPDATE LOGIC (added here – runs on every login) ===
   const updateStreak = async (userId: string) => {
-    console.log("[STREAK] === START ===");
-    console.log("[STREAK] User ID:", userId);
-
     try {
       const today = new Date().toISOString().split("T")[0];
-      console.log("[STREAK] Today's date:", today);
 
-      // Fetch profile
-      let { data: profile, error: fetchError } = await supabase
+      // Get or create profile
+      let { data: profile, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (fetchError) {
-        if (fetchError.code === "PGRST116") {
-          console.log("[STREAK] No profile found – creating new one");
-        } else {
-          console.error("[STREAK] Fetch error:", fetchError);
-          return;
-        }
+      if (error && error.code !== "PGRST116") { // not found
+        console.error("Profile fetch error:", error);
+        return;
       }
 
       if (!profile) {
-        // Create new profile
+        // Create new profile on first login
         const { data: newProfile, error: insertError } = await supabase
           .from("profiles")
           .insert({
@@ -74,30 +66,23 @@ const App = () => {
           .single();
 
         if (insertError) {
-          console.error("[STREAK] Insert error:", insertError);
+          console.error("Profile creation error:", insertError);
           return;
         }
         profile = newProfile;
-        console.log("[STREAK] New profile created successfully");
-      } else {
-        console.log("[STREAK] Profile found – current streak:", profile.current_streak);
       }
 
+      // Update streak if new day
       const lastDate = profile.last_streak_date
         ? new Date(profile.last_streak_date).toISOString().split("T")[0]
         : null;
-      console.log("[STREAK] Last streak date:", lastDate);
 
       if (lastDate !== today) {
-        let newStreak = 1;
-        if (lastDate) {
-          const diffDays = Math.floor(
-            (new Date(today).getTime() - new Date(lastDate).getTime()) / (1000 * 60 * 60 * 24)
-          );
-          newStreak = diffDays === 1 ? (profile.current_streak || 0) + 1 : 1;
-        }
-
-        console.log("[STREAK] New streak value:", newStreak);
+        const newStreak = lastDate
+          ? (new Date(today).getTime() - new Date(lastDate).getTime()) / (1000 * 60 * 60 * 24) === 1
+            ? (profile.current_streak || 0) + 1
+            : 1
+          : 1;
 
         const { error: updateError } = await supabase
           .from("profiles")
@@ -110,50 +95,39 @@ const App = () => {
           .eq("id", userId);
 
         if (updateError) {
-          console.error("[STREAK] Update error:", updateError.message);
+          console.error("Streak update error:", updateError);
         } else {
-          console.log("[STREAK] === SUCCESS === Streak updated to", newStreak);
+          console.log(`Streak updated to ${newStreak} days for user ${userId}`);
         }
-      } else {
-        console.log("[STREAK] Already logged in today – skipping update");
       }
     } catch (err) {
-      console.error("[STREAK] Fatal error:", err);
+      console.error("Streak logic error:", err);
     }
-    console.log("[STREAK] === END ===");
   };
 
-  // Auth listener
+  // Listen for auth state change – triggers streak on login
   useEffect(() => {
-    console.log("[AUTH] Mounting auth listener");
-
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log("[AUTH] Event received:", event);
         if (event === "SIGNED_IN" && session?.user?.id) {
-          console.log("[AUTH] SIGNED_IN detected – triggering streak");
           updateStreak(session.user.id);
         }
       }
     );
 
-    // Check session on app load
+    // Also check if already logged in (page refresh)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
-        console.log("[AUTH] Session exists on mount – user:", session.user.id);
         updateStreak(session.user.id);
-      } else {
-        console.log("[AUTH] No session on mount");
       }
     });
 
     return () => {
-      console.log("[AUTH] Cleaning up auth listener");
       authListener.subscription.unsubscribe();
     };
   }, []);
 
-  // Popup + audio
+  // Your original popup + audio logic (unchanged)
   useEffect(() => {
     audioRef.current = new Audio(introAudio);
     audioRef.current.loop = true;
@@ -170,7 +144,7 @@ const App = () => {
 
   const closePopup = () => {
     if (audioRef.current) {
-      audioRef.current.play().catch((e) => console.log("Audio play blocked", e));
+      audioRef.current.play().catch(e => console.log("Audio play blocked", e));
     }
     sessionStorage.setItem("hasSeenPopup", "true");
     setShowPopup(false);
@@ -182,7 +156,6 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* POPUP */}
           <AnimatePresence>
             {showPopup && (
               <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
