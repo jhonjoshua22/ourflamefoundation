@@ -16,7 +16,7 @@ const Scoretable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  
+
   // Referral states
   const [referralLink, setReferralLink] = useState<string>('');
   const [referredCount, setReferredCount] = useState<number>(0);
@@ -103,7 +103,7 @@ const Scoretable = () => {
       const total = (all || []).reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
       setStats({ totalMembers: total });
 
-      // Main leaderboard query (now includes streaks + referrals)
+      // Main leaderboard query (includes current_streak for sorting)
       let qb = supabase.from('profiles').select(`
         id, display_name, rank, Rebirth, facebook, linkedin, valuation, received,
         happiness_score, curiosity_score, econ_score, tribe_id,
@@ -113,9 +113,12 @@ const Scoretable = () => {
       if (query) {
         qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       }
+
       if (!query) {
         if (currentSort === "valuation") qb = qb.order("valuation", { ascending: false });
         if (currentSort === "referrals") qb = qb.order("referral_count", { ascending: false });
+        // NEW: Streak sort (descending so highest streak first)
+        if (currentSort === "streak") qb = qb.order("current_streak", { ascending: false });
         qb = qb.limit(50);
       }
 
@@ -129,6 +132,7 @@ const Scoretable = () => {
       }));
 
       let sorted = [...processed];
+
       if (currentSort === "followers") {
         sorted.sort((a, b) => b.followers - a.followers);
       } else if (currentSort === "rank") {
@@ -137,6 +141,8 @@ const Scoretable = () => {
         sorted.sort((a, b) => (b.valuation || 0) - (a.valuation || 0));
       } else if (currentSort === "referrals") {
         sorted.sort((a, b) => b.referral_count - a.referral_count);
+      } else if (currentSort === "streak") {
+        sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
       }
 
       setLeaders(sorted.slice(0, 10));
@@ -172,7 +178,8 @@ const Scoretable = () => {
     { label: "Followers", value: "followers" },
     { label: "Valuation", value: "valuation" },
     { label: "Rank", value: "rank" },
-    { label: "Referrals", value: "referrals" }
+    { label: "Referrals", value: "referrals" },
+    { label: "Streak", value: "streak" } // <--- NEW: Added Streak sort option
   ];
 
   const copyReferral = () => {
@@ -182,54 +189,38 @@ const Scoretable = () => {
     }
   };
 
-  // === SHAREABLE SCORE CARD (viral growth hack) ===
+  // SHAREABLE SCORE CARD (unchanged)
   const generateShareCard = async (agent: any) => {
     const canvas = document.createElement("canvas");
     canvas.width = 800;
     canvas.height = 500;
     const ctx = canvas.getContext("2d")!;
-
-    // Background
     ctx.fillStyle = "#0a0a0a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#f97316";
     ctx.fillRect(0, 0, canvas.width, 80);
-
-    // Logo text
     ctx.font = "bold 48px sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.fillText("FLAME FOUNDATION", 80, 55);
-
-    // Rank
     ctx.font = "bold 120px sans-serif";
     ctx.fillStyle = "#f97316";
     ctx.fillText(`#${leaders.indexOf(agent) + 1}`, 80, 220);
-
-    // Name + streak
     ctx.font = "bold 48px sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.fillText(agent.display_name || "Legendary Agent", 80, 300);
-
     ctx.font = "bold 36px sans-serif";
     ctx.fillStyle = "#22c55e";
     ctx.fillText(`${agent.current_streak || 0}-DAY FLAME 🔥`, 80, 360);
-
-    // Valuation
     ctx.font = "bold 42px monospace";
     ctx.fillStyle = "#a855f7";
     ctx.fillText(`$${agent.valuation?.toLocaleString() || "0"}`, 80, 430);
-
-    // Footer
     ctx.font = "bold 24px sans-serif";
     ctx.fillStyle = "#ffffff";
     ctx.fillText("Join the Flame → ourflamefoundation.vercel.app", 80, 470);
-
-    // Download
     const link = document.createElement("a");
     link.download = `flame-rank-${agent.display_name}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
-
     alert("🔥 Share card downloaded! Post it on X / IG and watch referrals explode.");
   };
 
@@ -289,7 +280,7 @@ const Scoretable = () => {
                   <Filter size={14} /> Sort: {sortBy}
                 </button>
                 {isFilterOpen && (
-                  <div className="absolute right-0 mt-2 w-44 bg-zinc-900 border border-zinc-700 rounded shadow-xl z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-zinc-900 border border-zinc-700 rounded shadow-xl z-50">
                     {filterOptions.map(opt => (
                       <button
                         key={opt.value}
@@ -373,7 +364,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* TRIBE WARS / CHALLENGES (new viral section) */}
+        {/* TRIBE WARS / CHALLENGES */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
             <TribeIcon size={28} className="text-orange-600" /> Tribe Wars – Live Challenges
@@ -402,7 +393,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* REFERRAL CTA (unchanged but enhanced) */}
+        {/* REFERRAL CTA */}
         <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-8 rounded-2xl text-center border border-orange-500/30 shadow-2xl">
           <h3 className="text-3xl font-black mb-4">Refer Friends → Earn Flame Dollars + Powers 🔥</h3>
           {loadingReferral ? (
@@ -424,7 +415,7 @@ const Scoretable = () => {
           )}
         </div>
 
-        {/* REWARDS SECTION (unchanged) */}
+        {/* REWARDS SECTION */}
         <div className="mt-16 border-t border-zinc-800 pt-12">
           <h3 className="text-sm uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-3">
             <Gift size={18} className="text-orange-600" /> Foundation Rewards
