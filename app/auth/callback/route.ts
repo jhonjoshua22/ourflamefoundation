@@ -1,3 +1,4 @@
+// app/auth/callback/route.ts
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -14,6 +15,6 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // Always redirect to homepage
+  // Redirect to homepage after successful auth
   return NextResponse.redirect(requestUrl.origin + '/');
 }
