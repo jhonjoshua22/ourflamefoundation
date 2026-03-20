@@ -10,11 +10,10 @@ import {
   Linkedin,
   Loader2,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from "../assets/ourflamelogo.png";
 
 const AuthPage: React.FC = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -28,17 +27,12 @@ const AuthPage: React.FC = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin + "/auth/callback", // Keep this if you added the route
+          redirectTo: window.location.origin + "/auth/callback",
           scopes: "openid profile email",
         },
       });
 
       if (error) throw error;
-
-      // Optional: If no redirect happens (some providers), force navigate after ~2s
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
     } catch (err: any) {
       console.error(`${provider} login error:`, err);
       setErrorMsg(err.message || "Authentication failed. Please try again.");
