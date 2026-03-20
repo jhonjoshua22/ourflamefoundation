@@ -19,8 +19,8 @@ const Scoretable = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [userRank, setUserRank] = useState<string | null>(null); // Use rank as tribe identifier
-  const [challengeError, setChallengeError] = useState<string | null>(null); // Visible error
+  const [userRank, setUserRank] = useState<string | null>(null);
+  const [challengeError, setChallengeError] = useState<string | null>(null);
 
   // Referral states
   const [referralLink, setReferralLink] = useState<string>('');
@@ -48,7 +48,7 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get current user + their RANK (this is used to filter challenges)
+  // Get current user + their RANK
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
@@ -58,13 +58,10 @@ const Scoretable = () => {
           .select('rank')
           .eq('id', data.user.id)
           .single()
-          .then(({ data: profile, error }) => {
-            if (error) {
-              console.error("Failed to fetch user rank:", error);
-              setChallengeError("Couldn't load your rank");
-            } else if (profile?.rank) {
+          .then(({ data: profile }) => {
+            if (profile?.rank) {
               setUserRank(profile.rank);
-              console.log("[RANK] Loaded user rank:", profile.rank);
+              console.log("[RANK] Loaded:", profile.rank);
             }
           });
       }
@@ -101,7 +98,7 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  // Fetch Tribe Challenges – filtered by user's RANK (tribe_id is text matching rank)
+  // Fetch Tribe Challenges – filtered by user's RANK
   const fetchTribeChallenges = async () => {
     setLoadingChallenges(true);
     setChallengeError(null);
@@ -114,16 +111,13 @@ const Scoretable = () => {
         .order('ends_at', { ascending: true });
 
       if (userRank) {
-        query = query.eq('tribe_id', userRank); // string match: 'SuperHero' = 'SuperHero'
-        console.log("[CHALLENGES] Filtering by rank:", userRank);
-      } else {
-        console.log("[CHALLENGES] No rank found – showing all challenges");
+        query = query.eq('tribe_id', userRank); // string match
       }
 
       const { data, error } = await query;
       if (error) throw error;
 
-      console.log("[CHALLENGES] Raw data from Supabase:", data); // DEBUG
+      console.log("[CHALLENGES] Raw data:", data);
       setTribeChallenges(data || []);
     } catch (err: any) {
       console.error("Challenges fetch error:", err);
@@ -134,7 +128,7 @@ const Scoretable = () => {
     }
   };
 
-  // Tribe Leaderboard – grouped by rank (since ranks represent tribes)
+  // Tribe Leaderboard – grouped by rank
   const fetchTribeLeaderboard = async () => {
     setLoadingTribeLb(true);
     try {
@@ -364,7 +358,7 @@ const Scoretable = () => {
                   <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
                     <th className="p-5 text-left">Rank</th>
                     <th className="p-5 text-left">Agent</th>
-                    <th className="p-5 text-left">Tribe (Rank)</th>
+                    <th className="p-5 text-left">Rank (Tribe)</th>
                     <th className="p-5 text-left">Streak 🔥</th>
                     <th className="p-5 text-left">Followers</th>
                     <th className="p-5 text-left">Referrals</th>
@@ -427,7 +421,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* TRIBE WARS / CHALLENGES – filtered by user's RANK */}
+        {/* TRIBE WARS / CHALLENGES */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
             <TribeIcon size={28} className="text-orange-600" /> Your Rank Wars – Today's Challenges
@@ -452,7 +446,7 @@ const Scoretable = () => {
                       <div className="h-3 bg-gradient-to-r from-orange-500 to-green-500 transition-all" style={{ width: `${progress}%` }} />
                     </div>
                     <div className="flex justify-between text-xs mt-2 text-zinc-400">
-                      <span>{challenge.progress.toLocaleString()} / {challenge.target.toLocaleString()}}</span>
+                      <span>{challenge.progress.toLocaleString()} / {challenge.target.toLocaleString()}</span>
                       <span className="text-green-400">+{challenge.reward_flame} Flame</span>
                     </div>
                   </div>
@@ -466,7 +460,7 @@ const Scoretable = () => {
           )}
         </div>
 
-        {/* Tribe Leaderboard – grouped by rank */}
+        {/* Tribe Leaderboard */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6">
             <Trophy size={28} className="text-orange-600" /> Rank Leaderboard
