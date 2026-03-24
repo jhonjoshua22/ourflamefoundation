@@ -19,16 +19,16 @@ const FlameGame = () => {
       role: "Normies",
       image: scoutImg,
       price: "Forever Free",
-      benefit: "Enjoy hobbies, Claim prizes, Get educated",
+      benefit: "We just want to enjoy our lives via work, family, hobbies & friends.",
       color: "border-zinc-200 dark:border-zinc-800 bg-card/50", 
       glowClass: "shadow-[0_0_40px_rgba(161,161,170,0.3)]",
       button: "Join Normies",
     },
     {
-      role: "SuperHeros",
+      role: "SuperHeroes",
       image: stormtrooperImg,
-      price: "From $5 pm est",
-      benefit: "Do Good, Enjoy Rewards, Get Superbot 10x Powers",
+      price: "From $5 pm • 50-99% Profit Pay",
+      benefit: "We want to use our 10x Superbot powers to do good and earn rewards.",
       color: "border-orange-600 bg-orange-600/10 shadow-[0_0_20px_rgba(234,88,12,0.1)]",
       glowClass: "shadow-[0_0_50px_rgba(255,255,255,0.5),0_0_20px_rgba(148,163,184,0.4)]",
       button: "Recruit Me",
@@ -37,8 +37,8 @@ const FlameGame = () => {
     {
       role: "Angels",
       image: angelImg,
-      price: "From $50 pm est",
-      benefit: "Provide Funds, Enjoy Rewards, Get SuperBot 10x Powers",
+      price: "From $50 pm • 50-99% Profit Pay",
+      benefit: "We want to provide the funds to fuel the mission and share in the magic.",
       color: "border-zinc-200 dark:border-zinc-800 bg-card/50",
       glowClass: "shadow-[0_0_60px_rgba(255,215,0,0.7),0_0_25px_rgba(255,165,0,0.4)]",
       button: "Become Angel",
@@ -46,8 +46,8 @@ const FlameGame = () => {
     {
       role: "SuperFarmers",
       image: farmerImg,
-      price: "From $500 pm est",
-      benefit: "Boost Funds, Enjoy Rewards, Share Friends",
+      price: "From $500 pm • 50-99% Profit Pay",
+      benefit: "We want to boost the ecosystem, plant seeds for growth, and invite our friends.",
       color: "border-green-600/30 bg-green-600/5",
       glowClass: "shadow-[0_0_60px_rgba(34,197,94,0.4),0_0_25px_rgba(34,197,94,0.2)]",
       button: "Plant Seeds",
@@ -81,20 +81,20 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* Updated: 2x2 Grid for Mobile, 4-column for desktop */}
         <div id="tiers" className="scroll-mt-24 grid grid-cols-2 lg:grid-cols-4 gap-4 border-none mb-20">
           {tiers.map((tier, i) => (
             <div key={i} className={`p-6 flex flex-col items-center text-center transition-all border border-zinc-100 dark:border-zinc-800 ${tier.color}`}>
               <div className="relative mb-6 mt-2">
-                {/* Image sizes adjusted for mobile prominence */}
                 <div className={`w-24 h-24 md:w-44 md:h-44 rounded-full overflow-hidden border-2 border-white/20 animate-breathe ${tier.glowClass}`}>
                   <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                 </div>
               </div>
 
               <h4 className="text-lg md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-1">{tier.role}</h4>
-              <div className="text-orange-600 font-bold text-xs md:text-sm mb-2">{tier.price}</div>
-              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] md:text-xs mb-6 min-h-[40px]">{tier.benefit}</p>
+              <div className="text-orange-600 font-bold text-[10px] md:text-xs mb-2">{tier.price}</div>
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] md:text-xs mb-6 min-h-[48px] italic leading-tight">
+                "{tier.benefit}"
+              </p>
               
               <Link 
                 to="/login"
