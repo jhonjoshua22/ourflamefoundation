@@ -51,11 +51,8 @@ const EventsSection = () => {
         {/* Header - Renamed to Events */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-xl">
-            <h4 className="text-orange-600 font-black uppercase tracking-[0.3em] text-[10px] mb-4">
-              Updates & Engagements
-            </h4>
             <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic">
-              Our <span className="text-orange-600 not-italic uppercase">Events</span>
+              <span className="text-orange-600 not-italic uppercase">Events</span>
             </h2>
           </div>
           <div className="h-[1px] flex-grow bg-zinc-100 dark:bg-zinc-800 hidden md:block mx-12 mb-4" />
