@@ -283,8 +283,8 @@ const AboutUsSection = () => {
             <h4 id="socials" className="text-zinc-900 dark:text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-900 pb-2">Socials</h4>
             <div className="flex flex-col gap-3">
               {sociallinks.map((link, i) => (
-                <a key={i} href={link.href} onClick={playClickSound} target="_blank" rel="noreferrer" className="text-[13px] text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
-                  <link.icon size={14} className="text-zinc-400 group-hover:text-orange-600" />
+                <a key={i} href={link.href} onClick={playClickSound} target="_blank" rel="noreferrer" className="text-base text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2 group">
+                  <link.icon size={18} className="text-zinc-400 group-hover:text-orange-600 transition-colors" />
                   {link.name}
                 </a>
               ))}
@@ -293,12 +293,12 @@ const AboutUsSection = () => {
 
           <div className="space-y-4">
             <h4 className="text-zinc-900 dark:text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-900 pb-2">Foundation Support</h4>
-            <div className="flex flex-col gap-3 text-[13px] text-zinc-500">
-              <p className="flex items-center gap-2"><MapPin size={14} className="text-orange-600"/> UK, PH, IN, PK, BD, GE</p>
+            <div className="flex flex-col gap-3 text-base text-zinc-500">
+              <p className="flex items-center gap-2"><MapPin size={18} className="text-orange-600"/> UK, PH, IN, PK, BD, GE</p>
               <a href="https://wa.me/447762293742" onClick={playClickSound} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-orange-600 transition-colors">
-                  <MessageCircle size={14} className="text-orange-600"/> +44 7762 293742
+                  <MessageCircle size={18} className="text-orange-600"/> +44 7762 293742
               </a>
-              <p className="flex items-center gap-2"><Mail size={14} className="text-orange-600"/> help@ourflamefoundation.org</p>
+              <p className="flex items-center gap-2"><Mail size={18} className="text-orange-600"/> help@ourflamefoundation.org</p>
             </div>
           </div>
 
