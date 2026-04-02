@@ -8,6 +8,9 @@ import {
   MessageSquare,
   Zap,
   Linkedin,
+  Scale,
+  Lock,
+  ScrollText,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/ourflamelogo.png";
@@ -37,6 +40,7 @@ const AuthPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[120px] -z-10" />
+      
       <Link
         to="/"
         className="absolute top-8 left-8 text-zinc-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-[10px] font-black tracking-[0.2em]"
@@ -44,8 +48,10 @@ const AuthPage: React.FC = () => {
         <ArrowLeft size={16} />
         Back to home
       </Link>
+
       <div className="w-full max-w-[400px]">
         <div className="bg-[#111111]/80 backdrop-blur-md border border-white/10 rounded-none p-8 md:p-12">
+          
           <div className="flex flex-col items-center text-center mb-10">
             <div className="relative mb-6">
               <img
@@ -54,14 +60,37 @@ const AuthPage: React.FC = () => {
                 className="w-20 h-20 object-contain brightness-110 drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]"
               />
             </div>
+            
+            {/* 2. Better CTA applied */}
             <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-2">
-              Join the <span className="text-orange-600 not-italic">Flame</span>
+              <span className="text-orange-600 not-italic">Your</span> Rewards
             </h1>
-            <p className="text-zinc-500 text-[11px] uppercase tracking-widest leading-relaxed">
-              Global Infrastructure Access
+            
+            {/* 3. Re-ordered in order of global family importance */}
+            <p className="text-zinc-500 text-[10px] uppercase font-black tracking-widest leading-relaxed mb-1">
+              EduWorld + Einstein • MoneyWorld
             </p>
+            <p className="text-zinc-600 text-[9px] uppercase font-bold tracking-wider leading-relaxed">
+              SportWorld • MusicWorld • Gaming
+            </p>
+            
+            <div className="mt-4 text-white text-[11px] font-black uppercase tracking-widest bg-zinc-800/50 py-2 px-4 border border-zinc-700">
+              Sign Up Free Or Log In
+            </div>
           </div>
+
           <div className="space-y-3">
+            {/* 1. Clapmi at the very top */}
+            <a
+              href="https://clapmi.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-3 bg-zinc-900 border border-white/10 hover:border-pink-500/50 hover:bg-pink-500/5 text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
+            >
+              <Zap size={18} className="text-pink-500" />
+              Continue with Clapmi
+            </a>
+
             <button
               onClick={() => handleOAuthLogin("google")}
               className="w-full flex items-center justify-center gap-3 bg-white hover:bg-zinc-200 text-black py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -69,6 +98,7 @@ const AuthPage: React.FC = () => {
               <Chrome size={18} />
               Continue with Google
             </button>
+            
             <button
               onClick={() => handleOAuthLogin("linkedin_oidc")}
               className="w-full flex items-center justify-center gap-3 bg-[#0A66C2] hover:bg-[#004182] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -76,6 +106,7 @@ const AuthPage: React.FC = () => {
               <Linkedin size={18} />
               Continue with LinkedIn
             </button>
+            
             <button
               onClick={() => handleOAuthLogin("discord")}
               className="w-full flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -83,6 +114,7 @@ const AuthPage: React.FC = () => {
               <MessageSquare size={18} />
               Continue with Discord
             </button>
+            
             <button
               onClick={() => handleOAuthLogin("facebook")}
               className="w-full flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -90,6 +122,7 @@ const AuthPage: React.FC = () => {
               <Facebook size={18} />
               Continue with Facebook
             </button>
+            
             <button
               onClick={() => handleOAuthLogin("github")}
               className="w-full flex items-center justify-center gap-3 bg-zinc-800 hover:bg-zinc-900 text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
@@ -99,15 +132,7 @@ const AuthPage: React.FC = () => {
               </svg>
               Continue with GitHub
             </button>
-            <a
-              href="https://clapmi.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-3 bg-zinc-900 border border-white/5 hover:border-pink-500/50 hover:bg-pink-500/5 text-zinc-400 hover:text-white py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all active:scale-[0.98]"
-            >
-              <Zap size={18} className="text-pink-500" />
-              Continue with Clapmi
-            </a>
+            
             <div className="flex items-center gap-3 py-6">
               <div className="h-[1px] bg-white/5 flex-1"></div>
               <span className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.3em]">
@@ -115,22 +140,47 @@ const AuthPage: React.FC = () => {
               </span>
               <div className="h-[1px] bg-white/5 flex-1"></div>
             </div>
+            
             <div className="flex items-center justify-center gap-2 text-zinc-600 text-[10px] uppercase font-bold tracking-tighter">
               <ShieldCheck size={14} className="text-orange-600" />
               <span>Encrypted Authentication Session</span>
             </div>
           </div>
         </div>
-        <p className="text-center text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-8 px-8 leading-relaxed">
-          By continuing, you agree to our
-          <Link to="/terms" className="text-zinc-400 hover:text-white mx-1 transition-colors">
-            Terms
-          </Link>
-          &
-          <Link to="/privacy" className="text-zinc-400 hover:text-white mx-1 transition-colors">
-            Privacy Policy
-          </Link>
-        </p>
+
+        {/* 4. Commandments & Individual Legal Buttons Footer */}
+        <div className="mt-8 px-4 text-center">
+          <p className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.2em] mb-4">
+            Here Are Our 10 Commandments & Legal Stuff
+          </p>
+          
+          <div className="flex flex-col gap-2">
+            <Link 
+              to="/terms" 
+              className="flex items-center justify-center gap-2 w-full py-3 bg-zinc-900/50 border border-zinc-800 hover:border-orange-600 text-white text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <ScrollText size={12} className="text-orange-600" />
+              Our 10 Commandments
+            </Link>
+            
+            <div className="flex gap-2">
+              <Link 
+                to="/terms" 
+                className="flex items-center justify-center gap-2 w-1/2 py-3 bg-zinc-900/50 border border-zinc-800 hover:border-white text-zinc-400 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all"
+              >
+                <Scale size={11} />
+                Terms of Use
+              </Link>
+              <Link 
+                to="/privacy" 
+                className="flex items-center justify-center gap-2 w-1/2 py-3 bg-zinc-900/50 border border-zinc-800 hover:border-white text-zinc-400 hover:text-white text-[9px] font-black uppercase tracking-widest transition-all"
+              >
+                <Lock size={11} />
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
