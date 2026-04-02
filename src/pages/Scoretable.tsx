@@ -536,11 +536,11 @@ const Scoretable = () => {
           Real-time • Database-powered • Grok-optimized • 10x Growth Engine Activated
         </p>
       </div>
-    </div>
 
-    <GameGallery />
-    <HeroSection />
-    <AboutUsSection />
+      <GameGallery />
+      <HeroSection />
+      <AboutUsSection />
+    </div>
 
   );
 };
