@@ -89,7 +89,6 @@ const FlameGame = () => {
             <video 
               controls 
               className="w-full h-full object-cover"
-              poster={partnerImg} // Optional: You can remove or change the placeholder cover frame
             >
               <source src={magicWorlds} type="video/mp4" />
               Your browser does not support the video tag.
