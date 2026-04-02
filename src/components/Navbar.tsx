@@ -55,10 +55,12 @@ const Navbar = () => {
   const flatNavigation = [
     { name: "Flame Game", href: "/#flame-game" },
     { name: "Rewards", href: "/scoretable" },
-    { name: "Reviews", href: "/#impact" },
-    { name: "Products", href: "/#products" },
-    { name: "About", href: "/#home" },
-    { name: "Contacts", href: "/#contacts" },
+    { name: "What", href: "/#what" },
+    { name: "Why", href: "/gallery" },
+    { name: "How", href: "/#flame-game" },
+    { name: "Where", href: "/presence" },
+    { name: "When", href: "/#news" },
+    { name: "Who", href: "/impact" },
   ];
 
   return (
