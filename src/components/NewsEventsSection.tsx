@@ -1,60 +1,74 @@
-import { Calendar, MapPin } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // Added for routing
+import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import cebu from "@/assets/cebu.jpeg";
 import glow from "@/assets/glow.png";
 import dewdrops from "@/assets/dewdrops.jpeg";
 
-const NewsEventsSection = () => {
-  const events = [
-    {
-      title: "Glow and Tell",
-      description: "An empowering event for women owning their menopause journey.",
-      date: "October 12, 2025",
-      location: "Beverly Hills, CA",
-      image: glow,
-      type: "Event",
-    },
-    {
-      title: "Relief Operations for Typhoon Tino",
-      description: "Our team is currently on the ground delivering food, clean water, and medical supplies to affected families.",
-      date: "December 13, 2025",
-      location: "Cebu, Philippines",
-      image: cebu,
-      type: "News",
-    },
-    {
-      title: "Dewdrops Care Development Foundation",
-      description: "Providing children with essential tools for play, learning, and faith, ensuring every child feels like a hero.",
-      date: "December 22, 2025",
-      location: "Lagos, Nigeria",
-      image: dewdrops,
-      type: "Foundation",
-    }
-  ];
+const EventsSection = () => {
+  // Setup state to make the calendar dynamic
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    // Simulated dynamic fetch from a calendar API or backend
+    const fetchCalendarEvents = async () => {
+      const mockCalendarData = [
+        {
+          title: "Glow and Tell",
+          description: "An empowering event for women owning their menopause journey.",
+          date: "October 12, 2025",
+          location: "Beverly Hills, CA",
+          image: glow,
+          type: "Event",
+        },
+        {
+          title: "Relief Operations for Typhoon Tino",
+          description: "Our team is currently on the ground delivering food, clean water, and medical supplies to affected families.",
+          date: "December 13, 2025",
+          location: "Cebu, Philippines",
+          image: cebu,
+          type: "News",
+        },
+        {
+          title: "Dewdrops Care Development Foundation",
+          description: "Providing children with essential tools for play, learning, and faith, ensuring every child feels like a hero.",
+          date: "December 22, 2025",
+          location: "Lagos, Nigeria",
+          image: dewdrops,
+          type: "Foundation",
+        }
+      ];
+      setEvents(mockCalendarData);
+    };
+
+    fetchCalendarEvents();
+  }, []);
 
   return (
     <section id="news" className="py-24 bg-white dark:bg-black font-sans">
       <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Header - Simple & Clean */}
+        {/* Header - Renamed to Events */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div className="max-w-xl">
             <h4 className="text-orange-600 font-black uppercase tracking-[0.3em] text-[10px] mb-4">
               Updates & Engagements
             </h4>
             <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic">
-              News & <span className="text-orange-600 not-italic uppercase">Events</span>
+              Our <span className="text-orange-600 not-italic uppercase">Events</span>
             </h2>
           </div>
           <div className="h-[1px] flex-grow bg-zinc-100 dark:bg-zinc-800 hidden md:block mx-12 mb-4" />
         </div>
 
+        {/* Dynamic Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
           {events.map((item, index) => (
             <div 
               key={index} 
               className="group bg-white dark:bg-zinc-950 flex flex-col h-full transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900"
             >
-              {/* Image Container - Sharp Edges */}
+              {/* Image Container */}
               <div className="relative aspect-video overflow-hidden">
                 <img 
                   src={item.image} 
@@ -96,9 +110,26 @@ const NewsEventsSection = () => {
             </div>
           ))}
         </div>
+
+        {/* CTA Section - Full Calendar & Login */}
+        <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Link 
+            to="/calendar" 
+            className="flex items-center justify-center gap-2 bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20 w-full sm:w-auto text-center"
+          >
+            Full Calendar <ArrowRight size={14} />
+          </Link>
+          <Link 
+            to="/login" 
+            className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors rounded-lg shadow-lg shadow-zinc-900/10 w-full sm:w-auto text-center"
+          >
+            Log In
+          </Link>
+        </div>
+
       </div>
     </section>
   );
 };
 
-export default NewsEventsSection;
+export default EventsSection;
