@@ -57,7 +57,7 @@ const Navbar = () => {
     { name: "Rewards", href: "/scoretable" },
     { name: "What", href: "/#what" },
     { name: "Why", href: "/gallery" },
-    { name: "How", href: "/#flame-game" },
+    { name: "How", href: "/#resources" },
     { name: "Where", href: "/presence" },
     { name: "When", href: "/#news" },
     { name: "Who", href: "/impact" },
