@@ -99,15 +99,6 @@ const GlobalMap = () => {
           </div>
         </div>
 
-        {/* Legend Grid - "Node Active" text removed from here as well */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
-          {locations.map((loc) => (
-            <div key={loc.id} className="p-4 border border-border bg-white/5 flex flex-col hover:border-orange-600 hover:bg-orange-600/5 transition-all group">
-              <span className="text-[10px] font-mono text-orange-600 font-bold tracking-tighter">NODE_{loc.id}</span>
-            </div>
-          ))}
-        </div>
-
         {/* CTA Buttons - Positioned beside each other */}
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
