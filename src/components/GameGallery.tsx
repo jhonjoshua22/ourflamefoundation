@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; // Added for local navigation
 import g1 from "../assets/g1.png";
 import g2 from "../assets/g2.png";
 import g3 from "../assets/g3.png";
 import g4 from "../assets/g4.png";
 import g5 from "../assets/g5.mp4";
 import magicWorlds from "../assets/magicworlds.mp4";
-import gameCollage from "../assets/gamecollage.png"; 
+import gameCollage from "../assets/popup.jpg"; 
 
 const GameGallery = () => {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
@@ -14,8 +15,9 @@ const GameGallery = () => {
   return (
     <section id="gallery" className="bg-white dark:bg-black py-16 px-6 border-t border-zinc-100 dark:border-zinc-800">
       <div className="container mx-auto max-w-7xl">
+        {/* Changed header title */}
         <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white mb-10 text-center">
-          PLAY & <span className="text-orange-600">EDUCATE</span>
+          YOUR <span className="text-orange-600">REWARDS</span>
         </h2>
 
         {/* Layout: Magic Worlds Section on Top */}
@@ -25,21 +27,31 @@ const GameGallery = () => {
               href="https://magicworlds.itch.io/magic-world" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-3xl font-black uppercase tracking-tight text-black transition-colors"
+              className="text-3xl font-black uppercase tracking-tight text-black dark:text-white transition-colors"
             >
               Magic Worlds
             </a>
+            
+            {/* Updated description to match the reward theme */}
             <p className="text-zinc-500 text-sm leading-relaxed mt-4 mb-6">
-              Magic Worlds is an interactive universe of themed worlds where players explore, learn, and grow through conversation and experience. Each world features AI characters, activities, and challenges designed to inspire curiosity, creativity, and real-world knowledge in a fun, game-driven way.
+              Track your progress and convert your in-game milestones into real ecosystem standing! Visit your scoretable to log your achievements or log in to pull your data directly from your persistent profile.
             </p>
-            <a 
-              href="https://magicworlds.itch.io/magic-world" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-block bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 hover:bg-orange-700 transition-colors"
-            >
-              Click to download
-            </a>
+            
+            {/* Updated CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link 
+                to="/scoretable" 
+                className="inline-block bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 hover:bg-orange-700 transition-colors rounded"
+              >
+                Reward Me
+              </Link>
+              <Link 
+                to="/login" 
+                className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-widest px-6 py-3 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors rounded"
+              >
+                Log In
+              </Link>
+            </div>
           </div>
 
           <a 
