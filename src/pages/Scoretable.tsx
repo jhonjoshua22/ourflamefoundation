@@ -527,35 +527,7 @@ const Scoretable = () => {
             </>
           )}
         </div>
-
-        {/* REWARDS SECTION */}
-        <div className="mt-16 border-t border-zinc-800 pt-12">
-          <h3 className="text-sm uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-3">
-            <Gift size={18} className="text-orange-600" /> Foundation Rewards
-          </h3>
-          <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-950">
-            {[
-              { class: "Normie", icon: <Zap size={20} className="text-blue-500" />, rewards: ["Do Good", "Share Content", "Win Prizes"] },
-              { class: "SuperHero", icon: <Star size={20} className="text-orange-600" />, rewards: ["Recruit Normies", "Educate All", "Launch Products"] },
-              { class: "Angel", icon: <Shield size={20} className="text-yellow-500" />, rewards: ["Recruit SuperHeros", "Mentor & Coach", "Angel Fund"] },
-              { class: "SuperFarmer", icon: <Sprout size={20} className="text-green-500" />, rewards: ["Recruit Angels", "Mentor & Coach", "Seed Fund"] }
-            ].map(tier => (
-              <div key={tier.class} className="grid md:grid-cols-12 p-6 border-b border-zinc-800 last:border-0 hover:bg-zinc-900/50">
-                <div className="md:col-span-4 flex items-center gap-4 mb-4 md:mb-0">
-                  <div className="p-3 bg-zinc-800 rounded">{tier.icon}</div>
-                  <h4 className="text-xl font-black">{tier.class}</h4>
-                </div>
-                <div className="md:col-span-8 flex flex-wrap gap-3 justify-end">
-                  {tier.rewards.map(r => (
-                    <span key={r} className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded text-sm">
-                      {r}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          
 
         <p className="text-center text-zinc-600 text-sm mt-12">
           Real-time • Database-powered • Grok-optimized • 10x Growth Engine Activated
