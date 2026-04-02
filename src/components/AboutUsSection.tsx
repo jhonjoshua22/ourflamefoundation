@@ -35,11 +35,12 @@ const AboutUsSection = () => {
     "X. Ensure every member acts as a superhero, building the foundation for others to rise."
   ];
 
+  // Strings applied to prevent ReferenceErrors until actual file imports are handled
   const brandFiles = [
-    { name: "2026 Daily Timetable", path: SchedulePDF, type: "pdf" }, 
-    { name: "The Masterplan", path: MasterplanPDF, type: "pdf" },
-    { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
-    { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
+    { name: "2026 Daily Timetable", path: "SchedulePDF", type: "pdf" }, 
+    { name: "The Masterplan", path: "MasterplanPDF", type: "pdf" },
+    { name: "Magic Worlds Guide", path: "MagicWorldsPDF", type: "pdf" },
+    { name: "Flame Foundation Guide", path: "FlameFoundationPDF", type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
   ];
 
