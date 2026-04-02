@@ -1,7 +1,6 @@
 import HeroSection from "@/components/HeroSection";
 import ImpactSection from "@/components/ImpactSection";
 import Testimonials from "@/components/Testimonials";
-import ProcessSection from "@/components/ProcessSection";
 import AboutUsSection from "@/components/AboutUsSection";
 import FlameGame from "@/components/FlameGame";
 import Dashboard from "@/components/Dashboard";
@@ -18,21 +17,20 @@ const Index = () => {
       {/* The Flame Game & Dashboard Sections */}
       <FlameGame />
       <Dashboard />
+          
       <GameGallery />
-      
-      {/* Infrastructure & Social Proof */}
-      <GlobalMap />
-      <Testimonials />
+      <HeroSection />
       <AboutUsSection />
       
-      {/* Foundation Details */}
-      <NewsEventsSection />
-      <ImpactSection />
+      <GlobalMap />
+
+      <NewsEventsSection />
+      
+      <Testimonials />
+      <PartnerSection />
       
-      {/* Partnership Ecosystem */}
-      <PartnerSection />
-      <HeroSection />
-      <ProcessSection />
+      <ImpactSection />
+      
     </div>
   );
 };
