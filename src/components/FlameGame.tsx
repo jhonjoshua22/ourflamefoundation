@@ -14,7 +14,8 @@ const FlameGame = () => {
     new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
   };
 
-  const communityTiers = [
+  // 1. Unified array of all 5 tiers so they share the exact same UI structure
+  const tiers = [
     {
       role: "I'm Partner",
       image: scoutImg,
@@ -31,9 +32,6 @@ const FlameGame = () => {
       color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50", 
       button: "Join Normies",
     },
-  ];
-
-  const coreTiers = [
     {
       role: "I'm Superhero",
       image: stormtrooperImg,
@@ -70,7 +68,7 @@ const FlameGame = () => {
   return (
     <section id="flame-game" className="relative pt-32 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
       
-      <div className="container mx-auto max-w-6xl relative z-10">
+      <div className="container mx-auto max-w-7xl relative z-10">
         
         {/* Intro Video Box */}
         <div className="max-w-4xl mx-auto mb-16">
@@ -103,70 +101,38 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* TIERS CONTAINER */}
-        <div id="tiers" className="scroll-mt-24 mb-24 max-w-5xl mx-auto space-y-6">
-          
-          {/* Top Row: Community Tiers (Fits beautifully in 2 columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {communityTiers.map((tier, i) => (
-              <div key={i} className={`p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
-                <div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
-                      <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
-                      <div className="text-orange-600 font-bold text-sm">{tier.price}</div>
-                    </div>
+        {/* 2. ENTIRELY UNIFIED GRID FOR ALL 5 TIERS */}
+        <div id="tiers" className="scroll-mt-24 mb-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {tiers.map((tier, i) => (
+            <div key={i} className={`p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
+              <div>
+                {/* 3. Dead center layouts with giant circle pictures */}
+                <div className="flex flex-col items-center text-center mb-6">
+                  <div className="w-36 h-36 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6">
+                    <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                   </div>
-                  <p className="text-zinc-600 dark:text-zinc-300 text-sm italic leading-relaxed mb-6">
-                    "{tier.benefit}"
-                  </p>
+                  <h4 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
+                  <div className="text-orange-600 font-bold text-xs mt-1">{tier.price}</div>
                 </div>
                 
-                <Link 
-                  to="/login"
-                  onClick={playClickSound}
-                  className="w-full py-3 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20 rounded-lg"
-                >
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
+                <p className="text-zinc-600 dark:text-zinc-300 text-sm text-center italic leading-relaxed mb-8 min-h-[60px]">
+                  "{tier.benefit}"
+                </p>
               </div>
-            ))}
-          </div>
-
-          {/* Bottom Row: Core Tiers (Fits beautifully in 3 columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {coreTiers.map((tier, i) => (
-              <div key={i} className={`p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
-                <div>
-                  <div className="flex flex-col items-center text-center mb-6">
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 shadow-xl mb-4">
-                      <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
-                    </div>
-                    <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
-                    <div className="text-orange-600 font-bold text-xs mt-1">{tier.price}</div>
-                  </div>
-                  <p className="text-zinc-600 dark:text-zinc-300 text-sm text-center italic leading-relaxed mb-8">
-                    "{tier.benefit}"
-                  </p>
-                </div>
-                
-                <Link 
-                  to="/login"
-                  onClick={playClickSound}
-                  className={`w-full py-3.5 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 rounded-lg ${
-                    tier.featured 
-                      ? "bg-orange-600 text-white hover:bg-orange-500 shadow-lg shadow-orange-600/20" 
-                      : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
-                  }`}
-                >
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-          </div>
+              
+              <Link 
+                to="/login"
+                onClick={playClickSound}
+                className={`w-full py-3.5 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 rounded-lg ${
+                  tier.featured 
+                    ? "bg-orange-600 text-white hover:bg-orange-500 shadow-lg shadow-orange-600/20" 
+                    : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
+                }`}
+              >
+                {tier.button} <ChevronRight size={14} />
+              </Link>
+            </div>
+          ))}
         </div>
 
         {/* Process Steps */}
