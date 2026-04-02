@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Calendar, Youtube } from "lucide-react";
+import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Calendar, Youtube, Users, Flag, ThumbsUp } from "lucide-react";
 import clickSound from "@/assets/button.m4a";
 
 // --- ASSET IMPORTS ---
@@ -156,6 +156,34 @@ const ImpactSection = () => {
   return (
     <section id="services" className="py-24 bg-white dark:bg-black font-sans relative">
       <div className="container mx-auto px-6 max-w-7xl">
+        
+        {/* STATS GRID ADDED AT THE TOP */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 mb-16 pt-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-orange-600" />
+              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">50K+</span>
+            </div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Followers</p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Flag className="w-5 h-5 text-orange-600" />
+              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">100K+</span>
+            </div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Supported</p>
+          </div>
+
+          <div className="space-y-2 col-span-2 md:col-span-1">
+            <div className="flex items-center gap-3">
+              <ThumbsUp className="w-5 h-5 text-orange-600" />
+              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">3.5M</span>
+            </div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">2026 Foundation Goal</p>
+          </div>
+        </div>
+
         <div className="mb-20">
           <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic leading-[0.85]">
             Global <br /> <span className="text-orange-600 not-italic uppercase">Footprint</span>
