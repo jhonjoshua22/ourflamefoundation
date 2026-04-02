@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Play } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import clickSound from "../assets/button.m4a"; 
 
 // Asset Imports (Double check these exact filenames/paths in your project!)
@@ -9,6 +9,7 @@ import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
 import farmerImg from "../assets/superfarmer.png"; 
+import magicWorlds from "../assets/magicworlds.mp4";
 
 const FlameGame = () => {
   const playClickSound = () => {
@@ -81,21 +82,18 @@ const FlameGame = () => {
 
         {/* Intro Video Box is SECOND */}
         <div className="max-w-4xl mx-auto mb-20">
-          <div className="aspect-video w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl flex flex-col items-center justify-center gap-4 relative overflow-hidden group hover:border-orange-600/50 transition-colors shadow-2xl shadow-black/5">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="aspect-video w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl relative overflow-hidden group hover:border-orange-600/50 transition-colors shadow-2xl shadow-black/5">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10" />
             
-            <div className="w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center shadow-xl shadow-orange-600/20 group-hover:scale-110 transition-transform cursor-pointer">
-              <Play size={28} fill="white" className="ml-1" />
-            </div>
-            
-            <div className="text-center">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-                Intro Video Placeholder
-              </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Insert approved video here (Ask John which one is best)
-              </p>
-            </div>
+            {/* ✅ Swapped out the mock layout for the real imported video */}
+            <video 
+              controls 
+              className="w-full h-full object-cover"
+              poster={partnerImg} // Optional: You can remove or change the placeholder cover frame
+            >
+              <source src={magicWorlds} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
         </div>
 
