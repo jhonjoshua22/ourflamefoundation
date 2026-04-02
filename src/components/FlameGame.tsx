@@ -14,7 +14,8 @@ const FlameGame = () => {
     new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
   };
 
-  const communityTiers = [
+  // One single array for all tiers so the design is locked in 100% identical
+  const tiers = [
     {
       role: "Partner",
       image: scoutImg,
@@ -31,9 +32,6 @@ const FlameGame = () => {
       color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50", 
       button: "I'm Normal",
     },
-  ];
-
-  const coreTiers = [
     {
       role: "Superheros",
       image: stormtrooperImg,
@@ -41,6 +39,7 @@ const FlameGame = () => {
       benefit: "We want to use our 10x Superbot powers to do good and earn rewards.",
       color: "border-orange-600 bg-orange-600/5 shadow-[0_10px_30px_rgba(234,88,12,0.05)]",
       button: "I'm SuperHero",
+      featured: true,
     },
     {
       role: "Angels",
@@ -71,7 +70,7 @@ const FlameGame = () => {
       
       <div className="container mx-auto max-w-7xl relative z-10">
         
-        {/* Title is now FIRST */}
+        {/* Title is FIRST */}
         <div className="text-center mb-16 space-y-3">
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-zinc-900 dark:text-white">
             Welcome to the <span className="text-orange-600">Flame Game</span>
@@ -82,7 +81,7 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* Intro Video Box comes SECOND */}
+        {/* Intro Video Box is SECOND */}
         <div className="max-w-4xl mx-auto mb-20">
           <div className="aspect-video w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl flex flex-col items-center justify-center gap-4 relative overflow-hidden group hover:border-orange-600/50 transition-colors shadow-2xl shadow-black/5">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -102,45 +101,24 @@ const FlameGame = () => {
           </div>
         </div>
 
-        {/* TIERS CONTAINER - 3+2 Grid Setup with Shared UI Design */}
-        <div id="tiers" className="scroll-mt-24 mb-24 max-w-6xl mx-auto space-y-6">
-          
-          {/* Top Row: Community Tiers (2 columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {communityTiers.map((tier, i) => (
-              <div key={i} className={`p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
-                <div>
-                  <div className="flex flex-col items-center text-center mb-6">
-                    <div className="w-36 h-36 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6">
-                      <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
-                    </div>
-                    <h4 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
-                    <div className="text-orange-600 font-bold text-xs mt-1">{tier.price}</div>
-                  </div>
-                  
-                  <p className="text-zinc-600 dark:text-zinc-300 text-sm text-center italic leading-relaxed mb-8 min-h-[60px]">
-                    "{tier.benefit}"
-                  </p>
-                </div>
-                
-                <Link 
-                  to="/login"
-                  onClick={playClickSound}
-                  className="w-full py-3.5 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20 rounded-lg"
-                >
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-          </div>
+        {/* TIERS CONTAINER - Custom 6-Column Grid to safely yield a 3+2 visual flow */}
+        <div id="tiers" className="scroll-mt-24 mb-24 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6">
+          {tiers.map((tier, i) => {
+            // Cards 1, 2, 3 take up 2 grid columns each (Total 6 = perfectly fits 1 row)
+            // Cards 4, 5 take up 2 grid columns each, but we push card 4 over by 1 column on desktop to center the bottom row
+            const gridClasses = 
+              i < 3 
+                ? "md:col-span-2" 
+                : i === 3 
+                ? "md:col-span-2 md:col-start-2" 
+                : "md:col-span-2";
 
-          {/* Bottom Row: Core Tiers (3 columns) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {coreTiers.map((tier, i) => (
-              <div key={i} className={`p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
+            return (
+              <div key={i} className={`${gridClasses} p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
                 <div>
                   <div className="flex flex-col items-center text-center mb-6">
-                    <div className="w-36 h-36 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6">
+                    {/* Big centered circle pictures */}
+                    <div className="w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6">
                       <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                     </div>
                     <h4 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
@@ -164,8 +142,8 @@ const FlameGame = () => {
                   {tier.button} <ChevronRight size={14} />
                 </Link>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
         {/* Process Steps */}
