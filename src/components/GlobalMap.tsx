@@ -54,10 +54,9 @@ const GlobalMap = () => {
         .addTo(mapInstance.current)
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 5px;">
-            <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">NODE_${loc.id}</b><br/>
-            <span style="font-weight: 900; font-size: 14px; color: #000; text-transform: uppercase;">Node Active</span>
+            <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">NODE_${loc.id}</b>
           </div>
-        `);
+        `); // Removed "Node Active" line from the popup
     });
 
     setTimeout(() => {
@@ -100,23 +99,28 @@ const GlobalMap = () => {
           </div>
         </div>
 
-        {/* Legend Grid - Country names removed */}
+        {/* Legend Grid - "Node Active" text removed from here as well */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
           {locations.map((loc) => (
             <div key={loc.id} className="p-4 border border-border bg-white/5 flex flex-col hover:border-orange-600 hover:bg-orange-600/5 transition-all group">
               <span className="text-[10px] font-mono text-orange-600 font-bold tracking-tighter">NODE_{loc.id}</span>
-              <span className="text-sm font-black uppercase text-foreground italic">Node Active</span>
             </div>
           ))}
         </div>
 
-        {/* CTA Button Added Here */}
-        <div className="mt-12 text-center">
+        {/* CTA Buttons - Positioned beside each other */}
+        <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
             to="/login" 
-            className="inline-block bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20"
+            className="inline-block bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20 w-full sm:w-auto text-center"
           >
             Find Friends
+          </Link>
+          <Link 
+            to="/login" 
+            className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors rounded-lg shadow-lg shadow-zinc-900/10 w-full sm:w-auto text-center"
+          >
+            Log In
           </Link>
         </div>
 
