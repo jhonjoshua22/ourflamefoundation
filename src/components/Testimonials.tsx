@@ -5,47 +5,39 @@ import { Star, CheckCircle, Rocket, Linkedin } from "lucide-react";
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Google", 
+      name: "Ad Giant", 
       role: "Enterprise Partner",
       content: "Revolutionary", 
-      initials: "GO", 
-      accent: "border-orange-600",
-      isHighlight: true 
+      initials: "AG", 
+      accent: "border-zinc-300"
     },
     {
-      name: "Microsoft",
+      name: "Global Retailer",
       role: "Ecosystem Supporter",
-      content: "Incredible",
-      initials: "MS",
-      accent: "border-orange-600"
+      content: "Fascinating",
+      initials: "GR",
+      accent: "border-zinc-300"
     },
     {
-      name: "Apple",
+      name: "Global Games Co",
       role: "Hardware Integrator",
-      content: "Flawless",
-      initials: "AP",
+      content: "Unique",
+      initials: "GC",
       accent: "border-zinc-300"
     },
     {
-      name: "Amazon",
+      name: "Global Ad Agency",
       role: "Logistics Partner",
-      content: "Essential",
-      initials: "AZ",
+      content: "One to Watch",
+      initials: "GA",
       accent: "border-zinc-300"
     },
     {
-      name: "Meta",
+      name: "Google",
       role: "Community Node",
-      content: "Visionary",
-      initials: "ME",
-      accent: "border-zinc-300"
-    },
-    {
-      name: "SpaceX",
-      role: "Strategy Partner",
-      content: "Unstoppable",
-      initials: "SX",
-      accent: "border-orange-600"
+      content: "Bizarre & Compelling",
+      initials: "GO",
+      accent: "border-orange-600",
     }
   ];
 
