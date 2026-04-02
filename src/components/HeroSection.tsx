@@ -44,65 +44,38 @@ const HeroSection = () => {
           </h1>
 
           <div className="space-y-6 mb-12">
+            {/* Paragraph 1: Shifted to Benefits and rewards statement */}
             <p className="text-xl md:text-2xl text-foreground/80 font-light leading-relaxed max-w-2xl">
-              A global incubator dedicated to reducing complexity. 
-              Fusing <span className="font-bold">AI, blockchain</span>, and expert human support to improve lives.
-              Objectives: Maximise healthy happiness, economic sustainability & curiosity for sentients, truth & beautiful design.
+              Unlock exclusive access to top-tier health resources, global networking tracks, and premium member perks. Our platform is built to recognize your drive and heavily reward your active community contributions.
             </p>
             
+            {/* Paragraph 2: Tied closely to benefits and rewards */}
             <div className="border-l-2 border-orange-600 pl-6 py-1">
               <p className="text-sm md:text-base text-muted-foreground uppercase tracking-widest leading-relaxed">
-                Our superpower is our <span className="text-foreground font-black">neurodiversity</span>. 
-                We eliminate wasted time through precision planning.
+                Your dedication fuels our engine. Step into a personalized ecosystem where every milestone you achieve unlocks <span className="text-foreground font-black">custom perks</span> and tangible corporate rewards.
               </p>
             </div>
           </div>
 
-          {/* Sharp Buttons - Added onClick handlers */}
+          {/* Sharp Buttons - Updated to More Info and My Rewards */}
           <div className="flex flex-col sm:flex-row gap-4 mb-20">
             <a
-              href="https://www.youtube.com/@MagicworldsTV"
+              href="#what"
               onClick={playClickSound}
               className="inline-flex items-center justify-center gap-3 bg-orange-600 px-10 py-5 rounded-none font-black text-xs uppercase tracking-[0.2em] text-white hover:bg-orange-500 transition-all active:scale-95"
             >
-              Start Learning
+              More Info
               <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="#impact"
+              href="/login"
               onClick={playClickSound}
               className="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-none font-black text-xs uppercase tracking-[0.2em] border border-border bg-background/40 text-foreground hover:bg-foreground hover:text-background transition-all"
             >
-              Our Hot Topics
+              My Rewards
             </a>
           </div>
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-12 pt-12 border-t border-border">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-orange-600" />
-                <span className="text-4xl font-black tracking-tighter text-foreground">50K+</span>
-              </div>
-              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-muted-foreground">Followers</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <Flag className="w-5 h-5 text-orange-600" />
-                <span className="text-4xl font-black tracking-tighter text-foreground">100K+</span>
-              </div>
-              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-muted-foreground">Supported</p>
-            </div>
-
-            <div className="space-y-2 col-span-2 md:col-span-1">
-              <div className="flex items-center gap-3">
-                <ThumbsUp className="w-5 h-5 text-orange-600" />
-                <span className="text-4xl font-black tracking-tighter text-foreground">3.5M</span>
-              </div>
-              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-muted-foreground">2026 Foundation Goal</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
