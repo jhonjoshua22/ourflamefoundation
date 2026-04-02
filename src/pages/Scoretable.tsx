@@ -6,6 +6,9 @@ import {
   Heart, DollarSign, Lightbulb, Gift, Zap, Star, Shield, Sprout,
   Award, Download, Users as TribeIcon,
 } from "lucide-react";
+import GameGallery from "@/components/GameGallery";
+import AboutUsSection from "@/components/AboutUsSection";
+import HeroSection from "@/components/HeroSection";
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -536,5 +539,9 @@ const Scoretable = () => {
     </div>
   );
 };
+
+<GameGallery />
+<HeroSection />
+<AboutUsSection />
 
 export default Scoretable;
