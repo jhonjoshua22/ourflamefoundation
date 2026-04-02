@@ -92,19 +92,7 @@ const GameGallery = () => {
               </span>
             </div>
           </a>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="w-full">
-          <a href="https://www.youtube.com/@FlameFoundationTV/playlists" target="_blank" rel="noopener noreferrer" className="block group relative overflow-hidden rounded-xl border-2 border-zinc-800 shadow-2xl">
-            <img src={gameCollage} alt="Game Snippets Collage" className="w-full h-auto max-h-[400px] object-cover transform group-hover:scale-[1.01] transition-transform duration-700" />
-            <div className="absolute bottom-4 right-4 z-20 bg-black/80 backdrop-blur-md px-4 py-2 border border-orange-600 rounded-full">
-              <span className="text-white text-[10px] font-black uppercase tracking-widest">
-                Watch All Playlists on <span className="text-orange-600">YouTube</span>
-              </span>
-            </div>
-          </a>
-        </div>
+        </div>        
       </div>
     </section>
   );
