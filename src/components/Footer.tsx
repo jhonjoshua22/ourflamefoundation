@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { 
   Facebook, Twitter, Youtube, Github, Linkedin, 
-  Globe, MessageSquare, Shield, ScrollText, Mail, 
-  MapPin, Send, MessageCircle 
+  Globe, MessageSquare, Send 
 } from "lucide-react";
-import logo from "../assets/ourflamelogo.png";
-import clickSound from "../assets/button.m4a";
 
-// 1. IMPORT YOUR SUPABASE CLIENT 
-// (Adjust this path to wherever your supabase client is initialized)
-import { supabase } from "../supabaseClient"; 
+// 1. IMPORTING FROM THE CORRECT LIB FOLDER
+import { supabase } from "../lib/supabaseClient"; 
+import clickSound from "../assets/button.m4a";
 
 const UnifiedFooter = () => {
   const currentYear = new Date().getFullYear();
@@ -20,8 +17,7 @@ const UnifiedFooter = () => {
     new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
   };
 
-  // 2. UPDATED HANDLESUBMIT TO PUSH TO SUPABASE
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     playClickSound();
     setIsSubmitting(true);
@@ -41,7 +37,7 @@ const UnifiedFooter = () => {
 
       alert("Thank you for reaching out! We'll get back to you soon.");
       setFormData({ name: "", email: "", message: "" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting message:", error.message);
       alert("Something went wrong. Please try again.");
     } finally {
@@ -59,20 +55,14 @@ const UnifiedFooter = () => {
   ];
 
   return (
-    <footer id="footer" className="bg-black text-zinc-300 pt-24 pb-12 border-t border-zinc-900">
+    <footer id="footer" className="bg-black text-zinc-300 pt-24 pb-12 border-t border-zinc-900 font-sans">
       <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Main Footer Content */}
         <div className="grid lg:grid-cols-12 gap-16 mb-24 items-start">
           
           {/* COLUMN 1: GIANT LOGO & BRAND */}
           <div className="lg:col-span-6 space-y-10">
             <div className="flex flex-col gap-8">
-              <img 
-                src={logo} 
-                alt="Our Flame Logo" 
-                className="w-32 h-32 md:w-40 md:h-40 object-contain brightness-110 drop-shadow-[0_0_15px_rgba(234,88,12,0.3)]" 
-              />
               <div>
                 <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
                   Our <span className="text-orange-600">Flame</span> <br /> 
