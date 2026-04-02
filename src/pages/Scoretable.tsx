@@ -537,11 +537,13 @@ const Scoretable = () => {
         </p>
       </div>
     </div>
+
+    <GameGallery />
+    <HeroSection />
+    <AboutUsSection />
+
   );
 };
 
-<GameGallery />
-<HeroSection />
-<AboutUsSection />
 
 export default Scoretable;
