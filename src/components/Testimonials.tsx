@@ -132,7 +132,7 @@ const Testimonials = () => {
           to="/login" 
           className="inline-block bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20"
         >
-          Add Testimonial
+          Login
         </Link>
       </div>
 
