@@ -87,4 +87,42 @@ const GlobalMap = () => {
         </div>
 
         {/* Map Container */}
-        <div className="relative border border-border bg-white
+        <div className="relative border border-border bg-white/5 shadow-2xl overflow-hidden group z-10 rounded-xl">
+          <div 
+            ref={mapRef} 
+            className="w-full h-[600px] cursor-crosshair filter grayscale-[20%] invert-[5%] dark:invert-[90%] dark:hue-rotate-180" 
+          />
+          
+          {/* Flame Theme UI Overlay */}
+          <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border pointer-events-none">
+            <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">Our Flame Foundation</p>
+            <p className="text-xs font-black text-foreground uppercase italic">Active Nodes: {locations.length}</p>
+          </div>
+        </div>
+
+        {/* Legend Grid - Country names removed */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8">
+          {locations.map((loc) => (
+            <div key={loc.id} className="p-4 border border-border bg-white/5 flex flex-col hover:border-orange-600 hover:bg-orange-600/5 transition-all group">
+              <span className="text-[10px] font-mono text-orange-600 font-bold tracking-tighter">NODE_{loc.id}</span>
+              <span className="text-sm font-black uppercase text-foreground italic">Node Active</span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA Button Added Here */}
+        <div className="mt-12 text-center">
+          <Link 
+            to="/login" 
+            className="inline-block bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20"
+          >
+            Find Friends
+          </Link>
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
+export default GlobalMap;
