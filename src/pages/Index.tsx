@@ -16,6 +16,7 @@ const Index = () => {
       {/* The Flame Game & Dashboard Sections */}
       <FlameGame />
       <Dashboard />
+      <ImpactSection />
           
       <GlobalMap />
 
@@ -23,8 +24,6 @@ const Index = () => {
       
       <Testimonials />
       <PartnerSection />
-      
-      <ImpactSection />
       
     </div>
   );
