@@ -122,8 +122,15 @@ const App = () => {
                     <X size={20} strokeWidth={3} />
                   </button>
                   
+                  {/* Header */}
+                  <div className="text-center py-4">
+                    <h1 className="text-3xl font-black uppercase italic tracking-widest text-white">
+                      OUR REWARDS
+                    </h1>
+                  </div>
+
                   {/* Popup Image */}
-                  <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5">
+                  <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5 mx-2">
                     <img
                       src={popupImg}
                       alt="Our Rewards"
