@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Flame, ChevronRight, Video, Star, Play } from "lucide-react";
+import { ChevronRight, Play } from "lucide-react";
 import clickSound from "../assets/button.m4a"; 
 
-// Asset Imports
+// Asset Imports (Double check these exact filenames/paths in your project!)
 import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
@@ -11,7 +11,11 @@ import farmerImg from "../assets/superfarmer.png";
 
 const FlameGame = () => {
   const playClickSound = () => {
-    new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
+    try {
+      new Audio(clickSound).play();
+    } catch (e) {
+      console.log("Audio playback failed", e);
+    }
   };
 
   // One single array for all tiers so the design is locked in 100% identical
@@ -111,8 +115,13 @@ const FlameGame = () => {
                 <div>
                   <div className="flex flex-col items-center text-center mb-6">
                     {/* Big centered circle pictures */}
-                    <div className="w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6">
-                      <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
+                    <div className="w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6 bg-zinc-100 dark:bg-zinc-800">
+                      <img 
+                        src={tier.image} 
+                        alt={tier.role} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }} 
+                      />
                     </div>
                     <h4 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
                     <div className="text-orange-600 font-bold text-xs mt-1">{tier.price}</div>
@@ -126,11 +135,7 @@ const FlameGame = () => {
                 <Link 
                   to="/login"
                   onClick={playClickSound}
-                  className={`w-full py-3.5 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 rounded-lg ${
-                    tier.featured 
-                      ? "bg-orange-600 text-white hover:bg-orange-500 shadow-lg shadow-orange-600/20" 
-                      : "bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
-                  }`}
+                  className="w-full py-3.5 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 rounded-lg bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
                 >
                   {tier.button} <ChevronRight size={14} />
                 </Link>
