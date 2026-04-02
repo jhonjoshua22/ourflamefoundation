@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom"; // Added for routing
+import { Link } from "react-router-dom";
 import clickSound from "../assets/button.m4a"; 
 
 import {  
-  ExternalLink, Copy, Check, Users, Sparkles, Bot, Scale, Heart, Globe, ArrowRight
+  ExternalLink, Copy, Check, Users, Sparkles, Bot, Scale, Heart, Globe, ArrowRight, FolderOpen, FileText
 } from "lucide-react";
 
 const AboutUsSection = () => {
@@ -33,6 +33,14 @@ const AboutUsSection = () => {
     "VIII. Maintain a state of perpetual, high-speed incubation;",
     "IX. Build with open-source integrity; and",
     "X. Ensure every member acts as a superhero, building the foundation for others to rise."
+  ];
+
+  const brandFiles = [
+    { name: "2026 Daily Timetable", path: SchedulePDF, type: "pdf" }, 
+    { name: "The Masterplan", path: MasterplanPDF, type: "pdf" },
+    { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
+    { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
+    { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
   ];
 
   const linkCategories = {
@@ -87,7 +95,7 @@ const AboutUsSection = () => {
     <section id="about" className="py-24 bg-white dark:bg-black transition-colors duration-500 overflow-hidden font-sans">
       <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Header Section - Updated to "New Products" */}
+        {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20">
           <div className="max-w-2xl">
             <h2 className="text-[10px] font-black tracking-[0.4em] uppercase text-orange-600 mb-4">Vision & Infrastructure</h2>
@@ -101,9 +109,9 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-px bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-900">
+        <div className="grid lg:grid-cols-12 gap-px bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-900 mb-24">
           
-          {/* Left Column (The 10 Commandments) */}
+          {/* Left Column (Commandments + Incubator) */}
           <div className="lg:col-span-7 bg-white dark:bg-black p-8 md:p-12 space-y-12">
             <div className="space-y-6">
               <h4 className="font-black text-2xl text-zinc-900 dark:text-zinc-100 uppercase italic tracking-tight mb-6">The Flame Commandments</h4>
@@ -135,11 +143,11 @@ const AboutUsSection = () => {
             </div>
           </div>
 
-          {/* Right Column (Dynamic Links - Controlled width on small screens) */}
+          {/* Right Column (Dynamic Links) */}
           <div className="lg:col-span-5 bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 space-y-12">
             
             <div className="space-y-6">
-              {/* Tab UI toggler - made linear on mobile, grid on bigger screens */}
+              {/* Tab UI toggler */}
               <div id="products" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800 gap-1">
                 {Object.keys(linkCategories).map(cat => (
                   <button
@@ -152,7 +160,7 @@ const AboutUsSection = () => {
                 ))}
               </div>
 
-              {/* Links List - Links are bigger for easy thumb tracking */}
+              {/* Links List */}
               <div className="grid grid-cols-1 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 max-h-[400px] overflow-y-auto custom-scrollbar">
                 {linkCategories[activeTab].map((link) => (
                   <div key={link.name} className="group/item relative bg-white dark:bg-black">
@@ -203,7 +211,35 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Action CTAs - Centered at the bottom */}
+        {/* Resources Section - Your exact setup positioned at the bottom */}
+        <div id="resources" className="space-y-4 mt-24">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
+          <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
+            {brandFiles.map((file) => (
+              <a 
+                key={file.name} 
+                href={file.path} 
+                target="_blank" 
+                rel="noreferrer" 
+                onClick={playClickSound}
+                className="flex items-center gap-5 p-5 bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group"
+              >
+                <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-orange-600">
+                  {file.type === 'drive' ? <FolderOpen size={18}/> : <FileText size={18}/>}
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest">{file.name}</p>
+                  <p className="text-[9px] text-zinc-400 uppercase tracking-tighter mt-1">
+                    {file.type === 'drive' ? 'Cloud Assets' : 'Documentation'}
+                  </p>
+                </div>
+                <ExternalLink size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Action CTAs */}
         <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
             to="/signin" 
