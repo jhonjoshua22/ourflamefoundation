@@ -37,7 +37,7 @@ const FlameGame = () => {
       image: stormtrooperImg,
       price: "From $5 pm • 50-99% Profit Pay",
       benefit: "We want to use our 10x Superbot powers to do good and earn rewards.",
-      color: "border-orange-600 bg-orange-600/5 shadow-[0_10px_30px_rgba(234,88,12,0.05)]",
+      color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50",
       button: "I'm SuperHero",
     },
     {
