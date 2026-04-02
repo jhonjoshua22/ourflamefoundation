@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Gamepad2 } from "lucide-react";
+import { X, Sparkles } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient";
 
 // Assets
-import promoVideo from "./assets/ourgames.mp4";
+import popupImg from "./assets/popup.jpg";
 import introAudio from "./assets/intro.mp3";
 
 // Layout & Pages
@@ -121,34 +121,34 @@ const App = () => {
                   >
                     <X size={20} strokeWidth={3} />
                   </button>
+                  
+                  {/* Popup Image */}
                   <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5">
-                    <video
-                      src={promoVideo}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
+                    <img
+                      src={popupImg}
+                      alt="Our Rewards"
                       className="w-full h-full object-cover"
                     />
                   </div>
+
+                  {/* Compelling Family Reward CTA */}
                   <div className="p-6 text-center">
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white mb-2">
-                      IGNITE YOUR <span className="text-orange-600">LEGACY.</span>
+                    <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">
+                      CLAIM YOUR <span className="text-orange-600">REWARDS.</span>
                     </h2>
                     <p className="text-zinc-400 text-sm font-medium leading-relaxed mb-6">
-                      The universe is expanding and the Flame is rising. Don't just watch the change—drive it.
-                      Your seat at the Foundation is waiting.
+                      Unlock full access to <span className="text-white font-bold">EduWorld + Einstein</span>, MoneyWorld, SportWorld, and MusicWorld. Build your family's legacy and claim your share today.
                     </p>
                     <Link
                       to="/login"
                       onClick={closePopup}
                       className="group relative flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-black uppercase italic tracking-widest transition-all transform hover:scale-[1.02] active:scale-95"
                     >
-                      <Gamepad2 size={24} className="group-hover:rotate-12 transition-transform" />
-                      Play Now
+                      <Sparkles size={22} className="group-hover:animate-pulse transition-transform" />
+                      JOIN FREE TODAY
                     </Link>
                     <p className="mt-4 text-zinc-500 text-[10px] uppercase font-bold tracking-[0.2em]">
-                      Limited Time Access • Join the Collective
+                      Secure Your Family's Spot at the Foundation
                     </p>
                   </div>
                 </motion.div>
