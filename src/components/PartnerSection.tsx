@@ -215,7 +215,7 @@ const PartnerSection = () => {
         {/* Executive Board CTA Button */}
         <div className="flex justify-center mb-24">
           <Link 
-            to="/contact" 
+            to="/#contacts" 
             className="flex items-center gap-2 bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20"
           >
             Contact Us <ArrowRight size={14} />
