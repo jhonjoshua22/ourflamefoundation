@@ -117,7 +117,7 @@ const CategorySection = ({ title, items, onItemClick }) => {
   const displayItems = isExpanded ? items : items.slice(0, 3);
 
   return (
-    <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8 pb-4">
+    <div id ="what" className="border-t border-zinc-200 dark:border-zinc-800 pt-8 pb-4">
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-xs font-black tracking-[0.4em] uppercase text-orange-600">
           {title}
