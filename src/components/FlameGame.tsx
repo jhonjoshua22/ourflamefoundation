@@ -4,6 +4,7 @@ import { ChevronRight, Play } from "lucide-react";
 import clickSound from "../assets/button.m4a"; 
 
 // Asset Imports (Double check these exact filenames/paths in your project!)
+import partnerImg from "../assets/partners.jpg"; 
 import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
@@ -22,7 +23,7 @@ const FlameGame = () => {
   const tiers = [
     {
       role: "Partner",
-      image: scoutImg,
+      image: partnerImg,
       price: "Forever Free",
       benefit: "We Just Want To Help ALL Our Stakeholders Ethically.",
       color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50", 
