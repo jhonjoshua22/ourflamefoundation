@@ -56,11 +56,11 @@ const Navbar = () => {
     { name: "Flame Game", href: "/#flame-game" },
     { name: "Rewards", href: "/scoretable" },
     { name: "What", href: "/#what" },
-    { name: "Why", href: "/gallery" },
+    { name: "Why", href: "/#gallery" },
     { name: "How", href: "/#resources" },
-    { name: "Where", href: "/presence" },
+    { name: "Where", href: "/#presence" },
     { name: "When", href: "/#news" },
-    { name: "Who", href: "/impact" },
+    { name: "Who", href: "/#impact" },
   ];
 
   return (
