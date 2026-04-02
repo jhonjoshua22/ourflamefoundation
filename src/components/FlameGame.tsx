@@ -58,12 +58,6 @@ const FlameGame = () => {
     },
   ];
 
-  const steps = [
-    { step: "01", title: "1-Click Entry", desc: "Sign up instantly with SSO or Video verification.", icon: <Video />, link: "/login" },
-    { step: "02", title: "Daily Mission", desc: "Follow AI-monitored task programs with smart prompts.", icon: <Flame />, link: "/login" },
-    { step: "03", title: "Claim Rewards", desc: "Saturday 0700 UTC: Enjoy your magical rewards.", icon: <Star />, link: "https://calendar.google.com" }
-  ];
-
   return (
     <section id="flame-game" className="relative pt-32 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
       
@@ -143,27 +137,7 @@ const FlameGame = () => {
               </div>
             );
           })}
-        </div>
-
-        {/* Process Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {steps.map((item, idx) => {
-            const isExternal = item.link?.startsWith('http');
-            const CardContent = (
-              <div onClick={playClickSound} className="relative h-full p-8 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 backdrop-blur-sm group transition-all duration-300 hover:border-orange-600/50 rounded-2xl cursor-pointer">
-                <span className="text-6xl font-black text-zinc-900/5 dark:text-white/5 absolute top-4 right-4 group-hover:text-orange-600/10 transition-colors">
-                  {item.step}
-                </span>
-                <div className="text-orange-600 mb-4 transition-transform group-hover:scale-110 duration-300">{item.icon}</div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1 uppercase group-hover:text-orange-600 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-zinc-500 dark:text-zinc-400 text-xs leading-relaxed">{item.desc}</p>
-              </div>
-            );
-            return isExternal ? <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="block h-full">{CardContent}</a> : <Link key={idx} to={item.link || "#"} className="block h-full">{CardContent}</Link>;
-          })}
-        </div>
+        </div>      
       </div>
     </section>
   );
