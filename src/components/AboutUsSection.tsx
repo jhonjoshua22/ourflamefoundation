@@ -1,38 +1,38 @@
 import { useState } from "react";
-import clickSound from "../assets/button.m4a"; // Added import
-import SchedulePDF from "../assets/schedule.pdf";
-import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
-import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
-import MasterplanPDF from "../assets/masterplan.pdf";
+import { Link } from "react-router-dom"; // Added for routing
+import clickSound from "../assets/button.m4a"; 
 
-import { 
-  ShieldCheck, Zap, Rocket, Heart, Globe, ExternalLink, 
-  Copy, Check, Users, Sparkles, Bot, Scale, FileText, FolderOpen, ArrowRight
+import {  
+  ExternalLink, Copy, Check, Users, Sparkles, Bot, Scale, Heart, Globe, ArrowRight
 } from "lucide-react";
 
 const AboutUsSection = () => {
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [activeTab, setActiveTab] = useState("Clean");
 
-  // Added sound helper function
   const playClickSound = () => {
     new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
   };
 
   const handleCopy = (e, url, name) => {
     e.preventDefault();
-    playClickSound(); // Added sound
+    playClickSound(); 
     navigator.clipboard.writeText(url);
     setCopiedIndex(name);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const promises = [
-    { icon: <Heart size={20} />, title: "Fulfillment", text: "Deep fulfillment and sustainable profitability by empowering families to preserve the universe." },
-    { icon: <Zap size={20} />, title: "Innovation", text: "Innovative products to global markets within a 24-hour cycle via open-source tech." },
-    { icon: <Rocket size={20} />, title: "Hyperscale", text: "Utilizing hobbies, AGI, and blockchain to drive engagement and manage complexity." },
-    { icon: <ShieldCheck size={20} />, title: "Leadership", text: "Nurturing local leaders and recruiting underappreciated talent via our SEND initiative." },
-    { icon: <Globe size={20} />, title: "Inclusion", text: "A universal future where all sentient beings and AGIs hold citizenship and rights." },
+  const commandments = [
+    "I. Prioritize human legacy over capital;",
+    "II. Drive progress through a relentless 24-hour innovation cycle;",
+    "III. Lead as servants who empower the overlooked;",
+    "IV. Operate with radical transparency;",
+    "V. Use only ethical, sustainable capital;",
+    "VI. Protect family sovereignty through decentralized tools;",
+    "VII. Foster global-local impact via our Geo Leaders;",
+    "VIII. Maintain a state of perpetual, high-speed incubation;",
+    "IX. Build with open-source integrity; and",
+    "X. Ensure every member acts as a superhero, building the foundation for others to rise."
   ];
 
   const linkCategories = {
@@ -83,44 +83,16 @@ const AboutUsSection = () => {
     ]
   };
 
-  const brandFiles = [
-    { name: "2026 Daily Timetable", path: SchedulePDF, type: "pdf" }, 
-    { name: "The Masterplan", path: MasterplanPDF, type: "pdf" },
-    { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
-    { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
-    { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
-  ];
-
-  const NavItem = ({ link, className }: { link: any, className: string }) => {
-    const isHome = location.pathname === "/";
-    
-    // Logic: If we are on a different page, ALWAYS use <Link> to go home first
-    if (link.isPage || !isHome) {
-      return (
-        <Link to={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
-          {link.name}
-        </Link>
-      );
-    }
-
-    // If on home, use <a> for smooth scrolling
-    return (
-      <a href={link.href} className={className} onClick={() => { playClickSound(); setIsOpen(false); }}>
-        {link.name}
-      </a>
-    );
-  };
-
   return (
     <section id="about" className="py-24 bg-white dark:bg-black transition-colors duration-500 overflow-hidden font-sans">
       <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Header Section */}
+        {/* Header Section - Updated to "New Products" */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20">
           <div className="max-w-2xl">
             <h2 className="text-[10px] font-black tracking-[0.4em] uppercase text-orange-600 mb-4">Vision & Infrastructure</h2>
             <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic leading-none">
-              Our <span className="text-orange-600 not-italic uppercase">Flame</span> Promises.
+              New <span className="text-orange-600 not-italic uppercase">Products</span>.
             </h1>
           </div>
           <div className="flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-zinc-400">
@@ -131,20 +103,17 @@ const AboutUsSection = () => {
 
         <div className="grid lg:grid-cols-12 gap-px bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-900">
           
-          {/* Left Column (Promises) */}
-          <div className="lg:col-span-7 bg-white dark:bg-black p-8 md:p-12 space-y-16">
-            <div className="grid gap-12">
-              {promises.map((promise, i) => (
-                <div key={i} className="group flex gap-8">
-                  <div className="flex-shrink-0 w-14 h-14 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-orange-600 transition-all duration-300 group-hover:bg-orange-600 group-hover:text-white">
-                    {promise.icon}
-                  </div>
-                  <div>
-                    <h4 className="font-black text-xl mb-2 text-zinc-900 dark:text-zinc-100 uppercase italic tracking-tight">{promise.title}</h4>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed max-w-xl font-medium">{promise.text}</p>
-                  </div>
-                </div>
-              ))}
+          {/* Left Column (The 10 Commandments) */}
+          <div className="lg:col-span-7 bg-white dark:bg-black p-8 md:p-12 space-y-12">
+            <div className="space-y-6">
+              <h4 className="font-black text-2xl text-zinc-900 dark:text-zinc-100 uppercase italic tracking-tight mb-6">The Flame Commandments</h4>
+              <div className="space-y-4">
+                {commandments.map((commandment, i) => (
+                  <p key={i} className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed font-medium">
+                    {commandment}
+                  </p>
+                ))}
+              </div>
             </div>
 
             {/* Incubator Highlight */}
@@ -166,68 +135,41 @@ const AboutUsSection = () => {
             </div>
           </div>
 
-          {/* Right Column (Dynamic Links & Resources) */}
+          {/* Right Column (Dynamic Links - Controlled width on small screens) */}
           <div className="lg:col-span-5 bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 space-y-12">
             
-            {/* The Tabbed Series Explorer */}
             <div className="space-y-6">
-              <div id="products" className="flex flex-wrap bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800">
+              {/* Tab UI toggler - made linear on mobile, grid on bigger screens */}
+              <div id="products" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800 gap-1">
                 {Object.keys(linkCategories).map(cat => (
                   <button
                     key={cat}
                     onClick={() => { setActiveTab(cat); playClickSound(); }}
-                    className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === cat ? 'bg-white dark:bg-zinc-700 text-orange-600' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}
+                    className={`py-3 px-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === cat ? 'bg-white dark:bg-zinc-700 text-orange-600' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}
                   >
                     {cat}
                   </button>
                 ))}
               </div>
 
+              {/* Links List - Links are bigger for easy thumb tracking */}
               <div className="grid grid-cols-1 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 max-h-[400px] overflow-y-auto custom-scrollbar">
                 {linkCategories[activeTab].map((link) => (
                   <div key={link.name} className="group/item relative bg-white dark:bg-black">
                     <a href={link.url} target="_blank" rel="noreferrer" onClick={playClickSound}
-                       className="flex items-center justify-between p-5 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
-                      <span className="text-[11px] font-black uppercase tracking-widest text-zinc-700 dark:text-zinc-300">{link.name}</span>
-                      <ArrowRight size={14} className="opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all text-orange-600" />
+                       className="flex items-center justify-between p-7 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                      <span className="text-sm font-black uppercase tracking-widest text-zinc-700 dark:text-zinc-300">{link.name}</span>
+                      <ArrowRight size={16} className="opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all text-orange-600" />
                     </a>
                     {(activeTab === 'New Products' || activeTab === 'Team Projects') && (
                       <button 
                         onClick={(e) => handleCopy(e, link.url, link.name)}
-                        className="absolute right-12 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-orange-600"
+                        className="absolute right-14 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-orange-600"
                       >
-                        {copiedIndex === link.name ? <Check size={14} /> : <Copy size={14} />}
+                        {copiedIndex === link.name ? <Check size={16} /> : <Copy size={16} />}
                       </button>
                     )}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Brand Resources Section */}
-            <div id="resources" className="space-y-4">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
-              <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
-                {brandFiles.map((file) => (
-                  <a 
-                    key={file.name} 
-                    href={file.path} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    onClick={playClickSound}
-                    className="flex items-center gap-5 p-5 bg-white dark:bg-black hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all group"
-                  >
-                    <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center text-orange-600">
-                      {file.type === 'drive' ? <FolderOpen size={18}/> : <FileText size={18}/>}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[10px] font-black text-zinc-900 dark:text-zinc-100 uppercase tracking-widest">{file.name}</p>
-                      <p className="text-[9px] text-zinc-400 uppercase tracking-tighter mt-1">
-                        {file.type === 'drive' ? 'Cloud Assets' : 'Documentation'}
-                      </p>
-                    </div>
-                    <ExternalLink size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
-                  </a>
                 ))}
               </div>
             </div>
@@ -260,6 +202,23 @@ const AboutUsSection = () => {
             ))}
           </div>
         </div>
+
+        {/* Action CTAs - Centered at the bottom */}
+        <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Link 
+            to="/signin" 
+            className="inline-block bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20 w-full sm:w-auto text-center"
+          >
+            More Info
+          </Link>
+          <Link 
+            to="/signin" 
+            className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors rounded-lg shadow-lg shadow-zinc-900/10 w-full sm:w-auto text-center"
+          >
+            Sign In
+          </Link>
+        </div>
+
       </div>
     </section>
   );
