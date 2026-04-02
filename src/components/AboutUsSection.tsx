@@ -160,7 +160,6 @@ const AboutUsSection = () => {
             </div>
           </div>
 
-          {/* Right Column (Dynamic Links) */}
           <div className="lg:col-span-5 bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 space-y-12">
             
             <div className="space-y-6">
