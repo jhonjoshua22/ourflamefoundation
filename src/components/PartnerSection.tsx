@@ -146,7 +146,7 @@ const PartnerSection = () => {
             </h2>
           </div>
           <a 
-            href="https://drive.google.com/drive/folders/1aFXb-glex8tp_zs3Ltf6KoMN8nYH7xen" 
+            href="https://uk.pinterest.com/mauricebigmoflynn/we-work-with/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-orange-600 font-black uppercase text-xs tracking-widest hover:text-orange-700 transition-colors"
