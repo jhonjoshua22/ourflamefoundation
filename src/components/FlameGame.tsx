@@ -96,6 +96,32 @@ const FlameGame = () => {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 mb-16 pt-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-orange-600" />
+              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">50K+</span>
+            </div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Followers</p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Flag className="w-5 h-5 text-orange-600" />
+              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">100K+</span>
+            </div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Supported</p>
+          </div>
+
+          <div className="space-y-2 col-span-2 md:col-span-1">
+            <div className="flex items-center gap-3">
+              <ThumbsUp className="w-5 h-5 text-orange-600" />
+              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">3.5M</span>
+            </div>
+            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">2026 Foundation Goal</p>
+          </div>
+        </div>
+
         {/* TIERS CONTAINER - Custom 6-Column Grid to safely yield a 3+2 visual flow */}
         <div id="tiers" className="scroll-mt-24 mb-24 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6">
           {tiers.map((tier, i) => {
