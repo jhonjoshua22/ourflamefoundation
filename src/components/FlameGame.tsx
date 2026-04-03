@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Users, Flag, ThumbsUp } from "lucide-react";
 import clickSound from "../assets/button.m4a"; 
 
 // Asset Imports (Double check these exact filenames/paths in your project!)
