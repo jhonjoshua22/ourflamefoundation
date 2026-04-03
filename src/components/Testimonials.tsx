@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Added for local navigation
+import { Link } from "react-router-dom";
 import { Star, CheckCircle, Rocket, Linkedin } from "lucide-react";
 
 const Testimonials = () => {
