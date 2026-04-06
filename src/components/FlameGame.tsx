@@ -20,50 +20,6 @@ const FlameGame = () => {
     }
   };
 
-  // One single array for all tiers so the design is locked in 100% identical
-  const tiers = [
-    {
-      role: "Partner",
-      image: partnerImg,
-      price: "Forever Free",
-      benefit: "We Just Want To Help ALL Our Stakeholders Ethically.",
-      color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50", 
-      button: "I'm Partner",
-    },
-    {
-      role: "Normies",
-      image: scoutImg,
-      price: "From $1 pm • Concessions Available",
-      benefit: "We just want to enjoy our lives via work, family, hobbies & friends.",
-      color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50", 
-      button: "I'm Normal",
-    },
-    {
-      role: "Superheros",
-      image: stormtrooperImg,
-      price: "From $5 pm • 50-99% Profit Pay",
-      benefit: "We want to use our 10x Superbot powers to do good and earn rewards.",
-      color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50",
-      button: "I'm SuperHero",
-    },
-    {
-      role: "Angels",
-      image: angelImg,
-      price: "From $50 pm • 50-99% Profit Pay",
-      benefit: "We want to provide the funds to fuel the mission and share in the magic.",
-      color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50",
-      button: "I'm Angel",
-    },
-    {
-      role: "SuperFarmers",
-      image: farmerImg,
-      price: "From $500 pm • 50-99% Profit Pay",
-      benefit: "We want to boost the ecosystem, plant seeds for growth, and invite our friends.",
-      color: "border-green-600/20 bg-green-600/5",
-      button: "I'm SuperFarmer",
-    },
-  ];
-
   return (
     <section id="flame-game" className="relative pt-32 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
       
@@ -101,7 +57,7 @@ const FlameGame = () => {
           <div className="space-y-3 text-center flex flex-col items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <Users className="w-8 h-8 text-orange-600" />
-              <span className="text-7xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
+              <span className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
                 50K+
               </span>
             </div>
@@ -114,7 +70,7 @@ const FlameGame = () => {
           <div className="space-y-3 text-center flex flex-col items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <Flag className="w-8 h-8 text-orange-600" />
-              <span className="text-7xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
+              <span className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
                 100K+
               </span>
             </div>
@@ -127,7 +83,7 @@ const FlameGame = () => {
           <div className="space-y-3 text-center col-span-2 md:col-span-1 flex flex-col items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <ThumbsUp className="w-8 h-8 text-orange-600" />
-              <span className="text-7xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
+              <span className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
                 3.5M
               </span>
             </div>
@@ -135,53 +91,7 @@ const FlameGame = () => {
               2026 Foundation Goal
             </p>
           </div>
-        </div>
-
-        {/* TIERS CONTAINER - Custom 6-Column Grid to safely yield a 3+2 visual flow */}
-        <div id="tiers" className="scroll-mt-24 mb-24 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-6">
-          {tiers.map((tier, i) => {
-            // Cards 1, 2, 3 take up 2 grid columns each (Total 6 = perfectly fits 1 row)
-            // Cards 4, 5 take up 2 grid columns each, but we push card 4 over by 1 column on desktop to center the bottom row
-            const gridClasses = 
-              i < 3 
-                ? "md:col-span-2" 
-                : i === 3 
-                ? "md:col-span-2 md:col-start-2" 
-                : "md:col-span-2";
-
-            return (
-              <div key={i} className={`${gridClasses} p-8 border rounded-2xl flex flex-col justify-between transition-all hover:shadow-lg ${tier.color}`}>
-                <div>
-                  <div className="flex flex-col items-center text-center mb-6">
-                    {/* Big centered circle pictures */}
-                    <div className="w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-6 bg-zinc-100 dark:bg-zinc-800">
-                      <img 
-                        src={tier.image} 
-                        alt={tier.role} 
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }} 
-                      />
-                    </div>
-                    <h4 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
-                    <div className="text-orange-600 font-bold text-xs mt-1">{tier.price}</div>
-                  </div>
-                  
-                  <p className="text-zinc-600 dark:text-zinc-300 text-sm text-center italic leading-relaxed mb-8 min-h-[60px]">
-                    "{tier.benefit}"
-                  </p>
-                </div>
-                
-                <Link 
-                  to="/login"
-                  onClick={playClickSound}
-                  className="w-full py-3.5 font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 rounded-lg bg-zinc-900/10 dark:bg-white/10 text-zinc-900 dark:text-white hover:bg-zinc-900/20 dark:hover:bg-white/20"
-                >
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
-              </div>
-            );
-          })}
-        </div>      
+        </div> 
       </div>
     </section>
   );
