@@ -3,7 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Chatbot from "@/components/Chatbot";
-import { Globe } from "lucide-react";
+import { Globe, Music, Music2 } from "lucide-react"; // Added music icons
 
 const LANGUAGES = [
   { code: "en", label: "English" }, { code: "es", label: "Spanish" },
@@ -15,13 +15,13 @@ const LANGUAGES = [
 const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState("en");
+  const [isMuted, setIsMuted] = useState(false); // Added mute tracking state
   const menuRef = useRef<HTMLDivElement>(null);
   const { pathname, hash } = useLocation();
 
   // --- SCROLL TO HASH LOGIC ---
   useEffect(() => {
     if (hash) {
-      // Small timeout to allow the DOM to render the home page sections
       const timer = setTimeout(() => {
         const id = hash.replace("#", "");
         const element = document.getElementById(id);
@@ -69,23 +69,45 @@ const MainLayout = () => {
     setIsOpen(false);
   };
 
+  // Dispatches custom event to App.tsx
+  const toggleMusic = () => {
+    const event = new CustomEvent("toggleBackgroundMusic");
+    window.dispatchEvent(event);
+    setIsMuted(!isMuted);
+  };
+
   return (
     <div className="min-h-screen bg-background relative">
       <div id="google_translate_element" style={{ visibility: "hidden", position: "absolute" }} />
       
-      <div className="fixed bottom-6 left-6 z-[9999]" ref={menuRef}>
-        <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-center w-12 h-12 rounded-full bg-white text-slate-700 border border-slate-200 shadow-xl hover:bg-slate-50 transition-all active:scale-90">
-          <Globe size={20} />
+      {/* Dynamic Controls Group: Music and Language */}
+      <div className="fixed bottom-6 left-6 z-[9999] flex flex-col gap-3" ref={menuRef}>
+        
+        {/* Music Toggle Button (Above Languages) */}
+        <button 
+          onClick={toggleMusic} 
+          title={isMuted ? "Turn music on" : "Turn music off"}
+          className="flex items-center justify-center w-12 h-12 rounded-full bg-white text-slate-700 border border-slate-200 shadow-xl hover:bg-slate-50 transition-all active:scale-90"
+        >
+          {isMuted ? <Music2 size={20} className="text-slate-400" /> : <Music size={20} className="text-orange-600" />}
         </button>
-        {isOpen && (
-          <div className="absolute bottom-16 left-0 min-w-[140px] bg-white border border-slate-200 rounded-2xl shadow-2xl py-2">
-            {LANGUAGES.map((lang) => (
-              <button key={lang.code} onClick={() => changeLanguage(lang.code)} className={`w-full text-left px-4 py-2 text-sm ${currentLang === lang.code ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-600 hover:bg-slate-50"}`}>
-                {lang.label}
-              </button>
-            ))}
-          </div>
-        )}
+
+        {/* Language Button */}
+        <div className="relative">
+          <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-center w-12 h-12 rounded-full bg-white text-slate-700 border border-slate-200 shadow-xl hover:bg-slate-50 transition-all active:scale-90">
+            <Globe size={20} />
+          </button>
+          
+          {isOpen && (
+            <div className="absolute bottom-16 left-0 min-w-[140px] bg-white border border-slate-200 rounded-2xl shadow-2xl py-2 max-h-[300px] overflow-y-auto">
+              {LANGUAGES.map((lang) => (
+                <button key={lang.code} onClick={() => changeLanguage(lang.code)} className={`w-full text-left px-4 py-2 text-sm ${currentLang === lang.code ? "bg-blue-50 text-blue-600 font-semibold" : "text-slate-600 hover:bg-slate-50"}`}>
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <Navbar />
