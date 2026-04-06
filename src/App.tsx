@@ -28,12 +28,11 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Simple touch function – triggers DB trigger
   const touchForStreak = async (userId: string) => {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ last_active: new Date().toISOString() }) // Just touch this field
+        .update({ last_active: new Date().toISOString() }) 
         .eq("id", userId);
 
       if (error) {
@@ -46,21 +45,17 @@ const App = () => {
     }
   };
 
-  // Auth listener – only touch on actual SIGNED_IN or mount if logged in
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === "SIGNED_IN" && session?.user?.id) {
-          console.log("[AUTH] SIGNED_IN – touching for streak");
           touchForStreak(session.user.id);
         }
       }
     );
 
-    // Check on mount (once)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
-        console.log("[AUTH] Session on mount – touching for streak");
         touchForStreak(session.user.id);
       }
     });
@@ -68,12 +63,20 @@ const App = () => {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []); // Empty deps – runs once
+  }, []);
 
-  // Your original popup + audio – unchanged
   useEffect(() => {
     audioRef.current = new Audio(introAudio);
     audioRef.current.loop = true;
+
+    // Listener for custom mute signal from MainLayout
+    const handleToggleMusic = () => {
+      if (audioRef.current) {
+        audioRef.current.muted = !audioRef.current.muted;
+      }
+    };
+
+    window.addEventListener("toggleBackgroundMusic", handleToggleMusic);
 
     const timer = setTimeout(() => {
       const hasSeenPopup = sessionStorage.getItem("hasSeenPopup");
@@ -82,7 +85,10 @@ const App = () => {
       }
     }, 1500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("toggleBackgroundMusic", handleToggleMusic);
+    };
   }, []);
 
   const closePopup = () => {
@@ -122,14 +128,12 @@ const App = () => {
                     <X size={20} strokeWidth={3} />
                   </button>
                   
-                  {/* Header */}
                   <div className="text-center py-4">
                     <h1 className="text-3xl font-black uppercase italic tracking-widest text-white">
                       OUR REWARDS
                     </h1>
                   </div>
 
-                  {/* Popup Image */}
                   <div className="rounded-2xl overflow-hidden aspect-square bg-black border border-white/5 mx-2">
                     <img
                       src={popupImg}
@@ -138,7 +142,6 @@ const App = () => {
                     />
                   </div>
 
-                  {/* Compelling Family Reward CTA */}
                   <div className="p-6 text-center">
                     <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white mb-2">
                       CLAIM YOUR <span className="text-orange-600">REWARDS.</span>
