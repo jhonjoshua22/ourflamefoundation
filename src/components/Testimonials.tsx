@@ -1,43 +1,59 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Star, CheckCircle, Rocket, Linkedin } from "lucide-react";
+import { CheckCircle, Rocket, Linkedin } from "lucide-react";
 
 const Testimonials = () => {
   const testimonials = [
     {
-      name: "Ad Giant", 
-      role: "Enterprise Partner",
+      name: "Fujitsu Exec", 
       content: "Revolutionary", 
-      initials: "AG", 
       accent: "border-zinc-300"
     },
     {
-      name: "Global Retailer",
-      role: "Ecosystem Supporter",
+      name: "Retailer PLC",
       content: "Fascinating",
-      initials: "GR",
       accent: "border-zinc-300"
     },
     {
-      name: "Global Games Co",
-      role: "Hardware Integrator",
+      name: "Unique Games Exec",
       content: "Unique",
-      initials: "GC",
       accent: "border-zinc-300"
     },
     {
-      name: "Global Ad Agency",
-      role: "Logistics Partner",
-      content: "One to Watch",
-      initials: "GA",
+      name: "Ad Giant Global",
+      content: "Love It",
       accent: "border-zinc-300"
     },
     {
-      name: "Google",
-      role: "Community Node",
-      content: "Bizarre & Compelling",
-      initials: "GO",
+      name: "Google Exec",
+      content: "Compelling",
       accent: "border-orange-600",
+      isHighlight: true // Highlighting this one as requested before
+    },
+    {
+      name: "Pharma UK",
+      content: "Worthwhile",
+      accent: "border-zinc-300"
+    },
+    {
+      name: "Police UK",
+      content: "Useful",
+      accent: "border-zinc-300"
+    },
+    {
+      name: "NHS London",
+      content: "Wonderful",
+      accent: "border-zinc-300"
+    },
+    {
+      name: "Army UK",
+      content: "Helpful",
+      accent: "border-zinc-300"
+    },
+    {
+      name: "School Group London",
+      content: "Inspired",
+      accent: "border-zinc-300"
     }
   ];
 
@@ -53,7 +69,7 @@ const Testimonials = () => {
         .animate-marquee {
           display: flex;
           width: max-content;
-          animation: marquee 30s linear infinite;
+          animation: marquee 45s linear infinite; /* Slowed down slightly for more items */
         }
         .animate-marquee:hover {
           animation-play-state: paused;
@@ -84,11 +100,8 @@ const Testimonials = () => {
               {/* Testimonial Content */}
               <div>
                 <div className="flex justify-between items-start mb-6">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={12} className="fill-orange-600 text-orange-600 opacity-80" />
-                    ))}
-                  </div>
+                  {/* Stars removed from here */}
+                  <div className="flex gap-1"></div>
                   {item.isHighlight && <Rocket size={16} className="text-orange-600 animate-pulse" />}
                 </div>
                 <blockquote className="text-zinc-800 dark:text-zinc-100 text-3xl font-black uppercase tracking-tight italic mb-8">
@@ -96,15 +109,13 @@ const Testimonials = () => {
                 </blockquote>
               </div>
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 font-bold text-xs bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
-                  {item.initials}
-                </div>
+                {/* Avatar/Initial element removed from here */}
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm tracking-wide uppercase">{item.name}</p>
                     <CheckCircle size={12} className="text-orange-600" />
                   </div>
-                  <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-widest mt-1">{item.role}</p>
+                  {/* Role subtitle removed from here */}
                 </div>
               </div>
             </div>
@@ -112,7 +123,7 @@ const Testimonials = () => {
         </div>
       </div>
 
-      {/* Encouragement & Login CTA added */}
+      {/* Encouragement & Login CTA */}
       <div className="mt-20 text-center max-w-2xl mx-auto px-6">
         <h3 className="text-xl md:text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-4">
           Want to share your experience?
@@ -128,12 +139,12 @@ const Testimonials = () => {
         </Link>
       </div>
 
-      {/* Verification Links - Made noticeably bigger */}
+      {/* Verification Links */}
       <div className="mt-24 pt-12 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">Community Verified</p>
         
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-          {/* Google Reviews - Increased padding, text size, and icon size */}
+          {/* Google Reviews */}
           <a 
             href="https://maps.app.goo.gl/p1LM7Dg2smJc73vH9" 
             target="_blank" 
@@ -146,7 +157,7 @@ const Testimonials = () => {
             </span>
           </a>
 
-          {/* Trustpilot Placeholder - Added inline height scaling to prompt widget expansion */}
+          {/* Trustpilot Placeholder */}
           <div 
             className="trustpilot-widget scale-125 origin-center" 
             data-locale="en-US" 
@@ -159,7 +170,7 @@ const Testimonials = () => {
             <a href="https://www.trustpilot.com/review/ourflamefoundation.vercel.app" target="_blank" rel="noopener noreferrer" className="text-lg font-bold">Trustpilot</a>
           </div>
 
-          {/* LinkedIn Link - Increased padding, text size, and icon size */}
+          {/* LinkedIn Link */}
           <a 
             href="https://www.linkedin.com/company/flamefoundation/people/" 
             target="_blank" 
