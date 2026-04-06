@@ -97,28 +97,43 @@ const FlameGame = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-12 mb-16 pt-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <Users className="w-5 h-5 text-orange-600" />
-              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">50K+</span>
+          {/* Followers Stat */}
+          <div className="space-y-3 text-center flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <Users className="w-8 h-8 text-orange-600" />
+              <span className="text-7xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
+                50K+
+              </span>
             </div>
-            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Followers</p>
+            <p className="text-base uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">
+              Followers
+            </p>
           </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <Flag className="w-5 h-5 text-orange-600" />
-              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">100K+</span>
+        
+          {/* Supported Stat */}
+          <div className="space-y-3 text-center flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <Flag className="w-8 h-8 text-orange-600" />
+              <span className="text-7xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
+                100K+
+              </span>
             </div>
-            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Supported</p>
+            <p className="text-base uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">
+              Supported
+            </p>
           </div>
-
-          <div className="space-y-2 col-span-2 md:col-span-1">
-            <div className="flex items-center gap-3">
-              <ThumbsUp className="w-5 h-5 text-orange-600" />
-              <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white">3.5M</span>
+        
+          {/* Goal Stat */}
+          <div className="space-y-3 text-center col-span-2 md:col-span-1 flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <ThumbsUp className="w-8 h-8 text-orange-600" />
+              <span className="text-7xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white">
+                3.5M
+              </span>
             </div>
-            <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">2026 Foundation Goal</p>
+            <p className="text-base uppercase font-bold tracking-[0.3em] text-zinc-500 dark:text-zinc-400">
+              2026 Foundation Goal
+            </p>
           </div>
         </div>
 
