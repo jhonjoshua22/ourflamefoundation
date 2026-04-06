@@ -21,7 +21,7 @@ const HeroSection = () => {
       role: "Partner",
       image: partnerImg,
       price: "Forever Free",
-      benefit: "We Just Want To Help ALL Our Stakeholders Ethically.",
+      benefit: "We just want to help all our stakeholders ethically.",
       color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50", 
       button: "I'm Partner",
     },
