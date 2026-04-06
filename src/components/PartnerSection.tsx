@@ -151,7 +151,7 @@ const PartnerSection = () => {
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-orange-600 font-black uppercase text-xs tracking-widest hover:text-orange-700 transition-colors"
           >
-            Full Partner File <ExternalLink size={14} />
+            Full List <ExternalLink size={14} />
           </a>
         </div>
 
