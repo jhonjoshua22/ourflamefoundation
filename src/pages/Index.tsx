@@ -6,6 +6,7 @@ import Dashboard from "@/components/Dashboard";
 import GlobalMap from "@/components/GlobalMap";
 import PartnerSection from "@/components/PartnerSection";
 import NewsEventsSection from "@/components/NewsEventsSection";
+import GameGallery from "@/components/GameGallery";
 
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
       
       {/* The Flame Game & Dashboard Sections */}
       <FlameGame />
+      <GameGallery />
       <Dashboard />
       <ImpactSection />
           
