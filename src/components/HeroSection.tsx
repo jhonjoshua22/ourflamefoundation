@@ -4,11 +4,11 @@ import heroImage from "@/assets/hero-professionals.png";
 import clickSound from "@/assets/button.m4a"; 
 
 // Dynamic imports for the tier images
-import partnerImg from "@/assets/partner.jpg"; 
-import scoutImg from "@/assets/scout.jpg";
-import stormtrooperImg from "@/assets/stormtrooper.jpg";
-import angelImg from "@/assets/angel.jpg";
-import farmerImg from "@/assets/farmer.jpg";
+import partnerImg from "@/assets/partners.jpg"; 
+import scoutImg from "@/assets/scout.png";
+import stormtrooperImg from "@/assets/superheroes.png";
+import angelImg from "@/assets/angel.png";
+import farmerImg from "@/assets/superfarmer.png";
 
 const HeroSection = () => {
   // Sound helper function
