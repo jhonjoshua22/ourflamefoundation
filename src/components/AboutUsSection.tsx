@@ -306,13 +306,7 @@ const AboutUsSection = () => {
         {/* Action CTAs */}
         <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
-            to="/signin" 
-            className="inline-block bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20 w-full sm:w-auto text-center"
-          >
-            More Info
-          </Link>
-          <Link 
-            to="/signin" 
+            to="/login" 
             className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors rounded-lg shadow-lg shadow-zinc-900/10 w-full sm:w-auto text-center"
           >
             Sign In
