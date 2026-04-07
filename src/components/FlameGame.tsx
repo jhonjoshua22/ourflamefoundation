@@ -5,6 +5,11 @@ import clickSound from "../assets/button.m4a";
 
 // Asset Imports
 import magicWorlds from "../assets/magicworlds.mp4";
+import video2 from "../assets/video2.mp4";
+import video3 from "../assets/video3.mp4";
+import video4 from "../assets/video4.mp4";
+import video5 from "../assets/video5.mp4";
+
 
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -27,10 +32,10 @@ const FlameGame = () => {
 
   const videoList = [
     { id: 1, src: magicWorlds, title: "Magic Worlds Intro" },
-    { id: 2, src: magicWorlds, title: "Ecosystem Overview" },
-    { id: 3, src: magicWorlds, title: "Member Rewards" },
-    { id: 4, src: magicWorlds, title: "Global Impact" },
-    { id: 5, src: magicWorlds, title: "Future Vision" },
+    { id: 2, src: video2, title: "Play2Help" },
+    { id: 3, src: video3, title: "2026 I Dream For" },
+    { id: 4, src: video4, title: "Avatars" },
+    { id: 5, src: video5, title: "Money World" },
   ];
 
   const testimonials = [
