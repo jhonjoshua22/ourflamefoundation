@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Radio, ChevronRight, ExternalLink, Zap, Shield, Atom, Orbit, Cpu } from "lucide-react";
+import { CheckCircle2, Zap, Flame, Loader2, ChevronRight, ExternalLink, Radio } from "lucide-react";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -64,11 +64,35 @@ const Dashboard = () => {
     },
     { 
       id: "05", 
+      normies: "Signal Boost: Resonate Foundation Content through Social Resonance Chambers", 
+      superheros: "Alpha Strike: Beta-Test Emerging Software & Report Neural Bugs", 
+      angels: "High Council: Mediate Community Disputes & Align Faction Interests",
+      superfarmers: "Stellar Infrastructure: Fund Physical Foundation Hubs & Real-World Nodes",
+      pts: { Normie: 100, SuperHero: 400, Angel: 1500, SuperFarmer: 12000 } 
+    },
+    { 
+      id: "06", 
+      normies: "Citizen Science: Collect Environmental Data for the Global Archive", 
+      superheros: "Logic Gate: Develop Open-Source Modules for the Magic Ecosystem", 
+      angels: "Wealth Distribution: Curate Grant Proposals for the Seed Fund",
+      superfarmers: "Legacy Protocol: Structure Inter-Generational Capital Retention Plans",
+      pts: { Normie: 150, SuperHero: 800, Angel: 3500, SuperFarmer: 25000 } 
+    },
+    { 
+      id: "07", 
+      normies: "Kinship Link: Assist a Fellow Citizen in Navigating the Digital Void", 
+      superheros: "Firewall: Monitor and Deflect Sub-Space Narrative Attacks", 
+      angels: "Ascension Guide: Bridge the Gap between Normies and Hero Ranks",
+      superfarmers: "Omni-Intelligence: Direct the Ethical Constraints of Primary AI Cores",
+      pts: { Normie: 80, SuperHero: 500, Angel: 2000, SuperFarmer: 18000 } 
+    },
+    { 
+      id: "08", 
       normies: "Final Convergence: Submit Daily Progress Report to the Flame Terminal", 
       superheros: "Vanguard Sweep: Moderate the Foundation Forums & Silence Disruptors", 
       angels: "Oracle Sight: Forecast Monthly Trends & Pitch Expansion Sectors",
-      superfarmers: "Sovereign Command: Establish Permanent Foundation Embassies (Local Groups)",
-      pts: { Normie: 250, SuperHero: 750, Angel: 3000, SuperFarmer: 20000 } 
+      superfarmers: "Sovereign Command: Establish Permanent Foundation Embassies",
+      pts: { Normie: 300, SuperHero: 1000, Angel: 5000, SuperFarmer: 50000 } 
     },
   ];
 
@@ -86,82 +110,80 @@ const Dashboard = () => {
       <div className="container mx-auto max-w-7xl">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6 border-b-4 border-black dark:border-white pb-8">
+        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6 border-b border-black dark:border-white pb-8">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.4em] text-[10px]">
-              <Radio size={14} className="animate-pulse" /> Sub-Space Data-Link: ONLINE
+            <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-[10px]">
+              <Radio size={14} className="animate-pulse" /> Mission Control Center
             </div>
-            <h2 className="text-7xl font-black uppercase italic tracking-tighter text-black dark:text-white leading-none">
-              MISSION <span className="text-orange-600">LOG</span>
+            <h2 className="text-6xl font-black uppercase italic tracking-tighter text-black dark:text-white leading-none">
+              Daily <span className="text-orange-600">Objectives</span>
             </h2>
-            <div className="flex items-center gap-6 mt-6">
-              <div className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-sm shadow-[4px_4px_0px_#ea580c]">
-                <Shield size={14} />
-                <span className="text-[11px] font-black uppercase">CLEARANCE: {profile.rank || "NORMIE"}</span>
-              </div>
-              <div className="flex flex-col border-l-2 border-orange-600 pl-4">
-                <span className="text-black dark:text-white text-[12px] font-black uppercase tracking-tighter italic">
-                  Energy Levels: {profile.points?.toLocaleString() || 0} PU
+            <div className="flex items-center gap-4 mt-4">
+              <span className="px-4 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase italic rounded-full shadow-lg">
+                Rank: {profile.rank || "Normie"}
+              </span>
+              <div className="flex flex-col">
+                <span className="text-black dark:text-white text-[10px] font-black uppercase tracking-widest">
+                  {profile.points?.toLocaleString() || 0} Points Accumulated
                 </span>
               </div>
             </div>
           </div>
-          <div className="text-right">
-             <div className="text-black dark:text-white text-[10px] font-black uppercase tracking-[0.2em] mb-2">Cycle Reset Approaching</div>
-             <div className="bg-orange-600 px-6 py-2 text-white font-black italic text-xl skew-x-[-10deg]">00:00 UTC</div>
+          <div className="bg-white dark:bg-black px-6 py-4 border border-black dark:border-white rounded-2xl text-[10px] font-black uppercase text-black dark:text-white tracking-widest flex items-center gap-2">
+            System Reset <ChevronRight size={10} /> 00:00 UTC
           </div>
         </div>
 
         {/* Task Table */}
-        <div className="relative overflow-hidden border-4 border-black dark:border-white bg-white dark:bg-black shadow-[20px_20px_0px_rgba(0,0,0,0.1)] dark:shadow-[20px_20px_0px_rgba(255,255,255,0.05)]">
+        <div className="relative overflow-hidden rounded-3xl border border-black dark:border-white bg-white dark:bg-black backdrop-blur-xl shadow-2xl">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[1400px]">
+            <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
-                <tr className="border-b-4 border-black dark:border-white bg-black dark:bg-white">
-                  <th className="p-8 text-[14px] font-black uppercase text-white dark:text-black italic">Directive</th>
+                <tr className="border-b border-black dark:border-white">
                   {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rank) => (
-                    <th key={rank} className="p-8 border-l-4 border-white dark:border-black">
-                      <div className="flex flex-col gap-2">
-                        <span className="font-black italic uppercase tracking-tighter text-3xl text-orange-600 leading-none">
+                    <th key={rank} className="p-8 first:border-l-0 border-l border-black dark:border-white">
+                      <div className="flex flex-col gap-4">
+                        <span className={`font-black italic uppercase tracking-tighter text-xl ${
+                          rank === 'Normie' ? 'text-blue-600' : 
+                          rank === 'SuperHero' ? 'text-orange-600' : 
+                          rank === 'Angel' ? 'text-yellow-500' : 'text-green-600'
+                        }`}>
                           {rank}s
                         </span>
                         <a 
                           href={columnLinks[rank as keyof typeof columnLinks].url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between mt-2 text-[10px] font-black uppercase text-white dark:text-black hover:text-orange-600 transition-colors"
+                          className="flex items-center justify-between p-2 border border-black dark:border-white hover:border-orange-600 transition-colors group"
                         >
-                          Access Terminal <ExternalLink size={12} className="ml-2" />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-black dark:text-white group-hover:text-orange-600">
+                            {columnLinks[rank as keyof typeof columnLinks].label}
+                          </span>
+                          <ExternalLink size={10} className="text-black dark:text-white" />
                         </a>
                       </div>
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y-4 divide-black dark:divide-white">
+              <tbody className="divide-y divide-black dark:divide-white">
                 {taskData.map((row) => (
-                  <tr key={row.id} className="group">
-                    <td className="p-8 font-black text-6xl text-black dark:text-white opacity-10 group-hover:opacity-100 group-hover:text-orange-600 transition-all duration-500">
-                      {row.id}
-                    </td>
+                  <tr key={row.id}>
                     {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rankType) => {
                       const taskText = rankType === 'Normie' ? row.normies : rankType === 'SuperHero' ? row.superheros : rankType === 'Angel' ? row.angels : row.superfarmers;
                       const taskValue = (row.pts as any)[rankType];
 
                       return (
-                        <td key={rankType} className="p-8 align-top border-l-4 border-black dark:border-white">
-                          <div className="flex flex-col h-full justify-between gap-10">
-                            <p className="text-md leading-tight text-black dark:text-white font-black uppercase italic tracking-tight group-hover:translate-x-1 transition-transform">
+                        <td key={rankType} className="p-8 align-top first:border-l-0 border-l border-black dark:border-white transition-all duration-500">
+                          <div className="flex flex-col h-full justify-between gap-8">
+                            <p className="text-sm leading-relaxed text-black dark:text-white font-bold uppercase tracking-tight">
                               {taskText}
                             </p>
-                            <div className="flex items-center justify-between border-t-2 border-black/10 dark:border-white/10 pt-4">
-                              <div className="flex items-center gap-2">
-                                <Zap size={16} className="text-orange-600 fill-orange-600" />
-                                <span className="text-[12px] font-black uppercase text-black dark:text-white">
-                                  +{taskValue} PU
-                                </span>
-                              </div>
-                              <div className="h-2 w-2 bg-orange-600 rounded-full animate-ping" />
+                            <div className="flex items-center gap-2">
+                              <Zap size={14} className="text-orange-600 fill-orange-600" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white italic">
+                                Value: {taskValue} Pts
+                              </span>
                             </div>
                           </div>
                         </td>
@@ -172,22 +194,6 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
-        </div>
-        
-        {/* Footer Technical Specs */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 border-t-2 border-black dark:border-white pt-8">
-           <div className="flex items-center gap-4">
-              <Atom className="text-orange-600" size={32} />
-              <p className="text-[9px] font-black uppercase text-black dark:text-white leading-tight">Quantum Encryption Standard<br/>B-99.8 Active</p>
-           </div>
-           <div className="flex items-center gap-4">
-              <Orbit className="text-orange-600 animate-spin-slow" size={32} />
-              <p className="text-[9px] font-black uppercase text-black dark:text-white leading-tight">Orbital Sync Status<br/>Locked & Verified</p>
-           </div>
-           <div className="flex items-center gap-4">
-              <Cpu className="text-orange-600" size={32} />
-              <p className="text-[9px] font-black uppercase text-black dark:text-white leading-tight">Neural Core Integrity<br/>100% Operational</p>
-           </div>
         </div>
       </div>
     </section>
