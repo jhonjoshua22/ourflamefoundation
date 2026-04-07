@@ -111,7 +111,7 @@ const EventsSection = () => {
         {/* CTA Section - Full Calendar & Login */}
         <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
-            to="/calendar" 
+            to="https://calendar.google.com/calendar/r" 
             className="flex items-center justify-center gap-2 bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20 w-full sm:w-auto text-center"
           >
             Full Calendar <ArrowRight size={14} />
