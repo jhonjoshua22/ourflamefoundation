@@ -54,7 +54,7 @@ const HeroSection = () => {
       image: farmerImg,
       price: "From $500 pm • 50-99% Profit Pay",
       benefit: "We want to boost the ecosystem, plant seeds for growth, and invite our friends.",
-      color: "border-green-600/20 bg-green-600/5",
+      color: "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50",
       button: "I'm SuperFarmer",
     },
   ];
