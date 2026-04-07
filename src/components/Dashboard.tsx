@@ -64,30 +64,6 @@ const Dashboard = () => {
     },
     { 
       id: "05", 
-      normies: "Signal Boost: Resonate Foundation Content through Social Resonance Chambers", 
-      superheros: "Alpha Strike: Beta-Test Emerging Software & Report Neural Bugs", 
-      angels: "High Council: Mediate Community Disputes & Align Faction Interests",
-      superfarmers: "Stellar Infrastructure: Fund Physical Foundation Hubs & Real-World Nodes",
-      pts: { Normie: 100, SuperHero: 400, Angel: 1500, SuperFarmer: 12000 } 
-    },
-    { 
-      id: "06", 
-      normies: "Citizen Science: Collect Environmental Data for the Global Archive", 
-      superheros: "Logic Gate: Develop Open-Source Modules for the Magic Ecosystem", 
-      angels: "Wealth Distribution: Curate Grant Proposals for the Seed Fund",
-      superfarmers: "Legacy Protocol: Structure Inter-Generational Capital Retention Plans",
-      pts: { Normie: 150, SuperHero: 800, Angel: 3500, SuperFarmer: 25000 } 
-    },
-    { 
-      id: "07", 
-      normies: "Kinship Link: Assist a Fellow Citizen in Navigating the Digital Void", 
-      superheros: "Firewall: Monitor and Deflect Sub-Space Narrative Attacks", 
-      angels: "Ascension Guide: Bridge the Gap between Normies and Hero Ranks",
-      superfarmers: "Omni-Intelligence: Direct the Ethical Constraints of Primary AI Cores",
-      pts: { Normie: 80, SuperHero: 500, Angel: 2000, SuperFarmer: 18000 } 
-    },
-    { 
-      id: "08", 
       normies: "Final Convergence: Submit Daily Progress Report to the Flame Terminal", 
       superheros: "Vanguard Sweep: Moderate the Foundation Forums & Silence Disruptors", 
       angels: "Oracle Sight: Forecast Monthly Trends & Pitch Expansion Sectors",
