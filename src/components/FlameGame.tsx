@@ -43,7 +43,7 @@ const FlameGame = () => {
     { name: "Retailer PLC", content: "Fascinating" },
     { name: "Unique Games Exec", content: "Unique" },
     { name: "Ad Giant Global", content: "Love It" },
-    { name: "Google Exec", content: "Compelling", isHighlight: true },
+    { name: "Google Exec", content: "Compelling" },
     { name: "Pharma UK", content: "Worthwhile" },
     { name: "Police UK", content: "Useful" },
     { name: "NHS London", content: "Wonderful" },
