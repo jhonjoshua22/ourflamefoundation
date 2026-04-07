@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, ChevronLeft, Users, Flag, ThumbsUp, CheckCircle, Rocket } from "lucide-react";
+import { ChevronRight, ChevronLeft, Users, Flag, ThumbsUp, CheckCircle, Rocket, X, Maximize2 } from "lucide-react";
 import clickSound from "../assets/button.m4a"; 
 
 // Asset Imports
@@ -10,9 +10,9 @@ import video3 from "../assets/video3.mp4";
 import video4 from "../assets/video4.mp4";
 import video5 from "../assets/video5.mp4";
 
-
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string } | null>(null);
 
   const playClickSound = () => {
     try {
@@ -93,7 +93,6 @@ const FlameGame = () => {
 
         {/* Video Carousel with Arrows */}
         <div className="relative mb-12 group">
-          {/* Left Arrow */}
           <button 
             onClick={() => scroll("left")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-orange-600 text-white p-4 rounded-r-2xl transition-all opacity-0 group-hover:opacity-100"
@@ -101,7 +100,6 @@ const FlameGame = () => {
             <ChevronLeft size={32} />
           </button>
 
-          {/* Video Container */}
           <div 
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar"
@@ -109,11 +107,15 @@ const FlameGame = () => {
             {videoList.map((video) => (
               <div 
                 key={video.id} 
-                className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl"
+                className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
+                onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                <video controls className="w-full h-full object-cover">
+                <video muted playsInline className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity">
                   <source src={video.src} type="video/mp4" />
                 </video>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
+                    <Maximize2 size={48} className="text-white animate-pulse" />
+                </div>
                 <div className="absolute bottom-4 left-6">
                   <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 tracking-widest">
                     {video.title}
@@ -123,7 +125,6 @@ const FlameGame = () => {
             ))}
           </div>
 
-          {/* Right Arrow */}
           <button 
             onClick={() => scroll("right")}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-orange-600 text-white p-4 rounded-l-2xl transition-all opacity-0 group-hover:opacity-100"
@@ -140,7 +141,7 @@ const FlameGame = () => {
                 key={index} 
                 className={`w-[260px] p-6 border-l-[3px] flex flex-col justify-between transition-all
                   ${item.isHighlight 
-                    ? 'bg-orange-50/50 dark:bg-orange-900/20 border-orange-600' 
+                    ? 'bg-orange-50/50 dark:bg-orange-900/20 border-orange-600 shadow-[0_0_20px_rgba(234,88,12,0.1)]' 
                     : 'bg-white dark:bg-black border-black dark:border-white border-2'}`}
               >
                 <div>
@@ -180,6 +181,35 @@ const FlameGame = () => {
           </div>
         </div> 
       </div>
+
+      {/* Full/Semi-Full Screen Video Modal */}
+      {selectedVideo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-xl transition-all duration-300">
+          <button 
+            onClick={() => setSelectedVideo(null)}
+            className="absolute top-8 right-8 text-white hover:text-orange-600 transition-colors z-[110]"
+          >
+            <X size={48} strokeWidth={3} />
+          </button>
+          
+          <div className="w-full max-w-6xl aspect-video rounded-2xl overflow-hidden border-2 border-white/20 shadow-[0_0_50px_rgba(234,88,12,0.3)] bg-black">
+             <video 
+                autoPlay 
+                controls 
+                className="w-full h-full"
+                onEnded={() => setSelectedVideo(null)}
+             >
+                <source src={selectedVideo.src} type="video/mp4" />
+             </video>
+          </div>
+          
+          <div className="absolute bottom-8 text-center">
+            <h3 className="text-white text-2xl font-black uppercase italic tracking-widest">
+                Mission Intel: <span className="text-orange-600">{selectedVideo.title}</span>
+            </h3>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
