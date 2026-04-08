@@ -11,7 +11,7 @@ const EventsSection = () => {
   const [events, setEvents] = useState([]);
 
   // Replace this with your actual free Calendly link
-  const CALENDLY_URL = "https://calendly.com/ourflamefoundation"; 
+  const CALENDLY_URL = "https://calendly.com/ourflamefoundation/30min?back=1"; 
 
   useEffect(() => {
     const fetchCalendarEvents = async () => {
