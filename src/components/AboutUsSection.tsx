@@ -55,7 +55,7 @@ const AboutUsSection = () => {
     { name: "Magic Worlds", href: "https://www.themagicworlds.org/", icon: Globe },
     { name: "Customer Service", href: "https://www.facebook.com/OurFlameFoundation/", icon: Facebook },
     { name: "News", href: "https://x.com/OurFlameFoundtn", icon: Twitter },
-    { name: "TV", href: "https://www.youtube.com/@magicworldstv", icon: Youtube },
+    { name: "TV", href: "https://www.youtube.com/@FlameFoundationTV", icon: Youtube },
     { name: "Teams", href: "https://www.linkedin.com/company/magic-worlds", icon: Linkedin },
     { name: "Code", href: "https://github.com/TheMagicWorlds", icon: Github },
   ];
