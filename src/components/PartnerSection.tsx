@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ExternalLink, UserPlus, Linkedin, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
+// Asset Imports
 import google from "../assets/google.png";
 import xLogo from "../assets/x.png";
 import meta from "../assets/meta.png";
@@ -26,7 +27,7 @@ const partnerLogos = [
 const defaultNedBoard = [
   { id: 1, name: "Maurice Flynn", image: MauriceB, linkedin: "https://www.linkedin.com/in/mauricebigmoflynn/" },
   { id: 2, name: "Martin Hall", image: MartinH, linkedin: "https://www.linkedin.com/in/martin-hall-bbb9082/" },
-  { id: 3, name: "Graham Richard", image: GrahamR, linkedin: "https://www.linkedin.com/in/richardsonjgraham/" },
+  { id: 3, name: "Antoaneta Yurykova", image: GrahamR, linkedin: "#" },
   { id: 4, name: "Alwin Stephen", image: null, linkedin: "#" },
   { id: 5, name: "Peter Terziev", image: null, linkedin: "#" },
   { id: 6, name: "Joshua H.", image: JoshuaH, linkedin: "https://www.linkedin.com/in/joshuah1/" }
@@ -44,7 +45,8 @@ const executiveBoard = [
 ];
 
 const PartnerSection = () => {
-  const [nedBoard, setNedBoard] = useState(defaultNedBoard);
+  // nedBoard is now static state - it will never be overwritten by fetchMembers
+  const [nedBoard] = useState(defaultNedBoard);
   const [superheros, setSuperheros] = useState<any[]>([]);
   const [showAllHeroes, setShowAllHeroes] = useState(false);
 
@@ -64,7 +66,7 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // UPDATED: Added photo_url and linkedin_link to the select query
+    // Only fetching data for sections that need to be dynamic (Superheros)
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, linkedin_link");
@@ -74,31 +76,22 @@ const PartnerSection = () => {
       return;
     }
 
-    const farmers: any[] = [];
     const heroes: any[] = [];
 
     data?.forEach((user) => {
-      if (user.rank === "SuperFarmer") {
-        farmers.push({
-          id: user.id,
-          name: user.display_name,
-          image: user.photo_url, // Now dynamic
-          linkedin: user.linkedin_link || "#" // Now dynamic
-        });
-      }
-
+      // We only extract SuperHero rank from the DB
       if (user.rank === "SuperHero") {
         heroes.push({
           id: user.id,
           name: user.display_name,
           position: "Superhero",
-          image: user.photo_url, // Now dynamic
-          linkedin: user.linkedin_link || "#" // Now dynamic
+          image: user.photo_url,
+          linkedin: user.linkedin_link || "#"
         });
       }
     });
 
-    setNedBoard([...defaultNedBoard, ...farmers]);
+    // Update only the Superhero state
     setSuperheros(heroes);
   };
 
@@ -108,7 +101,7 @@ const PartnerSection = () => {
     <section id="people" className="bg-white dark:bg-black py-24">
       <div className="container mx-auto px-6 max-w-7xl">
 
-        {/* WORK WITH */}
+        {/* WORK WITH SECTION */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="max-w-xl">
             <h2 className="text-6xl font-black uppercase italic text-zinc-900 dark:text-white leading-none">
@@ -133,7 +126,7 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* NED BOARD */}
+        {/* NED BOARD - STRICTLY STATIC */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           NED <span className="text-orange-600 not-italic">Board</span>
         </h2>
@@ -157,7 +150,7 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* EXECUTIVE BOARD */}
+        {/* EXECUTIVE BOARD - STRICTLY STATIC */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           Executive <span className="text-orange-600 not-italic">Board</span>
         </h2>
@@ -191,7 +184,7 @@ const PartnerSection = () => {
           </Link>
         </div>
 
-        {/* SUPERHEROS - Using dynamic photo_url and linkedin_link */}
+        {/* SUPERHEROS - DYNAMICALLY LOADED FROM SUPABASE */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           <span className="text-orange-600 not-italic">Super</span>heros
         </h2>
@@ -215,6 +208,7 @@ const PartnerSection = () => {
             </div>
           ))}
 
+          {/* JOIN THEM CARD */}
           {(!showAllHeroes || superheros.length % 5 !== 0) && (
             <Link to="/login" className="flex flex-col items-center justify-center text-center p-4 bg-orange-600/5 border-2 border-dashed border-orange-600/20 rounded-2xl hover:bg-orange-600/10 hover:border-orange-600/40 transition-colors">
               <div className="w-20 h-20 mb-4 rounded-full flex items-center justify-center bg-orange-600 text-white">
@@ -226,6 +220,7 @@ const PartnerSection = () => {
           )}
         </div>
 
+        {/* SHOW MORE / SHOW LESS BUTTON */}
         {superheros.length > 4 && (
           <div className="mt-10 flex justify-center">
             <button
