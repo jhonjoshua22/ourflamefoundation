@@ -55,7 +55,7 @@ const Navbar = () => {
   const flatNavigation = [
     { name: "What", href: "/#flame-game" },
     { name: "How", href: "/scoretable" },
-    { name: "Why", href: "/scoretable" },
+    { name: "Why", href: "/scoretable#home" },
     { name: "Where", href: "/#presence" },
     { name: "When", href: "/#news" },
     { name: "Who", href: "/#impact" },
