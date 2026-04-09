@@ -207,15 +207,6 @@ const ImpactSection = () => {
                   >
                     <Youtube size={18} /> Watch on YouTube
                   </a>
-                  <a 
-                    href={BOOKING_LINK}
-                    onClick={playClickSound}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 w-full py-4 border-2 border-zinc-900 dark:border-white text-zinc-900 dark:text-white font-black uppercase tracking-widest text-xs hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
-                  >
-                    <Calendar size={18} /> Choose Date & Book
-                  </a>
                 </div>
               </div>
             </div>
