@@ -16,6 +16,7 @@ const Index = () => {
       
       {/* The Flame Game & Dashboard Sections */}
       <FlameGame />
+      <Testimonials />
       <GameGallery />
       <Dashboard />
       <ImpactSection />
@@ -24,7 +25,6 @@ const Index = () => {
 
       <NewsEventsSection />
       
-      <Testimonials />
       <PartnerSection />
       
     </div>
