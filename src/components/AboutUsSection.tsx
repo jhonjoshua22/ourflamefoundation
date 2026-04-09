@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import clickSound from "../assets/button.m4a"; 
 
 import {  
-  ExternalLink, Copy, Check, Users, Sparkles, Bot, Scale, Heart, Globe, ArrowRight, FolderOpen, FileText, Video, Flame, Star,
+  ExternalLink, Copy, Check, Users, Sparkles, ArrowRight, FolderOpen, FileText, Video, Flame, Star,
   Facebook, Twitter, Youtube, Linkedin, Github, MapPin, MessageCircle, Mail, ChevronRight
 } from "lucide-react";
 
@@ -209,34 +209,8 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Master Bot Section */}
-        <div className="mt-24 bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 p-12 md:p-20 border-t-8 border-orange-600 relative overflow-hidden text-center">
-          <Bot className="w-16 h-16 text-orange-600 mx-auto mb-10" />
-          <h2 className="text-4xl md:text-7xl font-black tracking-tighter uppercase italic leading-none mb-8">
-            Supporting the <br/><span className="text-orange-600 not-italic uppercase">Busy Family.</span>
-          </h2>
-          <p className="text-zinc-400 dark:text-zinc-500 text-lg max-w-3xl mx-auto leading-relaxed mb-16 font-medium uppercase tracking-tight">
-            Extra tasks lead to excessive stress. Our Flame Foundation feeds into a dedicated 
-            <span className="text-white dark:text-black font-black"> Magic World Master Bot</span> to manage your life with precision.
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-px bg-white/10 dark:bg-zinc-200 border border-white/10 dark:border-zinc-200">
-            {[
-              { icon: <Scale size={24}/>, title: "Life Management", desc: "Money, jobs, legal prep, and stress coping." },
-              { icon: <Heart size={24}/>, title: "Modern Living", desc: "Relationships, relaxation, and sustainable fun." },
-              { icon: <Globe size={24}/>, title: "Universal Good", desc: "Improving the universe for all sentient beings." }
-            ].map((box, i) => (
-              <div key={i} className="bg-zinc-900 dark:bg-white p-10 text-left hover:bg-zinc-800 dark:hover:bg-zinc-50 transition-colors">
-                <div className="text-orange-600 mb-6">{box.icon}</div>
-                <h5 className="font-black uppercase italic text-xl tracking-tight mb-3">{box.title}</h5>
-                <p className="text-xs uppercase font-medium text-zinc-400 dark:text-zinc-500 leading-relaxed tracking-wider">{box.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Tiers Section - BIG PHOTOS & CENTERED */}
-        <div className="mt-24 space-y-12">
+        <div id="tiers" className="mt-24 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-center">
             {tiers.map((tier, i) => (
