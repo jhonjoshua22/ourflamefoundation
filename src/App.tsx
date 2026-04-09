@@ -28,6 +28,33 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // NEW: Function to record country via IP
+  const recordCountry = async (userId: string) => {
+    try {
+      // Check if country is already recorded to save API calls
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("country")
+        .eq("id", userId)
+        .single();
+
+      if (profile && !profile.country) {
+        const response = await fetch("https://ipapi.co/json/");
+        const geoData = await response.json();
+
+        if (geoData.country_name) {
+          await supabase
+            .from("profiles")
+            .update({ country: geoData.country_name })
+            .eq("id", userId);
+          console.log("[GEO] Mission Control: Location secured -", geoData.country_name);
+        }
+      }
+    } catch (err) {
+      console.error("[GEO] Failed to sync location intel:", err);
+    }
+  };
+
   const touchForStreak = async (userId: string) => {
     try {
       const { error } = await supabase
@@ -50,6 +77,7 @@ const App = () => {
       (event, session) => {
         if (event === "SIGNED_IN" && session?.user?.id) {
           touchForStreak(session.user.id);
+          recordCountry(session.user.id); // Trigger country recording on sign in
         }
       }
     );
@@ -57,6 +85,7 @@ const App = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
         touchForStreak(session.user.id);
+        recordCountry(session.user.id); // Trigger country recording for existing sessions
       }
     });
 
@@ -69,7 +98,6 @@ const App = () => {
     audioRef.current = new Audio(introAudio);
     audioRef.current.loop = true;
 
-    // Listener for custom mute signal from MainLayout
     const handleToggleMusic = () => {
       if (audioRef.current) {
         audioRef.current.muted = !audioRef.current.muted;
