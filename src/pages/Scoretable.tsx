@@ -98,7 +98,7 @@ const Scoretable = () => {
     setLoadingChallenges(true);
     setChallengeError(null);
     try {
-      // Step A: Find the UUID from 'tribes' table where name matches the user's profile rank
+      // Step A: Find the UUID for the rank name
       const { data: tribeData, error: tribeError } = await supabase
         .from('tribes')
         .select('id')
@@ -106,7 +106,7 @@ const Scoretable = () => {
         .single();
 
       if (tribeError || !tribeData) {
-        console.warn("No tribe found matching rank name:", rankName);
+        console.error("Tribe Lookup Error:", tribeError);
         setTribeChallenges([]);
         return;
       }
@@ -114,16 +114,19 @@ const Scoretable = () => {
       const tribeUuid = tribeData.id;
       const now = new Date().toISOString();
       
-      // Step B: Fetch challenges using that UUID as the tribe_id
+      console.log(`Fetching challenges for Tribe UUID: ${tribeUuid} where ends_at > ${now}`);
+
+      // Step B: Fetch challenges
       const { data, error: challengeFetchError } = await supabase
         .from('tribe_challenges')
         .select('*')
-        .eq('tribe_id', tribeUuid) 
-        .gt('ends_at', now) 
-        .order('ends_at', { ascending: true });
+        .eq('tribe_id', tribeUuid); // Temporarily REMOVE .gt('ends_at') here to test
 
       if (challengeFetchError) throw challengeFetchError;
+      
+      console.log("Challenges returned from DB:", data);
       setTribeChallenges(data || []);
+      
     } catch (err: any) {
       console.error("Challenges fetch error:", err);
       setChallengeError("Failed to load challenges");
