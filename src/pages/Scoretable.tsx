@@ -105,21 +105,23 @@ const Scoretable = () => {
     setLoadingChallenges(true);
     setChallengeError(null);
     try {
+      const now = new Date().toISOString();
+      
       let query = supabase
         .from('tribe_challenges')
         .select('*')
-        .gt('ends_at', new Date().toISOString())
-        .gte('created_at', new Date().toISOString().split('T')[0] + 'T00:00:00Z')
+        .gt('ends_at', now) // Challenge hasn't expired
+        // Removed the .gte('created_at') filter so older active challenges show up
         .order('ends_at', { ascending: true });
 
       if (userRank) {
-        query = query.eq('tribe_id', userRank); // string match
+        // This will now work because tribe_id is now TEXT in DB
+        query = query.eq('tribe_id', userRank); 
       }
 
       const { data, error } = await query;
       if (error) throw error;
 
-      console.log("[CHALLENGES] Raw data:", data);
       setTribeChallenges(data || []);
     } catch (err: any) {
       console.error("Challenges fetch error:", err);
