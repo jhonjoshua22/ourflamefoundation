@@ -9,10 +9,11 @@ import video2 from "../assets/video2.mp4";
 import video3 from "../assets/video3.mp4";
 import video4 from "../assets/video4.mp4";
 import video5 from "../assets/video5.mp4";
+import moneyPlaceholder from "../assets/money.jpeg"; // Imported placeholder
 
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string } | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
 
   const playClickSound = () => {
     try {
@@ -31,7 +32,8 @@ const FlameGame = () => {
   };
 
   const videoList = [
-    { id: 1, src: video5, title: "Money World" },
+    // Added the poster property to video5
+    { id: 1, src: video5, title: "Money World", poster: moneyPlaceholder }, 
     { id: 2, src: magicWorlds, title: "Magic Worlds Intro" },
     { id: 3, src: video2, title: "Play2Help" },
     { id: 4, src: video3, title: "2026 I Dream For" },
@@ -110,7 +112,13 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                <video muted playsInline className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity">
+                {/* Applied poster here for the thumbnail preview */}
+                <video 
+                  muted 
+                  playsInline 
+                  poster={video.poster}
+                  className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
+                >
                   <source src={video.src} type="video/mp4" />
                 </video>
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
@@ -196,6 +204,7 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
+                poster={selectedVideo.poster} // Applied poster in modal as well
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
