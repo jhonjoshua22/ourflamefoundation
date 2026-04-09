@@ -27,7 +27,7 @@ const partnerLogos = [
 const defaultNedBoard = [
   { id: 1, name: "Maurice Flynn", image: MauriceB, linkedin: "https://www.linkedin.com/in/mauricebigmoflynn/" },
   { id: 2, name: "Martin Hall", image: MartinH, linkedin: "https://www.linkedin.com/in/martin-hall-bbb9082/" },
-  { id: 3, name: "Antoaneta Yurykova", image: GrahamR, linkedin: "#" },
+  { id: 3, name: "Antoaneta Yurykova", image: null, linkedin: "#" },
   { id: 4, name: "Alwin Stephen", image: null, linkedin: "#" },
   { id: 5, name: "Peter Terziev", image: null, linkedin: "#" },
   { id: 6, name: "Joshua H.", image: JoshuaH, linkedin: "https://www.linkedin.com/in/joshuah1/" }
