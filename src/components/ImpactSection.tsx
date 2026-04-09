@@ -158,7 +158,7 @@ const ImpactSection = () => {
       <div className="container mx-auto px-6 max-w-7xl">
         <div className="mb-20">
           <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic leading-[0.85]">
-            Global <br /> <span className="text-orange-600 not-italic uppercase">Footprint</span>
+            Global <br /> <span className="text-orange-600 not-italic uppercase">Training</span>
           </h2>
           <div className="h-1 w-24 bg-orange-600 mt-8 mb-6" />
           <p className="text-zinc-500 dark:text-zinc-400 text-lg max-w-xl leading-relaxed uppercase font-medium tracking-tight">
