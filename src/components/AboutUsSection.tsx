@@ -4,7 +4,8 @@ import clickSound from "../assets/button.m4a";
 
 import {  
   ExternalLink, Copy, Check, Users, Sparkles, ArrowRight, FolderOpen, FileText, Video, Flame, Star,
-  Facebook, Twitter, Youtube, Linkedin, Github, MapPin, MessageCircle, Mail, ChevronRight
+  Facebook, Twitter, Youtube, Linkedin, Github, MapPin, MessageCircle, Mail, ChevronRight,
+  Globe // Added this import to prevent the crash
 } from "lucide-react";
 
 // Tier Asset Imports
@@ -126,7 +127,6 @@ const AboutUsSection = () => {
     <section id="about" className="py-24 bg-white dark:bg-black transition-colors duration-500 overflow-hidden font-sans">
       <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20">
           <div className="max-w-2xl">
             <h2 className="text-[10px] font-black tracking-[0.4em] uppercase text-orange-600 mb-4">Vision & Infrastructure</h2>
@@ -140,7 +140,6 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Grid: Commandments & Tab UI */}
         <div className="grid lg:grid-cols-12 gap-px bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-900 mb-24">
           <div className="lg:col-span-7 bg-white dark:bg-black p-8 md:p-12 space-y-12">
             <div className="space-y-6">
@@ -209,7 +208,6 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Tiers Section - BIG PHOTOS & CENTERED */}
         <div id="tiers" className="mt-24 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-center">
@@ -233,7 +231,6 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Resources Section */}
         <div id="resources" className="space-y-4 mt-24 mb-12">
           <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
           <div className="grid gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
@@ -261,7 +258,6 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Process Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
           {steps.map((item, idx) => {
             const isExternal = item.link?.startsWith('http');
@@ -281,7 +277,6 @@ const AboutUsSection = () => {
           })}
         </div>
 
-        {/* Directory/Footer Inserts */}
         <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-zinc-100 dark:border-zinc-900 pt-12">
           <div className="space-y-4">
             <h4 id="socials" className="text-zinc-900 dark:text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-900 pb-2">Socials</h4>
@@ -307,7 +302,6 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Final Action CTA */}
         <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
             to="/login" 
