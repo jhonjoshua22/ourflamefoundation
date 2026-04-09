@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { ChevronRight, ChevronLeft, Users, Flag, ThumbsUp, CheckCircle, Rocket, X, Maximize2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Users, Flag, ThumbsUp, X, Maximize2 } from "lucide-react";
 import clickSound from "../assets/button.m4a"; 
 
 // Asset Imports
@@ -9,7 +8,7 @@ import video2 from "../assets/video2.mp4";
 import video3 from "../assets/video3.mp4";
 import video4 from "../assets/video4.mp4";
 import video5 from "../assets/video5.mp4";
-import moneyPlaceholder from "../assets/money.jpeg"; // Imported placeholder
+import moneyPlaceholder from "../assets/money.jpeg";
 
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -32,7 +31,6 @@ const FlameGame = () => {
   };
 
   const videoList = [
-    // Added the poster property to video5
     { id: 1, src: video5, title: "Money World", poster: moneyPlaceholder }, 
     { id: 2, src: magicWorlds, title: "Magic Worlds Intro" },
     { id: 3, src: video2, title: "Play2Help" },
@@ -40,37 +38,10 @@ const FlameGame = () => {
     { id: 5, src: video4, title: "Avatars" },
   ];
 
-  const testimonials = [
-    { name: "Fujitsu Exec", content: "Revolutionary" },
-    { name: "Retailer PLC", content: "Fascinating" },
-    { name: "Unique Games Exec", content: "Unique" },
-    { name: "Ad Giant Global", content: "Love It" },
-    { name: "Google Exec", content: "Compelling" },
-    { name: "Pharma UK", content: "Worthwhile" },
-    { name: "Police UK", content: "Useful" },
-    { name: "NHS London", content: "Wonderful" },
-    { name: "Army UK", content: "Helpful" },
-    { name: "School Group London", content: "Inspired" }
-  ];
-
-  const infiniteTestimonials = [...testimonials, ...testimonials];
-
   return (
     <section id="flame-game" className="relative pt-32 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
       
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          display: flex;
-          width: max-content;
-          animation: marquee 35s linear infinite;
-        }
-        .animate-marquee:hover {
-          animation-play-state: paused;
-        }
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -94,7 +65,7 @@ const FlameGame = () => {
         </div>
 
         {/* Video Carousel with Arrows */}
-        <div className="relative mb-12 group">
+        <div className="relative mb-24 group">
           <button 
             onClick={() => scroll("left")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-orange-600 text-white p-4 rounded-r-2xl transition-all opacity-0 group-hover:opacity-100"
@@ -112,7 +83,6 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                {/* Applied poster here for the thumbnail preview */}
                 <video 
                   muted 
                   playsInline 
@@ -141,37 +111,8 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Scrolling Quotes */}
-        <div className="relative mb-24 max-w-5xl mx-auto">
-          <div className="animate-marquee flex gap-8 py-4">
-            {infiniteTestimonials.map((item, index) => (
-              <div 
-                key={index} 
-                className={`w-[260px] p-6 border-l-[3px] flex flex-col justify-between transition-all
-                  ${item.isHighlight 
-                    ? 'bg-orange-50/50 dark:bg-orange-900/20 border-orange-600 shadow-[0_0_20px_rgba(234,88,12,0.1)]' 
-                    : 'bg-white dark:bg-black border-black dark:border-white border-2'}`}
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <div />
-                    {item.isHighlight && <Rocket size={14} className="text-orange-600 animate-pulse" />}
-                  </div>
-                  <blockquote className="text-black dark:text-white text-xl font-black uppercase tracking-tight italic mb-4">
-                    "{item.content}"
-                  </blockquote>
-                </div>
-                <div className="flex items-center gap-2">
-                  <p className="font-bold text-black dark:text-white text-xs tracking-wide uppercase">{item.name}</p>
-                  <CheckCircle size={10} className="text-orange-600" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 pt-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 pt-4 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-8 h-8 text-orange-600 mb-2" />
             <span className="text-5xl md:text-8xl font-black text-black dark:text-white">50K+</span>
@@ -190,7 +131,7 @@ const FlameGame = () => {
         </div> 
       </div>
 
-      {/* Full/Semi-Full Screen Video Modal */}
+      {/* Video Modal */}
       {selectedVideo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-xl transition-all duration-300">
           <button 
@@ -204,7 +145,7 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={selectedVideo.poster} // Applied poster in modal as well
+                poster={selectedVideo.poster}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
