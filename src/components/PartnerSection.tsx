@@ -45,7 +45,7 @@ const executiveBoard = [
 
 const PartnerSection = () => {
   const [nedBoard, setNedBoard] = useState(defaultNedBoard);
-  const [superheros, setSuperheros] = useState<any[]>([]); // Initialized as empty
+  const [superheros, setSuperheros] = useState<any[]>([]);
   const [showAllHeroes, setShowAllHeroes] = useState(false);
 
   useEffect(() => {
@@ -64,9 +64,10 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
+    // UPDATED: Added photo_url and linkedin_link to the select query
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, rank");
+      .select("id, display_name, rank, photo_url, linkedin_link");
 
     if (error) {
       console.error("Error loading members", error);
@@ -81,8 +82,8 @@ const PartnerSection = () => {
         farmers.push({
           id: user.id,
           name: user.display_name,
-          image: null,
-          linkedin: "#"
+          image: user.photo_url, // Now dynamic
+          linkedin: user.linkedin_link || "#" // Now dynamic
         });
       }
 
@@ -91,14 +92,14 @@ const PartnerSection = () => {
           id: user.id,
           name: user.display_name,
           position: "Superhero",
-          image: null,
-          linkedin: "#"
+          image: user.photo_url, // Now dynamic
+          linkedin: user.linkedin_link || "#" // Now dynamic
         });
       }
     });
 
     setNedBoard([...defaultNedBoard, ...farmers]);
-    setSuperheros(heroes); // Now strictly using DB results
+    setSuperheros(heroes);
   };
 
   const visibleHeroes = showAllHeroes ? superheros : superheros.slice(0, 4);
@@ -190,7 +191,7 @@ const PartnerSection = () => {
           </Link>
         </div>
 
-        {/* SUPERHEROS - STOIC/DB ONLY */}
+        {/* SUPERHEROS - Using dynamic photo_url and linkedin_link */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           <span className="text-orange-600 not-italic">Super</span>heros
         </h2>
