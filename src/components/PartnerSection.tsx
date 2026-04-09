@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
-import { ExternalLink, Users, UserPlus, Linkedin, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, UserPlus, Linkedin, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 import google from "../assets/google.png";
@@ -14,17 +14,6 @@ import MartinH from "../assets/MartinH.jpg";
 import GrahamR from "../assets/GrahamR.jpg";
 import JoshuaH from "../assets/JoshuaH.jpg";
 import defaultAvatar from "../assets/default-user.jpg";
-
-import ClaireN from "../assets/ClaireN.jpg";
-import ReemE from "../assets/ReemE.jpg";
-import PatrickS from "../assets/PatrickS.jpg";
-import SharonD from "../assets/SharonD.jpg";
-import MartinG from "../assets/MartinG.jpg";
-import DaveB from "../assets/DaveB.jpg";
-import GrahamT from "../assets/GrahamT.jpg";
-import AndreiB from "../assets/AndreiB.jpg";
-import RichardS from "../assets/RichardS.jpg";
-import JohnT from "../assets/JohnT.jpg";
 
 const partnerLogos = [
   { id: 1, src: google, alt: "Google" },
@@ -54,28 +43,9 @@ const executiveBoard = [
   { id: 108, name: "Livia", position: "AIHR", linkedin: "#" },
 ];
 
-const defaultSuperheros = [
-  { id: 7, name: "Claire Newman", position: "Recruitment Specialist", image: ClaireN, linkedin: "https://www.linkedin.com/in/clairenewmanbluetree/" },
-  { id: 8, name: "Reem Elfeitury", position: "Managing Director", image: ReemE, linkedin: "https://www.linkedin.com/in/reem-elfeitury-31a42b3b/" },
-  { id: 9, name: "Patrick Shalow", position: "Founder & CEO", image: PatrickS, linkedin: "https://www.linkedin.com/in/patrickshallow/" },
-  { id: 10, name: "Sharon D'Cruz", position: "Head of Marketing", image: SharonD, linkedin: "https://www.linkedin.com/in/sharondcruz/" },
-  { id: 11, name: "Martin Gormley", position: "Marketing Director", image: MartinG, linkedin: "https://www.linkedin.com/in/martingormley/" },
-  { id: 12, name: "Dave Brewis", position: "Project Manager", image: DaveB, linkedin: "https://www.linkedin.com/in/davebrewis/" },
-  { id: 13, name: "Graham Teece", position: "Managing Partner", image: GrahamT, linkedin: "https://www.linkedin.com/in/grahamteece/" },
-  { id: 14, name: "Andrei Bgatov", position: "Sales Director", image: AndreiB, linkedin: "https://www.linkedin.com/in/andreibgatov/" },
-  { id: 15, name: "Richard Skinner", position: "Agency Owner", image: RichardS, linkedin: "https://www.linkedin.com/in/richardskinner1/" },
-  { id: 16, name: "John Thew", position: "Founder/MD", image: JohnT, linkedin: "https://www.linkedin.com/in/johnthew/" },
-  { id: 17, name: "David Flynn", position: "Founder", image: null, linkedin: "https://www.linkedin.com/in/david-flynn-485ab61/" },
-  { id: 18, name: "Veronie", position: "Superhero", image: null, linkedin: "#" },
-  { id: 19, name: "John", position: "Superhero", image: null, linkedin: "#" },
-  { id: 20, name: "Joshua", position: "Superhero", image: null, linkedin: "#" }
-];
-
 const PartnerSection = () => {
   const [nedBoard, setNedBoard] = useState(defaultNedBoard);
-  const [superheros, setSuperheros] = useState(defaultSuperheros);
-  
-  // Added state for Show More / Show Less
+  const [superheros, setSuperheros] = useState<any[]>([]); // Initialized as empty
   const [showAllHeroes, setShowAllHeroes] = useState(false);
 
   useEffect(() => {
@@ -103,8 +73,8 @@ const PartnerSection = () => {
       return;
     }
 
-    const farmers:any[] = [];
-    const heroes:any[] = [];
+    const farmers: any[] = [];
+    const heroes: any[] = [];
 
     data?.forEach((user) => {
       if (user.rank === "SuperFarmer") {
@@ -128,10 +98,9 @@ const PartnerSection = () => {
     });
 
     setNedBoard([...defaultNedBoard, ...farmers]);
-    setSuperheros([...defaultSuperheros, ...heroes]);
+    setSuperheros(heroes); // Now strictly using DB results
   };
 
-  // Logic to determine how many heroes to render
   const visibleHeroes = showAllHeroes ? superheros : superheros.slice(0, 4);
 
   return (
@@ -212,7 +181,6 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* Executive Board CTA Button */}
         <div className="flex justify-center mb-24">
           <Link 
             to="/#contacts" 
@@ -222,7 +190,7 @@ const PartnerSection = () => {
           </Link>
         </div>
 
-        {/* SUPERHEROS (With Show More/Less mechanism) */}
+        {/* SUPERHEROS - STOIC/DB ONLY */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           <span className="text-orange-600 not-italic">Super</span>heros
         </h2>
@@ -246,19 +214,17 @@ const PartnerSection = () => {
             </div>
           ))}
 
-          {/* This block handles the dynamic fill behavior filling in the grid slots */}
           {(!showAllHeroes || superheros.length % 5 !== 0) && (
-            <a href="/login" className="flex flex-col items-center justify-center text-center p-4 bg-orange-600/5 border-2 border-dashed border-orange-600/20 rounded-2xl hover:bg-orange-600/10 hover:border-orange-600/40 transition-colors">
+            <Link to="/login" className="flex flex-col items-center justify-center text-center p-4 bg-orange-600/5 border-2 border-dashed border-orange-600/20 rounded-2xl hover:bg-orange-600/10 hover:border-orange-600/40 transition-colors">
               <div className="w-20 h-20 mb-4 rounded-full flex items-center justify-center bg-orange-600 text-white">
                 <UserPlus size={32} />
               </div>
               <h3 className="text-xs font-black uppercase dark:text-white">Join Them</h3>
               <p className="text-orange-600 font-bold uppercase text-[9px]">Become a Member</p>
-            </a>
+            </Link>
           )}
         </div>
 
-        {/* The Actual Show More / Show Less Button */}
         {superheros.length > 4 && (
           <div className="mt-10 flex justify-center">
             <button
