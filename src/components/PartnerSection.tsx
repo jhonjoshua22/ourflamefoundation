@@ -14,6 +14,7 @@ import MauriceB from "../assets/MauriceB.jpg";
 import MartinH from "../assets/MartinH.jpg";
 import GrahamR from "../assets/GrahamR.jpg";
 import JoshuaH from "../assets/JoshuaH.jpg";
+import moyasiImg from "../assets/moyasi.jpg"; // Imported Moyasi's image
 import defaultAvatar from "../assets/default-user.jpg";
 
 const partnerLogos = [
@@ -34,18 +35,17 @@ const defaultNedBoard = [
 ];
 
 const executiveBoard = [
-  { id: 101, name: "Maurice", position: "CEO/CGO Chair", linkedin: "https://www.linkedin.com/in/mauricebigmoflynn/" },
+  { id: 101, name: "Maurice", position: "CEO/CGO Chair", image: MauriceB, linkedin: "https://www.linkedin.com/in/mauricebigmoflynn/" },
   { id: 102, name: "Joshua Justice", position: "CMO/CPO Blockchain", linkedin: "https://www.linkedin.com/in/joshuah1/" },
   { id: 103, name: "Lasha", position: "CPO AI", linkedin: "#" },
   { id: 104, name: "Amar", position: "CPO Fintech", linkedin: "#" },
-  { id: 105, name: "Moyasi", position: "CPO Gaming", linkedin: "#" },
+  { id: 105, name: "Moyasi", position: "CPO Gaming", image: moyasiImg, linkedin: "https://www.linkedin.com/in/moyasi" },
   { id: 106, name: "Bilal", position: "CPO AIWear", linkedin: "#" },
   { id: 107, name: "MohamedZ", position: "CFO", linkedin: "#" },
   { id: 108, name: "Livia", position: "AIHR", linkedin: "#" },
 ];
 
 const PartnerSection = () => {
-  // nedBoard is now static state - it will never be overwritten by fetchMembers
   const [nedBoard] = useState(defaultNedBoard);
   const [superheros, setSuperheros] = useState<any[]>([]);
   const [showAllHeroes, setShowAllHeroes] = useState(false);
@@ -66,7 +66,6 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // Only fetching data for sections that need to be dynamic (Superheros)
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, linkedin_link");
@@ -79,7 +78,6 @@ const PartnerSection = () => {
     const heroes: any[] = [];
 
     data?.forEach((user) => {
-      // We only extract SuperHero rank from the DB
       if (user.rank === "SuperHero") {
         heroes.push({
           id: user.id,
@@ -91,7 +89,6 @@ const PartnerSection = () => {
       }
     });
 
-    // Update only the Superhero state
     setSuperheros(heroes);
   };
 
@@ -126,7 +123,7 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* NED BOARD - STRICTLY STATIC */}
+        {/* NED BOARD */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           NED <span className="text-orange-600 not-italic">Board</span>
         </h2>
@@ -150,7 +147,7 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* EXECUTIVE BOARD - STRICTLY STATIC */}
+        {/* EXECUTIVE BOARD */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           Executive <span className="text-orange-600 not-italic">Board</span>
         </h2>
@@ -159,7 +156,7 @@ const PartnerSection = () => {
           {executiveBoard.map((p:any) => (
             <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl">
               <div className="w-24 h-24 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300">
-                <img src={defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
+                <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
               </div>
               <h3 className="text-md font-black uppercase dark:text-white">{p.name}</h3>
               <p className="text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[10px] mb-2">{p.position}</p>
@@ -184,7 +181,7 @@ const PartnerSection = () => {
           </Link>
         </div>
 
-        {/* SUPERHEROS - DYNAMICALLY LOADED FROM SUPABASE */}
+        {/* SUPERHEROS */}
         <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
           <span className="text-orange-600 not-italic">Super</span>heros
         </h2>
@@ -208,7 +205,6 @@ const PartnerSection = () => {
             </div>
           ))}
 
-          {/* JOIN THEM CARD */}
           {(!showAllHeroes || superheros.length % 5 !== 0) && (
             <Link to="/login" className="flex flex-col items-center justify-center text-center p-4 bg-orange-600/5 border-2 border-dashed border-orange-600/20 rounded-2xl hover:bg-orange-600/10 hover:border-orange-600/40 transition-colors">
               <div className="w-20 h-20 mb-4 rounded-full flex items-center justify-center bg-orange-600 text-white">
@@ -220,7 +216,6 @@ const PartnerSection = () => {
           )}
         </div>
 
-        {/* SHOW MORE / SHOW LESS BUTTON */}
         {superheros.length > 4 && (
           <div className="mt-10 flex justify-center">
             <button
@@ -235,7 +230,6 @@ const PartnerSection = () => {
             </button>
           </div>
         )}
-
       </div>
     </section>
   );
