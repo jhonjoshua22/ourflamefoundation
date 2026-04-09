@@ -4,8 +4,15 @@ import clickSound from "../assets/button.m4a";
 
 import {  
   ExternalLink, Copy, Check, Users, Sparkles, Bot, Scale, Heart, Globe, ArrowRight, FolderOpen, FileText, Video, Flame, Star,
-  Facebook, Twitter, Youtube, Linkedin, Github, MapPin, MessageCircle, Mail
+  Facebook, Twitter, Youtube, Linkedin, Github, MapPin, MessageCircle, Mail, ChevronRight
 } from "lucide-react";
+
+// Tier Asset Imports
+import partnerImg from "../assets/partners.jpg"; 
+import scoutImg from "../assets/scout.png";
+import stormtrooperImg from "../assets/superheroes.png";
+import angelImg from "../assets/angel.png";
+import farmerImg from "../assets/superfarmer.png";
 
 const AboutUsSection = () => {
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -36,7 +43,14 @@ const AboutUsSection = () => {
     "X. Ensure every member acts as a superhero, building the foundation for others to rise."
   ];
 
-  // Strings applied to prevent ReferenceErrors until actual file imports are handled
+  const tiers = [
+    { role: "Partner", image: partnerImg, price: "Forever Free", benefit: "Ethical stakeholder support.", button: "I'm Partner" },
+    { role: "Normies", image: scoutImg, price: "From $1 pm", benefit: "Enjoy life, work, and family.", button: "I'm Normal" },
+    { role: "Superheros", image: stormtrooperImg, price: "From $5 pm", benefit: "10x Superbot powers for good.", button: "I'm SuperHero" },
+    { role: "Angels", image: angelImg, price: "From $50 pm", benefit: "Fuel the mission, share magic.", button: "I'm Angel" },
+    { role: "SuperFarmers", image: farmerImg, price: "From $500 pm", benefit: "Boost ecosystem growth.", button: "I'm SuperFarmer" },
+  ];
+
   const brandFiles = [
     { name: "2026 Daily Timetable", path: "SchedulePDF", type: "pdf" }, 
     { name: "The Masterplan", path: "MasterplanPDF", type: "pdf" },
@@ -222,6 +236,30 @@ const AboutUsSection = () => {
                 <div className="text-orange-600 mb-6">{box.icon}</div>
                 <h5 className="font-black uppercase italic text-xl tracking-tight mb-3">{box.title}</h5>
                 <p className="text-xs uppercase font-medium text-zinc-400 dark:text-zinc-500 leading-relaxed tracking-wider">{box.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tiers Section */}
+        <div className="mt-24 space-y-6">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1 text-center">Membership Tiers</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {tiers.map((tier, i) => (
+              <div key={i} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl flex flex-col items-center text-center group hover:border-orange-600/50 transition-all">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 shadow-xl mb-4 bg-zinc-100 dark:bg-zinc-800">
+                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
+                </div>
+                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
+                <p className="text-orange-600 font-bold text-[10px] mb-3">{tier.price}</p>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 italic mb-6 leading-tight h-8">"{tier.benefit}"</p>
+                <Link 
+                  to="/login" 
+                  onClick={playClickSound}
+                  className="mt-auto w-full py-2 text-[9px] font-black uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center gap-1 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-colors"
+                >
+                  {tier.button} <ChevronRight size={10} />
+                </Link>
               </div>
             ))}
           </div>
