@@ -61,7 +61,7 @@ const Scoretable = () => {
           .single();
         
         if (profile?.rank) {
-          setUserRank(profile.rank); // e.g., "SuperHero"
+          setUserRank(profile.rank);
         }
       }
     };
@@ -93,7 +93,7 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  // 3. CORRECTED FETCH: Matches Rank Name to Tribe UUID
+  // 3. CORRECTED FETCH: Fixed infinite loading by ensuring setLoadingChallenges(false) runs
   const fetchTribeChallenges = async () => {
     if (!userRank) return;
 
@@ -107,7 +107,10 @@ const Scoretable = () => {
         .eq('name', userRank)
         .single();
 
-      if (tribeError || !tribeData) throw new Error("Rank ID not found");
+      if (tribeError || !tribeData) {
+        setLoadingChallenges(false);
+        return; 
+      }
 
       const tribeUuid = tribeData.id;
       const now = new Date().toISOString();
@@ -126,6 +129,7 @@ const Scoretable = () => {
       console.error("Challenges fetch error:", err);
       setChallengeError("Failed to load challenges");
     } finally {
+      // CRITICAL: Always turn off the loader
       setLoadingChallenges(false);
     }
   };
