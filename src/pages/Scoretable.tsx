@@ -13,7 +13,7 @@ const Scoretable = () => {
   const [tribeChallenges, setTribeChallenges] = useState<any[]>([]);
   const [tribeLeaderboard, setTribeLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingChallenges, setLoadingChallenges] = useState(true);
+  const [loadingChallenges, setLoadingChallenges] = useState(false); // Start false, trigger when rank ready
   const [loadingTribeLb, setLoadingTribeLb] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("followers");
@@ -61,7 +61,7 @@ const Scoretable = () => {
           .single();
         
         if (profile?.rank) {
-          setUserRank(profile.rank);
+          setUserRank(profile.rank); // This will trigger the useEffect that calls fetchTribeChallenges
         }
       }
     };
@@ -93,43 +93,41 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  // 3. CORRECTED FETCH: Fixed infinite loading by ensuring setLoadingChallenges(false) runs
-  const fetchTribeChallenges = async () => {
-    if (!userRank) return;
-
+  // 3. CORRECTED FETCH: Matches Rank Name -> Tribe ID -> Challenges
+  const fetchTribeChallenges = async (rankName: string) => {
     setLoadingChallenges(true);
     setChallengeError(null);
     try {
-      // Step A: Find the UUID for the user's rank name
+      // Step A: Find the UUID from 'tribes' table where name matches the user's profile rank
       const { data: tribeData, error: tribeError } = await supabase
         .from('tribes')
         .select('id')
-        .eq('name', userRank)
+        .eq('name', rankName)
         .single();
 
       if (tribeError || !tribeData) {
-        setLoadingChallenges(false);
-        return; 
+        console.warn("No tribe found matching rank name:", rankName);
+        setTribeChallenges([]);
+        return;
       }
 
       const tribeUuid = tribeData.id;
       const now = new Date().toISOString();
       
-      // Step B: Fetch challenges using that UUID
-      const { data, error: challengeError } = await supabase
+      // Step B: Fetch challenges using that UUID as the tribe_id
+      const { data, error: challengeFetchError } = await supabase
         .from('tribe_challenges')
         .select('*')
         .eq('tribe_id', tribeUuid) 
         .gt('ends_at', now) 
         .order('ends_at', { ascending: true });
 
-      if (challengeError) throw challengeError;
+      if (challengeFetchError) throw challengeFetchError;
       setTribeChallenges(data || []);
     } catch (err: any) {
       console.error("Challenges fetch error:", err);
       setChallengeError("Failed to load challenges");
     } finally {
-      // CRITICAL: Always turn off the loader
       setLoadingChallenges(false);
     }
   };
@@ -207,7 +205,11 @@ const Scoretable = () => {
   useEffect(() => {
     fetchData(searchQuery, sortBy);
     fetchTribeLeaderboard();
-    if (userRank) fetchTribeChallenges();
+    
+    // Only fetch challenges if we actually have the rank name from the profile
+    if (userRank) {
+      fetchTribeChallenges(userRank);
+    }
 
     const sub = supabase.channel("profiles-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
@@ -315,7 +317,7 @@ const Scoretable = () => {
           ) : tribeChallenges.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-6">
               {tribeChallenges.map((challenge) => {
-                const progress = Math.min((challenge.progress / challenge.target) * 100, 100);
+                const progress = Math.min((Number(challenge.progress) / Number(challenge.target)) * 100, 100);
                 return (
                   <div key={challenge.id} className="border border-zinc-700 p-6 rounded-xl bg-black/50 hover:border-orange-500 transition">
                     <div className="font-bold text-xl mb-2 text-white">{challenge.title}</div>
@@ -333,7 +335,7 @@ const Scoretable = () => {
             </div>
           ) : (
             <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl text-zinc-500">
-              No active challenges found for your rank ID. Check database tribe_id link!
+              {challengeError ? challengeError : `No active challenges found for your rank (${userRank}).`}
             </div>
           )}
         </div>
