@@ -58,7 +58,7 @@ const Navbar = () => {
     { name: "Why", href: "/scoretable#home" },
     { name: "Where", href: "/#presence" },
     { name: "When", href: "/#news" },
-    { name: "Who", href: "/#impact" },
+    { name: "Who", href: "/#people" },
   ];
 
   return (
