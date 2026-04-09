@@ -112,7 +112,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* MOBILE MENU - Fixed Z-Index and Scrolling */}
       <div className={`lg:hidden fixed inset-0 top-20 bg-[#0a0a0a] z-[99] overflow-y-auto transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex flex-col p-10 min-h-[calc(100vh-80px)]">
           {flatNavigation.map((item) => (
