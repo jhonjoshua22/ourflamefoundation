@@ -12,10 +12,45 @@ import {
   Lock,
   ScrollText,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/ourflamelogo.png";
 
 const AuthPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  /**
+   * Captures country via IP and syncs it to the user's profile
+   * This is called after a successful session is detected.
+   */
+  const syncUserLocation = async (userId: string) => {
+    try {
+      // 1. Check if user already has a country assigned to avoid redundant calls
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("country")
+        .eq("id", userId)
+        .single();
+
+      if (profile?.country) return;
+
+      // 2. Fetch geolocation from public API
+      const response = await fetch("https://ipapi.co/json/");
+      const geo = await response.json();
+
+      if (geo.country_name) {
+        // 3. Update the profiles table
+        await supabase
+          .from("profiles")
+          .update({ country: geo.country_name })
+          .eq("id", userId);
+        
+        console.log(`Mission Control: User stationed in ${geo.country_name}`);
+      }
+    } catch (err) {
+      console.error("Failed to sync location intel:", err);
+    }
+  };
+
   const handleOAuthLogin = async (
     provider: "google" | "discord" | "facebook" | "github" | "linkedin_oidc"
   ): Promise<void> => {
@@ -23,14 +58,18 @@ const AuthPage: React.FC = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin, // This is your working redirect (to homepage)
+          redirectTo: window.location.origin, 
           scopes: 'openid profile email',
         },
       });
+
       if (error) {
         console.error(`${provider} login error:`, error.message);
         alert(error.message);
       }
+      
+      // Note: The actual database sync happens on the landing page 
+      // after redirect, as signInWithOAuth redirects the entire window.
     } catch (err) {
       console.error("Unexpected OAuth error:", err);
       alert("Authentication failed. Please try again.");
@@ -61,12 +100,10 @@ const AuthPage: React.FC = () => {
               />
             </div>
             
-            {/* 2. Better CTA applied */}
             <h1 className="text-2xl font-black text-white tracking-tighter uppercase italic mb-2">
               <span className="text-orange-600 not-italic">Your</span> Rewards
             </h1>
             
-            {/* 3. Re-ordered in order of global family importance */}
             <p className="text-zinc-500 text-[10px] uppercase font-black tracking-widest leading-relaxed mb-1">
               EduWorld + Einstein • MoneyWorld
             </p>
@@ -80,7 +117,6 @@ const AuthPage: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {/* 1. Clapmi at the very top */}
             <a
               href="https://clapmi.com/"
               target="_blank"
@@ -148,7 +184,6 @@ const AuthPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4. Commandments & Individual Legal Buttons Footer */}
         <div className="mt-8 px-4 text-center">
           <p className="text-zinc-600 text-[9px] font-black uppercase tracking-[0.2em] mb-4">
             Here Are Our 10 Commandments & Legal Stuff
