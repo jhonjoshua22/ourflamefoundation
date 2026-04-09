@@ -50,41 +50,42 @@ const Scoretable = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 1. INITIAL LOAD: Get Auth User and their Rank
+  // Get current user + their RANK
   useEffect(() => {
-    const initUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUserId(user.id);
-        const { data: profile } = await supabase
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setCurrentUserId(data.user.id);
+        supabase
           .from('profiles')
           .select('rank')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile?.rank) {
-          setUserRank(profile.rank);
-          console.log("User Rank detected:", profile.rank);
-        }
+          .eq('id', data.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile?.rank) {
+              setUserRank(profile.rank);
+              console.log("[RANK] Loaded:", profile.rank);
+            }
+          });
       }
-    };
-    initUser();
+    });
   }, []);
 
-  // 2. Fetch referral data
+  // Fetch referral
   useEffect(() => {
     const fetchReferral = async () => {
       setLoadingReferral(true);
+      setReferralError(null);
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
+        if (!user) {
+          setReferralError("Log in to see your referral link");
+          return;
+        }
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('referral_code, referral_count')
           .eq('id', user.id)
           .single();
-        
         if (error) throw error;
         if (profile) {
           setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
@@ -99,45 +100,56 @@ const Scoretable = () => {
     fetchReferral();
   }, []);
 
-  // 3. Main Fetch Function for Tribe Challenges
+  // NEW: Fetch Tribe Challenges using UUID mapping from your screenshots
   const fetchTribeChallenges = async () => {
-    // If rank isn't loaded yet, don't query
     if (!userRank) return;
-
     setLoadingChallenges(true);
     setChallengeError(null);
     try {
+      // 1. Get the UUID for the user's rank from the tribes table
+      const { data: tribeData, error: tribeError } = await supabase
+        .from('tribes')
+        .select('id')
+        .eq('name', userRank)
+        .single();
+
+      if (tribeError || !tribeData) throw new Error("Rank ID lookup failed");
+
+      const tribeUuid = tribeData.id;
       const now = new Date().toISOString();
       
-      // Removed created_at filter to show ALL active challenges
-      const { data, error } = await supabase
+      // 2. Query challenges using that UUID
+      let query = supabase
         .from('tribe_challenges')
         .select('*')
-        .eq('tribe_id', userRank) 
+        .eq('tribe_id', tribeUuid) 
         .gt('ends_at', now) 
         .order('ends_at', { ascending: true });
 
+      const { data, error } = await query;
       if (error) throw error;
+
       setTribeChallenges(data || []);
     } catch (err: any) {
       console.error("Challenges fetch error:", err);
       setChallengeError("Failed to load challenges");
+      setTribeChallenges([]);
     } finally {
       setLoadingChallenges(false);
     }
   };
 
-  // 4. Tribe Leaderboard Logic
+  // Tribe Leaderboard – grouped by rank
   const fetchTribeLeaderboard = async () => {
     setLoadingTribeLb(true);
     try {
+      // Fetching and manual aggregation to ensure accuracy with Supabase filters
       const { data, error } = await supabase
         .from('profiles')
-        .select('rank, id, network, happiness_score, econ_score, curiosity_score, current_streak');
+        .select(`rank, network, happiness_score, econ_score, curiosity_score, current_streak`);
 
       if (error) throw error;
 
-      // Manual grouping since Supabase JS client doesn't support complex aggregates well
       const groups: Record<string, any> = {};
       data?.forEach(p => {
         const r = p.rank || "Unknown";
@@ -161,12 +173,12 @@ const Scoretable = () => {
       setTribeLeaderboard(processed);
     } catch (err) {
       console.error("Tribe leaderboard error:", err);
+      setTribeLeaderboard([]);
     } finally {
       setLoadingTribeLb(false);
     }
   };
 
-  // 5. Global Leaderboard Data
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
@@ -180,8 +192,13 @@ const Scoretable = () => {
         current_streak, longest_streak, referral_count
       `);
 
-      if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
-      if (!query) qb = qb.limit(50);
+      if (query) {
+        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
+      }
+
+      if (!query) {
+        qb = qb.limit(50);
+      }
 
       const { data, error } = await qb;
       if (error) throw error;
@@ -207,14 +224,10 @@ const Scoretable = () => {
     }
   };
 
-  // 6. SYNC EFFECT: Runs when filters or userRank changes
   useEffect(() => {
     fetchData(searchQuery, sortBy);
     fetchTribeLeaderboard();
-    
-    if (userRank) {
-      fetchTribeChallenges();
-    }
+    if (userRank) fetchTribeChallenges();
 
     const sub = supabase.channel("profiles-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
@@ -243,24 +256,42 @@ const Scoretable = () => {
   const copyReferral = () => {
     if (referralLink) {
       navigator.clipboard.writeText(referralLink);
-      alert("✅ Referral link copied!");
+      alert("✅ Referral link copied! Share it everywhere 🔥");
     }
   };
 
-  const generateShareCard = (agent: any) => {
+  const generateShareCard = async (agent: any) => {
     const canvas = document.createElement("canvas");
-    canvas.width = 800; canvas.height = 500;
+    canvas.width = 800;
+    canvas.height = 500;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#0a0a0a"; ctx.fillRect(0, 0, 800, 500);
-    ctx.fillStyle = "#f97316"; ctx.fillRect(0, 0, 800, 80);
-    ctx.font = "bold 48px sans-serif"; ctx.fillStyle = "#ffffff"; ctx.fillText("FLAME FOUNDATION", 80, 55);
-    ctx.font = "bold 120px sans-serif"; ctx.fillStyle = "#f97316"; ctx.fillText(`#${leaders.indexOf(agent) + 1}`, 80, 220);
-    ctx.font = "bold 48px sans-serif"; ctx.fillStyle = "#ffffff"; ctx.fillText(agent.display_name || "Agent", 80, 300);
-    ctx.font = "bold 42px monospace"; ctx.fillStyle = "#a855f7"; ctx.fillText(`$${agent.valuation?.toLocaleString() || "0"}`, 80, 430);
+    ctx.fillStyle = "#0a0a0a";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#f97316";
+    ctx.fillRect(0, 0, canvas.width, 80);
+    ctx.font = "bold 48px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("FLAME FOUNDATION", 80, 55);
+    ctx.font = "bold 120px sans-serif";
+    ctx.fillStyle = "#f97316";
+    ctx.fillText(`#${leaders.indexOf(agent) + 1}`, 80, 220);
+    ctx.font = "bold 48px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(agent.display_name || "Legendary Agent", 80, 300);
+    ctx.font = "bold 36px sans-serif";
+    ctx.fillStyle = "#22c55e";
+    ctx.fillText(`${agent.current_streak || 0}-DAY FLAME 🔥`, 80, 360);
+    ctx.font = "bold 42px monospace";
+    ctx.fillStyle = "#a855f7";
+    ctx.fillText(`$${agent.valuation?.toLocaleString() || "0"}`, 80, 430);
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("Join the Flame → ourflamefoundation.vercel.app", 80, 470);
     const link = document.createElement("a");
-    link.download = `flame-rank.png`;
+    link.download = `flame-rank-${agent.display_name}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
+    alert("🔥 Share card downloaded!");
   };
 
   return (
@@ -289,7 +320,7 @@ const Scoretable = () => {
               {searchQuery && <X className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 cursor-pointer" size={16} onClick={() => { setSearchQuery(""); fetchData(); }} />}
             </form>
             <div className="bg-zinc-900 p-4 border border-zinc-700 rounded min-w-[220px] text-center">
-              <p className="text-xs text-zinc-400 uppercase mb-1">Total Network Followers</p>
+              <p className="text-xs text-zinc-400 uppercase mb-1">Total Members</p>
               <p className="text-2xl font-black">{stats.totalMembers.toLocaleString()} +</p>
             </div>
           </div>
@@ -307,6 +338,7 @@ const Scoretable = () => {
               <h2 className="relative text-3xl font-black uppercase text-orange-600 flex items-center gap-3">
                 <Trophy size={28} /> Unified Flame Scoretable
               </h2>
+              <p className="text-zinc-400 mt-2">Rank • Streak • Referrals • Valuation • Rank Wars</p>
             </div>
 
             <div className="p-6 border-b border-zinc-800 flex justify-between items-center">
@@ -339,6 +371,7 @@ const Scoretable = () => {
                   <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800">
                     <th className="p-5 text-left">Rank</th>
                     <th className="p-5 text-left">Agent</th>
+                    <th className="p-5 text-left">Rank (Tribe)</th>
                     <th className="p-5 text-left">Streak 🔥</th>
                     <th className="p-5 text-left">Followers</th>
                     <th className="p-5 text-left">Referrals</th>
@@ -351,24 +384,46 @@ const Scoretable = () => {
                   {leaders.map((agent, idx) => {
                     const isYou = agent.id === currentUserId;
                     return (
-                      <tr key={agent.id} className={`hover:bg-zinc-900/70 ${isYou ? 'bg-orange-950/40 border-l-4 border-orange-600' : ''}`}>
+                      <tr
+                        key={agent.id}
+                        className={`hover:bg-zinc-900/70 ${isYou ? 'bg-orange-950/40 border-l-4 border-orange-600' : ''}`}
+                      >
                         <td className="p-5 text-orange-400 font-black text-xl">{idx + 1}</td>
                         <td className="p-5">
                           <div className="font-bold">{agent.display_name || "Anonymous"}</div>
                           <div className="text-xs text-zinc-500 uppercase">{agent.rank}</div>
+                          {isYou && <div className="text-xs text-orange-400 mt-1">(YOU)</div>}
                         </td>
-                        <td className="p-5 text-green-400 font-mono text-lg"><Zap size={18} className="inline mr-1" />{agent.current_streak || 0}d</td>
-                        <td className="p-5 text-zinc-300">{agent.followers.toLocaleString()}</td>
-                        <td className="p-5 font-bold text-green-400">{agent.referral_count} friends</td>
-                        <td className="p-5 text-purple-400 font-mono text-lg">${agent.valuation?.toLocaleString() || "0"}</td>
-                        <td className="p-5 text-center">
-                          <div className="flex justify-center gap-4 text-xs">
-                            <span className="flex items-center gap-1"><Heart size={14} className="text-pink-500" /> {agent.happiness_score?.toFixed(0)}%</span>
-                            <span className="flex items-center gap-1"><DollarSign size={14} className="text-green-500" /> {agent.econ_score?.toFixed(0)}%</span>
+                        <td className="p-5 text-zinc-300">{agent.rank || "—"}</td>
+                        <td className="p-5">
+                          <div className="flex items-center gap-2 font-mono text-lg text-green-400">
+                            <Zap size={20} /> {agent.current_streak || 0}d
                           </div>
                         </td>
                         <td className="p-5">
-                          <button onClick={() => generateShareCard(agent)} className="bg-zinc-800 hover:bg-orange-600 p-2 rounded-full transition"><Download size={16} /></button>
+                          <div className="flex items-center gap-2">
+                            <Users size={16} className="text-orange-600" />
+                            {agent.followers.toLocaleString()}
+                          </div>
+                        </td>
+                        <td className="p-5 font-bold text-green-400">{agent.referral_count} friends</td>
+                        <td className="p-5 text-purple-400 font-mono text-lg">
+                          ${agent.valuation?.toLocaleString() || "0"}
+                        </td>
+                        <td className="p-5 text-center">
+                          <div className="flex justify-center gap-4 text-xs">
+                            <span className="flex items-center gap-1"><Heart size={16} className="text-pink-500" /> {agent.happiness_score?.toFixed(0) || 0}%</span>
+                            <span className="flex items-center gap-1"><DollarSign size={16} className="text-green-500" /> {agent.econ_score?.toFixed(0) || 0}%</span>
+                            <span className="flex items-center gap-1"><Lightbulb size={16} className="text-yellow-500" /> {agent.curiosity_score?.toFixed(0) || 0}%</span>
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <button
+                            onClick={() => generateShareCard(agent)}
+                            className="flex items-center gap-2 text-xs bg-zinc-800 hover:bg-orange-600 px-4 py-2 rounded-full transition"
+                          >
+                            <Download size={14} />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -379,36 +434,41 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* RANK CHALLENGES SECTION */}
+        {/* TRIBE WARS / CHALLENGES */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6 uppercase italic">
-            <TribeIcon size={28} className="text-orange-600" /> {userRank || "Agent"} Rank Challenges
+            <TribeIcon size={28} className="text-orange-600" /> {userRank || "Agent"} Rank Wars
           </h3>
 
           {loadingChallenges ? (
-            <div className="flex justify-center py-12"><Loader2 className="animate-spin text-orange-600" size={32} /></div>
+            <div className="flex justify-center py-8">
+              <Loader2 className="animate-spin text-orange-600" size={32} />
+              <span className="ml-3 text-zinc-400">Loading rank challenges...</span>
+            </div>
+          ) : challengeError ? (
+            <div className="text-red-400 text-center py-8">{challengeError}</div>
           ) : tribeChallenges.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-6">
               {tribeChallenges.map((challenge) => {
                 const progress = Math.min((challenge.progress / challenge.target) * 100, 100);
                 return (
                   <div key={challenge.id} className="border border-zinc-700 p-6 rounded-xl bg-black/50 hover:border-orange-500 transition">
-                    <div className="font-bold text-xl mb-2 text-white">{challenge.title}</div>
-                    <p className="text-zinc-400 text-sm mb-4">{challenge.goal}</p>
+                    <div className="font-bold text-xl mb-2">{challenge.title}</div>
+                    <div className="text-zinc-400 text-sm mb-4">{challenge.goal}</div>
                     <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
                       <div className="h-3 bg-gradient-to-r from-orange-600 to-orange-400 transition-all" style={{ width: `${progress}%` }} />
                     </div>
-                    <div className="flex justify-between text-xs mt-3">
-                      <span className="text-zinc-400 font-mono">{challenge.progress.toLocaleString()} / {challenge.target.toLocaleString()}</span>
-                      <span className="text-green-400 font-bold">+{challenge.reward_flame} FLAME $</span>
+                    <div className="flex justify-between text-xs mt-3 text-zinc-400">
+                      <span>{challenge.progress.toLocaleString()} / {challenge.target.toLocaleString()}</span>
+                      <span className="text-green-400 font-bold">+{challenge.reward_flame} Flame</span>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl text-zinc-500">
-              No active challenges for your rank. Invite more members to trigger new Rank Wars!
+            <div className="text-center py-12 text-zinc-500 border border-dashed border-zinc-800 rounded-xl">
+              No active challenges for your rank today — recruit to trigger new Rank Wars!
             </div>
           )}
         </div>
@@ -416,55 +476,69 @@ const Scoretable = () => {
         {/* TRIBE LEADERBOARD */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-6 uppercase italic">
-            <Trophy size={28} className="text-orange-600" /> Tribe Power Ranking
+            <Trophy size={28} className="text-orange-600" /> Tribe Leaderboard
           </h3>
+
           {loadingTribeLb ? (
-            <div className="flex justify-center py-8"><Loader2 className="animate-spin text-orange-600" size={32} /></div>
-          ) : (
+            <div className="flex justify-center py-8">
+              <Loader2 className="animate-spin text-orange-600" size={32} />
+            </div>
+          ) : tribeLeaderboard.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr className="text-xs text-zinc-500 border-b border-zinc-800 text-left">
-                    <th className="pb-4">Rank Tribe</th>
-                    <th className="pb-4">Pop.</th>
-                    <th className="pb-4">Net Value</th>
-                    <th className="pb-4">Avg Streak</th>
+                  <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800 text-left">
+                    <th className="p-5">Rank</th>
+                    <th className="p-5">Agents</th>
+                    <th className="p-5">Total Network</th>
+                    <th className="p-5">Avg Happiness</th>
+                    <th className="p-5">Avg Economy</th>
+                    <th className="p-5">Avg Curiosity</th>
+                    <th className="p-5">Avg Streak</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-900">
-                  {tribeLeaderboard.map((t) => (
-                    <tr key={t.rank} className="group hover:bg-zinc-900/40">
-                      <td className="py-4 font-black text-orange-500">{t.rank}</td>
-                      <td className="py-4 text-zinc-400">{t.count} agents</td>
-                      <td className="py-4 font-mono text-green-400">{t.total_network.toLocaleString()}</td>
-                      <td className="py-4 text-zinc-300">{t.avg_streak.toFixed(1)}d</td>
+                <tbody className="divide-y divide-zinc-800">
+                  {tribeLeaderboard.map((rankGroup) => (
+                    <tr key={rankGroup.rank} className="hover:bg-zinc-900/70">
+                      <td className="p-5 font-bold text-orange-500">{rankGroup.rank || "Unknown"}</td>
+                      <td className="p-5">{rankGroup.count}</td>
+                      <td className="p-5 text-orange-400 font-mono">{rankGroup.total_network?.toLocaleString() || "0"}</td>
+                      <td className="p-5 text-pink-400">{rankGroup.avg_happiness?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-green-400">{rankGroup.avg_econ?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-yellow-400">{rankGroup.avg_curiosity?.toFixed(1) || "0"}%</td>
+                      <td className="p-5 text-green-400">{rankGroup.avg_streak?.toFixed(1) || "0"}d</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+          ) : (
+            <p className="text-center py-8 text-zinc-500 italic">No rank data yet.</p>
           )}
         </div>
 
         {/* REFERRAL CTA */}
-        <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-3xl text-center border border-orange-500/40 shadow-2xl relative overflow-hidden">
-          <div className="relative z-10">
-            <h3 className="text-4xl font-black mb-4 italic uppercase">Recruit & Explode 🔥</h3>
-            <p className="text-orange-100 mb-8 max-w-lg mx-auto">Share your flame link. For every agent who joins, your Valuation and Tribe Power skyrockets.</p>
-            {referralLink && (
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-                <div className="bg-black/40 backdrop-blur-md p-4 rounded-xl font-mono text-sm border border-white/10 w-full md:w-auto truncate">
-                  {referralLink}
-                </div>
-                <button onClick={copyReferral} className="px-8 py-4 bg-white text-orange-700 font-black rounded-xl hover:scale-105 transition shadow-lg">COPY LINK</button>
+        <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-3xl text-center border border-orange-500/40 shadow-2xl">
+          <h3 className="text-4xl font-black mb-4 uppercase italic">Recruit & Explode 🔥</h3>
+          {loadingReferral ? (
+            <div className="h-12 bg-zinc-800 animate-pulse rounded mb-6" />
+          ) : referralError ? (
+            <p className="text-red-300 mb-6">{referralError}</p>
+          ) : (
+            <>
+              <div className="bg-black/40 p-4 rounded-xl font-mono text-sm border border-white/10 mb-6 break-all">
+                {referralLink || 'Loading link...'}
               </div>
-            )}
-            <p className="mt-6 font-bold text-white/80">{referredCount} AGENTS RECRUITED</p>
-          </div>
+              <button onClick={copyReferral} disabled={!referralLink} className="px-10 py-4 bg-white text-orange-700 font-black rounded-xl hover:scale-105 transition disabled:opacity-50">
+                COPY LINK
+              </button>
+              <p className="mt-6 font-bold text-white/80">{referredCount} AGENTS RECRUITED</p>
+            </>
+          )}
         </div>
 
-        <p className="text-center text-zinc-700 text-xs mt-16 tracking-widest uppercase">
-          Live Database Sync • Flame Foundation Core v3.0
+        <p className="text-center text-zinc-600 text-xs mt-12 tracking-widest uppercase">
+          Real-time • Database-powered • Flame Engine Core
         </p>
       </div>
 
