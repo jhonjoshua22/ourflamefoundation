@@ -140,9 +140,8 @@ const AboutUsSection = () => {
           </div>
         </div>
 
+        {/* Grid: Commandments & Tab UI */}
         <div className="grid lg:grid-cols-12 gap-px bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-900 mb-24">
-          
-          {/* Left Column (Commandments + Incubator) */}
           <div className="lg:col-span-7 bg-white dark:bg-black p-8 md:p-12 space-y-12">
             <div className="space-y-6">
               <h4 className="font-black text-2xl text-zinc-900 dark:text-zinc-100 uppercase italic tracking-tight mb-6">The Flame Commandments</h4>
@@ -155,7 +154,6 @@ const AboutUsSection = () => {
               </div>
             </div>
 
-            {/* Incubator Highlight */}
             <div className="p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 relative overflow-hidden">
               <Sparkles className="absolute -top-4 -right-4 w-24 h-24 opacity-10 rotate-12" />
               <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
@@ -175,9 +173,7 @@ const AboutUsSection = () => {
           </div>
 
           <div className="lg:col-span-5 bg-zinc-50 dark:bg-zinc-950 p-8 md:p-12 space-y-12">
-            
             <div className="space-y-6">
-              {/* Tab UI toggler */}
               <div id="products" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 bg-zinc-200/50 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800 gap-1">
                 {Object.keys(linkCategories).map(cat => (
                   <button
@@ -190,7 +186,6 @@ const AboutUsSection = () => {
                 ))}
               </div>
 
-              {/* Links List */}
               <div className="grid grid-cols-1 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 max-h-[400px] overflow-y-auto custom-scrollbar">
                 {linkCategories[activeTab].map((link) => (
                   <div key={link.name} className="group/item relative bg-white dark:bg-black">
@@ -211,7 +206,6 @@ const AboutUsSection = () => {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
 
@@ -241,24 +235,24 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* Tiers Section - UPDATED TO 3x2 GRID */}
-        <div className="mt-24 space-y-6">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1 text-center">Membership Tiers</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {/* Tiers Section - BIG PHOTOS & CENTERED */}
+        <div className="mt-24 space-y-12">
+          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-center">
             {tiers.map((tier, i) => (
-              <div key={i} className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl flex flex-col items-center text-center group hover:border-orange-600/50 transition-all">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white dark:border-zinc-800 shadow-xl mb-4 bg-zinc-100 dark:bg-zinc-800">
+              <div key={i} className={`p-10 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500 ${i === 4 ? 'md:col-start-2' : ''}`}>
+                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-8 bg-zinc-100 dark:bg-zinc-800 transform group-hover:scale-105 transition-transform duration-500">
                   <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                 </div>
-                <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase italic">{tier.role}</h4>
-                <p className="text-orange-600 font-bold text-[10px] mb-3">{tier.price}</p>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 italic mb-6 leading-tight h-8">"{tier.benefit}"</p>
+                <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
+                <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 italic mb-8 leading-relaxed h-12 flex items-center justify-center">"{tier.benefit}"</p>
                 <Link 
                   to="/login" 
                   onClick={playClickSound}
-                  className="mt-auto w-full py-2 text-[9px] font-black uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center gap-1 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-colors"
+                  className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-all shadow-lg"
                 >
-                  {tier.button} <ChevronRight size={10} />
+                  {tier.button} <ChevronRight size={14} />
                 </Link>
               </div>
             ))}
@@ -294,7 +288,7 @@ const AboutUsSection = () => {
         </div>
 
         {/* Process Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
           {steps.map((item, idx) => {
             const isExternal = item.link?.startsWith('http');
             const CardContent = (
@@ -313,9 +307,8 @@ const AboutUsSection = () => {
           })}
         </div>
 
-        {/* DIRECTORY INSERTS */}
+        {/* Directory/Footer Inserts */}
         <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-zinc-100 dark:border-zinc-900 pt-12">
-          
           <div className="space-y-4">
             <h4 id="socials" className="text-zinc-900 dark:text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-900 pb-2">Socials</h4>
             <div className="flex flex-col gap-3">
@@ -338,16 +331,15 @@ const AboutUsSection = () => {
               <p className="flex items-center gap-2"><Mail size={18} className="text-orange-600"/> help@ourflamefoundation.org</p>
             </div>
           </div>
-
         </div>
 
-        {/* Action CTAs */}
+        {/* Final Action CTA */}
         <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
             to="/login" 
-            className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors rounded-lg shadow-lg shadow-zinc-900/10 w-full sm:w-auto text-center"
+            className="inline-block bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-12 py-5 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-all rounded-xl shadow-xl w-full sm:w-auto text-center"
           >
-            Sign In
+            Sign In to Magic Worlds
           </Link>
         </div>
 
