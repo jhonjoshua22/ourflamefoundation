@@ -61,7 +61,7 @@ const EventsSection = () => {
               </span>
             </div>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-black dark:text-white uppercase italic leading-none">
-              Upcoming <span className="text-orange-600 not-italic">Missions</span>
+              Join Our <span className="text-orange-600 not-italic">Events</span>
             </h2>
           </div>
           <div className="h-[2px] flex-grow bg-black dark:bg-white hidden md:block mx-12 mb-4" />
