@@ -6,16 +6,18 @@ import {
   Trophy, Target, Loader2, Search, Zap, Download, 
   ChevronRight, LogIn, Share2, Award
 } from "lucide-react";
+
+// Section Components
 import AboutUsSection from "@/components/AboutUsSection";
 import HeroSection from "@/components/HeroSection";
 
-// Tier Image Imports (Ensure these paths match your project)
+// Tier Image Imports
 import partnerImg from "../assets/partner.png";
 import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/stormtrooper.png";
 import angelImg from "../assets/angel.png";
 import farmerImg from "../assets/farmer.png";
-import founderImg from "../assets/founder.png"; // Placeholder for SuperFounder
+import founderImg from "../assets/founder.png"; 
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -24,11 +26,10 @@ const Scoretable = () => {
   const [sortBy, setSortBy] = useState("followers");
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [userRank, setUserRank] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
 
   const playClickSound = () => {
-    // Logic for click sound if applicable
+    // Optional: Add audio logic here
   };
 
   const tiers = [
@@ -61,12 +62,11 @@ const Scoretable = () => {
         setCurrentUserId(user.id);
         const { data: profile } = await supabase
           .from('profiles')
-          .select('rank, referral_code')
+          .select('referral_code')
           .eq('id', user.id)
           .single();
         
         if (profile) {
-          setUserRank(profile.rank);
           setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
         }
       }
@@ -110,13 +110,23 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchData(searchQuery, sortBy);
+    
+    // Listen for profile changes to update leaderboard live
+    const sub = supabase.channel("profiles-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+        if (!searchQuery) fetchData("", sortBy);
+      }).subscribe();
+
+    return () => {
+      supabase.removeChannel(sub);
+    };
   }, [sortBy, searchQuery]);
 
   return (
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
         
-        {/* MEMBERSHIP TIERS - NEW TOP SECTION */}
+        {/* SECTION 1: MEMBERSHIP TIERS */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
@@ -140,7 +150,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* HEADER & SCORETABLE CONTROLS */}
+        {/* SECTION 2: SCORETABLE HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-widest text-xs">
@@ -161,10 +171,14 @@ const Scoretable = () => {
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
             </form>
+            <div className="bg-zinc-900 p-4 border border-zinc-700 rounded text-center">
+               <p className="text-[10px] text-zinc-400 uppercase mb-1">Total Network Followers</p>
+               <p className="text-xl font-black">{stats.totalMembers.toLocaleString()} +</p>
+            </div>
           </div>
         </div>
 
-        {/* LEADERBOARD TABLE */}
+        {/* SECTION 3: LEADERBOARD */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
         ) : (
@@ -196,7 +210,7 @@ const Scoretable = () => {
                       <td className="p-5 text-green-400 font-mono"><Zap size={16} className="inline mr-1" />{agent.current_streak || 0}d</td>
                       <td className="p-5 text-zinc-300">{agent.followers.toLocaleString()}</td>
                       <td className="p-5 text-purple-400 font-mono">${agent.valuation?.toLocaleString()}</td>
-                      <td className="p-5">
+                      <td className="p-5 text-right">
                         <button className="bg-zinc-800 hover:bg-orange-600 p-2 rounded-full transition"><Download size={16} /></button>
                       </td>
                     </tr>
@@ -207,8 +221,8 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* DAILY OBJECTIVES */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-8">
+        {/* SECTION 4: DAILY OBJECTIVES */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-8 mb-12">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-8 uppercase italic text-orange-600">
             <Target size={28} /> Daily Objectives
           </h3>
@@ -224,6 +238,23 @@ const Scoretable = () => {
             ))}
           </div>
         </div>
+
+        {/* SECTION 5: RECRUIT CTA */}
+        {referralLink && (
+          <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-3xl text-center border border-orange-500/40 shadow-2xl">
+            <h3 className="text-4xl font-black mb-4 italic uppercase">Recruit & Explode 🔥</h3>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6">
+              <div className="bg-black/40 p-4 rounded-xl font-mono text-sm border border-white/10 break-all">{referralLink}</div>
+              <button 
+                onClick={() => { navigator.clipboard.writeText(referralLink); alert("Copied!"); }} 
+                className="whitespace-nowrap px-8 py-4 bg-white text-orange-700 font-black rounded-xl hover:scale-105 transition active:scale-95"
+              >
+                COPY LINK
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
       
       <AboutUsSection />
