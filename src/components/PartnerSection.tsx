@@ -23,7 +23,7 @@ const PartnerSection = () => {
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
     SuperFarmer: [],
     Angel: [],
-    Superhero: [],
+    SuperHero: [],
     Normie: [],
     Partner: []
   });
@@ -44,7 +44,6 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // Fetch profiles - ordering by display_name for now
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, linkedin_link")
@@ -58,7 +57,7 @@ const PartnerSection = () => {
     const categorized: { [key: string]: any[] } = {
       SuperFarmer: [],
       Angel: [],
-      Superhero: [],
+      SuperHero: [],
       Normie: [],
       Partner: []
     };
@@ -71,7 +70,7 @@ const PartnerSection = () => {
         linkedin: user.linkedin_link || "#",
       };
 
-      // Match singular rank from DB to categorized groups
+      // Strict singular case-sensitive match
       const rankKey = user.rank; 
       if (categorized[rankKey] && categorized[rankKey].length < 6) {
         categorized[rankKey].push(member);
@@ -101,7 +100,7 @@ const PartnerSection = () => {
         ))}
         {members.length === 0 && (
           <div className="col-span-full py-10 text-center border-2 border-dashed border-zinc-100 dark:border-zinc-900 rounded-2xl">
-            <p className="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">No {title}s Active Yet</p>
+            <p className="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">No {displayTitle} Active Yet</p>
           </div>
         )}
       </div>
@@ -137,10 +136,10 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* DYNAMIC GROUPS - Rank is singular in DB */}
+        {/* DYNAMIC GROUPS - Rank is singular/Case-Sensitive in DB */}
         <GroupDisplay title="SuperFarmer" displayTitle="SuperFarmers" members={groups.SuperFarmer} />
         <GroupDisplay title="Angel" displayTitle="Angels" members={groups.Angel} />
-        <GroupDisplay title="Superhero" displayTitle="Superheros" members={groups.Superhero} />
+        <GroupDisplay title="SuperHero" displayTitle="SuperHeroes" members={groups.SuperHero} />
         <GroupDisplay title="Normie" displayTitle="Normies" members={groups.Normie} />
         <GroupDisplay title="Partner" displayTitle="Partners" members={groups.Partner} />
 
