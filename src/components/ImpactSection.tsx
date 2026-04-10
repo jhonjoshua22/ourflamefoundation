@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Calendar, Youtube, Users, Flag, ThumbsUp } from "lucide-react";
+import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Youtube } from "lucide-react";
 import clickSound from "@/assets/button.m4a";
 
 // --- ASSET IMPORTS ---
@@ -9,7 +9,6 @@ import community3 from "@/assets/legal.png";
 import community5 from "@/assets/superpets.jpeg";
 import community6 from "@/assets/holidays.jpeg";
 import community7 from "@/assets/health.jpeg";
-import community8 from "@/assets/pitch.jpeg";
 import community9 from "@/assets/malesinger.jpeg";
 import community11 from "@/assets/film.jpeg";
 import community12 from "@/assets/bookcontract.jpeg";
@@ -31,50 +30,76 @@ import aitraining from "@/assets/aitraining.jpeg";
 import homecare from "@/assets/homecare.jpeg";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
-const BOOKING_LINK = "https://calendar.google.com/calendar/u/0/r/eventedit?add=ourflamefoundation@gmail.com";
 
 const playClickSound = () => {
   new Audio(clickSound).play().catch(() => {});
 };
 
-const lessonItems = [
-  { image: community1, title: "FLAME JOBS", description: "Live Mon 10:00 EMEA", details: "Description coming soon" },
-  { image: community2, title: "MAGIC MONEY", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: community3, title: "FLAME LEGAL", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: community5, title: "SUPERPETS", description: "Live daily 6:15 GMT", details: "Description coming soon" },
+// 7 MAIN BUNDLES REGROUPED
+const bundleItems = [
+  { 
+    image: childsdream, 
+    title: "Crisis & Education", 
+    description: "Mondays 21:00 UTC", 
+    details: "Crisis Packages & Education Workshops. Dedicated to immediate humanitarian relief and fundamental learning frameworks." 
+  },
+  { 
+    image: community7, 
+    title: "Healthy Life", 
+    description: "Tuesdays 21:00 UTC", 
+    details: "Healthy Life Workshops. Focusing on physical wellness, mental health, and sustainable lifestyle choices for families." 
+  },
+  { 
+    image: community2, 
+    title: "Magic Money & Jobs", 
+    description: "Wednesdays 21:00 UTC", 
+    details: "Magic Money & Flame Jobs Workshops. Fusing financial literacy with live job opportunities and economic empowerment." 
+  },
+  { 
+    image: community3, 
+    title: "Legal & Gov", 
+    description: "Thursdays 21:00 UTC", 
+    details: "Legal & Gov Workshops. Helping families navigate complex institutional systems, rights, and governmental paperwork." 
+  },
+  { 
+    image: aitraining, 
+    title: "Space & Robots", 
+    description: "Fridays 21:00 UTC", 
+    details: "Space & Robots Workshops. Exploring AI training, future tech, and the expanding horizons of science and robotics." 
+  },
   { 
     image: community6, 
-    title: "FREE HOLIDAYS", 
-    description: "Live daily 6:15 GMT", 
-    details: "Our holiday and travel brand offers free services to cashstrapped families especially during school holidays when the travelling industry price gouge. We have properties with our partners around the world and our top partners must be willing to offer accommodation when safe and feasible on a couch surfing or room sharing or airbed providing basis. On a bigger scale we have retreats to help stressed families refind their spirituality and understand that the rat race is a bad choice not an essential. Dates & details to follow" 
+    title: "Love Workshops", 
+    description: "Saturdays 21:00 UTC", 
+    details: "Love & Relationship Workshops. Community-driven sessions on empathy, spiritual retreats, and family bonding." 
   },
-  { image: community7, title: "HAPPY HEALTH", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: community8, title: "PITCH YOUR IDEA", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: community9, title: "TOP SINGER MALE", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: community11, title: "FILM AUDITION", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: community12, title: "BOOK CONTRACT", description: "Live daily 6:15 GMT", details: "Description coming soon" },
+  { 
+    image: community11, 
+    title: "Entertainment Bundle", 
+    description: "Sundays 21:00 UTC", 
+    details: "Film, Music, Fashion, Sport, and Gaming. A weekly showcase of creative worlds including Film Auditions, Top Singer, and Gaming leagues." 
+  },
 ];
 
+// PRODUCT AREA (Moved from other sections)
+const productItems = [
+  { image: food, title: "MO FOOD", description: "Essential Nutrition", details: "Direct supply of nutritional essentials for the community." },
+  { image: clothes, title: "MO CLOTHES", description: "Flame Apparel", details: "Sustainable and affordable community clothing lines." },
+  { image: motel, title: "MO MOTELS", description: "Community Stays", details: "Temporary accommodation and shelter solutions." },
+  { image: joshua, title: "JOSHUA'S PRODUCTS", description: "Signature Line", details: "Bespoke products curated by Joshua." },
+  { image: emeka, title: "EMEKA'S PRODUCTS", description: "Signature Line", details: "Bespoke products curated by Emeka." },
+  { image: moyasis, title: "MOYASIS' PRODUCTS", description: "Signature Line", details: "Bespoke products curated by Moyasis." },
+  { image: play2world, title: "PLAY2WORLD", description: "Gaming Tech", details: "Interactive hardware and digital assets for the gaming ecosystem." },
+];
+
+// THE WORLDS (Specific Sub-Niches)
 const ourWorldItems = [
-  { image: football, title: "FOOTBALL WORLD", description: "Live Wed 20:00 UTC", details: "Description coming soon" },
-  { image: art, title: "ART WORLD", description: "Live Fri 10:00 UTC", details: "Description coming soon" },
-  { image: writer, title: "WRITER WORLD", description: "Live Fri 10:00 UTC", details: "Description coming soon" },
-  { image: fashion, title: "FASHION WORLD", description: "Live Thu 20:00 UTC", details: "Description coming soon" },
-  { image: education, title: "EDUCATION WORLD", description: "Live Tue 20:00 UTC", details: "Description coming soon" },
-  { image: badminton, title: "BADMINTON WORLD", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-];
-
-const otherServiceItems = [
-  { image: childsdream, title: "CHILD'S DREAM 2026", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: motel, title: "MO MOTELS", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: food, title: "MO FOOD", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: clothes, title: "MO CLOTHES", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: play2world, title: "PLAY2WORLD", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: joshua, title: "JOSHUA'S PRODUCTS", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: emeka, title: "EMEKA'S PRODUCTS", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: moyasis, title: "MOYASIS' PRODUCTS", description: "Live daily 6:15 GMT", details: "Description coming soon" },
-  { image: homecare, title: "HOME CARE", description: "Live Sat 11:00 EMEA", details: "Description coming soon" },
-  { image: aitraining, title: "AI TRAINING", description: "Live Fri 11:00 EMEA", details: "Description coming soon" },
+  { image: football, title: "FOOTBALL WORLD", description: "Sports Ecosystem", details: "Global scouting and training for the beautiful game." },
+  { image: art, title: "ART WORLD", description: "Creative Expression", details: "Galleries, training, and digital art marketplaces." },
+  { image: writer, title: "WRITER WORLD", description: "Literary Hub", details: "From Book Contracts to creative writing workshops." },
+  { image: fashion, title: "FASHION WORLD", description: "Design Lab", details: "Modern aesthetics meeting sustainable production." },
+  { image: badminton, title: "BADMINTON WORLD", description: "Athletic Hub", details: "Community sports and professional training tracks." },
+  { image: community5, title: "SUPERPETS", description: "Animal Welfare", details: "Training and care for our non-human companions." },
 ];
 
 const ItemCard = ({ item, onClick }) => (
@@ -117,7 +142,7 @@ const CategorySection = ({ title, items, onItemClick }) => {
   const displayItems = isExpanded ? items : items.slice(0, 3);
 
   return (
-    <div id ="what" className="border-t border-zinc-200 dark:border-zinc-800 pt-8 pb-4">
+    <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8 pb-4">
       <div className="flex justify-between items-center mb-8">
         <h3 className="text-xs font-black tracking-[0.4em] uppercase text-orange-600">
           {title}
@@ -158,18 +183,18 @@ const ImpactSection = () => {
       <div className="container mx-auto px-6 max-w-7xl">
         <div className="mb-20">
           <h2 className="text-5xl md:text-8xl font-black tracking-tighter text-zinc-900 dark:text-white uppercase italic leading-[0.85]">
-            Global <br /> <span className="text-orange-600 not-italic uppercase">Training</span>
+            Global <br /> <span className="text-orange-600 not-italic uppercase">Ecosystem</span>
           </h2>
           <div className="h-1 w-24 bg-orange-600 mt-8 mb-6" />
           <p className="text-zinc-500 dark:text-zinc-400 text-lg max-w-xl leading-relaxed uppercase font-medium tracking-tight">
-            Explore our ecosystem of training, community hubs, and essential foundations.
+            Explore our scheduled training bundles, specialized worlds, and product lines.
           </p>
         </div>
 
         <div className="space-y-4">
-          <CategorySection title="Educational Framework" items={lessonItems} onItemClick={setSelectedItem} />
+          <CategorySection title="Weekly Training Bundles" items={bundleItems} onItemClick={setSelectedItem} />
+          <CategorySection title="Product Ecosystem" items={productItems} onItemClick={setSelectedItem} />
           <CategorySection title="The Worlds" items={ourWorldItems} onItemClick={setSelectedItem} />
-          <CategorySection title="Humanitarian Services" items={otherServiceItems} onItemClick={setSelectedItem} />
         </div>
       </div>
 
@@ -197,7 +222,7 @@ const ImpactSection = () => {
                   </p>
                 </div>
 
-                <div className="mt-auto space-y-3">
+                <div className="mt-auto">
                   <a 
                     href={YOUTUBE_LINK} 
                     onClick={playClickSound}
@@ -205,7 +230,7 @@ const ImpactSection = () => {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-black uppercase tracking-widest text-xs transition-colors"
                   >
-                    <Youtube size={18} /> Watch on YouTube
+                    <Youtube size={18} /> Watch Live Workshops
                   </a>
                 </div>
               </div>
