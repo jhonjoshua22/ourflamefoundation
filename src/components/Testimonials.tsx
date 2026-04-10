@@ -77,7 +77,7 @@ const Testimonials = () => {
       {/* CTA Section - Forced Black/White */}
       <div className="mt-20 text-center max-w-2xl mx-auto px-6">
         <h3 className="text-xl md:text-2xl font-black text-black dark:text-white uppercase italic mb-4">
-          Want to share your experience?
+          Grab Rewards
         </h3>
         <p className="text-black dark:text-white text-sm mb-8 leading-relaxed font-medium">
           We love hearing from our community partners and builders. Log in now to post your own official testimonial or read verified operational reviews.
