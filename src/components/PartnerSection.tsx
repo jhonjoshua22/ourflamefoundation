@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
-import { ExternalLink, UserPlus, Linkedin, ArrowRight } from "lucide-react";
+import { ExternalLink, UserPlus, Linkedin, ArrowRight, Plus } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 // Asset Imports
@@ -70,7 +70,6 @@ const PartnerSection = () => {
         linkedin: user.linkedin_link || "#",
       };
 
-      // Strict singular case-sensitive match
       const rankKey = user.rank; 
       if (categorized[rankKey] && categorized[rankKey].length < 6) {
         categorized[rankKey].push(member);
@@ -82,9 +81,17 @@ const PartnerSection = () => {
 
   const GroupDisplay = ({ title, members, displayTitle }: { title: string, members: any[], displayTitle: string }) => (
     <div className="mb-24">
-      <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
-        {displayTitle}
-      </h2>
+      <div className="flex items-center justify-between mb-12 gap-4 flex-wrap">
+        <h2 className="text-5xl font-black uppercase italic text-zinc-900 dark:text-white">
+          {displayTitle}
+        </h2>
+        <Link 
+          to="/login"
+          className="flex items-center gap-2 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-lg shadow-orange-600/20"
+        >
+          Join Us <Plus size={14} />
+        </Link>
+      </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
         {members.map((p) => (
@@ -136,7 +143,7 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* DYNAMIC GROUPS - Rank is singular/Case-Sensitive in DB */}
+        {/* DYNAMIC GROUPS */}
         <GroupDisplay title="SuperFarmer" displayTitle="SuperFarmers" members={groups.SuperFarmer} />
         <GroupDisplay title="Angel" displayTitle="Angels" members={groups.Angel} />
         <GroupDisplay title="SuperHero" displayTitle="SuperHeroes" members={groups.SuperHero} />
