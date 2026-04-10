@@ -7,7 +7,6 @@ import {
   ChevronRight, LogIn, Share2, Award
 } from "lucide-react";
 
-// Section Components
 import AboutUsSection from "@/components/AboutUsSection";
 import HeroSection from "@/components/HeroSection";
 
