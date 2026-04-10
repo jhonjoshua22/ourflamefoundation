@@ -1,10 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { CheckCircle2, Zap, Flame, Loader2, ChevronRight, ExternalLink, Radio } from "lucide-react";
+import { 
+  LogIn, 
+  Heart, 
+  Share2, 
+  Circle, 
+  Activity, 
+  Zap,
+  ArrowUpRight
+} from "lucide-react";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Sample Status Logic (Red: Not Started, Amber: In Progress, Green: Done)
+  const [status, setStatus] = useState({
+    login: "green",
+    deeds: "amber",
+    spread: "red"
+  });
 
   useEffect(() => {
     fetchProfile();
@@ -12,165 +27,115 @@ const Dashboard = () => {
 
   const fetchProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      setLoading(false);
-      return;
-    }
+    if (!session?.user) { setLoading(false); return; }
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", session.user.id)
-      .single();
-
-    if (!error && data) {
-      setProfile(data);
-    }
+    const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+    if (data) setProfile(data);
     setLoading(false);
   };
 
-  const taskData = [
-    { 
-      id: "01", 
-      normies: "Broadcast Signal: Sync Neural Links & Amplify Global Transmissions", 
-      superheros: "Quantum Outreach: Deploy #MagicWorlds Protocols & Recruit New Operatives", 
-      angels: "Neural Command: Initialize Superhero Onboarding & Core Mentorship",
-      superfarmers: "Empire Architecture: Design Galactic Funding Loops & Strategic Expansion",
-      pts: { Normie: 50, SuperHero: 150, Angel: 500, SuperFarmer: 2000 } 
-    },
-    { 
-      id: "02", 
-      normies: "Data Logging: Capture Terrestrial Milestones & Earthbound Good Deeds", 
-      superheros: "Tech Deployment: Activate MagicBots & Launch Digital Artifacts", 
-      angels: "Direct Interface: Lead High-Frequency Coaching & Event Synchronizations",
-      superfarmers: "The Seed Engine: Allocate Biological Capital & Direct AI Evolution",
-      pts: { Normie: 100, SuperHero: 300, Angel: 1000, SuperFarmer: 5000 } 
-    },
-    { 
-      id: "03", 
-      normies: "Scout Protocol: Identify Local Anomalies & Community Infrastructure Needs", 
-      superheros: "Enlightenment Phase: Distribute OtherWorld AI Intelligence Streams", 
-      angels: "Angel Grid: Optimize Fiscal Solutions & Capital Distribution",
-      superfarmers: "Treaty Execution: Finalize Inter-Agency Agreements & Power Alliances",
-      pts: { Normie: 150, SuperHero: 500, Angel: 2000, SuperFarmer: 10000 } 
-    },
-    { 
-      id: "04", 
-      normies: "Atmospheric Stabilizer: Engage in Eco-Preservation & Local Habitat Support", 
-      superheros: "Nexus Breach: Host Community Workshops on Advanced Web3 Tech", 
-      angels: "Guardian Protocol: Audit Operational Security Across Foundation Nodes",
-      superfarmers: "Universal Treasury: Architect New Liquidity Sinks for Global Rewards",
-      pts: { Normie: 200, SuperHero: 600, Angel: 2500, SuperFarmer: 15000 } 
-    },
-    { 
-      id: "05", 
-      normies: "Final Convergence: Submit Daily Progress Report to the Flame Terminal", 
-      superheros: "Vanguard Sweep: Moderate the Foundation Forums & Silence Disruptors", 
-      angels: "Oracle Sight: Forecast Monthly Trends & Pitch Expansion Sectors",
-      superfarmers: "Sovereign Command: Establish Permanent Foundation Embassies",
-      pts: { Normie: 300, SuperHero: 1000, Angel: 5000, SuperFarmer: 50000 } 
-    },
-  ];
-
-  const columnLinks = {
-    Normie: { label: "Clapmi", url: "https://app.clapmi.com/" },
-    SuperHero: { label: "Itch.io", url: "https://magicworlds.itch.io/magic-world" },
-    Angel: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" },
-    SuperFarmer: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" }
+  const StatusLight = ({ type }: { type: string }) => {
+    const colors = {
+      red: "bg-red-500 shadow-[0_0_15px_#ef4444]",
+      amber: "bg-amber-500 shadow-[0_0_15px_#f59e0b]",
+      green: "bg-emerald-500 shadow-[0_0_15px_#10b981]"
+    };
+    return <div className={`w-3 h-3 rounded-full ${colors[type as keyof typeof colors]} animate-pulse`} />;
   };
 
   if (loading || !profile) return null;
 
   return (
-    <section id="dashboard" className="w-full py-24 px-4 bg-white dark:bg-black min-h-screen transition-colors duration-500">
-      <div className="container mx-auto max-w-7xl">
+    <section className="min-h-screen bg-black text-white font-sans selection:bg-orange-600">
+      <div className="container mx-auto max-w-6xl px-6 py-20">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6 border-b border-black dark:border-white pb-8">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-[10px]">
-              <Radio size={14} className="animate-pulse" /> Mission Control Center
+        {/* TOP NAV-BAR STYLE HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-center border-b-2 border-zinc-900 pb-12 mb-16 gap-8">
+          <div className="text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 text-orange-600 mb-2">
+              <Activity size={18} className="animate-spin-slow" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Operational Status: Active</span>
             </div>
-            <h2 className="text-6xl font-black uppercase italic tracking-tighter text-black dark:text-white leading-none">
-              Daily <span className="text-orange-600">Objectives</span>
-            </h2>
-            <div className="flex items-center gap-4 mt-4">
-              <span className="px-4 py-1 bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase italic rounded-full shadow-lg">
-                Rank: {profile.rank || "Normie"}
-              </span>
-              <div className="flex flex-col">
-                <span className="text-black dark:text-white text-[10px] font-black uppercase tracking-widest">
-                  {profile.points?.toLocaleString() || 0} Points Accumulated
-                </span>
+            <h1 className="text-7xl font-black italic uppercase tracking-tighter leading-none">
+              FLAME <span className="text-orange-600">TERMINAL</span>
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-6 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
+             <div className="text-right">
+               <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Operator Rank</p>
+               <p className="text-2xl font-black italic text-orange-500">{profile.rank || "Normie"}</p>
+             </div>
+             <div className="h-10 w-[1px] bg-zinc-800" />
+             <div className="bg-orange-600 p-3 rounded-xl shadow-lg shadow-orange-600/20">
+               <Zap className="fill-white" />
+             </div>
+          </div>
+        </div>
+
+        {/* THE THREE CORE MISSIONS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          {/* TASK 1: LOGIN */}
+          <div className="group relative bg-zinc-900/30 border-2 border-zinc-800 rounded-[2.5rem] p-10 hover:border-emerald-500/50 transition-all duration-500 hover:-translate-y-2">
+            <div className="flex justify-between items-start mb-12">
+              <div className="p-4 bg-zinc-800 rounded-2xl group-hover:bg-emerald-500 transition-colors">
+                <LogIn className="text-white" size={32} />
               </div>
+              <StatusLight type={status.login} />
             </div>
+            <h3 className="text-3xl font-black uppercase italic mb-4">Neural<br/>Sync</h3>
+            <p className="text-zinc-500 text-sm font-bold uppercase leading-relaxed mb-8">Establish secure connection to the foundation grid.</p>
+            <button className="w-full py-4 bg-zinc-800 group-hover:bg-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
+              Connection Verified
+            </button>
           </div>
-          <div className="bg-white dark:bg-black px-6 py-4 border border-black dark:border-white rounded-2xl text-[10px] font-black uppercase text-black dark:text-white tracking-widest flex items-center gap-2">
-            System Reset <ChevronRight size={10} /> 00:00 UTC
+
+          {/* TASK 2: GOOD DEEDS */}
+          <div className="group relative bg-zinc-900/30 border-2 border-zinc-800 rounded-[2.5rem] p-10 hover:border-amber-500/50 transition-all duration-500 hover:-translate-y-2">
+            <div className="flex justify-between items-start mb-12">
+              <div className="p-4 bg-zinc-800 rounded-2xl group-hover:bg-amber-500 transition-colors">
+                <Heart className="text-white" size={32} />
+              </div>
+              <StatusLight type={status.deeds} />
+            </div>
+            <h3 className="text-3xl font-black uppercase italic mb-4">Life<br/>Support</h3>
+            <p className="text-zinc-500 text-sm font-bold uppercase leading-relaxed mb-8">Track terrestrial good deeds and impact milestones.</p>
+            <button className="w-full py-4 bg-amber-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-amber-600/20 hover:scale-105 transition-all">
+              Log Activity
+            </button>
           </div>
+
+          {/* TASK 3: SPREAD WORD */}
+          <div className="group relative bg-zinc-900/30 border-2 border-zinc-800 rounded-[2.5rem] p-10 hover:border-red-500/50 transition-all duration-500 hover:-translate-y-2">
+            <div className="flex justify-between items-start mb-12">
+              <div className="p-4 bg-zinc-800 rounded-2xl group-hover:bg-red-500 transition-colors">
+                <Share2 className="text-white" size={32} />
+              </div>
+              <StatusLight type={status.spread} />
+            </div>
+            <h3 className="text-3xl font-black uppercase italic mb-4">Signal<br/>Boost</h3>
+            <p className="text-zinc-500 text-sm font-bold uppercase leading-relaxed mb-8">Amplify global transmissions to recruit new operatives.</p>
+            <button className="w-full py-4 bg-zinc-800 group-hover:bg-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
+              Launch Broadcast
+            </button>
+          </div>
+
         </div>
 
-        {/* Task Table */}
-        <div className="relative overflow-hidden rounded-3xl border border-black dark:border-white bg-white dark:bg-black backdrop-blur-xl shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[1200px]">
-              <thead>
-                <tr className="border-b border-black dark:border-white">
-                  {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rank) => (
-                    <th key={rank} className="p-8 first:border-l-0 border-l border-black dark:border-white">
-                      <div className="flex flex-col gap-4">
-                        <span className={`font-black italic uppercase tracking-tighter text-xl ${
-                          rank === 'Normie' ? 'text-blue-600' : 
-                          rank === 'SuperHero' ? 'text-orange-600' : 
-                          rank === 'Angel' ? 'text-yellow-500' : 'text-green-600'
-                        }`}>
-                          {rank}s
-                        </span>
-                        <a 
-                          href={columnLinks[rank as keyof typeof columnLinks].url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between p-2 border border-black dark:border-white hover:border-orange-600 transition-colors group"
-                        >
-                          <span className="text-[9px] font-black uppercase tracking-widest text-black dark:text-white group-hover:text-orange-600">
-                            {columnLinks[rank as keyof typeof columnLinks].label}
-                          </span>
-                          <ExternalLink size={10} className="text-black dark:text-white" />
-                        </a>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black dark:divide-white">
-                {taskData.map((row) => (
-                  <tr key={row.id}>
-                    {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rankType) => {
-                      const taskText = rankType === 'Normie' ? row.normies : rankType === 'SuperHero' ? row.superheros : rankType === 'Angel' ? row.angels : row.superfarmers;
-                      const taskValue = (row.pts as any)[rankType];
-
-                      return (
-                        <td key={rankType} className="p-8 align-top first:border-l-0 border-l border-black dark:border-white transition-all duration-500">
-                          <div className="flex flex-col h-full justify-between gap-8">
-                            <p className="text-sm leading-relaxed text-black dark:text-white font-bold uppercase tracking-tight">
-                              {taskText}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <Zap size={14} className="text-orange-600 fill-orange-600" />
-                              <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white italic">
-                                Value: {taskValue} Pts
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* FOOTER SYSTEM INFO */}
+        <div className="mt-20 flex flex-wrap justify-center gap-12 opacity-30 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
+           <div className="flex items-center gap-2 font-black italic text-[10px] uppercase tracking-widest">
+             <Circle size={8} className="fill-white" /> Open Source Protocol
+           </div>
+           <div className="flex items-center gap-2 font-black italic text-[10px] uppercase tracking-widest">
+             <Circle size={8} className="fill-white" /> Automated Rating v2.0
+           </div>
+           <div className="flex items-center gap-2 font-black italic text-[10px] uppercase tracking-widest">
+             <Circle size={8} className="fill-white" /> Encrypted Neural Link
+           </div>
         </div>
+
       </div>
     </section>
   );
