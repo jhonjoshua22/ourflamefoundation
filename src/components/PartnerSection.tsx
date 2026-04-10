@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
-import { ExternalLink, UserPlus, Linkedin, ArrowRight, Plus } from "lucide-react";
+import { 
+  ExternalLink, Linkedin, Plus, Sparkles, Users 
+} from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 // Asset Imports
@@ -150,28 +152,24 @@ const PartnerSection = () => {
         <GroupDisplay title="Normie" displayTitle="Normies" members={groups.Normie} />
         <GroupDisplay title="Partner" displayTitle="Partners" members={groups.Partner} />
 
-        <div className="flex flex-col items-center justify-center py-12 border-t border-zinc-100 dark:border-zinc-900">
-          <Link 
-            to="/login" 
-            className="group flex flex-col items-center gap-4 mb-8"
-          >
-            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-orange-600 text-white shadow-lg shadow-orange-600/20 group-hover:scale-110 transition-transform">
-              <UserPlus size={32} />
-            </div>
-            <div className="text-center">
-              <h3 className="text-xl font-black uppercase italic dark:text-white">Join The Mission</h3>
-              <p className="text-orange-600 font-bold uppercase text-xs tracking-widest">Become a member today</p>
-            </div>
-          </Link>
-
-          <Link 
-            to="/#contacts" 
-            className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-10 py-4 hover:bg-orange-600 hover:text-white dark:hover:bg-orange-600 dark:hover:text-white transition-all rounded-lg shadow-xl"
-          >
-            Contact Us <ArrowRight size={14} />
-          </Link>
+        {/* INCUBATOR OF INCUBATORS FOOTER BLOCK */}
+        <div className="mt-32 p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-3xl relative overflow-hidden shadow-2xl">
+          <Sparkles className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
+          <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
+            <Users size={14}/> Incubator of Incubators
+          </h4>
+          <p className="text-3xl md:text-4xl font-black leading-tight uppercase italic mb-8 max-w-4xl">
+            A global collective of 100+ engineers building in public. We 10x every 2 months via AI, Blockchain, and Creative Hardware.
+          </p>
+          <div className="flex flex-wrap gap-2 pt-8 border-t border-white/10 dark:border-zinc-200">
+            {["Prediction", "Trustless", "Engaging", "Protection"].map(tag => (
+              <span key={tag} className="px-4 py-2 border border-white/20 dark:border-zinc-400 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
-
+        
       </div>
     </section>
   );
