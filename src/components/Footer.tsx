@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import { 
   Facebook, Twitter, Youtube, Github, Linkedin, 
-  Globe, MessageSquare, Send 
+  Globe, MessageSquare, Send, MapPin, MessageCircle, Mail 
 } from "lucide-react";
 
 // 1. IMPORTING FROM THE CORRECT LIB FOLDER
@@ -45,13 +46,15 @@ const UnifiedFooter = () => {
     }
   };
 
+  // Updated to include your list: Globe, FB, X, YT, LinkedIn, Github
   const socialLinks = [
+    { icon: Globe, href: "https://www.themagicworlds.org/", label: "Magic Worlds" },
     { icon: Facebook, href: "https://www.facebook.com/OurFlameFoundation/", label: "Facebook" },
     { icon: Twitter, href: "https://x.com/OurFlameFoundtn", label: "Twitter" },
     { icon: Youtube, href: "https://www.youtube.com/@FlameFoundationTV", label: "Youtube" },
-    { icon: MessageSquare, href: "https://discord.com/invite/NcNSaTVNdn", label: "Discord" },
-    { icon: Github, href: "https://github.com/TheMagicWorlds", label: "Github" },
     { icon: Linkedin, href: "https://www.linkedin.com/company/magic-worlds", label: "Linkedin" },
+    { icon: Github, href: "https://github.com/TheMagicWorlds", label: "Github" },
+    { icon: MessageSquare, href: "https://discord.com/invite/NcNSaTVNdn", label: "Discord" },
   ];
 
   return (
@@ -60,8 +63,8 @@ const UnifiedFooter = () => {
         
         <div className="grid lg:grid-cols-12 gap-16 mb-24 items-start">
           
-          {/* COLUMN 1: GIANT LOGO & BRAND */}
-          <div className="lg:col-span-6 space-y-10">
+          {/* COLUMN 1: BRAND & SOCIALS */}
+          <div className="lg:col-span-4 space-y-10">
             <div className="flex flex-col gap-8">
               <div>
                 <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-none">
@@ -71,26 +74,55 @@ const UnifiedFooter = () => {
                 <div className="h-1 w-20 bg-orange-600 mt-4" />
               </div>
               
-              <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
+              <p className="text-zinc-400 text-sm leading-relaxed">
                 We are dedicated to helping families save the universe while enjoying 
                 <span className="text-white font-bold"> magical rewards</span>. Complete your daily missions, 
-                support the ecosystem, and unlock your physical and digital perks everyday at 0700 UTC.
+                support the ecosystem, and unlock your perks everyday at 0700 UTC.
               </p>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3">
               {socialLinks.map((social, i) => (
                 <a key={i} href={social.href} onClick={playClickSound} target="_blank" rel="noreferrer" 
-                   className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-orange-600 text-zinc-500 hover:text-white transition-all rounded-none">
+                   className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-orange-600 text-zinc-500 hover:text-white transition-all group"
+                   title={social.label}>
                   <social.icon size={18} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* COLUMN 2: CONTACT FORM */}
-          <div id="contacts" className="lg:col-span-6 bg-zinc-900/30 p-8 md:p-10 border border-zinc-900">
-            <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.4em] mb-8">Contact Us</h3>
+          {/* COLUMN 2: FOUNDATION SUPPORT INFO */}
+          <div className="lg:col-span-3 space-y-8">
+            <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.4em]">Foundation Support</h3>
+            <div className="flex flex-col gap-6 text-sm">
+              <div className="space-y-1">
+                <p className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest">Global Hubs</p>
+                <p className="flex items-center gap-3 text-white font-bold italic">
+                  <MapPin size={18} className="text-orange-600"/> UK, PH, IN, PK, BD, GE
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest">WhatsApp</p>
+                <a href="https://wa.me/447762293742" onClick={playClickSound} target="_blank" rel="noreferrer" 
+                   className="flex items-center gap-3 text-white font-bold italic hover:text-orange-600 transition-colors">
+                    <MessageCircle size={18} className="text-orange-600"/> +44 7762 293742
+                </a>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-zinc-500 uppercase text-[10px] font-bold tracking-widest">Email</p>
+                <p className="flex items-center gap-3 text-white font-bold italic">
+                  <Mail size={18} className="text-orange-600"/> help@ourflamefoundation.org
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* COLUMN 3: CONTACT FORM */}
+          <div id="contacts" className="lg:col-span-5 bg-zinc-900/30 p-8 border border-zinc-900">
+            <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.4em] mb-8">Direct Message</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input 
                 type="text" required placeholder="Full Name"
@@ -107,7 +139,7 @@ const UnifiedFooter = () => {
                 disabled={isSubmitting}
               />
               <textarea 
-                required rows={3} placeholder="Your Message"
+                required rows={3} placeholder="How can we help?"
                 className="w-full bg-black border border-zinc-800 text-white p-4 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700 text-sm resize-none rounded-none"
                 value={formData.message}
                 onChange={(e) => setFormData({...formData, message: e.target.value})}
@@ -118,7 +150,7 @@ const UnifiedFooter = () => {
                 disabled={isSubmitting}
                 className={`w-full bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-[0.2em] py-4 text-xs flex items-center justify-center gap-3 transition-all rounded-none ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isSubmitting ? "Sending..." : "Submit"} <Send size={14} />
+                {isSubmitting ? "Sending..." : "Send Message"} <Send size={14} />
               </button>
             </form>
           </div>
