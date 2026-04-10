@@ -48,7 +48,7 @@ const UnifiedFooter = () => {
   const socialLinks = [
     { icon: Facebook, href: "https://www.facebook.com/OurFlameFoundation/", label: "Facebook" },
     { icon: Twitter, href: "https://x.com/OurFlameFoundtn", label: "Twitter" },
-    { icon: Youtube, href: "https://www.youtube.com/@MagicworldsTV", label: "Youtube" },
+    { icon: Youtube, href: "https://www.youtube.com/@FlameFoundationTV", label: "Youtube" },
     { icon: MessageSquare, href: "https://discord.com/invite/NcNSaTVNdn", label: "Discord" },
     { icon: Github, href: "https://github.com/TheMagicWorlds", label: "Github" },
     { icon: Linkedin, href: "https://www.linkedin.com/company/magic-worlds", label: "Linkedin" },
