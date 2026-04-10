@@ -11,13 +11,13 @@ import {
 import AboutUsSection from "@/components/AboutUsSection";
 import HeroSection from "@/components/HeroSection";
 
-// Tier Image Imports
-import partnerImg from "../assets/partner.png";
+// Tier Image Imports - Updated to match your specific filenames
+import partnerImg from "../assets/partners.jpg"; 
 import scoutImg from "../assets/scout.png";
-import stormtrooperImg from "../assets/stormtrooper.png";
+import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
-import farmerImg from "../assets/farmer.png";
-import founderImg from "../assets/founder.png"; 
+import farmerImg from "../assets/superfarmer.png";
+import founderImg from "../assets/founder.png"; // Placeholder for SuperFounder
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -27,10 +27,6 @@ const Scoretable = () => {
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
-
-  const playClickSound = () => {
-    // Optional: Add audio logic here
-  };
 
   const tiers = [
     { role: "Partner", image: partnerImg, price: "Forever Free", benefit: "Ethical stakeholder support.", button: "I'm Partner" },
@@ -111,7 +107,6 @@ const Scoretable = () => {
   useEffect(() => {
     fetchData(searchQuery, sortBy);
     
-    // Listen for profile changes to update leaderboard live
     const sub = supabase.channel("profiles-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         if (!searchQuery) fetchData("", sortBy);
@@ -126,7 +121,7 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
         
-        {/* SECTION 1: MEMBERSHIP TIERS */}
+        {/* MEMBERSHIP TIERS */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
@@ -140,7 +135,6 @@ const Scoretable = () => {
                 <p className="text-sm text-zinc-500 dark:text-zinc-400 italic mb-8 leading-relaxed h-12 flex items-center justify-center">"{tier.benefit}"</p>
                 <Link 
                   to="/login" 
-                  onClick={playClickSound}
                   className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-all shadow-lg"
                 >
                   {tier.button} <ChevronRight size={14} />
@@ -150,7 +144,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* SECTION 2: SCORETABLE HEADER */}
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-widest text-xs">
@@ -178,7 +172,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* SECTION 3: LEADERBOARD */}
+        {/* LEADERBOARD */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
         ) : (
@@ -221,7 +215,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* SECTION 4: DAILY OBJECTIVES */}
+        {/* DAILY OBJECTIVES */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-8 mb-12">
           <h3 className="text-2xl font-black flex items-center gap-3 mb-8 uppercase italic text-orange-600">
             <Target size={28} /> Daily Objectives
@@ -239,7 +233,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* SECTION 5: RECRUIT CTA */}
+        {/* RECRUIT CTA */}
         {referralLink && (
           <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-3xl text-center border border-orange-500/40 shadow-2xl">
             <h3 className="text-4xl font-black mb-4 italic uppercase">Recruit & Explode 🔥</h3>
