@@ -7,7 +7,6 @@ import {
   Zap, 
   Radio, 
   ChevronRight, 
-  Activity,
   ShieldCheck
 } from "lucide-react";
 
@@ -45,7 +44,7 @@ const Dashboard = () => {
       <div className="flex items-center gap-2">
         <div className={`w-3 h-3 rounded-full animate-pulse ${colors[status as keyof typeof colors]}`} />
         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-          {status === 'green' ? 'Verified' : status === 'amber' ? 'Pending' : 'Required'}
+          {status === 'green' ? 'Success' : status === 'amber' ? 'Pending' : 'Required'}
         </span>
       </div>
     );
@@ -61,10 +60,10 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 border-b-4 border-black dark:border-white pb-10">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.4em] text-[10px]">
-              <Radio size={16} className="animate-pulse" /> Global Mission Terminal
+              <Radio size={16} className="animate-pulse" /> Mission Control Center
             </div>
             <h1 className="text-7xl md:text-8xl font-black uppercase italic tracking-tighter leading-none text-black dark:text-white">
-              MY <span className="text-orange-600">STRIKE</span>
+              Daily <span className="text-orange-600">Objectives</span>
             </h1>
           </div>
 
@@ -90,14 +89,14 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.login} />
             </div>
-            <h3 className="text-4xl font-black uppercase italic text-black dark:text-white mb-4">Neural<br/>Link</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Secure connection established. Pulse sync active.</p>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">1. Login</h3>
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Access your account to start the day.</p>
             <div className="w-full py-4 text-center bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl border border-emerald-500/20">
-              Session Encrypted
+              Logged In
             </div>
           </div>
 
-          {/* TASK 2: TRACK DEEDS */}
+          {/* TASK 2: TRACK GOOD DEEDS */}
           <div className="group relative p-10 rounded-[3rem] bg-zinc-50 dark:bg-zinc-900/40 border-2 border-transparent hover:border-amber-500 transition-all duration-500">
             <div className="flex justify-between items-start mb-16">
               <div className="p-5 bg-white dark:bg-black rounded-2xl shadow-xl group-hover:scale-110 transition-transform">
@@ -105,14 +104,14 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.deeds} />
             </div>
-            <h3 className="text-4xl font-black uppercase italic text-black dark:text-white mb-4">Life<br/>Support</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Log terrestrial milestones and positive impact.</p>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">2. Track<br/>Deeds</h3>
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Log your helpful actions for today.</p>
             <button className="w-full py-4 bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-amber-500/20 hover:translate-y-[-2px] active:translate-y-0 transition-all">
-              Log Good Deed
+              Log Deed
             </button>
           </div>
 
-          {/* TASK 3: SPREAD WORD */}
+          {/* TASK 3: SPREAD THE WORD */}
           <div className="group relative p-10 rounded-[3rem] bg-zinc-50 dark:bg-zinc-900/40 border-2 border-transparent hover:border-red-500 transition-all duration-500 shadow-2xl shadow-transparent hover:shadow-red-500/5">
             <div className="flex justify-between items-start mb-16">
               <div className="p-5 bg-white dark:bg-black rounded-2xl shadow-xl group-hover:scale-110 transition-transform">
@@ -120,10 +119,10 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.spread} />
             </div>
-            <h3 className="text-4xl font-black uppercase italic text-black dark:text-white mb-4">Signal<br/>Boost</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Amplify foundation frequency to new sectors.</p>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">3. Spread<br/>Word</h3>
+            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Share the mission with others.</p>
             <button className="w-full py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-red-600/20 hover:scale-[1.02] transition-all">
-              Broadcast Now
+              Share Now
             </button>
           </div>
 
@@ -133,7 +132,7 @@ const Dashboard = () => {
         <div className="mt-24 pt-12 border-t border-zinc-100 dark:border-zinc-900 flex flex-wrap justify-between gap-6">
           <div className="flex items-center gap-3 opacity-30">
             <ShieldCheck size={16} />
-            <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">Rating Protocol: AI-Automated</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">Auto-Rating System Active</span>
           </div>
           <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
             Next Reset: <span className="text-black dark:text-white">00:00 UTC</span>
