@@ -97,27 +97,7 @@ const FlameGame = () => {
         <div className="text-center mb-16 space-y-3">
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-black dark:text-white">
             Welcome to the <span className="text-orange-600">Flame Game</span>
-          </h2>
-          
-          {/* Detailed Impact Badge */}
-          <div className="flex flex-col items-center justify-center mt-6">
-            <div className="bg-orange-600 text-white px-6 py-3 rounded-full flex flex-wrap items-center justify-center gap-x-6 gap-y-2 shadow-xl shadow-orange-600/20">
-              <div className="flex items-center gap-2">
-                <Activity size={18} />
-                <span className="text-sm font-black uppercase italic tracking-tighter">
-                  Physical: <span className="text-black">842</span>
-                </span>
-              </div>
-              <div className="h-4 w-[1px] bg-white/30 hidden md:block" />
-              <span className="text-sm font-black uppercase italic tracking-tighter">
-                Spiritual: <span className="text-black">12k</span>
-              </span>
-              <div className="h-4 w-[1px] bg-white/30 hidden md:block" />
-              <span className="text-sm font-black uppercase italic tracking-tighter">
-                Ethical RoR: <span className="text-black">142%</span>
-              </span>
-            </div>
-          </div>
+          </h2>       
         </div>
 
         {/* Video Carousel */}
