@@ -109,14 +109,6 @@ const EventsSection = () => {
                 <p className="text-black dark:text-white text-sm leading-relaxed mb-10 font-bold border-l-2 border-orange-600 pl-4">
                   {item.description}
                 </p>
-
-                {/* Card Footer */}
-                <div className="mt-auto pt-6 border-t-2 border-black dark:border-white flex justify-between items-center">
-                  <button className="text-[10px] font-black uppercase tracking-[0.2em] text-black dark:text-white group-hover:text-orange-600 flex items-center gap-2">
-                    Intel Report <ExternalLink size={12} />
-                  </button>
-                  <div className="w-12 h-[2px] bg-orange-600" />
-                </div>
               </div>
             </div>
           ))}
