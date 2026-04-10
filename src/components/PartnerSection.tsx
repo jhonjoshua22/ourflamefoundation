@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom"; 
-import { ExternalLink, UserPlus, Linkedin, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, UserPlus, Linkedin, ArrowRight } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
 // Asset Imports
@@ -9,12 +9,6 @@ import xLogo from "../assets/x.png";
 import meta from "../assets/meta.png";
 import microsoft from "../assets/microsoft.png";
 import nhs from "../assets/nhs.png";
-
-import MauriceB from "../assets/MauriceB.jpg";
-import MartinH from "../assets/MartinH.jpg";
-import GrahamR from "../assets/GrahamR.jpg";
-import JoshuaH from "../assets/JoshuaH.jpg";
-import moyasiImg from "../assets/moyasi.jpg"; // Imported Moyasi's image
 import defaultAvatar from "../assets/default-user.jpg";
 
 const partnerLogos = [
@@ -25,36 +19,20 @@ const partnerLogos = [
   { id: 5, src: nhs, alt: "NHS" },
 ];
 
-const defaultNedBoard = [
-  { id: 1, name: "Maurice Flynn", image: MauriceB, linkedin: "https://www.linkedin.com/in/mauricebigmoflynn/" },
-  { id: 2, name: "Martin Hall", image: MartinH, linkedin: "https://www.linkedin.com/in/martin-hall-bbb9082/" },
-  { id: 3, name: "Antoaneta Yurykova", image: null, linkedin: "#" },
-  { id: 4, name: "Alwin Stephen", image: null, linkedin: "#" },
-  { id: 5, name: "Peter Terziev", image: null, linkedin: "#" },
-  { id: 6, name: "Joshua H.", image: JoshuaH, linkedin: "https://www.linkedin.com/in/joshuah1/" }
-];
-
-const executiveBoard = [
-  { id: 101, name: "Maurice", position: "CEO/CGO Chair", image: MauriceB, linkedin: "https://www.linkedin.com/in/mauricebigmoflynn/" },
-  { id: 102, name: "Joshua Justice", position: "CMO/CPO Blockchain", linkedin: "https://www.linkedin.com/in/joshuah1/" },
-  { id: 103, name: "Lasha", position: "CPO AI", linkedin: "#" },
-  { id: 104, name: "Amar", position: "CPO Fintech", linkedin: "#" },
-  { id: 105, name: "Moyasi", position: "CPO Gaming", image: moyasiImg, linkedin: "https://www.linkedin.com/in/moyasi" },
-  { id: 106, name: "Bilal", position: "CPO AIWear", linkedin: "#" },
-  { id: 107, name: "MohamedZ", position: "CFO", linkedin: "#" },
-  { id: 108, name: "Livia", position: "AIHR", linkedin: "#" },
-];
-
 const PartnerSection = () => {
-  const [nedBoard] = useState(defaultNedBoard);
-  const [superheros, setSuperheros] = useState<any[]>([]);
-  const [showAllHeroes, setShowAllHeroes] = useState(false);
+  const [groups, setGroups] = useState<{ [key: string]: any[] }>({
+    SuperFarmer: [],
+    Angel: [],
+    Superhero: [],
+    Normie: [],
+    Partner: []
+  });
 
   useEffect(() => {
     fetchMembers();
 
     const channel = supabase
-      .channel("live-people")
+      .channel("live-groups")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         fetchMembers();
       })
@@ -66,33 +44,69 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
+    // Fetch profiles - ordering by display_name for now
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, rank, photo_url, linkedin_link");
+      .select("id, display_name, rank, photo_url, linkedin_link")
+      .order('display_name', { ascending: true });
 
     if (error) {
       console.error("Error loading members", error);
       return;
     }
 
-    const heroes: any[] = [];
+    const categorized: { [key: string]: any[] } = {
+      SuperFarmer: [],
+      Angel: [],
+      Superhero: [],
+      Normie: [],
+      Partner: []
+    };
 
     data?.forEach((user) => {
-      if (user.rank === "SuperHero") {
-        heroes.push({
-          id: user.id,
-          name: user.display_name,
-          position: "Superhero",
-          image: user.photo_url,
-          linkedin: user.linkedin_link || "#"
-        });
+      const member = {
+        id: user.id,
+        name: user.display_name,
+        image: user.photo_url,
+        linkedin: user.linkedin_link || "#",
+      };
+
+      // Match singular rank from DB to categorized groups
+      const rankKey = user.rank; 
+      if (categorized[rankKey] && categorized[rankKey].length < 6) {
+        categorized[rankKey].push(member);
       }
     });
 
-    setSuperheros(heroes);
+    setGroups(categorized);
   };
 
-  const visibleHeroes = showAllHeroes ? superheros : superheros.slice(0, 4);
+  const GroupDisplay = ({ title, members, displayTitle }: { title: string, members: any[], displayTitle: string }) => (
+    <div className="mb-24">
+      <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
+        {displayTitle}
+      </h2>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+        {members.map((p) => (
+          <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
+            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300">
+              <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
+            </div>
+            <h3 className="text-xs font-black uppercase dark:text-white mb-1 line-clamp-1">{p.name}</h3>
+            <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-orange-600 transition-colors">
+              <Linkedin size={14} />
+            </a>
+          </div>
+        ))}
+        {members.length === 0 && (
+          <div className="col-span-full py-10 text-center border-2 border-dashed border-zinc-100 dark:border-zinc-900 rounded-2xl">
+            <p className="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">No {title}s Active Yet</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <section id="people" className="bg-white dark:bg-black py-24">
@@ -123,113 +137,35 @@ const PartnerSection = () => {
           ))}
         </div>
 
-        {/* NED BOARD */}
-        <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
-          NED <span className="text-orange-600 not-italic">Board</span>
-        </h2>
+        {/* DYNAMIC GROUPS - Rank is singular in DB */}
+        <GroupDisplay title="SuperFarmer" displayTitle="SuperFarmers" members={groups.SuperFarmer} />
+        <GroupDisplay title="Angel" displayTitle="Angels" members={groups.Angel} />
+        <GroupDisplay title="Superhero" displayTitle="Superheros" members={groups.Superhero} />
+        <GroupDisplay title="Normie" displayTitle="Normies" members={groups.Normie} />
+        <GroupDisplay title="Partner" displayTitle="Partners" members={groups.Partner} />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">
-          {nedBoard.map((p:any) => (
-            <div key={p.id} className="group flex flex-col items-center text-center p-8 bg-zinc-50 dark:bg-zinc-900/40 rounded-3xl relative">
-              <div className="w-32 h-32 mb-6 rounded-full overflow-hidden border-4 border-transparent group-hover:border-orange-600 transition-all duration-300">
-                <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
-              </div>
-              <h3 className="text-xl font-black uppercase italic dark:text-white mb-2">{p.name}</h3>
-              <a 
-                href={p.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-zinc-400 hover:text-orange-600 transition-colors"
-              >
-                <Linkedin size={18} />
-              </a>
+        <div className="flex flex-col items-center justify-center py-12 border-t border-zinc-100 dark:border-zinc-900">
+          <Link 
+            to="/login" 
+            className="group flex flex-col items-center gap-4 mb-8"
+          >
+            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-orange-600 text-white shadow-lg shadow-orange-600/20 group-hover:scale-110 transition-transform">
+              <UserPlus size={32} />
             </div>
-          ))}
-        </div>
-
-        {/* EXECUTIVE BOARD */}
-        <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
-          Executive <span className="text-orange-600 not-italic">Board</span>
-        </h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
-          {executiveBoard.map((p:any) => (
-            <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl">
-              <div className="w-24 h-24 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300">
-                <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
-              </div>
-              <h3 className="text-md font-black uppercase dark:text-white">{p.name}</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[10px] mb-2">{p.position}</p>
-              <a 
-                href={p.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-zinc-400 hover:text-orange-600 transition-colors"
-              >
-                <Linkedin size={16} />
-              </a>
+            <div className="text-center">
+              <h3 className="text-xl font-black uppercase italic dark:text-white">Join The Mission</h3>
+              <p className="text-orange-600 font-bold uppercase text-xs tracking-widest">Become a member today</p>
             </div>
-          ))}
-        </div>
+          </Link>
 
-        <div className="flex justify-center mb-24">
           <Link 
             to="/#contacts" 
-            className="flex items-center gap-2 bg-orange-600 text-white text-xs font-black uppercase tracking-widest px-8 py-4 hover:bg-orange-700 transition-colors rounded-lg shadow-lg shadow-orange-600/20"
+            className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black text-xs font-black uppercase tracking-widest px-10 py-4 hover:bg-orange-600 hover:text-white dark:hover:bg-orange-600 dark:hover:text-white transition-all rounded-lg shadow-xl"
           >
             Contact Us <ArrowRight size={14} />
           </Link>
         </div>
 
-        {/* SUPERHEROS */}
-        <h2 className="text-5xl font-black uppercase italic mb-12 text-zinc-900 dark:text-white">
-          <span className="text-orange-600 not-italic">Super</span>heros
-        </h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-          {visibleHeroes.map((p:any) => (
-            <div key={p.id} className="group flex flex-col items-center text-center p-4 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl">
-              <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300">
-                <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
-              </div>
-              <h3 className="text-xs font-black uppercase dark:text-white mb-1">{p.name}</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[9px] mb-2">{p.position}</p>
-              <a 
-                href={p.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-zinc-400 hover:text-orange-600 transition-colors"
-              >
-                <Linkedin size={14} />
-              </a>
-            </div>
-          ))}
-
-          {(!showAllHeroes || superheros.length % 5 !== 0) && (
-            <Link to="/login" className="flex flex-col items-center justify-center text-center p-4 bg-orange-600/5 border-2 border-dashed border-orange-600/20 rounded-2xl hover:bg-orange-600/10 hover:border-orange-600/40 transition-colors">
-              <div className="w-20 h-20 mb-4 rounded-full flex items-center justify-center bg-orange-600 text-white">
-                <UserPlus size={32} />
-              </div>
-              <h3 className="text-xs font-black uppercase dark:text-white">Join Them</h3>
-              <p className="text-orange-600 font-bold uppercase text-[9px]">Become a Member</p>
-            </Link>
-          )}
-        </div>
-
-        {superheros.length > 4 && (
-          <div className="mt-10 flex justify-center">
-            <button
-              onClick={() => setShowAllHeroes(!showAllHeroes)}
-              className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white text-xs font-black uppercase tracking-widest px-6 py-3 rounded-full hover:bg-orange-600 hover:text-white transition-colors"
-            >
-              {showAllHeroes ? (
-                <>Show Less <ChevronUp size={14} /></>
-              ) : (
-                <>Show More ({superheros.length - 4} others) <ChevronDown size={14} /></>
-              )}
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );
