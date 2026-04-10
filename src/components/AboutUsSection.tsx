@@ -44,14 +44,6 @@ const AboutUsSection = () => {
     "X. Ensure every member acts as a superhero, building the foundation for others to rise."
   ];
 
-  const tiers = [
-    { role: "Partner", image: partnerImg, price: "Forever Free", benefit: "Ethical stakeholder support.", button: "I'm Partner" },
-    { role: "Normies", image: scoutImg, price: "From $1 pm", benefit: "Enjoy life, work, and family.", button: "I'm Normal" },
-    { role: "Superheros", image: stormtrooperImg, price: "From $5 pm", benefit: "10x Superbot powers for good.", button: "I'm SuperHero" },
-    { role: "Angels", image: angelImg, price: "From $50 pm", benefit: "Fuel the mission, share magic.", button: "I'm Angel" },
-    { role: "SuperFarmers", image: farmerImg, price: "From $500 pm", benefit: "Boost ecosystem growth.", button: "I'm SuperFarmer" },
-  ];
-
   const brandFiles = [
     { name: "2026 Daily Timetable", path: "SchedulePDF", type: "pdf" }, 
     { name: "The Masterplan", path: "MasterplanPDF", type: "pdf" },
@@ -205,29 +197,6 @@ const AboutUsSection = () => {
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-
-        <div id="tiers" className="mt-24 space-y-12">
-          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-center">
-            {tiers.map((tier, i) => (
-              <div key={i} className={`p-10 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500 ${i === 4 ? 'md:col-start-2' : ''}`}>
-                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-8 bg-zinc-100 dark:bg-zinc-800 transform group-hover:scale-105 transition-transform duration-500">
-                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
-                </div>
-                <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
-                <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 italic mb-8 leading-relaxed h-12 flex items-center justify-center">"{tier.benefit}"</p>
-                <Link 
-                  to="/login" 
-                  onClick={playClickSound}
-                  className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-all shadow-lg"
-                >
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
           </div>
         </div>
 
