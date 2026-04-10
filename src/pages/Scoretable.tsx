@@ -4,32 +4,30 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Users, Filter, Loader2, Search, X,
   Heart, DollarSign, Lightbulb, Zap, Download, Users as TribeIcon,
+  LogIn, Share2, Award
 } from "lucide-react";
 import AboutUsSection from "@/components/AboutUsSection";
 import HeroSection from "@/components/HeroSection";
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
-  const [tribeChallenges, setTribeChallenges] = useState<any[]>([]);
-  const [tribeLeaderboard, setTribeLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingChallenges, setLoadingChallenges] = useState(false); // Start false, trigger when rank ready
-  const [loadingTribeLb, setLoadingTribeLb] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("followers");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userRank, setUserRank] = useState<string | null>(null);
-  const [challengeError, setChallengeError] = useState<string | null>(null);
 
   // Referral states
   const [referralLink, setReferralLink] = useState<string>('');
   const [referredCount, setReferredCount] = useState<number>(0);
-  const [loadingReferral, setLoadingReferral] = useState(true);
-  const [referralError, setReferralError] = useState<string | null>(null);
 
-  const filterRef = useRef<HTMLDivElement>(null);
+  // Hardcoded Static Challenges
+  const staticChallenges = [
+    { id: 1, title: "1. Login", goal: "Access your dashboard daily to maintain your streak.", icon: <LogIn size={20} className="text-orange-500" /> },
+    { id: 2, title: "2. Track Good Deeds", goal: "Log your daily impact and contributions to the community.", icon: <Award size={20} className="text-orange-500" /> },
+    { id: 3, title: "3. Spread The Word", goal: "Share the mission and recruit new agents to the foundation.", icon: <Share2 size={20} className="text-orange-500" /> },
+  ];
 
   const rankPriority: Record<string, number> = {
     "SuperFarmer": 1,
@@ -38,17 +36,7 @@ const Scoretable = () => {
     "Normie": 4
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        setIsFilterOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // 1. INITIAL LOAD: Get Auth User and their Rank Name
+  // 1. INITIAL LOAD: Get Auth User and their Rank
   useEffect(() => {
     const initUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -56,119 +44,19 @@ const Scoretable = () => {
         setCurrentUserId(user.id);
         const { data: profile } = await supabase
           .from('profiles')
-          .select('rank')
+          .select('rank, referral_code, referral_count')
           .eq('id', user.id)
           .single();
         
-        if (profile?.rank) {
-          setUserRank(profile.rank); // This will trigger the useEffect that calls fetchTribeChallenges
+        if (profile) {
+          setUserRank(profile.rank);
+          setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
+          setReferredCount(profile.referral_count || 0);
         }
       }
     };
     initUser();
   }, []);
-
-  // 2. Fetch referral data
-  useEffect(() => {
-    const fetchReferral = async () => {
-      setLoadingReferral(true);
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('referral_code, referral_count')
-          .eq('id', user.id)
-          .single();
-        if (profile) {
-          setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
-          setReferredCount(profile.referral_count || 0);
-        }
-      } catch (err) {
-        setReferralError("Failed to load referral");
-      } finally {
-        setLoadingReferral(false);
-      }
-    };
-    fetchReferral();
-  }, []);
-
-  // 3. CORRECTED FETCH: Matches Rank Name -> Tribe ID -> Challenges
-  const fetchTribeChallenges = async (rankName: string) => {
-    setLoadingChallenges(true);
-    setChallengeError(null);
-    try {
-      // Step A: Find the UUID for the rank name
-      const { data: tribeData, error: tribeError } = await supabase
-        .from('tribes')
-        .select('id')
-        .eq('name', rankName)
-        .single();
-
-      if (tribeError || !tribeData) {
-        console.error("Tribe Lookup Error:", tribeError);
-        setTribeChallenges([]);
-        return;
-      }
-
-      const tribeUuid = tribeData.id;
-      const now = new Date().toISOString();
-      
-      console.log(`Fetching challenges for Tribe UUID: ${tribeUuid} where ends_at > ${now}`);
-
-      // Step B: Fetch challenges
-      const { data, error: challengeFetchError } = await supabase
-        .from('tribe_challenges')
-        .select('*')
-        .eq('tribe_id', tribeUuid); // Temporarily REMOVE .gt('ends_at') here to test
-
-      if (challengeFetchError) throw challengeFetchError;
-      
-      console.log("Challenges returned from DB:", data);
-      setTribeChallenges(data || []);
-      
-    } catch (err: any) {
-      console.error("Challenges fetch error:", err);
-      setChallengeError("Failed to load challenges");
-    } finally {
-      setLoadingChallenges(false);
-    }
-  };
-
-  const fetchTribeLeaderboard = async () => {
-    setLoadingTribeLb(true);
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('rank, id, network, happiness_score, econ_score, curiosity_score, current_streak');
-
-      const groups: Record<string, any> = {};
-      data?.forEach(p => {
-        const r = p.rank || "Unknown";
-        if (!groups[r]) groups[r] = { rank: r, count: 0, total_network: 0, happiness: 0, econ: 0, curiosity: 0, streak: 0 };
-        groups[r].count++;
-        groups[r].total_network += (p.network || 0);
-        groups[r].happiness += (p.happiness_score || 0);
-        groups[r].econ += (p.econ_score || 0);
-        groups[r].curiosity += (p.curiosity_score || 0);
-        groups[r].streak += (p.current_streak || 0);
-      });
-
-      const processed = Object.values(groups).map(g => ({
-        ...g,
-        avg_happiness: g.happiness / g.count,
-        avg_econ: g.econ / g.count,
-        avg_curiosity: g.curiosity / g.count,
-        avg_streak: g.streak / g.count,
-      })).sort((a, b) => b.total_network - a.total_network);
-
-      setTribeLeaderboard(processed);
-    } catch (err) {
-      console.error("Leaderboard error:", err);
-    } finally {
-      setLoadingTribeLb(false);
-    }
-  };
 
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
@@ -207,13 +95,7 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchData(searchQuery, sortBy);
-    fetchTribeLeaderboard();
     
-    // Only fetch challenges if we actually have the rank name from the profile
-    if (userRank) {
-      fetchTribeChallenges(userRank);
-    }
-
     const sub = supabase.channel("profiles-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         if (!searchQuery) fetchData("", sortBy);
@@ -222,7 +104,7 @@ const Scoretable = () => {
     return () => {
       supabase.removeChannel(sub);
     };
-  }, [sortBy, searchQuery, userRank]);
+  }, [sortBy, searchQuery]);
 
   const copyReferral = () => {
     if (referralLink) {
@@ -266,7 +148,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* UNIFIED TABLE */}
+        {/* LEADERBOARD TABLE */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
         ) : (
@@ -309,47 +191,36 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* RANK CHALLENGES SECTION */}
+        {/* DAILY OBJECTIVES SECTION */}
         <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl p-8">
-          <h3 className="text-2xl font-black flex items-center gap-3 mb-6 uppercase italic text-orange-600">
-            <TribeIcon size={28} /> {userRank || "Agent"} Challenges
+          <h3 className="text-2xl font-black flex items-center gap-3 mb-8 uppercase italic text-orange-600">
+            <Target size={28} /> Daily Objectives
           </h3>
 
-          {loadingChallenges ? (
-            <div className="flex justify-center py-12"><Loader2 className="animate-spin text-orange-600" size={32} /></div>
-          ) : tribeChallenges.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-6">
-              {tribeChallenges.map((challenge) => {
-                const progress = Math.min((Number(challenge.progress) / Number(challenge.target)) * 100, 100);
-                return (
-                  <div key={challenge.id} className="border border-zinc-700 p-6 rounded-xl bg-black/50 hover:border-orange-500 transition">
-                    <div className="font-bold text-xl mb-2 text-white">{challenge.title}</div>
-                    <p className="text-zinc-400 text-sm mb-4">{challenge.goal}</p>
-                    <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-                      <div className="h-3 bg-gradient-to-r from-orange-600 to-orange-400 transition-all" style={{ width: `${progress}%` }} />
-                    </div>
-                    <div className="flex justify-between text-xs mt-3">
-                      <span className="text-zinc-400 font-mono">{challenge.progress} / {challenge.target}</span>
-                      <span className="text-green-400 font-bold">+{challenge.reward_flame} FLAME</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl text-zinc-500">
-              {challengeError ? challengeError : `No active challenges found for your rank (${userRank}).`}
-            </div>
-          )}
+          <div className="grid md:grid-cols-3 gap-6">
+            {staticChallenges.map((challenge) => (
+              <div key={challenge.id} className="border border-zinc-700 p-6 rounded-xl bg-black/50 hover:border-orange-500 transition-all group">
+                <div className="flex items-center gap-3 mb-3">
+                  {challenge.icon}
+                  <div className="font-bold text-xl text-white group-hover:text-orange-500 transition-colors">{challenge.title}</div>
+                </div>
+                <p className="text-zinc-400 text-sm leading-relaxed">{challenge.goal}</p>
+                <div className="mt-6 pt-4 border-t border-zinc-800 flex justify-end">
+                  <span className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">Active Objective</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* REFERRAL CTA */}
         <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-3xl text-center border border-orange-500/40 shadow-2xl">
           <h3 className="text-4xl font-black mb-4 italic uppercase">Recruit & Explode 🔥</h3>
+          <p className="text-white/80 font-bold mb-6 italic uppercase tracking-widest">Growth is the only priority</p>
           {referralLink && (
             <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6">
               <div className="bg-black/40 p-4 rounded-xl font-mono text-sm border border-white/10">{referralLink}</div>
-              <button onClick={copyReferral} className="px-8 py-4 bg-white text-orange-700 font-black rounded-xl hover:scale-105 transition">COPY LINK</button>
+              <button onClick={copyReferral} className="px-8 py-4 bg-white text-orange-700 font-black rounded-xl hover:scale-105 transition active:scale-95 shadow-xl">COPY LINK</button>
             </div>
           )}
         </div>
