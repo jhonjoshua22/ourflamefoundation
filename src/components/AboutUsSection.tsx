@@ -92,16 +92,7 @@ const AboutUsSection = () => {
     { name: "Flame Foundation Guide", path: "FlameFoundationPDF", type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
   ];
-
-  const sociallinks = [
-    { name: "Magic Worlds", href: "https://www.themagicworlds.org/", icon: Globe },
-    { name: "Customer Service", href: "https://www.facebook.com/OurFlameFoundation/", icon: Facebook },
-    { name: "News", href: "https://x.com/OurFlameFoundtn", icon: Twitter },
-    { name: "TV", href: "https://www.youtube.com/@FlameFoundationTV", icon: Youtube },
-    { name: "Teams", href: "https://www.linkedin.com/company/magic-worlds", icon: Linkedin },
-    { name: "Code", href: "https://github.com/TheMagicWorlds", icon: Github },
-  ];
-
+  
   const steps = [
     { step: "01", title: "1-Click Entry", desc: "Sign up instantly with SSO or Video verification.", icon: <Video />, link: "/login" },
     { step: "02", title: "Daily Mission", desc: "Follow AI-monitored task programs with smart prompts.", icon: <Flame />, link: "/login" },
@@ -239,32 +230,6 @@ const AboutUsSection = () => {
             );
             return isExternal ? <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" className="block h-full">{CardContent}</a> : <Link key={idx} to={item.link || "#"} className="block h-full">{CardContent}</Link>;
           })}
-        </div>
-
-        {/* SOCIALS & SUPPORT */}
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-zinc-100 dark:border-zinc-900 pt-12">
-          <div className="space-y-4">
-            <h4 id="socials" className="text-zinc-900 dark:text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-900 pb-2">Socials</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {sociallinks.map((link, i) => (
-                <a key={i} href={link.href} onClick={playClickSound} target="_blank" rel="noreferrer" className="text-sm text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2 group">
-                  <link.icon size={16} className="text-zinc-400 group-hover:text-orange-600 transition-colors" />
-                  {link.name}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="text-zinc-900 dark:text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-100 dark:border-zinc-900 pb-2">Foundation Support</h4>
-            <div className="flex flex-col gap-3 text-sm text-zinc-500">
-              <p className="flex items-center gap-2"><MapPin size={18} className="text-orange-600"/> UK, PH, IN, PK, BD, GE</p>
-              <a href="https://wa.me/447762293742" onClick={playClickSound} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-orange-600 transition-colors">
-                  <MessageCircle size={18} className="text-orange-600"/> +44 7762 293742
-              </a>
-              <p className="flex items-center gap-2"><Mail size={18} className="text-orange-600"/> help@ourflamefoundation.org</p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center">
