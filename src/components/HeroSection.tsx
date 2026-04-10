@@ -21,7 +21,7 @@ const HeroSection = () => {
             alt="Professionals"
             className="w-full h-full object-cover object-center 
                        brightness-[0.7] contrast-[1.1] 
-                       dark:brightness-[0.4] dark:contrast-125 
+                       /* Removed dark mode brightness/contrast overrides to keep it light */
                        transition-all duration-700"
           />
           
