@@ -145,7 +145,7 @@ const UnifiedFooter = () => {
               <h4 id="socials" className="text-white font-bold text-xs uppercase tracking-widest border-b border-zinc-900 pb-2">Resources</h4>
               <div className="flex flex-col gap-3">
                 {resources.map((link, i) => (
-                  <a key={i} href={link.href} onClick={playClickSound} className="text-[13px] text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
+                  <a key={i} href={link.href} target="_blank" onClick={playClickSound} className="text-[13px] text-zinc-500 hover:text-orange-600 transition-colors flex items-center gap-2">
                     {link.name}
                   </a>
                 ))}
