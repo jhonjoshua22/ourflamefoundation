@@ -149,7 +149,7 @@ const FlameGame = () => {
           </div>
           <div className="text-center flex flex-col items-center">
             <Flag className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">120K+</span>
+            <span className="text-4xl font-black text-black dark:text-white">1M+</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
           </div>
           <div className="text-center flex flex-col items-center">
