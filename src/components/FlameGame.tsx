@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { 
   ChevronRight, 
@@ -53,16 +52,16 @@ const FlameGame = () => {
         setMemberCount(formatNumber(displayCount));
       }
 
-      // 2. Fetch Totals
+      // 2. Fetch Totals - Strictly using 'paid' column now
       const { data, error } = await supabase
         .from('profiles')
-        .select('value, saved, received');
+        .select('value, saved, paid');
 
       if (!error && data) {
-        // Use Math.abs to fix the negative sign issue
+        // Calculations using Math.abs to prevent negative display issues
         const totalV = data.reduce((acc, curr) => acc + Math.abs(Number(curr.value) || 0), 0);
         const totalS = data.reduce((acc, curr) => acc + Math.abs(Number(curr.saved) || 0), 0);
-        const totalP = data.reduce((acc, curr) => acc + Math.abs(Number(curr.received) || 0), 0);
+        const totalP = data.reduce((acc, curr) => acc + Math.abs(Number(curr.paid) || 0), 0);
 
         const moneyFormatter = (val: number) => new Intl.NumberFormat('en-US', {
           style: 'currency',
@@ -178,7 +177,7 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Updated Stats Grid with Matching Icons */}
+        {/* Updated Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
@@ -190,6 +189,12 @@ const FlameGame = () => {
             <Globe className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">1M+</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
+          </div>
+
+          <div className="text-center flex flex-col items-center">
+            <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">100M+</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
@@ -208,12 +213,6 @@ const FlameGame = () => {
             <Gem className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">{totalValue}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
-          </div>
-
-          <div className="text-center flex flex-col items-center">
-            <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">12.8K</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Lives Saved</p>
           </div>
         </div> 
       </div>
