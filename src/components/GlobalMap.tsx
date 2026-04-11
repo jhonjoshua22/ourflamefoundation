@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, MapPin, Mail, User } from "lucide-react";
+import { Search, X, MapPin, Mail, Heart } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
-import logo from "../assets/ourflamelogo.png";
 import defaultAvatar from "../assets/default-user.jpg";
 
 const locations = [
@@ -27,7 +26,6 @@ const GlobalMap = () => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   
-  // Modal & Search States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -51,15 +49,22 @@ const GlobalMap = () => {
 
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
 
-    const flameIcon = window.L.icon({
-      iconUrl: logo,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
-      popupAnchor: [0, -15],
+    // Custom CSS Heart Icon with Flicker Effect
+    const heartIcon = window.L.divIcon({
+      className: 'custom-heart-icon',
+      html: `
+        <div class="heart-flicker">
+          <svg viewBox="0 0 24 24" fill="#ea580c" stroke="none" width="30" height="30">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </div>
+      `,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
     });
 
     locations.forEach((loc) => {
-      window.L.marker([loc.lat, loc.lng], { icon: flameIcon })
+      window.L.marker([loc.lat, loc.lng], { icon: heartIcon })
         .addTo(mapInstance.current)
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 5px;">
@@ -80,7 +85,6 @@ const GlobalMap = () => {
     };
   }, []);
 
-  // Search Logic
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -102,32 +106,45 @@ const GlobalMap = () => {
 
   return (
     <section id="presence" className="bg-background py-20 border-t border-border transition-colors duration-500 relative z-0">
+      
+      {/* Injecting Flicker CSS */}
+      <style>{`
+        @keyframes heart-flicker {
+          0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px #ea580c); }
+          50% { opacity: 0.6; transform: scale(0.9); filter: drop-shadow(0 0 8px #ea580c); }
+          70% { opacity: 0.9; transform: scale(1.05); }
+        }
+        .heart-flicker {
+          animation: heart-flicker 2s infinite ease-in-out;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      `}</style>
+
       <div className="container mx-auto px-6">
         
-        {/* Header */}
         <div className="mb-12 border-l-4 border-orange-600 pl-6">
           <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
             Find Your <span className="text-orange-600 not-italic">Friends</span>
           </h2>
           <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground mt-2">
-            Strategic Infrastructure // Scale Active
+            Strategic Infrastructure // Hearts Active
           </p>
         </div>
 
-        {/* Map Container */}
         <div className="relative border border-border bg-white/5 shadow-2xl overflow-hidden group z-10 rounded-xl">
           <div 
             ref={mapRef} 
             className="w-full h-[600px] cursor-crosshair filter grayscale-[20%] invert-[5%] dark:invert-[90%] dark:hue-rotate-180" 
           />
           
-          <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border pointer-events-none">
+          <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border pointer-events-none text-right">
             <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">Our Flame Foundation</p>
-            <p className="text-xs font-black text-foreground uppercase italic">Active Nodes: {locations.length}</p>
+            <p className="text-xs font-black text-foreground uppercase italic">Hearts Connected: {locations.length}</p>
           </div>
         </div>
 
-        {/* CTA Buttons */}
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -143,7 +160,6 @@ const GlobalMap = () => {
           </Link>
         </div>
 
-        {/* SEARCH MODAL */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div 
@@ -152,7 +168,6 @@ const GlobalMap = () => {
             />
             
             <div className="relative bg-white dark:bg-zinc-950 w-full max-w-xl rounded-2xl border border-border shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-              {/* Modal Header */}
               <div className="p-6 border-b border-border flex justify-between items-center">
                 <h3 className="text-xl font-black uppercase italic text-zinc-900 dark:text-white">
                   Search <span className="text-orange-600 not-italic">Directory</span>
@@ -162,7 +177,6 @@ const GlobalMap = () => {
                 </button>
               </div>
 
-              {/* Search Input */}
               <div className="p-6">
                 <form onSubmit={handleSearch} className="relative">
                   <input
@@ -182,7 +196,6 @@ const GlobalMap = () => {
                   </button>
                 </form>
 
-                {/* Results Area */}
                 <div className="mt-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                   {loading ? (
                     <div className="flex justify-center py-10">
@@ -217,7 +230,7 @@ const GlobalMap = () => {
                     </div>
                   ) : searchQuery && !loading ? (
                     <p className="text-center py-10 text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                      No nodes found for "{searchQuery}"
+                      No hearts found for "{searchQuery}"
                     </p>
                   ) : (
                     <p className="text-center py-10 text-zinc-400 text-[10px] font-bold uppercase tracking-[0.2em]">
