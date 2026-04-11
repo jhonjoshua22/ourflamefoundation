@@ -50,7 +50,7 @@ const UnifiedFooter = () => {
   const socialLinks = [
     { icon: Facebook, href: "https://www.facebook.com/OurFlameFoundation/", label: "Facebook" },
     { icon: Twitter, href: "https://x.com/OurFlameFoundtn", label: "Twitter" },
-    { icon: Youtube, href: "https://www.youtube.com/@MagicworldsTV", label: "Youtube" },
+    { icon: Youtube, href: "https://www.youtube.com/@FlameFoundationTV", label: "Youtube" },
     { icon: MessageSquare, href: "https://discord.com/invite/NcNSaTVNdn", label: "Discord" },
     { icon: Github, href: "https://github.com/TheMagicWorlds", label: "Github" },
     { icon: Linkedin, href: "https://www.linkedin.com/company/magic-worlds", label: "Linkedin" },
@@ -60,7 +60,7 @@ const UnifiedFooter = () => {
     { name: "Magic Worlds", href: "https://www.themagicworlds.org/", icon: Globe },
     { name: "Customer Service", href: "https://www.facebook.com/OurFlameFoundation/", icon: Facebook },
     { name: "News", href: "https://x.com/OurFlameFoundtn", icon: Twitter },
-    { name: "TV", href: "https://www.youtube.com/@magicworldstv", icon: Youtube },
+    { name: "TV", href: "https://www.youtube.com/@FlameFoundationTV", icon: Youtube },
     { name: "Teams", href: "https://www.linkedin.com/company/magic-worlds", icon: Linkedin },
     { name: "Code", href: "https://github.com/TheMagicWorlds", icon: Github },
   ];
