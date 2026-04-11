@@ -6,7 +6,6 @@ import {
   Globe, 
   X, 
   Maximize2, 
-  Wallet, 
   Zap, 
   Gem, 
   HeartHandshake 
@@ -29,7 +28,7 @@ const FlameGame = () => {
   // Stats States
   const [memberCount, setMemberCount] = useState<string>("10K");
   const [totalValue, setTotalValue] = useState<string>("$0");
-  const [totalSaved, setTotalSaved] = useState<string>("$0");
+  const [totalSaved, setTotalSaved] = useState<string>("0"); 
   const [totalPaid, setTotalPaid] = useState<string>("$0");
 
   useEffect(() => {
@@ -52,13 +51,12 @@ const FlameGame = () => {
         setMemberCount(formatNumber(displayCount));
       }
 
-      // 2. Fetch Totals - Strictly using 'paid' column now
+      // 2. Fetch Totals - Strictly 'paid'
       const { data, error } = await supabase
         .from('profiles')
         .select('value, saved, paid');
 
       if (!error && data) {
-        // Calculations using Math.abs to prevent negative display issues
         const totalV = data.reduce((acc, curr) => acc + Math.abs(Number(curr.value) || 0), 0);
         const totalS = data.reduce((acc, curr) => acc + Math.abs(Number(curr.saved) || 0), 0);
         const totalP = data.reduce((acc, curr) => acc + Math.abs(Number(curr.paid) || 0), 0);
@@ -71,8 +69,14 @@ const FlameGame = () => {
           compactDisplay: "short"
         }).format(val);
 
+        const numberFormatter = (val: number) => new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: 1,
+          notation: "compact",
+          compactDisplay: "short"
+        }).format(val);
+
         setTotalValue(moneyFormatter(totalV));
-        setTotalSaved(moneyFormatter(totalS));
+        setTotalSaved(numberFormatter(totalS)); 
         setTotalPaid(moneyFormatter(totalP));
       }
     };
@@ -119,7 +123,6 @@ const FlameGame = () => {
       
       <div className="container mx-auto max-w-7xl relative z-10">
         
-        {/* Title Section */}
         <div className="text-center mb-16 space-y-3">
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-black dark:text-white">
             Welcome to the <span className="text-orange-600">Flame Game</span>
@@ -130,7 +133,6 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* Video Carousel */}
         <div className="relative mb-24 group">
           <button 
             onClick={() => scroll("left")}
@@ -177,7 +179,6 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Updated Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
@@ -204,7 +205,8 @@ const FlameGame = () => {
           </div>
 
           <div className="text-center flex flex-col items-center">
-            <Wallet className="w-6 h-6 text-orange-600 mb-2" />
+            {/* Changed from Wallet to Users */}
+            <Users className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">{totalSaved}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Saved</p>
           </div>
@@ -217,7 +219,6 @@ const FlameGame = () => {
         </div> 
       </div>
 
-      {/* Video Modal */}
       {selectedVideo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-xl transition-all duration-300">
           <button 
