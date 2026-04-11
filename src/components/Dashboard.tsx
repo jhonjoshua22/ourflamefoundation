@@ -100,7 +100,7 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.deeds} />
             </div>
-            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">2. Share<br/>Deeds</h3>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">2. Share</h3>
           </div>
 
           {/* TASK 3: SPREAD THE WORD */}
