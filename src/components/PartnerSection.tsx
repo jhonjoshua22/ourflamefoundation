@@ -128,10 +128,10 @@ const PartnerSection = () => {
       <style>{`
         @keyframes scroll {
           0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-200px * ${partnerLogos.length})); }
+          100% { transform: translateX(calc(-350px * ${partnerLogos.length})); }
         }
         .animate-infinite-scroll {
-          animation: scroll 40s linear infinite;
+          animation: scroll 50s linear infinite;
         }
         .animate-infinite-scroll:hover {
           animation-play-state: paused;
@@ -148,22 +148,22 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        {/* Infinite Scroller */}
-        <div className="relative w-full overflow-hidden mb-32 py-10">
+        {/* Infinite Scroller - Logos 1.75x Larger */}
+        <div className="relative w-full overflow-hidden mb-32 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
-              <div key={`${p.id}-${idx}`} className="w-[200px] flex items-center justify-center px-8">
+              <div key={`${p.id}-${idx}`} className="w-[350px] flex items-center justify-center px-12">
                 <img 
                   src={p.src} 
                   alt={p.alt} 
-                  className="max-h-12 w-auto grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300 rounded-sm"
+                  className="max-h-20 w-auto object-contain rounded-sm"
                 />
               </div>
             ))}
           </div>
-          {/* Gradient Overlays for Fade Effect */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white dark:from-black"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white dark:from-black"></div>
+          {/* Gradient Overlays */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-white dark:from-black"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
         <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
