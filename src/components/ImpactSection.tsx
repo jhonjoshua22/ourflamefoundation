@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Youtube } from "lucide-react";
+import { ChevronDown, ChevronUp, PlayCircle, ArrowUpRight, X, Youtube, Calendar } from "lucide-react";
 import clickSound from "@/assets/button.m4a";
 
 // --- ASSET IMPORTS ---
@@ -30,6 +30,7 @@ import aitraining from "@/assets/aitraining.jpeg";
 import homecare from "@/assets/homecare.jpeg";
 
 const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
+const CALENDLY_LINK = "https://calendly.com/ourflamefoundation/30min?back=1";
 
 const playClickSound = () => {
   new Audio(clickSound).play().catch(() => {});
@@ -81,7 +82,6 @@ const bundleItems = [
   },
 ];
 
-// PRODUCT AREA (Moved from other sections)
 const productItems = [
   { image: food, title: "MO FOOD", description: "Essential Nutrition", details: "Direct supply of nutritional essentials for the community." },
   { image: clothes, title: "MO CLOTHES", description: "Flame Apparel", details: "Sustainable and affordable community clothing lines." },
@@ -92,7 +92,6 @@ const productItems = [
   { image: play2world, title: "PLAY2WORLD", description: "Gaming Tech", details: "Interactive hardware and digital assets for the gaming ecosystem." },
 ];
 
-// THE WORLDS (Specific Sub-Niches)
 const ourWorldItems = [
   { image: football, title: "FOOTBALL WORLD", description: "Sports Ecosystem", details: "Global scouting and training for the beautiful game." },
   { image: art, title: "ART WORLD", description: "Creative Expression", details: "Galleries, training, and digital art marketplaces." },
@@ -222,7 +221,8 @@ const ImpactSection = () => {
                   </p>
                 </div>
 
-                <div className="mt-auto">
+                {/* Button Group Container */}
+                <div className="mt-auto space-y-3">
                   <a 
                     href={YOUTUBE_LINK} 
                     onClick={playClickSound}
@@ -231,6 +231,16 @@ const ImpactSection = () => {
                     className="flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-black uppercase tracking-widest text-xs transition-colors"
                   >
                     <Youtube size={18} /> Watch Live Workshops
+                  </a>
+                  
+                  <a 
+                    href={CALENDLY_LINK} 
+                    onClick={playClickSound}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-3 w-full py-4 border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-black uppercase tracking-widest text-xs transition-all"
+                  >
+                    <Calendar size={18} /> Join Now
                   </a>
                 </div>
               </div>
