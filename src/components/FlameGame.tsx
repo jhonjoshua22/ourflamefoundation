@@ -25,16 +25,20 @@ import moneyPlaceholder from "../assets/money.jpeg";
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
-  const [memberCount, setMemberCount] = useState<string>("0");
+  const [memberCount, setMemberCount] = useState<string>("10,000");
 
-  // Fetch only the exact member count
+  // Fetch member count with a floor of 10,000
   useEffect(() => {
     const fetchMembers = async () => {
       const { count } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
       
-      if (count !== null) setMemberCount(count.toLocaleString());
+      if (count !== null) {
+        // Use database count if >= 10,000, otherwise default to 10,000
+        const displayCount = count < 10000 ? 10000 : count;
+        setMemberCount(displayCount.toLocaleString());
+      }
     };
     fetchMembers();
   }, []);
@@ -137,7 +141,7 @@ const FlameGame = () => {
         </div>
 
         {/* Updated Stats Grid - Exactly 6 Categories */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 pt-4 border-t border-zinc-100 dark:border-zinc-900 pt-24">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white tabular-nums">{memberCount}</span>
