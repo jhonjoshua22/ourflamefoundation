@@ -1,15 +1,16 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { 
   ChevronRight, 
   ChevronLeft, 
   Users, 
-  Flag, 
+  Globe, 
   X, 
   Maximize2, 
-  DollarSign, 
-  TrendingUp, 
-  Heart, 
-  LifeBuoy 
+  Wallet, 
+  Zap, 
+  Gem, 
+  HeartHandshake 
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import clickSound from "../assets/button.m4a"; 
@@ -27,7 +28,7 @@ const FlameGame = () => {
   const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
   
   // Stats States
-  const [memberCount, setMemberCount] = useState<string>("10,000");
+  const [memberCount, setMemberCount] = useState<string>("10K");
   const [totalValue, setTotalValue] = useState<string>("$0");
   const [totalSaved, setTotalSaved] = useState<string>("$0");
   const [totalPaid, setTotalPaid] = useState<string>("$0");
@@ -39,31 +40,41 @@ const FlameGame = () => {
         .from('profiles')
         .select('*', { count: 'exact', head: true });
       
+      const formatNumber = (num: number) => {
+        return new Intl.NumberFormat('en-US', {
+          notation: "compact",
+          compactDisplay: "short",
+          maximumFractionDigits: 1
+        }).format(num);
+      };
+
       if (count !== null) {
         const displayCount = count < 10000 ? 10000 : count;
-        setMemberCount(displayCount.toLocaleString());
+        setMemberCount(formatNumber(displayCount));
       }
 
-      // 2. Fetch Totals for Value, Saved, and Paid (received column)
+      // 2. Fetch Totals
       const { data, error } = await supabase
         .from('profiles')
         .select('value, saved, received');
 
       if (!error && data) {
-        const totalV = data.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
-        const totalS = data.reduce((acc, curr) => acc + (Number(curr.saved) || 0), 0);
-        const totalP = data.reduce((acc, curr) => acc + (Number(curr.received) || 0), 0);
+        // Use Math.abs to fix the negative sign issue
+        const totalV = data.reduce((acc, curr) => acc + Math.abs(Number(curr.value) || 0), 0);
+        const totalS = data.reduce((acc, curr) => acc + Math.abs(Number(curr.saved) || 0), 0);
+        const totalP = data.reduce((acc, curr) => acc + Math.abs(Number(curr.received) || 0), 0);
 
-        const formatter = (val: number) => new Intl.NumberFormat('en-US', {
+        const moneyFormatter = (val: number) => new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: 'USD',
           maximumFractionDigits: 1,
-          notation: val > 999999 ? "compact" : "standard"
+          notation: "compact",
+          compactDisplay: "short"
         }).format(val);
 
-        setTotalValue(formatter(totalV));
-        setTotalSaved(formatter(totalS));
-        setTotalPaid(formatter(totalP));
+        setTotalValue(moneyFormatter(totalV));
+        setTotalSaved(moneyFormatter(totalS));
+        setTotalPaid(moneyFormatter(totalP));
       }
     };
 
@@ -167,7 +178,7 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Stats Grid */}
+        {/* Updated Stats Grid with Matching Icons */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
@@ -176,31 +187,31 @@ const FlameGame = () => {
           </div>
           
           <div className="text-center flex flex-col items-center">
-            <Flag className="w-6 h-6 text-orange-600 mb-2" />
+            <Globe className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">1M+</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
-            <TrendingUp className="w-6 h-6 text-orange-600 mb-2" />
+            <Zap className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">{totalPaid}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Paid</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
-            <DollarSign className="w-6 h-6 text-orange-600 mb-2" />
+            <Wallet className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">{totalSaved}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Saved</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
-            <Heart className="w-6 h-6 text-orange-600 mb-2" />
+            <Gem className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">{totalValue}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
-            <LifeBuoy className="w-6 h-6 text-orange-600 mb-2" />
+            <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">12.8K</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Lives Saved</p>
           </div>
