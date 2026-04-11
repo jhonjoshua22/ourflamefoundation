@@ -150,22 +150,22 @@ const FlameGame = () => {
           <div className="text-center flex flex-col items-center">
             <Flag className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">1M+</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
           </div>
           <div className="text-center flex flex-col items-center">
             <DollarSign className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">$2.4M</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Pay</p>
+            <span className="text-4xl font-black text-black dark:text-white">100M+.4M</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
           </div>
           <div className="text-center flex flex-col items-center">
             <TrendingUp className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">$5.8M</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Revenue</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Paid</p>
           </div>
           <div className="text-center flex flex-col items-center">
             <Heart className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">$1.1M</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Donations</p>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
           </div>
           <div className="text-center flex flex-col items-center">
             <LifeBuoy className="w-6 h-6 text-orange-600 mb-2" />
