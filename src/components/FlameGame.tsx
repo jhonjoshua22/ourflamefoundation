@@ -25,22 +25,49 @@ import moneyPlaceholder from "../assets/money.jpeg";
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
+  
+  // Stats States
   const [memberCount, setMemberCount] = useState<string>("10,000");
+  const [totalValue, setTotalValue] = useState<string>("$0");
+  const [totalSaved, setTotalSaved] = useState<string>("$0");
+  const [totalPaid, setTotalPaid] = useState<string>("$0");
 
-  // Fetch member count with a floor of 10,000
   useEffect(() => {
-    const fetchMembers = async () => {
+    const fetchStats = async () => {
+      // 1. Fetch Member Count
       const { count } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
       
       if (count !== null) {
-        // Use database count if >= 10,000, otherwise default to 10,000
         const displayCount = count < 10000 ? 10000 : count;
         setMemberCount(displayCount.toLocaleString());
       }
+
+      // 2. Fetch Totals for Value, Saved, and Paid (received column)
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('value, saved, received');
+
+      if (!error && data) {
+        const totalV = data.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
+        const totalS = data.reduce((acc, curr) => acc + (Number(curr.saved) || 0), 0);
+        const totalP = data.reduce((acc, curr) => acc + (Number(curr.received) || 0), 0);
+
+        const formatter = (val: number) => new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 1,
+          notation: val > 999999 ? "compact" : "standard"
+        }).format(val);
+
+        setTotalValue(formatter(totalV));
+        setTotalSaved(formatter(totalS));
+        setTotalPaid(formatter(totalP));
+      }
     };
-    fetchMembers();
+
+    fetchStats();
   }, []);
 
   const playClickSound = () => {
@@ -93,7 +120,7 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* Video Carousel with Arrows */}
+        {/* Video Carousel */}
         <div className="relative mb-24 group">
           <button 
             onClick={() => scroll("left")}
@@ -140,33 +167,38 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Updated Stats Grid - Exactly 6 Categories */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white tabular-nums">{memberCount}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Members</p>
           </div>
+          
           <div className="text-center flex flex-col items-center">
             <Flag className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">1M+</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
           </div>
-          <div className="text-center flex flex-col items-center">
-            <DollarSign className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">100M+.4M</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
-          </div>
+
           <div className="text-center flex flex-col items-center">
             <TrendingUp className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">$5.8M</span>
+            <span className="text-4xl font-black text-black dark:text-white">{totalPaid}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Paid</p>
           </div>
+
+          <div className="text-center flex flex-col items-center">
+            <DollarSign className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">{totalSaved}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Saved</p>
+          </div>
+
           <div className="text-center flex flex-col items-center">
             <Heart className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">$1.1M</span>
+            <span className="text-4xl font-black text-black dark:text-white">{totalValue}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
           </div>
+
           <div className="text-center flex flex-col items-center">
             <LifeBuoy className="w-6 h-6 text-orange-600 mb-2" />
             <span className="text-4xl font-black text-black dark:text-white">12.8K</span>
