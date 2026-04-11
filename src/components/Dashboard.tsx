@@ -89,8 +89,7 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.login} />
             </div>
-            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">1. Login</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Access your account to start the day.</p>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">1. Help</h3>
           </div>
 
           {/* TASK 2: TRACK GOOD DEEDS */}
@@ -101,8 +100,7 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.deeds} />
             </div>
-            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">2. Track<br/>Deeds</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Log your helpful actions for today.</p>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">2. Share<br/>Deeds</h3>
           </div>
 
           {/* TASK 3: SPREAD THE WORD */}
@@ -113,8 +111,7 @@ const Dashboard = () => {
               </div>
               <StatusIndicator status={taskStatus.spread} />
             </div>
-            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">3. Spread<br/>Word</h3>
-            <p className="text-zinc-500 text-xs font-bold uppercase tracking-wide mb-8">Share the mission with others.</p>
+            <h3 className="text-5xl font-black uppercase italic text-black dark:text-white mb-4">3. Enjoy</h3>
           </div>
 
         </div>
