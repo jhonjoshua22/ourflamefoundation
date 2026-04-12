@@ -45,11 +45,11 @@ const partnerLogos = [
 
 const PartnerSection = () => {
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
-    superfarmer: [],
-    angel: [],
-    superhero: [],
-    normie: [],
-    partner: []
+    SuperFarmer: [],
+    Angel: [],
+    SuperHero: [],
+    Normie: [],
+    Partner: []
   });
 
   useEffect(() => {
@@ -67,42 +67,46 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
+    // 1. Added avatar_url to selection to catch Google Profile Pics
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, rank, photo_url, avatar_url, linkedin_link, email")
+      .select("id, display_name, rank, photo_url, avatar_url, linkedin_link")
       .order('display_name', { ascending: true });
 
     if (error) {
-      console.error("Supabase Error:", error);
+      console.error("Fetch error:", error);
       return;
     }
 
-    // Initialize with lowercase keys to prevent case-sensitivity issues
     const categorized: { [key: string]: any[] } = {
-      superfarmer: [], angel: [], superhero: [], normie: [], partner: []
+      SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
     };
 
     data?.forEach((user) => {
+      // 2. Logic to pick the best image (Gmail/Google pic usually in avatar_url)
       const finalImage = user.photo_url || user.avatar_url || defaultAvatar;
 
       const member = {
         id: user.id,
-        name: user.display_name || "Anonymous Member",
+        name: user.display_name || "Anonymous",
         image: finalImage,
         linkedin: user.linkedin_link || "#",
       };
+
+      // 3. Robust Case Handling: Convert DB rank to match state keys
+      const rawRank = user.rank ? user.rank.trim() : "Normie";
       
-      // Clean the rank string (e.g., "SuperFarmer" -> "superfarmer")
-      const rankKey = (user.rank || "normie").toLowerCase().trim();
+      // Map potential variations to your exact state keys
+      let rankKey = "Normie";
+      if (/superfarmer/i.test(rawRank)) rankKey = "SuperFarmer";
+      else if (/angel/i.test(rawRank)) rankKey = "Angel";
+      else if (/superhero/i.test(rawRank)) rankKey = "SuperHero";
+      else if (/partner/i.test(rawRank)) rankKey = "Partner";
 
       if (categorized[rankKey]) {
         categorized[rankKey].push(member);
-      } else {
-        // Fallback: If rank doesn't match exactly, put them in Normie so they are visible
-        categorized.normie.push(member);
       }
     });
-
     setGroups(categorized);
   };
 
@@ -119,12 +123,12 @@ const PartnerSection = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
         {members.map((p) => (
           <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
-            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300 bg-zinc-200 dark:bg-zinc-800">
+            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-zinc-200 dark:border-zinc-800 group-hover:border-orange-600 transition-all duration-300 shadow-sm">
               <img 
                 src={p.image} 
                 alt={p.name} 
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
+                referrerPolicy="no-referrer" // 4. Crucial for Google/Gmail images to load
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
@@ -185,13 +189,14 @@ const PartnerSection = () => {
           <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        <GroupDisplay displayTitle="SuperFarmers" members={groups.superfarmer} />
-        <GroupDisplay displayTitle="Angels" members={groups.angel} />
-        <GroupDisplay displayTitle="SuperHeroes" members={groups.superhero} />
-        <GroupDisplay displayTitle="Normies" members={groups.normie} />
-        <GroupDisplay displayTitle="Partners" members={groups.partner} />
+        {/* Displays the Categories */}
+        <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
+        <GroupDisplay displayTitle="Angels" members={groups.Angel} />
+        <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
+        <GroupDisplay displayTitle="Normies" members={groups.Normie} />
+        <GroupDisplay displayTitle="Partners" members={groups.Partner} />
 
-        {/* Brand/Incubator Card */}
+        {/* Brand Card */}
         <div className="mt-32 p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-3xl relative overflow-hidden shadow-2xl">
           <Sparkles className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
           <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
