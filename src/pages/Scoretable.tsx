@@ -184,7 +184,7 @@ const Scoretable = () => {
                       </td>
 
                       <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
-                      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
+                      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}</td>
                       <td className="p-5 text-right text-purple-400 font-black italic">
                          <div className="flex items-center justify-end gap-1">
                             <Gem size={14} />
