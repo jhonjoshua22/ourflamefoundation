@@ -74,7 +74,7 @@ const Dashboard = () => {
             <Radio size={14} className="animate-pulse" /> Mission Control System
           </div>
           <h1 className="text-7xl md:text-9xl font-black uppercase italic tracking-tighter leading-[0.8] text-black dark:text-white">
-            FLAMING<br />PRIORITIES
+            DAILY<br />TASKS
           </h1>
         </div>
 
