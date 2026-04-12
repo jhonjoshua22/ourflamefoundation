@@ -117,11 +117,10 @@ const PartnerSection = () => {
         </Link>
       </div>
 
-      {/* Grid for the 6 people within the category */}
       <div className="grid grid-cols-2 gap-3">
         {members.map((p) => (
-          <div key={p.id} className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/40 rounded-xl border border-transparent hover:border-orange-600/20 transition-all">
-            <div className="w-12 h-12 shrink-0 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+          <div key={p.id} className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/40 rounded-xl border border-transparent hover:border-orange-600/20 transition-all">
+            <div className="w-14 h-14 shrink-0 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700">
               <img 
                 src={p.image || defaultAvatar} 
                 alt={p.name} 
@@ -130,10 +129,17 @@ const PartnerSection = () => {
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
-            <div className="flex flex-col min-w-0">
-              <h3 className="text-[9px] font-black uppercase dark:text-white truncate">{p.name}</h3>
-              <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-orange-600 transition-colors">
-                <Linkedin size={12} />
+            <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+              <h3 className="text-[12px] font-black uppercase dark:text-white truncate">
+                {p.name}
+              </h3>
+              <a 
+                href={p.linkedin} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-zinc-400 hover:text-orange-600 transition-colors shrink-0"
+              >
+                <Linkedin size={14} />
               </a>
             </div>
           </div>
