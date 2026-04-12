@@ -67,10 +67,10 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // Included 'email' in the selection to fetch Gmail avatars if needed
+    // We fetch both photo_url (custom upload) and avatar_url (auth provider/gmail)
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, rank, photo_url, linkedin_link, email")
+      .select("id, display_name, rank, photo_url, avatar_url, linkedin_link, email")
       .order('display_name', { ascending: true });
 
     if (error) return;
@@ -80,15 +80,16 @@ const PartnerSection = () => {
     };
 
     data?.forEach((user) => {
-      // Logic: Use photo_url, fallback to Gravatar (Gmail), finally use defaultAvatar
-      const gmailAvatar = user.email 
-        ? `https://www.gravatar.com/avatar/${btoa(user.email.toLowerCase()).replace(/=/g, "")}?d=identicon` 
-        : defaultAvatar;
+      // PRIORITY: 
+      // 1. Custom Upload (photo_url)
+      // 2. Auth Provider/Google Image (avatar_url)
+      // 3. Default Local Asset
+      const finalImage = user.photo_url || user.avatar_url || defaultAvatar;
 
       const member = {
         id: user.id,
         name: user.display_name,
-        image: user.photo_url || gmailAvatar,
+        image: finalImage,
         linkedin: user.linkedin_link || "#",
       };
       
@@ -112,11 +113,12 @@ const PartnerSection = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
         {members.map((p) => (
           <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
-            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300">
+            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300 bg-zinc-200 dark:bg-zinc-800">
               <img 
-                src={p.image || defaultAvatar} 
+                src={p.image} 
                 alt={p.name} 
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer" // Important for Google/Gmail images to load correctly
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
@@ -160,6 +162,7 @@ const PartnerSection = () => {
           </a>
         </div>
 
+        {/* Infinite Scroller */}
         <div className="relative w-full overflow-hidden mb-32 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
