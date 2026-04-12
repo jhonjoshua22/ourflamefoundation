@@ -4,7 +4,7 @@ import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Search, Zap, Download, 
-  ChevronRight, Video, Bot, Users, Activity, ShieldCheck
+  ChevronRight, Video, Bot, Users, Activity, ShieldCheck, Filter
 } from "lucide-react";
 
 import AboutUsSection from "@/components/AboutUsSection";
@@ -36,7 +36,6 @@ const Scoretable = () => {
     { role: "SuperFounder", image: founderImg, price: "From $5,000 pm", benefit: "Founding legacy & elite governance.", button: "I'm SuperFounder" },
   ];
 
-  // UPDATED FLAMING PRIORITIES
   const staticChallenges = [
     { id: 1, title: "1. DO GOOD & SHARE", goal: "Share video on Clapmi to set good example and inspire the network.", icon: <Video size={24} className="text-orange-500" /> },
     { id: 2, title: "2. SUPERBOTS", goal: "Build your dreams & add to our $1 PM Wholesale Family Pack. Keep your markup.", icon: <Bot size={24} className="text-orange-500" /> },
@@ -48,7 +47,8 @@ const Scoretable = () => {
     "SuperFarmer": 1,
     "Angel": 2,
     "SuperHero": 3,
-    "Normie": 4
+    "Normie": 4,
+    "Partner": 5
   };
 
   useEffect(() => {
@@ -61,7 +61,6 @@ const Scoretable = () => {
           .select('referral_code')
           .eq('id', user.id)
           .single();
-        
         if (profile) {
           setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
         }
@@ -79,8 +78,6 @@ const Scoretable = () => {
 
       let qb = supabase.from('profiles').select(`*`);
       if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
-      if (!query) qb = qb.limit(50);
-
       const { data, error } = await qb;
       if (error) throw error;
 
@@ -92,13 +89,13 @@ const Scoretable = () => {
 
       let sorted = [...processed];
       if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
-      else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] || 99) - (rankPriority[b.rank] || 99));
+      else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
       else if (currentSort === "valuation") sorted.sort((a, b) => (b.valuation || 0) - (a.valuation || 0));
       else if (currentSort === "streak") sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
 
       setLeaders(sorted.slice(0, 10));
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -106,15 +103,6 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchData(searchQuery, sortBy);
-    
-    const sub = supabase.channel("profiles-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
-        if (!searchQuery) fetchData("", sortBy);
-      }).subscribe();
-
-    return () => {
-      supabase.removeChannel(sub);
-    };
   }, [sortBy, searchQuery]);
 
   return (
@@ -144,7 +132,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* SCORETABLE HEADER */}
+        {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-widest text-xs">
@@ -172,36 +160,50 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* LEADERBOARD */}
+        {/* LEADERBOARD - UPDATED: NO RANK COLUMNS */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
         ) : (
           <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
-            <div className="p-6 border-b border-zinc-800 bg-black/40 relative">
-              <div className="absolute inset-0 bg-cover opacity-10" style={{ backgroundImage: `url(${scoretableBg})` }} />
+            <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col md:flex-row justify-between items-center gap-4 relative">
+              <div className="absolute inset-0 bg-cover opacity-10 pointer-events-none" style={{ backgroundImage: `url(${scoretableBg})` }} />
               <h2 className="relative text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
+              
+              <div className="relative flex items-center gap-2 bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-lg group">
+                <Filter size={14} className="text-zinc-500" />
+                <span className="text-[10px] font-black uppercase text-zinc-400">Sort By:</span>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent text-xs font-black uppercase outline-none cursor-pointer text-white focus:text-orange-500 transition-colors"
+                >
+                  <option value="rank" className="bg-zinc-900">Rank</option>
+                  <option value="streak" className="bg-zinc-900">Streak</option>
+                  <option value="followers" className="bg-zinc-900">Followers</option>
+                  <option value="valuation" className="bg-zinc-900">Valuation</option>
+                </select>
+              </div>
             </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px]">
+              <table className="w-full min-w-[800px]">
                 <thead>
                   <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800 text-left">
-                    <th className="p-5">Rank</th>
                     <th className="p-5">Agent</th>
                     <th className="p-5">Streak</th>
                     <th className="p-5">Followers</th>
                     <th className="p-5">Valuation</th>
-                    <th className="p-5">Share</th>
+                    <th className="p-5 text-right">Share</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
-                  {leaders.map((agent, idx) => (
-                    <tr key={agent.id} className={`hover:bg-zinc-900/70 ${agent.id === currentUserId ? 'bg-orange-950/40 border-l-4 border-orange-600' : ''}`}>
-                      <td className="p-5 text-orange-400 font-black text-xl">{idx + 1}</td>
-                      <td className="p-5 font-bold">
-                        {agent.display_name || "Anonymous"}
-                        <div className="text-[10px] text-zinc-500 uppercase font-black">{agent.rank}</div>
+                  {leaders.map((agent) => (
+                    <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
+                      <td className="p-5">
+                        <div className="font-bold text-lg">{agent.display_name || "Anonymous"}</div>
+                        <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">{agent.rank}</div>
                       </td>
-                      <td className="p-5 text-green-400 font-mono"><Zap size={16} className="inline mr-1" />{agent.current_streak || 0}d</td>
+                      <td className="p-5 text-green-400 font-mono"><Zap size={14} className="inline mr-1" />{agent.current_streak || 0}d</td>
                       <td className="p-5 text-zinc-300">{agent.followers.toLocaleString()}</td>
                       <td className="p-5 text-purple-400 font-mono">${agent.valuation?.toLocaleString()}</td>
                       <td className="p-5 text-right">
@@ -215,19 +217,13 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* FLAMING PRIORITIES OBJECTIVES */}
+        {/* DAILY TASKS */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
           <div className="flex justify-between items-center mb-10">
             <h3 className="text-3xl font-black flex items-center gap-3 uppercase italic text-orange-600">
               <Target size={32} /> Daily Tasks
             </h3>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Green: Daily</span></div>
-              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Amber: Weekly</span></div>
-              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Red: MIA</span></div>
-            </div>
           </div>
-          
           <div className="grid md:grid-cols-3 gap-8">
             {staticChallenges.map((challenge) => (
               <div key={challenge.id} className="border border-zinc-800 p-8 rounded-3xl bg-black hover:border-orange-600 transition-all group">
@@ -250,7 +246,6 @@ const Scoretable = () => {
               <Activity className="text-orange-600" size={32} />
               <h2 className="text-4xl font-black uppercase italic tracking-tighter">MBI Rewards Ledger</h2>
             </div>
-            
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {[
                 { rank: "Normies / Partners", val: "Free & Premium Content" },
@@ -271,9 +266,6 @@ const Scoretable = () => {
         {/* RECRUIT CTA */}
         {referralLink && (
           <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-[3rem] text-center border border-orange-500/40 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white rounded-full blur-[120px]" />
-            </div>
             <div className="relative z-10">
               <h3 className="text-4xl md:text-5xl font-black mb-4 italic uppercase tracking-tighter">Recruit & Explode 🔥</h3>
               <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-8 italic">Add to our $1 PM Wholesale Family Pack</p>
@@ -281,21 +273,16 @@ const Scoretable = () => {
                 <div className="bg-black/40 p-5 rounded-2xl font-mono text-sm border border-white/10 break-all w-full md:w-auto">{referralLink}</div>
                 <button 
                   onClick={() => { navigator.clipboard.writeText(referralLink); alert("Copied!"); }} 
-                  className="whitespace-nowrap px-10 py-5 bg-white text-orange-700 font-black rounded-2xl hover:scale-105 transition active:scale-95 shadow-2xl"
+                  className="whitespace-nowrap px-10 py-5 bg-white text-orange-700 font-black rounded-2xl hover:scale-105 transition shadow-xl"
                 >
                   COPY LINK
                 </button>
-              </div>
-              <div className="mt-8 flex items-center justify-center gap-2 opacity-60">
-                <ShieldCheck size={14} />
-                <span className="text-[9px] font-black uppercase tracking-widest">Concessions Available // Markup Retained</span>
               </div>
             </div>
           </div>
         )}
 
       </div>
-      
       <AboutUsSection />
       <HeroSection />
     </div>
