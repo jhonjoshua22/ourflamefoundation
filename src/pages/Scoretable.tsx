@@ -4,19 +4,19 @@ import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Search, Zap, Download, 
-  ChevronRight, LogIn, Share2, Award
+  ChevronRight, Video, Bot, Users, Activity, ShieldCheck
 } from "lucide-react";
 
 import AboutUsSection from "@/components/AboutUsSection";
 import HeroSection from "@/components/HeroSection";
 
-// Tier Image Imports - Updated to match your specific filenames
+// Tier Image Imports
 import partnerImg from "../assets/partners.jpg"; 
 import scoutImg from "../assets/scout.png";
 import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
 import farmerImg from "../assets/superfarmer.png";
-import founderImg from "../assets/founder.png"; // Placeholder for SuperFounder
+import founderImg from "../assets/founder.png";
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -36,10 +36,11 @@ const Scoretable = () => {
     { role: "SuperFounder", image: founderImg, price: "From $5,000 pm", benefit: "Founding legacy & elite governance.", button: "I'm SuperFounder" },
   ];
 
+  // UPDATED FLAMING PRIORITIES
   const staticChallenges = [
-    { id: 1, title: "1. Login", goal: "Access your dashboard daily to maintain your streak.", icon: <LogIn size={20} className="text-orange-500" /> },
-    { id: 2, title: "2. Track Good Deeds", goal: "Log your daily impact and contributions to the community.", icon: <Award size={20} className="text-orange-500" /> },
-    { id: 3, title: "3. Spread The Word", goal: "Share the mission and recruit new agents to the foundation.", icon: <Share2 size={20} className="text-orange-500" /> },
+    { id: 1, title: "1. DO GOOD & SHARE", goal: "Share video on Clapmi to set good example and inspire the network.", icon: <Video size={24} className="text-orange-500" /> },
+    { id: 2, title: "2. SUPERBOTS", goal: "Build your dreams & add to our $1 PM Wholesale Family Pack. Keep your markup.", icon: <Bot size={24} className="text-orange-500" /> },
+    { id: 3, title: "3. RECRUIT 10", goal: "Recruit 10 people from age decile below you per week thru family friends network.", icon: <Users size={24} className="text-orange-500" /> },
   ];
 
   const rankPriority: Record<string, number> = {
@@ -125,16 +126,16 @@ const Scoretable = () => {
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
             {tiers.map((tier, i) => (
-              <div key={i} className="p-10 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500">
-                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl mb-8 bg-zinc-100 dark:bg-zinc-800 transform group-hover:scale-105 transition-transform duration-500">
+              <div key={i} className="p-10 bg-zinc-900/50 border border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500">
+                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-zinc-800 shadow-2xl mb-8 bg-zinc-800 transform group-hover:scale-105 transition-transform duration-500">
                   <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                 </div>
-                <h4 className="text-2xl font-black text-zinc-900 dark:text-white uppercase italic mb-2">{tier.role}</h4>
+                <h4 className="text-2xl font-black text-white uppercase italic mb-2">{tier.role}</h4>
                 <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 italic mb-8 leading-relaxed h-12 flex items-center justify-center">"{tier.benefit}"</p>
+                <p className="text-sm text-zinc-400 italic mb-8 leading-relaxed h-12 flex items-center justify-center">"{tier.benefit}"</p>
                 <Link 
                   to="/login" 
-                  className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 dark:hover:bg-orange-600 hover:text-white transition-all shadow-lg"
+                  className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-white text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 hover:text-white transition-all shadow-lg"
                 >
                   {tier.button} <ChevronRight size={14} />
                 </Link>
@@ -143,7 +144,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* HEADER */}
+        {/* SCORETABLE HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 border-b border-zinc-800 pb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-widest text-xs">
@@ -214,36 +215,81 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* DAILY OBJECTIVES */}
-        <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-8 mb-12">
-          <h3 className="text-2xl font-black flex items-center gap-3 mb-8 uppercase italic text-orange-600">
-            <Target size={28} /> Daily Objectives
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6">
+        {/* FLAMING PRIORITIES OBJECTIVES */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
+          <div className="flex justify-between items-center mb-10">
+            <h3 className="text-3xl font-black flex items-center gap-3 uppercase italic text-orange-600">
+              <Target size={32} /> Flaming Priorities
+            </h3>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Green: Daily</span></div>
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Amber: Weekly</span></div>
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Red: MIA</span></div>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
             {staticChallenges.map((challenge) => (
-              <div key={challenge.id} className="border border-zinc-700 p-6 rounded-xl bg-black/50 hover:border-orange-500 transition-all group">
-                <div className="flex items-center gap-3 mb-3">
-                  {challenge.icon}
-                  <div className="font-bold text-xl text-white group-hover:text-orange-500 transition-colors">{challenge.title}</div>
+              <div key={challenge.id} className="border border-zinc-800 p-8 rounded-3xl bg-black hover:border-orange-600 transition-all group">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 bg-zinc-900 rounded-2xl group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                    {challenge.icon}
+                  </div>
+                  <div className="font-black text-xl text-white uppercase italic tracking-tighter leading-none">{challenge.title}</div>
                 </div>
-                <p className="text-zinc-400 text-sm leading-relaxed">{challenge.goal}</p>
+                <p className="text-zinc-500 text-xs font-bold uppercase leading-relaxed">{challenge.goal}</p>
               </div>
             ))}
           </div>
         </div>
 
+        {/* MBI REWARDS TABLE */}
+        <div className="bg-zinc-900/30 border border-zinc-800 rounded-[3rem] p-10 md:p-14 mb-12 relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-12">
+              <Activity className="text-orange-600" size={32} />
+              <h2 className="text-4xl font-black uppercase italic tracking-tighter">MBI Rewards Ledger</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              {[
+                { rank: "Normies / Partners", val: "Free & Premium Content" },
+                { rank: "Superheros", val: "$5-25 PW" },
+                { rank: "Angels", val: "$25-50 PW" },
+                { rank: "Superfarmers", val: "$50-100 PM" },
+                { rank: "Superfounders", val: "$100-500 PW" }
+              ].map((item, i) => (
+                <div key={i}>
+                  <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">{item.rank}</p>
+                  <p className="text-lg font-black uppercase italic">{item.val}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* RECRUIT CTA */}
         {referralLink && (
-          <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-3xl text-center border border-orange-500/40 shadow-2xl">
-            <h3 className="text-4xl font-black mb-4 italic uppercase">Recruit & Explode 🔥</h3>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6">
-              <div className="bg-black/40 p-4 rounded-xl font-mono text-sm border border-white/10 break-all">{referralLink}</div>
-              <button 
-                onClick={() => { navigator.clipboard.writeText(referralLink); alert("Copied!"); }} 
-                className="whitespace-nowrap px-8 py-4 bg-white text-orange-700 font-black rounded-xl hover:scale-105 transition active:scale-95"
-              >
-                COPY LINK
-              </button>
+          <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-[3rem] text-center border border-orange-500/40 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white rounded-full blur-[120px]" />
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-4xl md:text-5xl font-black mb-4 italic uppercase tracking-tighter">Recruit & Explode 🔥</h3>
+              <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-8 italic">Add to our $1 PM Wholesale Family Pack</p>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6">
+                <div className="bg-black/40 p-5 rounded-2xl font-mono text-sm border border-white/10 break-all w-full md:w-auto">{referralLink}</div>
+                <button 
+                  onClick={() => { navigator.clipboard.writeText(referralLink); alert("Copied!"); }} 
+                  className="whitespace-nowrap px-10 py-5 bg-white text-orange-700 font-black rounded-2xl hover:scale-105 transition active:scale-95 shadow-2xl"
+                >
+                  COPY LINK
+                </button>
+              </div>
+              <div className="mt-8 flex items-center justify-center gap-2 opacity-60">
+                <ShieldCheck size={14} />
+                <span className="text-[9px] font-black uppercase tracking-widest">Concessions Available // Markup Retained</span>
+              </div>
             </div>
           </div>
         )}
