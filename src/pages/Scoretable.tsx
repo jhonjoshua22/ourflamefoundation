@@ -4,7 +4,8 @@ import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Search, Zap, Download, 
-  ChevronRight, Video, Bot, Users, Activity, ShieldCheck, Filter
+  ChevronRight, Video, Bot, Users, Activity, ShieldCheck, Filter,
+  Heart, CreditCard, BarChart3, Gem
 } from "lucide-react";
 
 import AboutUsSection from "@/components/AboutUsSection";
@@ -76,7 +77,11 @@ const Scoretable = () => {
       const total = (all || []).reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
       setStats({ totalMembers: total });
 
-      let qb = supabase.from('profiles').select(`*`);
+      let qb = supabase.from('profiles').select(`
+        id, display_name, rank, paid, facebook, linkedin, 
+        engagement, value, saved_count, email, current_streak
+      `);
+      
       if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
       const { data, error } = await qb;
       if (error) throw error;
@@ -84,13 +89,15 @@ const Scoretable = () => {
       const processed = (data || []).map(item => ({
         ...item,
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
-        referral_count: Number(item.referral_count || 0),
       }));
 
       let sorted = [...processed];
+      
       if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
       else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
-      else if (currentSort === "valuation") sorted.sort((a, b) => (b.valuation || 0) - (a.valuation || 0));
+      else if (currentSort === "value") sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
+      else if (currentSort === "engagement") sorted.sort((a, b) => (b.engagement || 0) - (a.engagement || 0));
+      else if (currentSort === "saved") sorted.sort((a, b) => (b.saved_count || 0) - (a.saved_count || 0));
       else if (currentSort === "streak") sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
 
       setLeaders(sorted.slice(0, 10));
@@ -109,7 +116,7 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
         
-        {/* MEMBERSHIP TIERS */}
+        {/* MEMBERSHIP TIERS (Unchanged) */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
@@ -121,10 +128,7 @@ const Scoretable = () => {
                 <h4 className="text-2xl font-black text-white uppercase italic mb-2">{tier.role}</h4>
                 <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
                 <p className="text-sm text-zinc-400 italic mb-8 leading-relaxed h-12 flex items-center justify-center">"{tier.benefit}"</p>
-                <Link 
-                  to="/login" 
-                  className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-white text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 hover:text-white transition-all shadow-lg"
-                >
+                <Link to="/login" className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-white text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 hover:text-white transition-all shadow-lg">
                   {tier.button} <ChevronRight size={14} />
                 </Link>
               </div>
@@ -160,7 +164,7 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* LEADERBOARD - UPDATED: NO RANK COLUMNS */}
+        {/* LEADERBOARD */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
         ) : (
@@ -177,37 +181,77 @@ const Scoretable = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="bg-transparent text-xs font-black uppercase outline-none cursor-pointer text-white focus:text-orange-500 transition-colors"
                 >
-                  <option value="rank" className="bg-zinc-900">Rank</option>
-                  <option value="streak" className="bg-zinc-900">Streak</option>
                   <option value="followers" className="bg-zinc-900">Followers</option>
-                  <option value="valuation" className="bg-zinc-900">Valuation</option>
+                  <option value="value" className="bg-zinc-900">Value</option>
+                  <option value="engagement" className="bg-zinc-900">Engagement</option>
+                  <option value="saved" className="bg-zinc-900">Saved</option>
+                  <option value="streak" className="bg-zinc-900">Streak</option>
+                  <option value="rank" className="bg-zinc-900">Rank</option>
                 </select>
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
+              <table className="w-full min-w-[900px]">
                 <thead>
-                  <tr className="bg-zinc-900 text-xs uppercase text-zinc-400 border-b border-zinc-800 text-left">
-                    <th className="p-5">Agent</th>
-                    <th className="p-5">Streak</th>
+                  <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
+                    <th className="p-5">Display Name</th>
+                    <th className="p-5">Rank</th>
+                    <th className="p-5">Paid</th>
                     <th className="p-5">Followers</th>
-                    <th className="p-5">Valuation</th>
-                    <th className="p-5 text-right">Share</th>
+                    <th className="p-5">Engagement</th>
+                    <th className="p-5">Value</th>
+                    <th className="p-5 text-right">Saved</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
                   {leaders.map((agent) => (
                     <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
+                      {/* Display Name + Streak below it */}
                       <td className="p-5">
-                        <div className="font-bold text-lg">{agent.display_name || "Anonymous"}</div>
-                        <div className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">{agent.rank}</div>
+                        <div className="font-black text-base uppercase italic tracking-tighter leading-none mb-1">
+                          {agent.display_name || "Anonymous"}
+                        </div>
+                        <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase tracking-tighter">
+                          <Zap size={10} fill="currentColor" /> {agent.current_streak || 0} DAY STREAK
+                        </div>
                       </td>
-                      <td className="p-5 text-green-400 font-mono"><Zap size={14} className="inline mr-1" />{agent.current_streak || 0}d</td>
-                      <td className="p-5 text-zinc-300">{agent.followers.toLocaleString()}</td>
-                      <td className="p-5 text-purple-400 font-mono">${agent.valuation?.toLocaleString()}</td>
+                      
+                      <td className="p-5">
+                        <div className="text-[10px] text-orange-500 uppercase font-black tracking-widest">{agent.rank || "Normie"}</div>
+                      </td>
+
+                      <td className="p-5">
+                        <div className="flex items-center gap-1 text-zinc-400">
+                          <CreditCard size={14} className={agent.paid ? "text-green-500" : "text-zinc-700"} />
+                          <span className="text-xs font-bold uppercase">{agent.paid ? "Yes" : "No"}</span>
+                        </div>
+                      </td>
+
+                      <td className="p-5 font-black text-zinc-300">
+                        {agent.followers.toLocaleString()}
+                      </td>
+
+                      <td className="p-5">
+                        <div className="flex items-center gap-1 text-blue-400">
+                          <BarChart3 size={14} />
+                          <span className="text-sm font-mono font-bold">{agent.engagement || 0}%</span>
+                        </div>
+                      </td>
+
+                      {/* Changed Valuation to Value */}
+                      <td className="p-5 text-purple-400 font-black italic">
+                        <div className="flex items-center gap-1">
+                          <Gem size={14} />
+                          ${(agent.value || 0).toLocaleString()}
+                        </div>
+                      </td>
+
                       <td className="p-5 text-right">
-                        <button className="bg-zinc-800 hover:bg-orange-600 p-2 rounded-full transition"><Download size={16} /></button>
+                        <div className="flex items-center justify-end gap-2 text-zinc-500">
+                          <Heart size={14} className="text-red-500" fill="currentColor" />
+                          <span className="text-sm font-bold">{agent.saved_count || 0}</span>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -217,7 +261,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* DAILY TASKS */}
+        {/* REST OF SECTIONS (Unchanged) */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
           <div className="flex justify-between items-center mb-10">
             <h3 className="text-3xl font-black flex items-center gap-3 uppercase italic text-orange-600">
@@ -239,7 +283,6 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* MBI REWARDS TABLE */}
         <div className="bg-zinc-900/30 border border-zinc-800 rounded-[3rem] p-10 md:p-14 mb-12 relative overflow-hidden">
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-12">
@@ -263,7 +306,6 @@ const Scoretable = () => {
           </div>
         </div>
 
-        {/* RECRUIT CTA */}
         {referralLink && (
           <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-[3rem] text-center border border-orange-500/40 shadow-2xl relative overflow-hidden">
             <div className="relative z-10">
@@ -281,7 +323,6 @@ const Scoretable = () => {
             </div>
           </div>
         )}
-
       </div>
       <AboutUsSection />
       <HeroSection />
