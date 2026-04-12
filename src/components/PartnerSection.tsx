@@ -67,8 +67,6 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // We fetch display_name and photo_url. 
-    // If your Google avatar is stored in a different column like 'avatar_url', add it here.
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, linkedin_link")
@@ -76,18 +74,30 @@ const PartnerSection = () => {
 
     if (error) return;
 
+    // Prioritization Logic: Sort the results so those WITH a photo_url come first
+    const sortedData = [...(data || [])].sort((a, b) => {
+      const aHasPhoto = a.photo_url ? 1 : 0;
+      const bHasPhoto = b.photo_url ? 1 : 0;
+      
+      if (aHasPhoto !== bHasPhoto) {
+        return bHasPhoto - aHasPhoto; // 1 (has photo) comes before 0 (no photo)
+      }
+      // If both have photos or both don't, keep alphabetical order
+      return (a.display_name || "").localeCompare(b.display_name || "");
+    });
+
     const categorized: { [key: string]: any[] } = {
       SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
     };
 
-    data?.forEach((user) => {
+    sortedData.forEach((user) => {
       const member = {
         id: user.id,
         name: user.display_name || "Anonymous",
-        // Use the photo_url from the profile table
         image: user.photo_url, 
         linkedin: user.linkedin_link || "#",
       };
+      // Only take the top 6 for each category (which will now favor those with photos)
       if (categorized[user.rank] && categorized[user.rank].length < 6) {
         categorized[user.rank].push(member);
       }
@@ -157,7 +167,6 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        {/* Infinite Scroller */}
         <div className="relative w-full overflow-hidden mb-32 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
