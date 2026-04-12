@@ -13,7 +13,7 @@ import microsoft from "../assets/microsoft.png";
 import nhs from "../assets/nhs.png";
 import defaultAvatar from "../assets/default-user.jpg";
 
-// New JPG Imports
+// JPG Imports
 import wap from "../assets/wap.jpg";
 import zoom from "../assets/zoom.jpg";
 import pinterest from "../assets/pinterest.jpg";
@@ -44,7 +44,9 @@ const partnerLogos = [
 ];
 
 const PartnerSection = () => {
+  // ADDED SuperFounder to the state
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
+    SuperFounder: [],
     SuperFarmer: [],
     Angel: [],
     SuperHero: [],
@@ -67,7 +69,6 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // 1. Added avatar_url to selection to catch Google Profile Pics
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, avatar_url, linkedin_link")
@@ -78,12 +79,12 @@ const PartnerSection = () => {
       return;
     }
 
+    // Initialize with SuperFounder
     const categorized: { [key: string]: any[] } = {
-      SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
+      SuperFounder: [], SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
     };
 
     data?.forEach((user) => {
-      // 2. Logic to pick the best image (Gmail/Google pic usually in avatar_url)
       const finalImage = user.photo_url || user.avatar_url || defaultAvatar;
 
       const member = {
@@ -93,15 +94,15 @@ const PartnerSection = () => {
         linkedin: user.linkedin_link || "#",
       };
 
-      // 3. Robust Case Handling: Convert DB rank to match state keys
+      // CLEANER RANK MAPPING
       const rawRank = user.rank ? user.rank.trim() : "Normie";
       
-      // Map potential variations to your exact state keys
       let rankKey = "Normie";
-      if (/superfarmer/i.test(rawRank)) rankKey = "SuperFarmer";
-      else if (/angel/i.test(rawRank)) rankKey = "Angel";
-      else if (/superhero/i.test(rawRank)) rankKey = "SuperHero";
-      else if (/partner/i.test(rawRank)) rankKey = "Partner";
+      if (/SuperFounder/i.test(rawRank)) rankKey = "SuperFounder";
+      else if (/SuperFarmer/i.test(rawRank)) rankKey = "SuperFarmer";
+      else if (/Angel/i.test(rawRank)) rankKey = "Angel";
+      else if (/SuperHero/i.test(rawRank)) rankKey = "SuperHero";
+      else if (/Partner/i.test(rawRank)) rankKey = "Partner";
 
       if (categorized[rankKey]) {
         categorized[rankKey].push(member);
@@ -128,7 +129,7 @@ const PartnerSection = () => {
                 src={p.image} 
                 alt={p.name} 
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer" // 4. Crucial for Google/Gmail images to load
+                referrerPolicy="no-referrer"
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
@@ -157,9 +158,6 @@ const PartnerSection = () => {
         .animate-infinite-scroll {
           animation: scroll 50s linear infinite;
         }
-        .animate-infinite-scroll:hover {
-          animation-play-state: paused;
-        }
       `}</style>
 
       <div className="container mx-auto px-6 max-w-7xl">
@@ -177,19 +175,14 @@ const PartnerSection = () => {
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
               <div key={`${p.id}-${idx}`} className="w-[350px] flex items-center justify-center px-12">
-                <img 
-                  src={p.src} 
-                  alt={p.alt} 
-                  className="max-h-20 w-auto object-contain rounded-sm"
-                />
+                <img src={p.src} alt={p.alt} className="max-h-20 w-auto object-contain rounded-sm" />
               </div>
             ))}
           </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-white dark:from-black"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        {/* Displays the Categories */}
+        {/* Displays the Categories - ADDED SuperFounders */}
+        <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
         <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
         <GroupDisplay displayTitle="Angels" members={groups.Angel} />
         <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
