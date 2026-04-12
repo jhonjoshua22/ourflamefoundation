@@ -75,7 +75,6 @@ const PartnerSection = () => {
 
     if (error) return;
 
-    // Prioritization: 1. Supabase Bucket, 2. Google/External, 3. None
     const getPriority = (url: string | null) => {
       if (!url) return 0;
       if (url.includes("supabase.co")) return 2;
@@ -85,10 +84,7 @@ const PartnerSection = () => {
     const sortedData = [...(data || [])].sort((a, b) => {
       const priorityA = getPriority(a.photo_url);
       const priorityB = getPriority(b.photo_url);
-      
-      if (priorityA !== priorityB) {
-        return priorityB - priorityA; 
-      }
+      if (priorityA !== priorityB) return priorityB - priorityA; 
       return (a.display_name || "").localeCompare(b.display_name || "");
     });
 
@@ -103,8 +99,6 @@ const PartnerSection = () => {
         image: user.photo_url, 
         linkedin: user.linkedin_link || "#",
       };
-      
-      // Still limited to 6 per category
       if (categorized[user.rank] && categorized[user.rank].length < 6) {
         categorized[user.rank].push(member);
       }
@@ -113,21 +107,21 @@ const PartnerSection = () => {
   };
 
   const GroupDisplay = ({ members, displayTitle }: { members: any[], displayTitle: string }) => (
-    <div className="mb-24">
-      <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
-        <h2 className="text-4xl font-black uppercase italic text-zinc-900 dark:text-white">
+    <div className="mb-16">
+      <div className="flex items-center justify-between mb-6 gap-2">
+        <h2 className="text-3xl font-black uppercase italic text-zinc-900 dark:text-white">
           {displayTitle}
         </h2>
-        <Link to="/login" className="flex items-center gap-2 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-lg shadow-orange-600/20">
-          Join Us <Plus size={14} />
+        <Link to="/login" className="bg-orange-600 text-white text-[8px] font-black uppercase tracking-widest px-4 py-2 rounded-full hover:bg-black transition-all">
+          Join <Plus size={10} className="inline ml-1" />
         </Link>
       </div>
 
-      {/* Changed to 2-column grid layout */}
-      <div className="grid grid-cols-2 gap-4 md:gap-6">
+      {/* Grid for the 6 people within the category */}
+      <div className="grid grid-cols-2 gap-3">
         {members.map((p) => (
-          <div key={p.id} className="group flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
-            <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300 bg-zinc-200 dark:bg-zinc-800">
+          <div key={p.id} className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/40 rounded-xl border border-transparent hover:border-orange-600/20 transition-all">
+            <div className="w-12 h-12 shrink-0 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
               <img 
                 src={p.image || defaultAvatar} 
                 alt={p.name} 
@@ -136,18 +130,17 @@ const PartnerSection = () => {
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
-            <div className="flex flex-col items-start overflow-hidden">
-              <h3 className="text-[10px] font-black uppercase dark:text-white mb-1 truncate w-full">{p.name}</h3>
+            <div className="flex flex-col min-w-0">
+              <h3 className="text-[9px] font-black uppercase dark:text-white truncate">{p.name}</h3>
               <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-orange-600 transition-colors">
-                <Linkedin size={14} />
+                <Linkedin size={12} />
               </a>
             </div>
           </div>
         ))}
-        
         {members.length === 0 && (
-          <div className="col-span-full py-10 text-center border-2 border-dashed border-zinc-100 dark:border-zinc-900 rounded-2xl">
-            <p className="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">No {displayTitle} Active Yet</p>
+          <div className="col-span-full py-8 text-center border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl">
+            <p className="text-zinc-400 font-bold uppercase text-[8px] tracking-widest">Awaiting {displayTitle}</p>
           </div>
         )}
       </div>
@@ -155,23 +148,18 @@ const PartnerSection = () => {
   );
 
   return (
-    <section id="people" className="bg-white dark:bg-black py-24 overflow-hidden">
+    <section id="people" className="bg-white dark:bg-black py-24">
       <style>{`
         @keyframes scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(calc(-350px * ${partnerLogos.length})); }
         }
-        .animate-infinite-scroll {
-          animation: scroll 50s linear infinite;
-        }
-        .animate-infinite-scroll:hover {
-          animation-play-state: paused;
-        }
+        .animate-infinite-scroll { animation: scroll 50s linear infinite; }
       `}</style>
 
-      <div className="container mx-auto px-6 max-w-5xl">
+      <div className="container mx-auto px-6 max-w-7xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <h2 className="text-5xl font-black uppercase italic text-zinc-900 dark:text-white leading-none">
+          <h2 className="text-5xl font-black uppercase italic text-zinc-900 dark:text-white">
             Work <span className="text-orange-600 not-italic">With</span>
           </h2>
           <a href="https://uk.pinterest.com/mauricebigmoflynn/we-work-with/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-orange-600 font-black uppercase text-xs tracking-widest hover:text-orange-700 transition-colors">
@@ -179,42 +167,35 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        <div className="relative w-full overflow-hidden mb-32 py-12">
+        {/* Scroller */}
+        <div className="relative w-full overflow-hidden mb-24 py-8">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
-              <div key={`${p.id}-${idx}`} className="w-[350px] flex items-center justify-center px-12">
-                <img 
-                  src={p.src} 
-                  alt={p.alt} 
-                  className="max-h-16 w-auto object-contain rounded-sm"
-                />
+              <div key={`${p.id}-${idx}`} className="w-[300px] flex items-center justify-center px-8">
+                <img src={p.src} alt={p.alt} className="max-h-12 w-auto grayscale hover:grayscale-0 transition-all" />
               </div>
             ))}
           </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white dark:from-black"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
-        <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
-        <GroupDisplay displayTitle="Angels" members={groups.Angel} />
-        <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
-        <GroupDisplay displayTitle="Normies" members={groups.Normie} />
-        <GroupDisplay displayTitle="Partners" members={groups.Partner} />
+        {/* 2 CATEGORIES PER ROW LAYOUT */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
+          <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
+          <GroupDisplay displayTitle="Angels" members={groups.Angel} />
+          <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
+          <GroupDisplay displayTitle="Normies" members={groups.Normie} />
+          <GroupDisplay displayTitle="Partners" members={groups.Partner} />
+        </div>
 
-        <div className="mt-32 p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-3xl relative overflow-hidden shadow-2xl">
+        <div className="mt-24 p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-3xl relative overflow-hidden shadow-2xl">
           <Sparkles className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
           <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
             <Users size={14}/> Incubator of Incubators
           </h4>
-          <p className="text-2xl md:text-3xl font-black leading-tight uppercase italic mb-8 max-w-3xl">
+          <p className="text-2xl md:text-3xl font-black leading-tight uppercase italic mb-8">
             A global collective of 100+ engineers building in public. We 10x every 2 months via AI, Blockchain, and Creative Hardware.
           </p>
-          <div className="flex flex-wrap gap-2 pt-8 border-t border-white/10 dark:border-zinc-200">
-            {["Prediction", "Trustless", "Engaging", "Protection"].map(tag => (
-              <span key={tag} className="px-4 py-2 border border-white/20 dark:border-zinc-400 text-[10px] font-black uppercase tracking-widest rounded-lg">{tag}</span>
-            ))}
-          </div>
         </div>
       </div>
     </section>
