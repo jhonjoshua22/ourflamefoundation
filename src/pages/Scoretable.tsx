@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
-  Trophy, Target, Loader2, Search, Zap, Download, 
-  ChevronRight, Video, Bot, Users, Activity, ShieldCheck, Filter,
+  Trophy, Target, Loader2, Search, Zap,
+  ChevronRight, Video, Bot, Users, Activity, Filter,
   Heart, CreditCard, BarChart3, Gem
 } from "lucide-react";
 
@@ -77,9 +77,10 @@ const Scoretable = () => {
       const total = (all || []).reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
       setStats({ totalMembers: total });
 
+      // Updated SELECT to include the new 'engagement' column
       let qb = supabase.from('profiles').select(`
         id, display_name, rank, paid, facebook, linkedin, 
-        engagement, value, saved_count, email, current_streak
+        engagement, value, saved, email, current_streak
       `);
       
       if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
@@ -95,14 +96,14 @@ const Scoretable = () => {
       
       if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
       else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
-      else if (currentSort === "value") sorted.sort((a, b) => (b.value || 0) - (a.value || 0));
-      else if (currentSort === "engagement") sorted.sort((a, b) => (b.engagement || 0) - (a.engagement || 0));
-      else if (currentSort === "saved") sorted.sort((a, b) => (b.saved_count || 0) - (a.saved_count || 0));
+      else if (currentSort === "value") sorted.sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0));
+      else if (currentSort === "engagement") sorted.sort((a, b) => (Number(b.engagement) || 0) - (Number(a.engagement) || 0));
+      else if (currentSort === "saved") sorted.sort((a, b) => (Number(b.saved) || 0) - (Number(a.saved) || 0));
       else if (currentSort === "streak") sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
 
       setLeaders(sorted.slice(0, 10));
     } catch (err) {
-      console.error(err);
+      console.error("Scoretable Fetch Error:", err);
     } finally {
       setLoading(false);
     }
@@ -116,7 +117,7 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
         
-        {/* MEMBERSHIP TIERS (Unchanged) */}
+        {/* MEMBERSHIP TIERS */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
@@ -207,7 +208,6 @@ const Scoretable = () => {
                 <tbody className="divide-y divide-zinc-800">
                   {leaders.map((agent) => (
                     <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
-                      {/* Display Name + Streak below it */}
                       <td className="p-5">
                         <div className="font-black text-base uppercase italic tracking-tighter leading-none mb-1">
                           {agent.display_name || "Anonymous"}
@@ -223,8 +223,8 @@ const Scoretable = () => {
 
                       <td className="p-5">
                         <div className="flex items-center gap-1 text-zinc-400">
-                          <CreditCard size={14} className={agent.paid ? "text-green-500" : "text-zinc-700"} />
-                          <span className="text-xs font-bold uppercase">{agent.paid ? "Yes" : "No"}</span>
+                          <CreditCard size={14} className={Number(agent.paid) > 0 ? "text-green-500" : "text-zinc-700"} />
+                          <span className="text-xs font-bold uppercase">{Number(agent.paid) > 0 ? "Yes" : "No"}</span>
                         </div>
                       </td>
 
@@ -239,18 +239,17 @@ const Scoretable = () => {
                         </div>
                       </td>
 
-                      {/* Changed Valuation to Value */}
                       <td className="p-5 text-purple-400 font-black italic">
                         <div className="flex items-center gap-1">
                           <Gem size={14} />
-                          ${(agent.value || 0).toLocaleString()}
+                          ${(Number(agent.value) || 0).toLocaleString()}
                         </div>
                       </td>
 
                       <td className="p-5 text-right">
                         <div className="flex items-center justify-end gap-2 text-zinc-500">
                           <Heart size={14} className="text-red-500" fill="currentColor" />
-                          <span className="text-sm font-bold">{agent.saved_count || 0}</span>
+                          <span className="text-sm font-bold">{agent.saved || 0}</span>
                         </div>
                       </td>
                     </tr>
@@ -261,7 +260,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* REST OF SECTIONS (Unchanged) */}
+        {/* DAILY TASKS */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
           <div className="flex justify-between items-center mb-10">
             <h3 className="text-3xl font-black flex items-center gap-3 uppercase italic text-orange-600">
@@ -283,6 +282,7 @@ const Scoretable = () => {
           </div>
         </div>
 
+        {/* REWARDS LEDGER */}
         <div className="bg-zinc-900/30 border border-zinc-800 rounded-[3rem] p-10 md:p-14 mb-12 relative overflow-hidden">
           <div className="relative z-10">
             <div className="flex items-center gap-4 mb-12">
