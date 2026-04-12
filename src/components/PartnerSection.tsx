@@ -45,6 +45,7 @@ const partnerLogos = [
 
 const PartnerSection = () => {
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
+    SuperFounder: [],
     SuperFarmer: [],
     Angel: [],
     SuperHero: [],
@@ -74,20 +75,19 @@ const PartnerSection = () => {
 
     if (error) return;
 
-    // Prioritization Logic: Sort the results so those WITH a photo_url come first
+    // Prioritization Logic: Sort so those WITH a photo_url come first
     const sortedData = [...(data || [])].sort((a, b) => {
       const aHasPhoto = a.photo_url ? 1 : 0;
       const bHasPhoto = b.photo_url ? 1 : 0;
       
       if (aHasPhoto !== bHasPhoto) {
-        return bHasPhoto - aHasPhoto; // 1 (has photo) comes before 0 (no photo)
+        return bHasPhoto - aHasPhoto;
       }
-      // If both have photos or both don't, keep alphabetical order
       return (a.display_name || "").localeCompare(b.display_name || "");
     });
 
     const categorized: { [key: string]: any[] } = {
-      SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
+      SuperFounder: [], SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
     };
 
     sortedData.forEach((user) => {
@@ -97,7 +97,7 @@ const PartnerSection = () => {
         image: user.photo_url, 
         linkedin: user.linkedin_link || "#",
       };
-      // Only take the top 6 for each category (which will now favor those with photos)
+      
       if (categorized[user.rank] && categorized[user.rank].length < 6) {
         categorized[user.rank].push(member);
       }
@@ -167,6 +167,7 @@ const PartnerSection = () => {
           </a>
         </div>
 
+        {/* Infinite Scroller */}
         <div className="relative w-full overflow-hidden mb-32 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
@@ -183,6 +184,8 @@ const PartnerSection = () => {
           <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
+        {/* Order of sections displayed on the page */}
+        <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
         <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
         <GroupDisplay displayTitle="Angels" members={groups.Angel} />
         <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
