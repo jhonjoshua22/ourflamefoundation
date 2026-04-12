@@ -75,13 +75,22 @@ const PartnerSection = () => {
 
     if (error) return;
 
-    // Prioritization Logic: Sort so those WITH a photo_url come first
+    // Prioritization Logic:
+    // 1. Supabase Storage Photos (URLs containing 'supabase.co')
+    // 2. Google/External Photos
+    // 3. No Photos
+    const getPriority = (url: string | null) => {
+      if (!url) return 0;
+      if (url.includes("supabase.co")) return 2; // Top Priority
+      return 1; // Secondary (Google/External)
+    };
+
     const sortedData = [...(data || [])].sort((a, b) => {
-      const aHasPhoto = a.photo_url ? 1 : 0;
-      const bHasPhoto = b.photo_url ? 1 : 0;
+      const priorityA = getPriority(a.photo_url);
+      const priorityB = getPriority(b.photo_url);
       
-      if (aHasPhoto !== bHasPhoto) {
-        return bHasPhoto - aHasPhoto;
+      if (priorityA !== priorityB) {
+        return priorityB - priorityA; 
       }
       return (a.display_name || "").localeCompare(b.display_name || "");
     });
@@ -167,7 +176,6 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        {/* Infinite Scroller */}
         <div className="relative w-full overflow-hidden mb-32 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
@@ -184,7 +192,6 @@ const PartnerSection = () => {
           <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        {/* Order of sections displayed on the page */}
         <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
         <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
         <GroupDisplay displayTitle="Angels" members={groups.Angel} />
