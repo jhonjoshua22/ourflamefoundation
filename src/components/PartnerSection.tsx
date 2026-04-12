@@ -67,6 +67,8 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
+    // We fetch display_name and photo_url. 
+    // If your Google avatar is stored in a different column like 'avatar_url', add it here.
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, linkedin_link")
@@ -81,8 +83,8 @@ const PartnerSection = () => {
     data?.forEach((user) => {
       const member = {
         id: user.id,
-        name: user.display_name,
-        // This photo_url typically stores the Google avatar URL from auth meta-data
+        name: user.display_name || "Anonymous",
+        // Use the photo_url from the profile table
         image: user.photo_url, 
         linkedin: user.linkedin_link || "#",
       };
@@ -111,7 +113,8 @@ const PartnerSection = () => {
                 src={p.image || defaultAvatar} 
                 alt={p.name} 
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer" // Critical for Google profile images to load correctly across domains
+                referrerPolicy="no-referrer"
+                onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
             <h3 className="text-xs font-black uppercase dark:text-white mb-1 line-clamp-1">{p.name}</h3>
