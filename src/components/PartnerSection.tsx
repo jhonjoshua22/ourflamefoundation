@@ -13,7 +13,7 @@ import microsoft from "../assets/microsoft.png";
 import nhs from "../assets/nhs.png";
 import defaultAvatar from "../assets/default-user.jpg";
 
-// JPG Imports
+// New JPG Imports
 import wap from "../assets/wap.jpg";
 import zoom from "../assets/zoom.jpg";
 import pinterest from "../assets/pinterest.jpg";
@@ -44,9 +44,7 @@ const partnerLogos = [
 ];
 
 const PartnerSection = () => {
-  // ADDED SuperFounder to the state
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
-    SuperFounder: [],
     SuperFarmer: [],
     Angel: [],
     SuperHero: [],
@@ -71,41 +69,24 @@ const PartnerSection = () => {
   const fetchMembers = async () => {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, rank, photo_url, avatar_url, linkedin_link")
+      .select("id, display_name, rank, photo_url, linkedin_link")
       .order('display_name', { ascending: true });
 
-    if (error) {
-      console.error("Fetch error:", error);
-      return;
-    }
+    if (error) return;
 
-    // Initialize with SuperFounder
     const categorized: { [key: string]: any[] } = {
-      SuperFounder: [], SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
+      SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
     };
 
     data?.forEach((user) => {
-      const finalImage = user.photo_url || user.avatar_url || defaultAvatar;
-
       const member = {
         id: user.id,
-        name: user.display_name || "Anonymous",
-        image: finalImage,
+        name: user.display_name,
+        image: user.photo_url,
         linkedin: user.linkedin_link || "#",
       };
-
-      // CLEANER RANK MAPPING
-      const rawRank = user.rank ? user.rank.trim() : "Normie";
-      
-      let rankKey = "Normie";
-      if (/SuperFounder/i.test(rawRank)) rankKey = "SuperFounder";
-      else if (/SuperFarmer/i.test(rawRank)) rankKey = "SuperFarmer";
-      else if (/Angel/i.test(rawRank)) rankKey = "Angel";
-      else if (/SuperHero/i.test(rawRank)) rankKey = "SuperHero";
-      else if (/Partner/i.test(rawRank)) rankKey = "Partner";
-
-      if (categorized[rankKey]) {
-        categorized[rankKey].push(member);
+      if (categorized[user.rank] && categorized[user.rank].length < 6) {
+        categorized[user.rank].push(member);
       }
     });
     setGroups(categorized);
@@ -124,14 +105,8 @@ const PartnerSection = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
         {members.map((p) => (
           <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
-            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-zinc-200 dark:border-zinc-800 group-hover:border-orange-600 transition-all duration-300 shadow-sm">
-              <img 
-                src={p.image} 
-                alt={p.name} 
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-                onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
-              />
+            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300">
+              <img src={p.image || defaultAvatar} alt={p.name} className="w-full h-full object-cover"/>
             </div>
             <h3 className="text-xs font-black uppercase dark:text-white mb-1 line-clamp-1">{p.name}</h3>
             <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-orange-600 transition-colors">
@@ -158,6 +133,9 @@ const PartnerSection = () => {
         .animate-infinite-scroll {
           animation: scroll 50s linear infinite;
         }
+        .animate-infinite-scroll:hover {
+          animation-play-state: paused;
+        }
       `}</style>
 
       <div className="container mx-auto px-6 max-w-7xl">
@@ -170,26 +148,30 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        {/* Infinite Scroller */}
+        {/* Infinite Scroller - Logos 1.75x Larger */}
         <div className="relative w-full overflow-hidden mb-32 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
               <div key={`${p.id}-${idx}`} className="w-[350px] flex items-center justify-center px-12">
-                <img src={p.src} alt={p.alt} className="max-h-20 w-auto object-contain rounded-sm" />
+                <img 
+                  src={p.src} 
+                  alt={p.alt} 
+                  className="max-h-20 w-auto object-contain rounded-sm"
+                />
               </div>
             ))}
           </div>
+          {/* Gradient Overlays */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-white dark:from-black"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        {/* Displays the Categories - ADDED SuperFounders */}
-        <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
         <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
         <GroupDisplay displayTitle="Angels" members={groups.Angel} />
         <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
         <GroupDisplay displayTitle="Normies" members={groups.Normie} />
         <GroupDisplay displayTitle="Partners" members={groups.Partner} />
 
-        {/* Brand Card */}
         <div className="mt-32 p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-3xl relative overflow-hidden shadow-2xl">
           <Sparkles className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
           <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
