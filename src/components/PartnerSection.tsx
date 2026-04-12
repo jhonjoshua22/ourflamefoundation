@@ -75,14 +75,11 @@ const PartnerSection = () => {
 
     if (error) return;
 
-    // Prioritization Logic:
-    // 1. Supabase Storage Photos (URLs containing 'supabase.co')
-    // 2. Google/External Photos
-    // 3. No Photos
+    // Prioritization: 1. Supabase Bucket, 2. Google/External, 3. None
     const getPriority = (url: string | null) => {
       if (!url) return 0;
-      if (url.includes("supabase.co")) return 2; // Top Priority
-      return 1; // Secondary (Google/External)
+      if (url.includes("supabase.co")) return 2;
+      return 1;
     };
 
     const sortedData = [...(data || [])].sort((a, b) => {
@@ -107,6 +104,7 @@ const PartnerSection = () => {
         linkedin: user.linkedin_link || "#",
       };
       
+      // Still limited to 6 per category
       if (categorized[user.rank] && categorized[user.rank].length < 6) {
         categorized[user.rank].push(member);
       }
@@ -116,18 +114,20 @@ const PartnerSection = () => {
 
   const GroupDisplay = ({ members, displayTitle }: { members: any[], displayTitle: string }) => (
     <div className="mb-24">
-      <div className="flex items-center justify-between mb-12 gap-4 flex-wrap">
-        <h2 className="text-5xl font-black uppercase italic text-zinc-900 dark:text-white">
+      <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
+        <h2 className="text-4xl font-black uppercase italic text-zinc-900 dark:text-white">
           {displayTitle}
         </h2>
         <Link to="/login" className="flex items-center gap-2 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all shadow-lg shadow-orange-600/20">
           Join Us <Plus size={14} />
         </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+
+      {/* Changed to 2-column grid layout */}
+      <div className="grid grid-cols-2 gap-4 md:gap-6">
         {members.map((p) => (
-          <div key={p.id} className="group flex flex-col items-center text-center p-6 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
-            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300 bg-zinc-200 dark:bg-zinc-800">
+          <div key={p.id} className="group flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/20 rounded-2xl border-2 border-transparent hover:border-orange-600/20 transition-all">
+            <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden border-2 border-transparent group-hover:border-orange-600 transition-all duration-300 bg-zinc-200 dark:bg-zinc-800">
               <img 
                 src={p.image || defaultAvatar} 
                 alt={p.name} 
@@ -136,12 +136,15 @@ const PartnerSection = () => {
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
-            <h3 className="text-xs font-black uppercase dark:text-white mb-1 line-clamp-1">{p.name}</h3>
-            <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-orange-600 transition-colors">
-              <Linkedin size={14} />
-            </a>
+            <div className="flex flex-col items-start overflow-hidden">
+              <h3 className="text-[10px] font-black uppercase dark:text-white mb-1 truncate w-full">{p.name}</h3>
+              <a href={p.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-orange-600 transition-colors">
+                <Linkedin size={14} />
+              </a>
+            </div>
           </div>
         ))}
+        
         {members.length === 0 && (
           <div className="col-span-full py-10 text-center border-2 border-dashed border-zinc-100 dark:border-zinc-900 rounded-2xl">
             <p className="text-zinc-400 font-bold uppercase text-[10px] tracking-widest">No {displayTitle} Active Yet</p>
@@ -166,9 +169,9 @@ const PartnerSection = () => {
         }
       `}</style>
 
-      <div className="container mx-auto px-6 max-w-7xl">
+      <div className="container mx-auto px-6 max-w-5xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <h2 className="text-6xl font-black uppercase italic text-zinc-900 dark:text-white leading-none">
+          <h2 className="text-5xl font-black uppercase italic text-zinc-900 dark:text-white leading-none">
             Work <span className="text-orange-600 not-italic">With</span>
           </h2>
           <a href="https://uk.pinterest.com/mauricebigmoflynn/we-work-with/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-orange-600 font-black uppercase text-xs tracking-widest hover:text-orange-700 transition-colors">
@@ -183,13 +186,13 @@ const PartnerSection = () => {
                 <img 
                   src={p.src} 
                   alt={p.alt} 
-                  className="max-h-20 w-auto object-contain rounded-sm"
+                  className="max-h-16 w-auto object-contain rounded-sm"
                 />
               </div>
             ))}
           </div>
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-white dark:from-black"></div>
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white dark:from-black"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
         <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
@@ -204,7 +207,7 @@ const PartnerSection = () => {
           <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
             <Users size={14}/> Incubator of Incubators
           </h4>
-          <p className="text-3xl md:text-4xl font-black leading-tight uppercase italic mb-8 max-w-4xl">
+          <p className="text-2xl md:text-3xl font-black leading-tight uppercase italic mb-8 max-w-3xl">
             A global collective of 100+ engineers building in public. We 10x every 2 months via AI, Blockchain, and Creative Hardware.
           </p>
           <div className="flex flex-wrap gap-2 pt-8 border-t border-white/10 dark:border-zinc-200">
