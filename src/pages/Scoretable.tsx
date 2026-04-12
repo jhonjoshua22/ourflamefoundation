@@ -219,7 +219,7 @@ const Scoretable = () => {
         <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
           <div className="flex justify-between items-center mb-10">
             <h3 className="text-3xl font-black flex items-center gap-3 uppercase italic text-orange-600">
-              <Target size={32} /> Flaming Priorities
+              <Target size={32} /> Daily Tasks
             </h3>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[9px] font-black uppercase text-zinc-500">Green: Daily</span></div>
