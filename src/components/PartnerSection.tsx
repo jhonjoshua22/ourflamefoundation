@@ -45,11 +45,11 @@ const partnerLogos = [
 
 const PartnerSection = () => {
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
-    SuperFarmer: [],
-    Angel: [],
-    SuperHero: [],
-    Normie: [],
-    Partner: []
+    superfarmer: [],
+    angel: [],
+    superhero: [],
+    normie: [],
+    partner: []
   });
 
   useEffect(() => {
@@ -67,36 +67,42 @@ const PartnerSection = () => {
   }, []);
 
   const fetchMembers = async () => {
-    // We fetch both photo_url (custom upload) and avatar_url (auth provider/gmail)
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name, rank, photo_url, avatar_url, linkedin_link, email")
       .order('display_name', { ascending: true });
 
-    if (error) return;
+    if (error) {
+      console.error("Supabase Error:", error);
+      return;
+    }
 
+    // Initialize with lowercase keys to prevent case-sensitivity issues
     const categorized: { [key: string]: any[] } = {
-      SuperFarmer: [], Angel: [], SuperHero: [], Normie: [], Partner: []
+      superfarmer: [], angel: [], superhero: [], normie: [], partner: []
     };
 
     data?.forEach((user) => {
-      // PRIORITY: 
-      // 1. Custom Upload (photo_url)
-      // 2. Auth Provider/Google Image (avatar_url)
-      // 3. Default Local Asset
       const finalImage = user.photo_url || user.avatar_url || defaultAvatar;
 
       const member = {
         id: user.id,
-        name: user.display_name,
+        name: user.display_name || "Anonymous Member",
         image: finalImage,
         linkedin: user.linkedin_link || "#",
       };
       
-      if (categorized[user.rank] && categorized[user.rank].length < 6) {
-        categorized[user.rank].push(member);
+      // Clean the rank string (e.g., "SuperFarmer" -> "superfarmer")
+      const rankKey = (user.rank || "normie").toLowerCase().trim();
+
+      if (categorized[rankKey]) {
+        categorized[rankKey].push(member);
+      } else {
+        // Fallback: If rank doesn't match exactly, put them in Normie so they are visible
+        categorized.normie.push(member);
       }
     });
+
     setGroups(categorized);
   };
 
@@ -118,7 +124,7 @@ const PartnerSection = () => {
                 src={p.image} 
                 alt={p.name} 
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer" // Important for Google/Gmail images to load correctly
+                referrerPolicy="no-referrer"
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
             </div>
@@ -179,12 +185,13 @@ const PartnerSection = () => {
           <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
-        <GroupDisplay displayTitle="Angels" members={groups.Angel} />
-        <GroupDisplay displayTitle="SuperHeroes" members={groups.SuperHero} />
-        <GroupDisplay displayTitle="Normies" members={groups.Normie} />
-        <GroupDisplay displayTitle="Partners" members={groups.Partner} />
+        <GroupDisplay displayTitle="SuperFarmers" members={groups.superfarmer} />
+        <GroupDisplay displayTitle="Angels" members={groups.angel} />
+        <GroupDisplay displayTitle="SuperHeroes" members={groups.superhero} />
+        <GroupDisplay displayTitle="Normies" members={groups.normie} />
+        <GroupDisplay displayTitle="Partners" members={groups.partner} />
 
+        {/* Brand/Incubator Card */}
         <div className="mt-32 p-10 bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-3xl relative overflow-hidden shadow-2xl">
           <Sparkles className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
           <h4 className="flex items-center gap-2 text-orange-500 font-black uppercase tracking-[0.3em] text-[10px] mb-6">
