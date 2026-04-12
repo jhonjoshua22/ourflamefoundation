@@ -173,18 +173,23 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        {/* Scroller */}
-        <div className="relative w-full overflow-hidden mb-24 py-8">
+        {/* Restore original Size and Color for Logos */}
+        <div className="relative w-full overflow-hidden mb-24 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
-              <div key={`${p.id}-${idx}`} className="w-[300px] flex items-center justify-center px-8">
-                <img src={p.src} alt={p.alt} className="max-h-12 w-auto grayscale hover:grayscale-0 transition-all" />
+              <div key={`${p.id}-${idx}`} className="w-[350px] flex items-center justify-center px-12">
+                <img 
+                  src={p.src} 
+                  alt={p.alt} 
+                  className="max-h-20 w-auto object-contain rounded-sm" 
+                />
               </div>
             ))}
           </div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-white dark:from-black"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-white dark:from-black"></div>
         </div>
 
-        {/* 2 CATEGORIES PER ROW LAYOUT */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
           <GroupDisplay displayTitle="SuperFounders" members={groups.SuperFounder} />
           <GroupDisplay displayTitle="SuperFarmers" members={groups.SuperFarmer} />
