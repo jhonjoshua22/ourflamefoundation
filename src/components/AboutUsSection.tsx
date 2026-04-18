@@ -212,7 +212,6 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* WORKFLOW STEPS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
           {steps.map((item, idx) => {
             const isExternal = item.link?.startsWith('http');
