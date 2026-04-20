@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import {
   Chrome,
@@ -16,19 +16,14 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/ourflamelogo.png";
-import UserDashboard from "./UserDashboard"; // Import the dashboard
+import UserDashboard from "./UserDashboard";
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const [showDashboard, setShowDashboard] = useState(false);
 
-  /**
-   * Captures country via IP and syncs it to the user's profile
-   * This is called after a successful session is detected.
-   */
   const syncUserLocation = async (userId: string) => {
     try {
-      // 1. Check if user already has a country assigned to avoid redundant calls
       const { data: profile } = await supabase
         .from("profiles")
         .select("country")
@@ -37,12 +32,10 @@ const AuthPage: React.FC = () => {
 
       if (profile?.country) return;
 
-      // 2. Fetch geolocation from public API
       const response = await fetch("https://ipapi.co/json/");
       const geo = await response.json();
 
       if (geo.country_name) {
-        // 3. Update the profiles table
         await supabase
           .from("profiles")
           .update({ country: geo.country_name })
@@ -78,19 +71,31 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  // Check URL params for dashboard trigger after redirect
-  React.useEffect(() => {
+  // CHECK 1: URL params trigger
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("showDashboard") === "true") {
       setShowDashboard(true);
     }
   }, []);
 
+  // CHECK 2: Active session trigger (Prevents white screen on reload)
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setShowDashboard(true);
+        syncUserLocation(session.user.id);
+      }
+    };
+    checkUser();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
       
       {/* Dashboard Modal Overlay */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showDashboard && (
           <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 md:p-6">
             <motion.div
