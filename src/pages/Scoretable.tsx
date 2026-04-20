@@ -68,7 +68,7 @@ const Scoretable = () => {
 
       let qb = supabase.from('profiles').select(`
         id, display_name, rank, paid, facebook, linkedin, 
-        engagement, value, saved, email, current_streak
+        engagement, value, saved, email, current_streak, referral_count
       `);
       
       if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
@@ -81,7 +81,8 @@ const Scoretable = () => {
         paidNum: Number(item.paid || 0),
         savedNum: Number(item.saved || 0),
         valueNum: Number(item.value || 0),
-        engagementNum: Number(item.engagement || 0)
+        engagementNum: Number(item.engagement || 0),
+        teamNum: Number(item.referral_count || 0)
       }));
 
       let sorted = [...processed];
@@ -93,6 +94,7 @@ const Scoretable = () => {
       else if (currentSort === "paid") sorted.sort((a, b) => b.paidNum - a.paidNum);
       else if (currentSort === "saved") sorted.sort((a, b) => b.savedNum - a.savedNum);
       else if (currentSort === "streak") sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
+      else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
 
       setLeaders(sorted.slice(0, 10));
     } catch (err) {
@@ -141,6 +143,7 @@ const Scoretable = () => {
               <div className="flex flex-wrap justify-center items-center gap-2 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
                 {[
                   { id: "followers", label: "Followers" },
+                  { id: "team", label: "Team" },
                   { id: "paid", label: "Paid" },
                   { id: "saved", label: "Saved" },
                   { id: "engagement", label: "Engagement" },
@@ -170,6 +173,7 @@ const Scoretable = () => {
                   <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
                     <th className="p-5">Agent</th>
                     <th className="p-5">Rank</th>
+                    <th className="p-5">Team</th>
                     <th className="p-5">Paid (MBI)</th>
                     <th className="p-5">Saved</th>
                     <th className="p-5">Followers</th>
@@ -187,6 +191,7 @@ const Scoretable = () => {
                         </div>
                       </td>
                       <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
+                      <td className="p-5 font-black text-white">{(agent.teamNum || 0).toLocaleString()}</td>
                       <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
                       <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
                       <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
