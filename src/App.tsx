@@ -22,7 +22,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsPage from "./pages/TermsPage";
 import Profile from "./pages/Profile";
 import Scoretable from "./pages/Scoretable";
-import UserDashboard from "./layouts/UserDashboard";
+import UserDashboard from "./components/UserDashboard";
 
 const queryClient = new QueryClient();
 
