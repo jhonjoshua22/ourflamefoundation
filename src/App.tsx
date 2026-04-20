@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient";
 
+
 // Assets
 import popupImg from "./assets/popup.jpg";
 import introAudio from "./assets/intro.mp3";
@@ -21,6 +22,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsPage from "./pages/TermsPage";
 import Profile from "./pages/Profile";
 import Scoretable from "./pages/Scoretable";
+import UserDashboard from "./layouts/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -201,6 +203,7 @@ const App = () => {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/scoretable" element={<Scoretable />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
             <Route path="*" element={<NotFound />} />
