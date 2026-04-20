@@ -8,7 +8,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient";
 
-
 // Assets
 import popupImg from "./assets/popup.jpg";
 import introAudio from "./assets/intro.mp3";
@@ -30,10 +29,8 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // NEW: Function to record country via IP
   const recordCountry = async (userId: string) => {
     try {
-      // Check if country is already recorded to save API calls
       const { data: profile } = await supabase
         .from("profiles")
         .select("country")
@@ -79,12 +76,11 @@ const App = () => {
       (event, session) => {
         if (event === "SIGNED_IN" && session?.user?.id) {
           touchForStreak(session.user.id);
-          recordCountry(session.user.id); // Trigger country recording on sign in
+          recordCountry(session.user.id);
           
-          // FORCE REDIRECT TO LOGIN WITH MODAL PARAMETER
-          // This ensures that when the user is signed in via OAuth, 
-          // they land on the login page where the modal trigger exists.
-          if (window.location.pathname !== "/login") {
+          // Only redirect if we aren't already looking at the dashboard to avoid loops
+          const params = new URLSearchParams(window.location.search);
+          if (params.get("showDashboard") !== "true") {
             window.location.href = "/login?showDashboard=true";
           }
         }
@@ -94,7 +90,7 @@ const App = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
         touchForStreak(session.user.id);
-        recordCountry(session.user.id); // Trigger country recording for existing sessions
+        recordCountry(session.user.id);
       }
     });
 
