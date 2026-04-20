@@ -80,6 +80,13 @@ const App = () => {
         if (event === "SIGNED_IN" && session?.user?.id) {
           touchForStreak(session.user.id);
           recordCountry(session.user.id); // Trigger country recording on sign in
+          
+          // FORCE REDIRECT TO LOGIN WITH MODAL PARAMETER
+          // This ensures that when the user is signed in via OAuth, 
+          // they land on the login page where the modal trigger exists.
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login?showDashboard=true";
+          }
         }
       }
     );
