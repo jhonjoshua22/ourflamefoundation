@@ -21,7 +21,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsPage from "./pages/TermsPage";
 import Profile from "./pages/Profile";
 import Scoretable from "./pages/Scoretable";
-import UserDashboard from "./components/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +28,10 @@ const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // NEW: Function to record country via IP
   const recordCountry = async (userId: string) => {
     try {
+      // Check if country is already recorded to save API calls
       const { data: profile } = await supabase
         .from("profiles")
         .select("country")
@@ -76,13 +77,7 @@ const App = () => {
       (event, session) => {
         if (event === "SIGNED_IN" && session?.user?.id) {
           touchForStreak(session.user.id);
-          recordCountry(session.user.id);
-          
-          // Only redirect if we aren't already looking at the dashboard to avoid loops
-          const params = new URLSearchParams(window.location.search);
-          if (params.get("showDashboard") !== "true") {
-            window.location.href = "/login?showDashboard=true";
-          }
+          recordCountry(session.user.id); // Trigger country recording on sign in
         }
       }
     );
@@ -90,7 +85,7 @@ const App = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
         touchForStreak(session.user.id);
-        recordCountry(session.user.id);
+        recordCountry(session.user.id); // Trigger country recording for existing sessions
       }
     });
 
@@ -206,7 +201,6 @@ const App = () => {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/scoretable" element={<Scoretable />} />
-              <Route path="/dashboard" element={<UserDashboard />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
             <Route path="*" element={<NotFound />} />
