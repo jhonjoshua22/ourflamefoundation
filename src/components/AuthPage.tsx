@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { supabase } from "../lib/supabaseClient";
 import {
   Chrome,
@@ -11,19 +11,20 @@ import {
   Scale,
   Lock,
   ScrollText,
-  X,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/ourflamelogo.png";
-import UserDashboard from "./UserDashboard";
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const [showDashboard, setShowDashboard] = useState(false);
 
+  /**
+   * Captures country via IP and syncs it to the user's profile
+   * This is called after a successful session is detected.
+   */
   const syncUserLocation = async (userId: string) => {
     try {
+      // 1. Check if user already has a country assigned to avoid redundant calls
       const { data: profile } = await supabase
         .from("profiles")
         .select("country")
@@ -32,10 +33,12 @@ const AuthPage: React.FC = () => {
 
       if (profile?.country) return;
 
+      // 2. Fetch geolocation from public API
       const response = await fetch("https://ipapi.co/json/");
       const geo = await response.json();
 
       if (geo.country_name) {
+        // 3. Update the profiles table
         await supabase
           .from("profiles")
           .update({ country: geo.country_name })
@@ -55,7 +58,7 @@ const AuthPage: React.FC = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin + "/login?showDashboard=true", 
+          redirectTo: window.location.origin, 
           scopes: 'openid profile email',
         },
       });
@@ -65,64 +68,16 @@ const AuthPage: React.FC = () => {
         alert(error.message);
       }
       
+      // Note: The actual database sync happens on the landing page 
+      // after redirect, as signInWithOAuth redirects the entire window.
     } catch (err) {
       console.error("Unexpected OAuth error:", err);
       alert("Authentication failed. Please try again.");
     }
   };
 
-  // CHECK 1: URL params trigger
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("showDashboard") === "true") {
-      setShowDashboard(true);
-    }
-  }, []);
-
-  // CHECK 2: Active session trigger (Prevents white screen on reload)
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setShowDashboard(true);
-        syncUserLocation(session.user.id);
-      }
-    };
-    checkUser();
-  }, []);
-
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
-      
-      {/* Dashboard Modal Overlay */}
-      <AnimatePresence mode="wait">
-        {showDashboard && (
-          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 md:p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowDashboard(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
-            />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative bg-white dark:bg-black w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2rem] shadow-2xl border border-white/10"
-            >
-              <button
-                onClick={() => setShowDashboard(false)}
-                className="absolute top-6 right-6 z-50 p-2 bg-zinc-100 dark:bg-zinc-900 hover:bg-orange-600 hover:text-white rounded-full transition-all"
-              >
-                <X size={20} />
-              </button>
-              <UserDashboard />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-600/5 rounded-full blur-[120px] -z-10" />
       
       <Link
