@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { 
-  User, Mail, Calendar, ArrowLeft, 
-  Trophy, Zap, DollarSign, ShieldCheck,
-  UserPlus, Copy, CheckCircle2, X, Users
+  ArrowLeft, Trophy, Zap, DollarSign, 
+  ShieldCheck, Copy, CheckCircle2, X, Users, Mail, Calendar 
 } from "lucide-react";
 import { toast } from "sonner";
-
-// Asset Import
 import defaultAvatar from "../assets/default-user.jpg";
 
 const Profile = () => {
@@ -18,7 +15,6 @@ const Profile = () => {
   const [referralInput, setReferralInput] = useState("");
   const [isSubmittingReferral, setIsSubmittingReferral] = useState(false);
   
-  // Modal State
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
@@ -26,42 +22,35 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const fetchUserData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) {
       navigate("/login");
       return;
     }
+    setUser(authUser);
 
-    setUser(user);
+    // FETCH: Getting referral_code and the trigger-updated referral_count
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authUser.id)
+      .single();
 
-    // Fetch profile and the real-time count of referrals
-    const [profileRes, countRes] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
-      supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", user.id)
-    ]);
-
-    if (profileRes.data) {
-      setProfileData({
-        ...profileRes.data,
-        referral_count: countRes.count || 0
-      });
+    if (error) {
+      console.error("Fetch error:", error);
+    } else {
+      setProfileData(profile);
     }
     setLoading(false);
   };
 
   const fetchTeamMembers = async () => {
     setLoadingTeam(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("profiles")
       .select("display_name, email, rank, photo_url")
       .eq("referred_by", user.id);
-    
-    if (error) {
-      toast.error("Failed to load team members");
-    } else {
-      setTeamMembers(data || []);
-    }
+    setTeamMembers(data || []);
     setLoadingTeam(false);
   };
 
@@ -70,276 +59,150 @@ const Profile = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (isTeamModalOpen) {
-      fetchTeamMembers();
-    }
+    if (isTeamModalOpen) fetchTeamMembers();
   }, [isTeamModalOpen]);
+
+  const copyReferralCode = () => {
+    const code = profileData?.referral_code;
+    if (code) {
+      navigator.clipboard.writeText(code);
+      toast.success(`COPIED: ${code}`);
+    }
+  };
 
   const handleReferralSubmit = async () => {
     if (!referralInput.trim()) return;
     setIsSubmittingReferral(true);
-
     try {
       const { data: referrer, error: findError } = await supabase
         .from("profiles")
-        .select("id, referral_count")
-        .eq("referral_code", referralInput.trim())
+        .select("id")
+        .eq("referral_code", referralInput.trim().toUpperCase())
         .single();
 
-      if (findError || !referrer) {
-        toast.error("Invalid referral code.");
-        return;
-      }
+      if (findError || !referrer) throw new Error("Invalid code");
+      if (referrer.id === user.id) throw new Error("Self-referral blocked");
 
-      if (referrer.id === user.id) {
-        toast.error("You cannot refer yourself.");
-        return;
-      }
-
-      if (profileData?.referred_by) {
-        toast.error("You have already been referred.");
-        return;
-      }
-
-      const { error: updateMeError } = await supabase
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({ referred_by: referrer.id })
         .eq("id", user.id);
 
-      if (updateMeError) throw updateMeError;
+      if (updateError) throw updateError;
 
-      const { error: updateReferrerError } = await supabase
-        .from("profiles")
-        .update({ referral_count: (referrer.referral_count || 0) + 1 })
-        .eq("id", referrer.id);
-
-      if (updateReferrerError) throw updateReferrerError;
-
-      toast.success("Referral successful!");
+      toast.success("Recruitment Linked!");
       setReferralInput("");
-      fetchUserData();
+      fetchUserData(); // Trigger fresh fetch to see new count
     } catch (err: any) {
-      toast.error(err.message || "Referral failed");
+      toast.error(err.message);
     } finally {
       setIsSubmittingReferral(false);
     }
   };
 
-  const copyReferralCode = () => {
-    if (profileData?.referral_code) {
-      navigator.clipboard.writeText(profileData.referral_code);
-      toast.success("Code copied to clipboard!");
-    }
-  };
-
   if (loading || !user) return null;
-
-  const profileImage = profileData?.photo_url || user.user_metadata?.avatar_url || defaultAvatar;
 
   return (
     <div className="min-h-screen bg-black pt-32 pb-12 px-6 text-white font-sans">
       <div className="max-w-3xl mx-auto">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 text-zinc-500 hover:text-orange-600 mb-8 transition-all font-black uppercase text-xs tracking-widest"
-        >
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-zinc-500 hover:text-orange-600 mb-8 font-black uppercase text-xs tracking-widest">
           <ArrowLeft className="w-4 h-4" /> Back to Network
         </button>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-          <div className="h-40 bg-gradient-to-r from-orange-600 to-purple-900 w-full relative">
-            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
-          </div>
+          <div className="h-40 bg-gradient-to-r from-orange-600 to-purple-900 w-full" />
 
           <div className="px-8 pb-12">
             <div className="relative -mt-20 mb-8 flex flex-col md:flex-row md:items-end gap-6">
               <img 
-                src={profileImage} 
-                className="w-40 h-40 rounded-[2rem] border-8 border-zinc-950 bg-zinc-900 shadow-2xl object-cover"
-                alt="Profile"
-                referrerPolicy="no-referrer"
-                onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
+                src={profileData?.photo_url || defaultAvatar} 
+                className="w-40 h-40 rounded-[2rem] border-8 border-zinc-950 bg-zinc-900 object-cover" 
+                alt="Profile" 
               />
               <div className="pb-2">
                 <div className="flex items-center gap-2 mb-1">
-                   <h1 className="text-4xl font-black uppercase italic tracking-tighter">{profileData?.display_name || user.user_metadata?.full_name}</h1>
+                   <h1 className="text-4xl font-black uppercase italic tracking-tighter">{profileData?.display_name || "MEMBER"}</h1>
                    <ShieldCheck className="text-orange-600" size={24} />
                 </div>
-                <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
-                  {profileData?.rank || "Foundation Member"}
-                </p>
+                <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">{profileData?.rank}</p>
               </div>
             </div>
 
+            {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
-                <div className="flex items-center gap-3 text-zinc-500 mb-2">
-                  <Zap size={18} className="text-orange-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Active Streak</span>
-                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Streak</span>
                 <p className="text-2xl font-black italic">{profileData?.current_streak || 0} DAYS</p>
               </div>
-
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
-                <div className="flex items-center gap-3 text-zinc-500 mb-2">
-                  <DollarSign size={18} className="text-green-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Valuation</span>
-                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Valuation</span>
                 <p className="text-2xl font-black italic">${(profileData?.valuation || 0).toLocaleString()}</p>
               </div>
-
-              {/* Team Members Stat with Modal Trigger */}
-              <button 
-                onClick={() => setIsTeamModalOpen(true)}
-                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group"
-              >
-                <div className="flex items-center gap-3 text-zinc-500 mb-2">
-                  <Trophy size={18} className="text-purple-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Team Members</span>
-                </div>
-                <p className="text-2xl font-black italic group-hover:text-purple-400 transition-colors">
-                  {profileData?.referral_count || 0} MEMBERS
-                </p>
+              <button onClick={() => setIsTeamModalOpen(true)} className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500 transition-all group">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Team Members</span>
+                <p className="text-2xl font-black italic group-hover:text-purple-400">{profileData?.referral_count || 0} NODES</p>
               </button>
             </div>
 
-            {/* Referral Section */}
+            {/* Referral Display */}
             <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
               <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
               <div className="flex items-center gap-4 mb-8">
                 <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
                   <span className="font-mono text-orange-600 font-bold tracking-widest">
-                    {profileData?.referral_code || "GENERATING..."}
+                    {profileData?.referral_code || "---"}
                   </span>
-                  <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
-                    <Copy size={16} />
-                  </button>
+                  <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white"><Copy size={16} /></button>
                 </div>
-                <p className="text-[9px] text-zinc-500 uppercase font-black w-24 leading-tight">Share this code to build your network</p>
               </div>
 
               {!profileData?.referred_by ? (
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text"
-                      placeholder="ENTER REFERRAL CODE"
-                      value={referralInput}
-                      onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
-                      className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
-                    />
-                    <button 
-                      onClick={handleReferralSubmit}
-                      disabled={isSubmittingReferral || !referralInput}
-                      className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
-                    >
-                      {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
-                    </button>
-                  </div>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="ENTER FOUNDER CODE" 
+                    value={referralInput}
+                    onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+                    className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-widest outline-none focus:border-orange-600"
+                  />
+                  <button onClick={handleReferralSubmit} className="bg-orange-600 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+                    {isSubmittingReferral ? "LINKING..." : "LINK"}
+                  </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
-                  <CheckCircle2 size={18} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
+                <div className="flex items-center gap-3 text-green-500 bg-green-500/5 p-4 rounded-xl border border-green-500/20">
+                  <CheckCircle2 size={18} /> <span className="text-[10px] font-black uppercase tracking-widest">Network Verified</span>
                 </div>
               )}
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-6 ml-2">Verification Details</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
-                  <div className="p-3 bg-black rounded-xl">
-                    <Mail className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Secure Email</p>
-                    <p className="font-bold text-sm">{user.email}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
-                  <div className="p-3 bg-black rounded-xl">
-                    <Calendar className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Joined Flame</p>
-                    <p className="font-bold text-sm">{new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-zinc-800 flex justify-between items-center">
-              <div className="flex gap-2">
-                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Node Active</span>
-              </div>
-              <button className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
-                Privacy Settings
-              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Team Members Modal */}
+      {/* Team Modal */}
       {isTeamModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
-          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
-            <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-              <div>
-                <h2 className="text-2xl font-black uppercase italic tracking-tighter">Team Members</h2>
-                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Active Recruitment Network</p>
-              </div>
-              <button 
-                onClick={() => setIsTeamModalOpen(false)}
-                className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-500 hover:text-white"
-              >
-                <X size={24} />
-              </button>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl">
+            <div className="p-8 border-b border-zinc-800 flex justify-between items-center">
+              <h2 className="text-2xl font-black uppercase italic italic tracking-tighter">My Team</h2>
+              <button onClick={() => setIsTeamModalOpen(false)} className="text-zinc-500 hover:text-white"><X size={24} /></button>
             </div>
-
-            <div className="p-4 overflow-y-auto custom-scrollbar">
+            <div className="p-6 max-h-[60vh] overflow-y-auto">
               {loadingTeam ? (
-                <div className="py-20 text-center">
-                  <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full mx-auto mb-4" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Scanning Database...</p>
-                </div>
+                <p className="text-center py-10 animate-pulse text-zinc-500 uppercase font-black tracking-widest text-[10px]">Syncing nodes...</p>
               ) : teamMembers.length > 0 ? (
-                <div className="space-y-3">
-                  {teamMembers.map((member, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
-                      <img 
-                        src={member.photo_url || defaultAvatar} 
-                        className="w-12 h-12 rounded-xl object-cover border border-zinc-700" 
-                        alt="" 
-                      />
-                      <div className="flex-1 overflow-hidden">
-                        <p className="font-bold text-sm truncate uppercase tracking-tight">{member.display_name}</p>
-                        <p className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
-                      </div>
-                      <div className="text-right">
-                        <Users size={14} className="text-orange-600 ml-auto mb-1" />
-                        <p className="text-[9px] text-zinc-600 font-black uppercase tracking-tighter">Verified Node</p>
-                      </div>
+                teamMembers.map((member, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 mb-2 bg-zinc-900 rounded-2xl border border-zinc-800">
+                    <img src={member.photo_url || defaultAvatar} className="w-10 h-10 rounded-lg object-cover" alt="" />
+                    <div>
+                      <p className="font-bold text-sm uppercase tracking-tight">{member.display_name}</p>
+                      <p className="text-[10px] text-orange-600 font-black uppercase tracking-widest">{member.rank}</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))
               ) : (
-                <div className="py-20 text-center">
-                  <Trophy size={40} className="mx-auto mb-4 text-zinc-800" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 text-balance">No members found. Share your code to start building.</p>
-                </div>
+                <p className="text-center py-10 text-zinc-500 uppercase font-black tracking-widest text-[10px]">No recruits found.</p>
               )}
-            </div>
-            
-            <div className="p-8 border-t border-zinc-800 bg-zinc-900/50 text-center">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                Total Strength: {teamMembers.length}
-              </p>
             </div>
           </div>
         </div>
