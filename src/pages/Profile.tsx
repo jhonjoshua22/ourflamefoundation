@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { 
   User, Mail, Calendar, ArrowLeft, 
   Trophy, Zap, DollarSign, ShieldCheck,
-  UserPlus, Copy, CheckCircle2
+  UserPlus, Copy, CheckCircle2, X, Users
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,6 +17,12 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [referralInput, setReferralInput] = useState("");
   const [isSubmittingReferral, setIsSubmittingReferral] = useState(false);
+  
+  // Modal State
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+
   const navigate = useNavigate();
 
   const fetchUserData = async () => {
@@ -41,16 +47,36 @@ const Profile = () => {
     setLoading(false);
   };
 
+  const fetchTeamMembers = async () => {
+    setLoadingTeam(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("display_name, email, rank, photo_url")
+      .eq("referred_by", user.id);
+    
+    if (error) {
+      toast.error("Failed to load team members");
+    } else {
+      setTeamMembers(data || []);
+    }
+    setLoadingTeam(false);
+  };
+
   useEffect(() => {
     fetchUserData();
   }, [navigate]);
+
+  useEffect(() => {
+    if (isTeamModalOpen) {
+      fetchTeamMembers();
+    }
+  }, [isTeamModalOpen]);
 
   const handleReferralSubmit = async () => {
     if (!referralInput.trim()) return;
     setIsSubmittingReferral(true);
 
     try {
-      // 1. Find the referrer
       const { data: referrer, error: findError } = await supabase
         .from("profiles")
         .select("id, referral_count")
@@ -72,7 +98,6 @@ const Profile = () => {
         return;
       }
 
-      // 2. Update current user's referred_by
       const { error: updateMeError } = await supabase
         .from("profiles")
         .update({ referred_by: referrer.id })
@@ -80,7 +105,6 @@ const Profile = () => {
 
       if (updateMeError) throw updateMeError;
 
-      // 3. Increment referrer's count
       const { error: updateReferrerError } = await supabase
         .from("profiles")
         .update({ referral_count: (referrer.referral_count || 0) + 1 })
@@ -90,7 +114,7 @@ const Profile = () => {
 
       toast.success("Referral successful!");
       setReferralInput("");
-      fetchUserData(); // Refresh data
+      fetchUserData();
     } catch (err: any) {
       toast.error(err.message || "Referral failed");
     } finally {
@@ -161,13 +185,19 @@ const Profile = () => {
                 <p className="text-2xl font-black italic">${(profileData?.valuation || 0).toLocaleString()}</p>
               </div>
 
-              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+              {/* Team Members Stat with Modal Trigger */}
+              <button 
+                onClick={() => setIsTeamModalOpen(true)}
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group"
+              >
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Trophy size={18} className="text-purple-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Network Score</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Team Members</span>
                 </div>
-                <p className="text-2xl font-black italic">{profileData?.referral_count || 0} RECRUITS</p>
-              </div>
+                <p className="text-2xl font-black italic group-hover:text-purple-400 transition-colors">
+                  {profileData?.referral_count || 0} MEMBERS
+                </p>
+              </button>
             </div>
 
             {/* Referral Section */}
@@ -250,6 +280,67 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Team Members Modal */}
+      {isTeamModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+              <div>
+                <h2 className="text-2xl font-black uppercase italic tracking-tighter">Team Members</h2>
+                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Active Recruitment Network</p>
+              </div>
+              <button 
+                onClick={() => setIsTeamModalOpen(false)}
+                className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-500 hover:text-white"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto custom-scrollbar">
+              {loadingTeam ? (
+                <div className="py-20 text-center">
+                  <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Scanning Database...</p>
+                </div>
+              ) : teamMembers.length > 0 ? (
+                <div className="space-y-3">
+                  {teamMembers.map((member, idx) => (
+                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
+                      <img 
+                        src={member.photo_url || defaultAvatar} 
+                        className="w-12 h-12 rounded-xl object-cover border border-zinc-700" 
+                        alt="" 
+                      />
+                      <div className="flex-1 overflow-hidden">
+                        <p className="font-bold text-sm truncate uppercase tracking-tight">{member.display_name}</p>
+                        <p className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
+                      </div>
+                      <div className="text-right">
+                        <Users size={14} className="text-orange-600 ml-auto mb-1" />
+                        <p className="text-[9px] text-zinc-600 font-black uppercase tracking-tighter">Verified Node</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-20 text-center">
+                  <Trophy size={40} className="mx-auto mb-4 text-zinc-800" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 text-balance">No members found. Share your code to start building.</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-8 border-t border-zinc-800 bg-zinc-900/50 text-center">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                Total Strength: {teamMembers.length}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
