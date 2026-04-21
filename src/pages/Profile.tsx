@@ -35,14 +35,17 @@ const Profile = () => {
 
     setUser(user);
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+    // Fetch profile and the real-time count of referrals
+    const [profileRes, countRes] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).single(),
+      supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", user.id)
+    ]);
 
-    if (profile) {
-      setProfileData(profile);
+    if (profileRes.data) {
+      setProfileData({
+        ...profileRes.data,
+        referral_count: countRes.count || 0
+      });
     }
     setLoading(false);
   };
