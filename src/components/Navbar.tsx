@@ -120,11 +120,20 @@ const Navbar = () => {
             </a>
           ))}
           
-          <div className="mt-auto pt-8 border-t-2 border-white/10">
+          <div className="mt-auto pt-8 border-t-2 border-white/10 flex flex-col gap-8">
             {user ? (
-              <button onClick={handleLogout} className="text-2xl font-black text-red-500 uppercase flex items-center gap-3">
-                <LogOut size={24} /> Logout
-              </button>
+              <>
+                <Link 
+                  to="/profile" 
+                  onClick={() => { playClickSound(); setIsOpen(false); }} 
+                  className="text-2xl font-black text-white uppercase flex items-center gap-3"
+                >
+                  <User size={24} className="text-orange-600" /> Profile
+                </Link>
+                <button onClick={handleLogout} className="text-2xl font-black text-red-500 uppercase flex items-center gap-3">
+                  <LogOut size={24} /> Logout
+                </button>
+              </>
             ) : (
               <Link to="/login" onClick={() => { playClickSound(); setIsOpen(false); }} className="text-2xl font-black text-orange-600 uppercase flex items-center gap-3">
                 <User size={24} /> Sign In
