@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { 
-  Video, 
-  Bot, 
-  Users, 
-  Zap, 
-  Radio, 
-  ShieldCheck,
-  Award,
-  Activity,
-  Target
-} from "lucide-react";
+import { CheckCircle2, Zap, Flame, Loader2, ChevronRight, ExternalLink } from "lucide-react";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  // GLOBAL PERFORMANCE STATE
-  // Logic: GREEN (Daily), AMBER (Weekly), RED (MIA)
-  const [performance, setPerformance] = useState("green"); 
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -26,140 +13,207 @@ const Dashboard = () => {
 
   const fetchProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) { setLoading(false); return; }
+    
+    if (!session?.user) {
+      setLoading(false);
+      return;
+    }
 
-    const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-    if (data) setProfile(data);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
+
+    if (!error && data) {
+      const todayUTC = new Date().toISOString().split('T')[0];
+      if (data.last_reset_date !== todayUTC) {
+        data.completed_tasks = [];
+      }
+      setProfile(data);
+    }
+    
     setLoading(false);
+  };
+
+  const handleTaskDone = async (taskId: string, amountToAdd: number) => {
+    if (!profile || updatingId) return;
+    const todayUTC = new Date().toISOString().split('T')[0];
+    setUpdatingId(taskId);
+
+    try {
+      const newCompletedTasks = [...(profile.completed_tasks || []), taskId];
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          points: (profile.points || 0) + amountToAdd, 
+          completed_tasks: newCompletedTasks,
+          last_reset_date: todayUTC
+        })
+        .eq("id", profile.id);
+
+      if (error) throw error;
+      
+      setProfile({ 
+        ...profile, 
+        points: (profile.points || 0) + amountToAdd,
+        completed_tasks: newCompletedTasks, 
+        last_reset_date: todayUTC 
+      });
+
+    } catch (error) {
+      console.error("Transmission Error:", error);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const taskData = [
+    { 
+      id: "01", 
+      normies: "Follow social media & repost content", 
+      superheros: "Share #MagicWorlds & Recruit Normies", 
+      angels: "Recruit SuperHeros & Mentor",
+      superfarmers: "Strategic Recruitment & Funding",
+      pts: { Normie: 50, SuperHero: 150, Angel: 500, SuperFarmer: 2000 } 
+    },
+    { 
+      id: "02", 
+      normies: "Record local hobby/good deed videos", 
+      superheros: "Launch products via MagicBots", 
+      angels: "Host daily coaching events",
+      superfarmers: "Seed Fund Projects & Direct AI Strategy",
+      pts: { Normie: 100, SuperHero: 300, Angel: 1000, SuperFarmer: 5000 } 
+    },
+    { 
+      id: "03", 
+      normies: "Scout local community improvements", 
+      superheros: "Educate others on OtherWorld AI", 
+      angels: "Recommend Angel Fund solutions",
+      superfarmers: "Finalize Seed Agreements & Partnerships",
+      pts: { Normie: 150, SuperHero: 500, Angel: 2000, SuperFarmer: 10000 } 
+    },
+  ];
+
+  const columnLinks = {
+    Normie: { label: "Clapmi", url: "https://app.clapmi.com/" },
+    SuperHero: { label: "Itch.io", url: "https://magicworlds.itch.io/magic-world" },
+    Angel: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" },
+    SuperFarmer: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" }
   };
 
   if (loading || !profile) return null;
 
   return (
-    <section className="min-h-screen bg-white dark:bg-black py-20 px-6 transition-colors duration-500 font-sans">
-      <div className="container mx-auto max-w-6xl">
+    <section id="dashboard" className="w-full py-24 px-4 bg-white dark:bg-black min-h-screen">
+      <div className="container mx-auto max-w-7xl">
         
-        {/* TOP STATUS BAR: SEPARATED PERFORMANCE */}
-        <div className="flex flex-wrap items-center justify-between gap-6 mb-12 p-6 bg-zinc-50 dark:bg-zinc-900/50 border-2 border-zinc-200 dark:border-zinc-800 rounded-3xl">
-          <div className="flex items-center gap-4">
-             <div className="bg-black dark:bg-white p-3 rounded-2xl">
-                <Activity size={20} className="text-white dark:text-black" />
-             </div>
-             <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Global Performance</p>
-                <div className="flex items-center gap-2">
-                   <div className={`w-3 h-3 rounded-full animate-pulse ${
-                      performance === 'green' ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 
-                      performance === 'amber' ? 'bg-amber-500 shadow-[0_0_10px_#f59e0b]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]'
-                   }`} />
-                   <span className="text-lg font-black uppercase italic tracking-tighter">
-                      {performance === 'green' ? 'Daily Missions Active' : performance === 'amber' ? 'Weekly Consistency' : 'Status: MIA'}
-                   </span>
-                </div>
-             </div>
-          </div>
-
-          <div className="flex items-center gap-4 border-l border-zinc-300 dark:border-zinc-700 pl-6">
-            <div className="text-right">
-              <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">MBI Rank</p>
-              <p className="text-xl font-black italic uppercase text-orange-600">{profile.rank || "Normie"}</p>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6 border-b border-zinc-200 dark:border-zinc-800 pb-8">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.3em] text-[10px]">
+              <Flame size={14} className="animate-pulse" /> Mission Control Center
             </div>
-            <Zap size={24} className="text-black dark:text-white fill-current" />
+            <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 dark:text-white leading-none">
+              Daily <span className="text-orange-600">Objectives</span>
+            </h2>
+            <div className="flex items-center gap-4 mt-4">
+              <span className={`px-4 py-1 text-white text-[10px] font-black uppercase italic rounded-full shadow-lg ${
+                profile.rank === 'SuperFarmer' ? 'bg-green-600' : 
+                profile.rank === 'Angel' ? 'bg-yellow-500' : 
+                profile.rank === 'SuperHero' ? 'bg-orange-600' : 'bg-zinc-900'
+              }`}>
+                Rank: {profile.rank || "Normie"}
+              </span>
+              <div className="flex flex-col">
+                <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
+                  ${profile.network?.toLocaleString() || 0} Network Value
+                </span>
+                <span className="text-orange-600 text-[8px] font-black uppercase tracking-[0.2em]">
+                  {profile.points?.toLocaleString() || 0} Points Accumulated
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="bg-zinc-100 dark:bg-zinc-900 px-6 py-4 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-[10px] font-black uppercase text-zinc-500 tracking-widest flex items-center gap-2">
+            System Reset <ChevronRight size={10} /> 00:00 UTC
           </div>
         </div>
 
-        {/* MAIN HEADER */}
-        <div className="mb-16">
-          <div className="flex items-center gap-2 text-orange-600 font-black uppercase tracking-[0.4em] text-[10px] mb-2">
-            <Radio size={14} className="animate-pulse" /> Mission Control System
-          </div>
-          <h1 className="text-7xl md:text-9xl font-black uppercase italic tracking-tighter leading-[0.8] text-black dark:text-white">
-            DAILY<br />TASKS
-          </h1>
-        </div>
+        {/* Task Table */}
+        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[1200px]">
+              <thead>
+                <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                  <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Mission</th>
+                  {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rank) => (
+                    <th key={rank} className="p-8 border-l border-zinc-100 dark:border-zinc-900">
+                      <div className="flex flex-col gap-4">
+                        <span className={`font-black italic uppercase tracking-tighter text-xl ${
+                          rank === 'Normie' ? 'text-blue-500' : 
+                          rank === 'SuperHero' ? 'text-orange-600' : 
+                          rank === 'Angel' ? 'text-yellow-500' : 'text-green-500'
+                        }`}>
+                          {rank}s
+                        </span>
+                        <a 
+                          href={columnLinks[rank as keyof typeof columnLinks].url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-2 border border-zinc-200 dark:border-zinc-800 hover:border-orange-600 transition-colors group"
+                        >
+                          <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-orange-600">
+                            {columnLinks[rank as keyof typeof columnLinks].label}
+                          </span>
+                          <ExternalLink size={10} className="text-zinc-400" />
+                        </a>
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
+                {taskData.map((row) => (
+                  <tr key={row.id}>
+                    <td className="p-8 font-black text-4xl text-zinc-200 dark:border-zinc-800">{row.id}</td>
+                    {['Normie', 'SuperHero', 'Angel', 'SuperFarmer'].map((rankType) => {
+                      const isUserRank = profile.rank === rankType;
+                      const taskText = rankType === 'Normie' ? row.normies : rankType === 'SuperHero' ? row.superheros : rankType === 'Angel' ? row.angels : row.superfarmers;
+                      const taskValue = (row.pts as any)[rankType];
+                      const isTaskDone = profile.completed_tasks?.includes(row.id);
 
-        {/* THE 3 OBJECTIVES: CLEAN & COLOR-NEUTRAL */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-          
-          {/* OBJ 1 */}
-          <div className="group p-10 rounded-[2.5rem] bg-zinc-100 dark:bg-zinc-900 border-2 border-transparent hover:border-orange-600 transition-all">
-            <Video size={40} className="mb-8 text-black dark:text-white group-hover:text-orange-600 transition-colors" />
-            <h3 className="text-2xl font-black uppercase italic mb-4">1. DO GOOD & SHARE</h3>
-            <p className="text-[11px] font-bold uppercase text-zinc-500 leading-relaxed">
-              Share video on Clapmi to set good example.
-            </p>
-          </div>
-
-          {/* OBJ 2 */}
-          <div className="group p-10 rounded-[2.5rem] bg-zinc-100 dark:bg-zinc-900 border-2 border-transparent hover:border-orange-600 transition-all">
-            <Bot size={40} className="mb-8 text-black dark:text-white group-hover:text-orange-600 transition-colors" />
-            <h3 className="text-2xl font-black uppercase italic mb-4">2. SUPERBOTS</h3>
-            <p className="text-[11px] font-bold uppercase text-zinc-500 leading-relaxed">
-              Build your dreams & add to our $1 PM Wholesale Family Pack. Keep your markup.
-            </p>
-          </div>
-
-          {/* OBJ 3 */}
-          <div className="group p-10 rounded-[2.5rem] bg-zinc-100 dark:bg-zinc-900 border-2 border-transparent hover:border-orange-600 transition-all">
-            <Users size={40} className="mb-8 text-black dark:text-white group-hover:text-orange-600 transition-colors" />
-            <h3 className="text-2xl font-black uppercase italic mb-4">3. RECRUIT 10</h3>
-            <p className="text-[11px] font-bold uppercase text-zinc-500 leading-relaxed">
-              Recruit from age decile below you per week via family friends network.
-            </p>
-          </div>
-        </div>
-
-        {/* REWARDS GRID */}
-        <div className="bg-black text-white rounded-[3rem] p-10 md:p-16 border-t-8 border-orange-600">
-          <div className="flex items-center gap-4 mb-12">
-            <Award className="text-orange-600" size={32} />
-            <h2 className="text-4xl font-black uppercase italic tracking-tighter">MBI REWARDS</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-            <div>
-              <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2">Normies / Partners</p>
-              <p className="text-lg font-black uppercase italic leading-none">Free & Premium Content</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2">Superheros</p>
-              <p className="text-lg font-black uppercase italic leading-none">$5-25 PW</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2">Angels</p>
-              <p className="text-lg font-black uppercase italic leading-none">$25-50 PW</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2">Superfarmers</p>
-              <p className="text-lg font-black uppercase italic leading-none">$50-100 PM</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-2">Superfounders</p>
-              <p className="text-lg font-black uppercase italic leading-none">$100-500 PW</p>
-            </div>
-          </div>
-        </div>
-
-        {/* SYSTEM FOOTER */}
-        <div className="mt-16 pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap justify-between items-center gap-6">
-          <div className="flex items-center gap-2 opacity-50">
-            <ShieldCheck size={16} />
-            <span className="text-[10px] font-black uppercase tracking-widest">Concessions & Markup Protections Active</span>
-          </div>
-          
-          <div className="flex gap-6 items-center">
-             <div className="flex items-center gap-2 text-emerald-500 font-black text-[9px] uppercase tracking-widest">
-                <div className="w-2 h-2 bg-current rounded-full" /> Daily Missions
-             </div>
-             <div className="flex items-center gap-2 text-amber-500 font-black text-[9px] uppercase tracking-widest">
-                <div className="w-2 h-2 bg-current rounded-full" /> Weekly Only
-             </div>
-             <div className="flex items-center gap-2 text-red-500 font-black text-[9px] uppercase tracking-widest">
-                <div className="w-2 h-2 bg-current rounded-full" /> MIA
-             </div>
+                      return (
+                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-orange-600/[0.03]' : 'opacity-80'}`}>
+                          <div className="flex flex-col h-full justify-between gap-8">
+                            <p className={`text-sm leading-relaxed ${isUserRank ? 'text-zinc-900 dark:text-zinc-100 font-bold' : 'text-zinc-500'}`}>
+                              {taskText}
+                            </p>
+                            {isUserRank && (
+                              <button
+                                disabled={isTaskDone || updatingId === row.id}
+                                onClick={() => handleTaskDone(row.id, taskValue)}
+                                className={`w-full py-4 rounded-xl font-black uppercase italic text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 ${
+                                  isTaskDone 
+                                  ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed shadow-none' 
+                                  : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-[1.02] active:scale-95 shadow-xl'
+                                }`}
+                              >
+                                {updatingId === row.id ? <Loader2 className="animate-spin" size={14} /> : isTaskDone ? <CheckCircle2 size={14} /> : <Zap size={14} className="fill-current text-orange-600" />}
+                                {isTaskDone ? "Mission Secured" : `Execute for ${taskValue} Pts`}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
-
       </div>
     </section>
   );
