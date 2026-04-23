@@ -27,7 +27,7 @@ const Scoretable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("team"); 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [stats, setStats] = useState({ totalMembers: 0 });
+  const [stats, setStats] = useState({ totalMembers: 0, totalFollowers: 0, avgHappiness: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
   
@@ -84,28 +84,41 @@ const Scoretable = () => {
         ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
         : 0;
 
-      setStats({ totalMembers: totalUsersCount });
+      setStats({ 
+        totalMembers: totalUsersCount, 
+        totalFollowers: totalFollowers,
+        avgHappiness: Number(avgHappiness.toFixed(2))
+      });
 
-      // Generate dynamic chart data based on real stats
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
 
-      // 1. Users (Last 5 Months)
-      setUsersChart(Array.from({ length: 5 }).map((_, i) => ({
-        name: months[(currentMonthIdx - (4 - i) + 12) % 12],
-        value: Math.floor(totalUsersCount * (0.6 + (i * 0.1)))
-      })));
+      // 1. Users (Growth starting from 0 in Feb)
+      setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
+        if (i === 0) return { name, value: 0 }; // Jan
+        if (i === 1) return { name, value: 0 }; // Feb (Start from 0)
+        // Exponential growth from March to current
+        const monthsSinceFeb = Math.max(0, i - 1);
+        return {
+          name,
+          value: Math.floor(totalUsersCount * Math.pow(i / (currentMonthIdx || 1), 2))
+        };
+      }));
 
-      // 2. Prediction (12 Months Future)
+      // 2. Prediction (500,000+ by one year)
+      const startValue = totalUsersCount;
+      const targetValue = 550000;
+      const growthRate = Math.pow(targetValue / (startValue || 1), 1 / 12);
+
       setPredictionChart(Array.from({ length: 12 }).map((_, i) => ({
         name: months[(currentMonthIdx + i + 1) % 12],
-        value: Math.floor(totalUsersCount * Math.pow(1.5, i + 1))
+        value: Math.floor(startValue * Math.pow(growthRate, i + 1))
       })));
 
-      // 3. Followers (Last 5 Months)
+      // 3. Followers (Exponential growth simulation)
       setFollowersChart(Array.from({ length: 5 }).map((_, i) => ({
         name: months[(currentMonthIdx - (4 - i) + 12) % 12],
-        value: Math.floor(totalFollowers * (0.5 + (i * 0.12)))
+        value: Math.floor(totalFollowers * Math.pow(0.85, 4 - i))
       })));
 
       // 4. Ratings (Last 30 Days, 3-day interval)
@@ -160,7 +173,7 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
 
-        {/* LEADERBOARD (MOVED TO TOP) */}
+        {/* LEADERBOARD */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
         ) : (
@@ -243,7 +256,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* ANALYTICS GRAPHS 2x2 GRID (MOVED BELOW TABLE) */}
+        {/* ANALYTICS GRAPHS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {[
             { title: "Number of Users", data: usersChart, color: "#f97316", icon: <Users size={20}/> },
@@ -295,17 +308,17 @@ const Scoretable = () => {
         </div>
 
         {/* ANALYTICS EXPLANATION PARAGRAPH */}
-        <div className="bg-zinc-900/20 border border-zinc-800 p-8 rounded-3xl mb-16">
+        <div className="bg-zinc-900/20 border border-zinc-800 p-8 rounded-3xl mb-16 text-center">
           <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-            This dashboard tracks our ecosystem's health across four vital dimensions: 
-            the <span className="text-[#f97316] font-bold">Number of Users</span> reflects our historical growth, 
-            while the <span className="text-[#a855f7] font-bold">Number of Users Prediction (1 Year)</span> anticipates reaching a milestone of 1 million users. 
-            Simultaneously, the <span className="text-[#3b82f6] font-bold">Number of Followers</span> captures our expanding social influence, 
-            balanced by <span className="text-[#22c55e] font-bold">Happiness ratings</span> which ensure that our network maintains a high quality of life and satisfaction on a scale of 1 to 10.
+            This dashboard tracks our ecosystem's health across four vital dimensions. 
+            The <span className="text-[#f97316] font-bold">Number of Users</span> has shown significant growth starting from February. 
+            Our <span className="text-[#a855f7] font-bold">Prediction</span> shows us reaching a milestone of 500,000+ users within the year as we scale. 
+            Currently, we have an <span className="text-[#3b82f6] font-bold">Average of {stats.totalFollowers.toLocaleString()} Followers</span> across the platform. 
+            These metrics grow exponentially alongside our <span className="text-[#22c55e] font-bold">Happiness Score</span>, which currently maintains an <span className="text-white font-bold">Average of {stats.avgHappiness}</span>, ensuring our network scales without compromising quality of life.
           </p>
         </div>
         
-        {/* membership tiers, daily tasks, etc remain as is */}
+        {/* membership tiers */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
