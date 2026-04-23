@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import scoretableBg from "../assets/scoretable.png";
 import { supabase } from "../lib/supabaseClient";
 import {
-  Trophy, Target, Loader2, Search, Zap,
+  Trophy, Target, Loader2, Zap,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  Heart, CreditCard, BarChart3, Gem, DollarSign
+  TrendingUp, Smile, UserPlus, BarChart3, ChevronDown
 } from "lucide-react";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
+} from "recharts";
 
 import AboutUsSection from "@/components/AboutUsSection";
 import HeroSection from "@/components/HeroSection";
@@ -23,10 +25,20 @@ const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("followers");
+  const [sortBy, setSortBy] = useState("team"); // Default sort changed to team
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [stats, setStats] = useState({ totalMembers: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
+
+  // Mock data for graphs (representing "from beginning" and "1m prediction")
+  const chartData = [
+    { name: "Jan", profiles: 120, prediction: 100000, followers: 450, happiness: 6.2 },
+    { name: "Feb", profiles: 450, prediction: 250000, followers: 1200, happiness: 6.8 },
+    { name: "Mar", profiles: 1100, prediction: 450000, followers: 3800, happiness: 7.5 },
+    { name: "Apr", profiles: 2800, prediction: 700000, followers: 9200, happiness: 8.1 },
+    { name: "May", profiles: 5200, prediction: 1000000, followers: 15000, happiness: 8.9 },
+  ];
 
   const tiers = [
     { role: "Partner", image: partnerImg, price: "Forever Free", benefit: "Ethical stakeholder support.", button: "I'm Partner" },
@@ -111,26 +123,37 @@ const Scoretable = () => {
   return (
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
-        
-        {/* TIERS SECTION */}
-        <div id="tiers" className="mb-32 space-y-12">
-          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-            {tiers.map((tier, i) => (
-              <div key={i} className="p-10 bg-zinc-900/50 border border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500">
-                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-zinc-800 mb-8 transform group-hover:scale-105 transition-all">
-                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
-                </div>
-                <h4 className="text-2xl font-black text-white uppercase italic mb-2">{tier.role}</h4>
-                <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
-                <Link to="/login" className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-white text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 hover:text-white transition-all">
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
 
+        {/* TOP ANALYTICS GRAPHS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {[
+            { title: "Profiles", key: "profiles", color: "#f97316", icon: <Users size={16}/> },
+            { title: "1Y Prediction", key: "prediction", color: "#a855f7", icon: <TrendingUp size={16}/> },
+            { title: "Followers", key: "followers", color: "#3b82f6", icon: <UserPlus size={16}/> },
+            { title: "Happiness", key: "happiness", color: "#22c55e", icon: <Smile size={16}/> }
+          ].map((chart, idx) => (
+            <div key={idx} className="bg-zinc-950 border border-zinc-800 p-5 rounded-3xl">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-orange-600">{chart.icon}</span>
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{chart.title}</h4>
+              </div>
+              <div className="h-32 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id={`grad-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={chart.color} stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor={chart.color} stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey={chart.key} stroke={chart.color} fillOpacity={1} fill={`url(#grad-${idx})`} strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          ))}
+        </div>
+        
         {/* LEADERBOARD */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
@@ -139,31 +162,41 @@ const Scoretable = () => {
             <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
               <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
               
-              {/* CUSTOM PILL FILTER */}
-              <div className="flex flex-wrap justify-center items-center gap-2 p-1 bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
-                {[
-                  { id: "followers", label: "Followers" },
-                  { id: "team", label: "Team" },
-                  { id: "paid", label: "Paid" },
-                  { id: "saved", label: "Saved" },
-                  { id: "engagement", label: "Engagement" },
-                  { id: "value", label: "Value" },
-                  { id: "rank", label: "Rank" }
-                ].map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => setSortBy(option.id)}
-                    className={`
-                      px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 rounded-lg
-                      ${sortBy === option.id 
-                        ? "bg-orange-600 text-white shadow-lg shadow-orange-900/40" 
-                        : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800"
-                      }
-                    `}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+              {/* DROPDOWN FILTER */}
+              <div className="relative">
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="flex items-center gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
+                >
+                  <Filter size={16} className="text-orange-600" />
+                  Filter By: {sortBy.toUpperCase()}
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
+                    {[
+                      { id: "team", label: "Team Count" },
+                      { id: "followers", label: "Followers" },
+                      { id: "paid", label: "Paid" },
+                      { id: "saved", label: "Saved" },
+                      { id: "engagement", label: "Engagement" },
+                      { id: "value", label: "Value" },
+                      { id: "rank", label: "Rank" }
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => {
+                          setSortBy(option.id);
+                          setIsFilterOpen(false);
+                        }}
+                        className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -204,6 +237,25 @@ const Scoretable = () => {
             </div>
           </div>
         )}
+
+        {/* TIERS SECTION (Moved below leaderboard table) */}
+        <div id="tiers" className="mb-32 space-y-12">
+          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+            {tiers.map((tier, i) => (
+              <div key={i} className="p-10 bg-zinc-900/50 border border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500">
+                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-zinc-800 mb-8 transform group-hover:scale-105 transition-all">
+                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
+                </div>
+                <h4 className="text-2xl font-black text-white uppercase italic mb-2">{tier.role}</h4>
+                <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
+                <Link to="/login" className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-white text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 hover:text-white transition-all">
+                  {tier.button} <ChevronRight size={14} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* DAILY TASKS SECTION */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
