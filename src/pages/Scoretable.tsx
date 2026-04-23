@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Zap,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown
+  TrendingUp, Smile, UserPlus, ChevronDown, X
 } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -31,6 +31,11 @@ const Scoretable = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
   
+  // Team Modal State
+  const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+
   // Real graph data state
   const [usersChart, setUsersChart] = useState<any[]>([]);
   const [predictionChart, setPredictionChart] = useState<any[]>([]);
@@ -68,6 +73,24 @@ const Scoretable = () => {
     initUser();
   }, []);
 
+  const fetchTeamMembers = async (userId: string, displayName: string) => {
+    setSelectedTeamUser({ name: displayName, id: userId });
+    setLoadingTeam(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, rank, current_streak')
+        .eq('referred_by', userId);
+      
+      if (error) throw error;
+      setTeamMembers(data || []);
+    } catch (err) {
+      console.error("Error fetching team:", err);
+    } finally {
+      setLoadingTeam(false);
+    }
+  };
+
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
@@ -97,7 +120,6 @@ const Scoretable = () => {
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
         if (i === 0) return { name, value: 0 }; // Jan
         if (i === 1) return { name, value: 0 }; // Feb (Start from 0)
-        // Exponential growth from March to current
         const monthsSinceFeb = Math.max(0, i - 1);
         return {
           name,
@@ -173,6 +195,42 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
 
+        {/* TEAM MODAL */}
+        {selectedTeamUser && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl">
+              <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+                <div>
+                  <h3 className="text-orange-600 font-black uppercase italic tracking-tighter text-xl">Team {selectedTeamUser.name}</h3>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Referral List</p>
+                </div>
+                <button onClick={() => setSelectedTeamUser(null)} className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="max-h-[400px] overflow-y-auto p-4 space-y-3">
+                {loadingTeam ? (
+                  <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-600" /></div>
+                ) : teamMembers.length > 0 ? (
+                  teamMembers.map((member, idx) => (
+                    <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
+                      <div>
+                        <div className="font-black text-sm uppercase italic">{member.display_name || "Anonymous"}</div>
+                        <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
+                      </div>
+                      <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
+                        <Zap size={10} fill="currentColor" /> {member.current_streak || 0}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-10 text-zinc-500 text-xs font-bold uppercase tracking-widest">No recruits yet</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* LEADERBOARD */}
         {loading ? (
           <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
@@ -242,7 +300,14 @@ const Scoretable = () => {
                         </div>
                       </td>
                       <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
-                      <td className="p-5 font-black text-white">{(agent.teamNum || 0).toLocaleString()}</td>
+                      <td className="p-5">
+                        <button 
+                          onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
+                          className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
+                        >
+                          {(agent.teamNum || 0).toLocaleString()}
+                        </button>
+                      </td>
                       <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
                       <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
                       <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
