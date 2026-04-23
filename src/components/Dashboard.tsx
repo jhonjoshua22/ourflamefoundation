@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { Flame, ChevronRight, ExternalLink, Users, X, ShieldCheck } from "lucide-react";
+import { Flame, ChevronRight, ExternalLink, Users, X, ShieldCheck, Share2, Download, TableProperties } from "lucide-react";
 
 const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -71,14 +71,6 @@ const Dashboard = () => {
     },
   ];
 
-  const columnLinks = {
-    Normie: { label: "Clapmi", url: "https://app.clapmi.com/" },
-    SuperHero: { label: "Itch.io", url: "https://magicworlds.itch.io/magic-world" },
-    Angel: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" },
-    SuperFarmer: { label: "Scoretable", url: "https://ourflamefoundation.vercel.app/scoretable" },
-    SuperFounder: { label: "Foundation", url: "https://ourflamefoundation.vercel.app/" }
-  };
-
   const getRankColor = (rank: string) => {
     switch (rank) {
       case 'SuperFounder': return 'text-purple-500';
@@ -127,9 +119,6 @@ const Dashboard = () => {
                 <span className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest group-hover:text-orange-600 transition-colors">
                    {profile.referral_count || 0} Team Members
                 </span>
-                <span className="text-orange-600 text-[8px] font-black uppercase tracking-[0.2em]">
-                  Click to view Recruitment Network
-                </span>
               </button>
             </div>
           </div>
@@ -139,29 +128,18 @@ const Dashboard = () => {
         </div>
 
         {/* Task Table */}
-        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50 backdrop-blur-xl shadow-2xl mb-12">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[1400px]">
+            <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                  <th className="p-8 text-[10px] font-black uppercase text-zinc-400">Mission</th>
                   {ranks.map((rank) => (
-                    <th key={rank} className="p-8 border-l border-zinc-100 dark:border-zinc-900">
-                      <div className="flex flex-col gap-4">
+                    <th key={rank} className="p-8 first:border-l-0 border-l border-zinc-100 dark:border-zinc-900">
+                      <div className="flex flex-col gap-1">
                         <span className={`font-black italic uppercase tracking-tighter text-xl ${getRankColor(rank)}`}>
                           {rank}s
                         </span>
-                        <a 
-                          href={(columnLinks as any)[rank].url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between p-2 border border-zinc-200 dark:border-zinc-800 hover:border-orange-600 transition-colors group"
-                        >
-                          <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-orange-600">
-                            {(columnLinks as any)[rank].label}
-                          </span>
-                          <ExternalLink size={10} className="text-zinc-400" />
-                        </a>
+                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-500">Tier Objectives</span>
                       </div>
                     </th>
                   ))}
@@ -170,7 +148,6 @@ const Dashboard = () => {
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
                 {taskData.map((row) => (
                   <tr key={row.id}>
-                    <td className="p-8 font-black text-4xl text-zinc-200 dark:border-zinc-800">{row.id}</td>
                     {ranks.map((rankType) => {
                       const isUserRank = profile.rank === rankType;
                       let taskText = "";
@@ -181,7 +158,7 @@ const Dashboard = () => {
                       else if (rankType === 'SuperFounder') taskText = row.superfounders;
 
                       return (
-                        <td key={rankType} className={`p-8 align-top border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-zinc-900/10' : ''}`}>
+                        <td key={rankType} className={`p-8 align-top first:border-l-0 border-l border-zinc-100 dark:border-zinc-900 transition-all duration-500 ${isUserRank ? 'bg-zinc-900/10' : ''}`}>
                           <p className={`text-sm leading-relaxed font-bold uppercase tracking-tight ${isUserRank ? getRankColor(rankType) : 'text-zinc-400 dark:text-white'}`}>
                             {taskText}
                           </p>
@@ -193,6 +170,33 @@ const Dashboard = () => {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Dashboard Footer Links */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a href="https://app.clapmi.com/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl group hover:border-orange-600 transition-all">
+            <div className="flex items-center gap-4">
+              <Share2 className="text-zinc-500 group-hover:text-orange-600" size={20} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white">Share us on Clapmi</span>
+            </div>
+            <ExternalLink size={14} className="text-zinc-500" />
+          </a>
+          
+          <a href="https://magicworlds.itch.io/magic-world" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl group hover:border-orange-600 transition-all">
+            <div className="flex items-center gap-4">
+              <Download className="text-zinc-500 group-hover:text-orange-600" size={20} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white">Download On Itch.io</span>
+            </div>
+            <ExternalLink size={14} className="text-zinc-500" />
+          </a>
+
+          <a href="https://ourflamefoundation.vercel.app/scoretable" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-6 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl group hover:border-orange-600 transition-all">
+            <div className="flex items-center gap-4">
+              <TableProperties className="text-zinc-500 group-hover:text-orange-600" size={20} />
+              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900 dark:text-white">View Full Scoretable</span>
+            </div>
+            <ExternalLink size={14} className="text-zinc-500" />
+          </a>
         </div>
       </div>
 
