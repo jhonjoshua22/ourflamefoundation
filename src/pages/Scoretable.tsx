@@ -79,11 +79,17 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, rank, current_streak')
+        .select('display_name, email, rank, current_streak')
         .eq('referred_by', userId);
       
       if (error) throw error;
-      setTeamMembers(data || []);
+      
+      const processedTeam = (data || []).map(member => ({
+        ...member,
+        computed_name: member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous")
+      }));
+
+      setTeamMembers(processedTeam);
     } catch (err) {
       console.error("Error fetching team:", err);
     } finally {
@@ -118,9 +124,8 @@ const Scoretable = () => {
 
       // 1. Users (Growth starting from 0 in Feb)
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
-        if (i === 0) return { name, value: 0 }; // Jan
-        if (i === 1) return { name, value: 0 }; // Feb (Start from 0)
-        const monthsSinceFeb = Math.max(0, i - 1);
+        if (i === 0) return { name, value: 0 }; 
+        if (i === 1) return { name, value: 0 }; 
         return {
           name,
           value: Math.floor(totalUsersCount * Math.pow(i / (currentMonthIdx || 1), 2))
@@ -151,8 +156,8 @@ const Scoretable = () => {
 
       // Fetch Leaderboard
       let qb = supabase.from('profiles').select(`
-        id, display_name, rank, paid, facebook, linkedin, 
-        engagement, value, saved, email, current_streak, referral_count, happiness_score
+        id, display_name, email, rank, paid, facebook, linkedin, 
+        engagement, value, saved, current_streak, referral_count, happiness_score
       `);
       
       if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
@@ -161,6 +166,7 @@ const Scoretable = () => {
 
       const processed = (data || []).map(item => ({
         ...item,
+        display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
         paidNum: Number(item.paid || 0),
         savedNum: Number(item.saved || 0),
@@ -215,7 +221,7 @@ const Scoretable = () => {
                   teamMembers.map((member, idx) => (
                     <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
                       <div>
-                        <div className="font-black text-sm uppercase italic">{member.display_name || "Anonymous"}</div>
+                        <div className="font-black text-sm uppercase italic">{member.computed_name}</div>
                         <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
                       </div>
                       <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
@@ -294,7 +300,7 @@ const Scoretable = () => {
                   {leaders.map((agent) => (
                     <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                       <td className="p-5">
-                        <div className="font-black text-base uppercase italic tracking-tighter">{agent.display_name || "Anonymous"}</div>
+                        <div className="font-black text-base uppercase italic tracking-tighter">{agent.display_name}</div>
                         <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
                           <Zap size={10} fill="currentColor" /> {agent.current_streak || 0} DAY STREAK
                         </div>
