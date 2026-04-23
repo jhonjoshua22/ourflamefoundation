@@ -4,10 +4,10 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Zap,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, BarChart3, ChevronDown
+  TrendingUp, Smile, UserPlus, ChevronDown
 } from "lucide-react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
+  XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
 } from "recharts";
 
 import AboutUsSection from "@/components/AboutUsSection";
@@ -31,7 +31,7 @@ const Scoretable = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
 
-  // Mock data for graphs (representing "from beginning" and "1m prediction")
+  // Mock data for graphs
   const chartData = [
     { name: "Jan", profiles: 120, prediction: 100000, followers: 450, happiness: 6.2 },
     { name: "Feb", profiles: 450, prediction: 250000, followers: 1200, happiness: 6.8 },
@@ -124,34 +124,58 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
 
-        {/* TOP ANALYTICS GRAPHS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        {/* TOP ANALYTICS GRAPHS 2x2 GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {[
-            { title: "Profiles", key: "profiles", color: "#f97316", icon: <Users size={16}/> },
-            { title: "1Y Prediction", key: "prediction", color: "#a855f7", icon: <TrendingUp size={16}/> },
-            { title: "Followers", key: "followers", color: "#3b82f6", icon: <UserPlus size={16}/> },
-            { title: "Happiness", key: "happiness", color: "#22c55e", icon: <Smile size={16}/> }
+            { title: "Number of Users", key: "profiles", color: "#f97316", icon: <Users size={20}/> },
+            { title: "Number of Users Prediction (1 Year)", key: "prediction", color: "#a855f7", icon: <TrendingUp size={20}/> },
+            { title: "Number of Followers", key: "followers", color: "#3b82f6", icon: <UserPlus size={20}/> },
+            { title: "Happiness ratings", key: "happiness", color: "#22c55e", icon: <Smile size={20}/> }
           ].map((chart, idx) => (
-            <div key={idx} className="bg-zinc-950 border border-zinc-800 p-5 rounded-3xl">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-orange-600">{chart.icon}</span>
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{chart.title}</h4>
+            <div key={idx} className="bg-zinc-950 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <span style={{ color: chart.color }}>{chart.icon}</span>
+                <h4 className="text-sm font-black uppercase tracking-widest text-zinc-300">{chart.title}</h4>
               </div>
-              <div className="h-32 w-full">
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id={`grad-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={chart.color} stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor={chart.color} stopOpacity={0.4}/>
                         <stop offset="95%" stopColor={chart.color} stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <Area type="monotone" dataKey={chart.key} stroke={chart.color} fillOpacity={1} fill={`url(#grad-${idx})`} strokeWidth={2} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}
+                      itemStyle={{ color: chart.color }}
+                      cursor={{ stroke: '#3f3f46', strokeWidth: 1 }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey={chart.key} 
+                      stroke={chart.color} 
+                      fillOpacity={1} 
+                      fill={`url(#grad-${idx})`} 
+                      strokeWidth={3}
+                      animationDuration={2000}
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* ANALYTICS EXPLANATION PARAGRAPH */}
+        <div className="bg-zinc-900/20 border border-zinc-800 p-8 rounded-3xl mb-16">
+          <p className="text-zinc-400 text-sm leading-relaxed font-medium">
+            This dashboard tracks our ecosystem's health across four vital dimensions: 
+            the <span className="text-[#f97316] font-bold">Number of Users</span> reflects our historical growth, 
+            while the <span className="text-[#a855f7] font-bold">Number of Users Prediction (1 Year)</span> anticipates reaching a milestone of 1 million users. 
+            Simultaneously, the <span className="text-[#3b82f6] font-bold">Number of Followers</span> captures our expanding social influence, 
+            balanced by <span className="text-[#22c55e] font-bold">Happiness ratings</span> which ensure that our network maintains a high quality of life and satisfaction on a scale of 1 to 10.
+          </p>
         </div>
         
         {/* LEADERBOARD */}
@@ -162,7 +186,6 @@ const Scoretable = () => {
             <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
               <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
               
-              {/* DROPDOWN FILTER */}
               <div className="relative">
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -238,7 +261,7 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* TIERS SECTION (Moved below leaderboard table) */}
+        {/* TIERS SECTION */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
