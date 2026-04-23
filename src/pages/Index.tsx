@@ -15,10 +15,10 @@ const Index = () => {
       
       
       {/* The Flame Game & Dashboard Sections */}
+      <Dashboard />
       <FlameGame />
       <Testimonials />
       <GameGallery />
-      <Dashboard />
       <ImpactSection />
           
       <GlobalMap />
