@@ -216,7 +216,7 @@ const PartnerSection = () => {
             <Users size={14}/> Incubator of Incubators
           </h4>
           <p className="text-2xl md:text-3xl font-black leading-tight uppercase italic mb-8">
-            A global collective of {totalUsers}+ engineers building in public. We {totalUsers * 10}x by next cycle via AI, Blockchain, and Creative Hardware.
+            A global collective of {totalUsers}+ engineers building in public. We predict around {totalUsers * 50} users by next cycle via AI, Blockchain, and Creative Hardware.
           </p>
         </div>
       </div>
