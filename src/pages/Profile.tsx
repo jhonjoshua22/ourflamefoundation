@@ -175,11 +175,11 @@ const Profile = () => {
                    <ShieldCheck className="text-orange-600" size={24} />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
+                  <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-[25px]">
                     {profileData?.rank || "Foundation Member"}
                   </p>
                   {profileData?.tribe_id && (
-                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px] flex items-center gap-1">
+                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[20px] flex items-center gap-1">
                       <Flag size={10} className="text-purple-500" /> {profileData.tribe_id}
                     </p>
                   )}
@@ -270,7 +270,7 @@ const Profile = () => {
                     <Calendar className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Joined Flame</p>
+                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Rebirth</p>
                     <p className="font-bold text-sm">
                       {profileData?.Rebirth || "Unknown"}
                     </p>
