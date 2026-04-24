@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import {
-  Trophy, Target, Loader2, Zap,
+  Trophy, Target, Loader2, Zap, Search,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield
+  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft
 } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -31,6 +31,11 @@ const Scoretable = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
   
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 10;
+  const maxUsersToLoad = 100;
+
   // Team Modal State
   const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
@@ -97,7 +102,7 @@ const Scoretable = () => {
     }
   };
 
-  const fetchData = async (query = "", currentSort = sortBy) => {
+  const fetchData = async (query = "", currentSort = sortBy, page = 0) => {
     setLoading(true);
     try {
       const { data: allProfiles, error: allErr, count } = await supabase
@@ -118,44 +123,39 @@ const Scoretable = () => {
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
+      // Chart Logic (Same as existing)
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
-
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
-        if (i === 0) return { name, value: 0 }; 
-        if (i === 1) return { name, value: 0 }; 
-        return {
-          name,
-          value: Math.floor(totalUsersCount * Math.pow(i / (currentMonthIdx || 1), 2))
-        };
+        if (i === 0 || i === 1) return { name, value: 0 }; 
+        return { name, value: Math.floor(totalUsersCount * Math.pow(i / (currentMonthIdx || 1), 2)) };
       }));
-
       const startValue = totalUsersCount;
-      const targetValue = 550000;
-      const growthRate = Math.pow(targetValue / (startValue || 1), 1 / 12);
-
+      const growthRate = Math.pow(550000 / (startValue || 1), 1 / 12);
       setPredictionChart(Array.from({ length: 12 }).map((_, i) => ({
         name: months[(currentMonthIdx + i + 1) % 12],
         value: Math.floor(startValue * Math.pow(growthRate, i + 1))
       })));
-
       setFollowersChart(Array.from({ length: 5 }).map((_, i) => ({
         name: months[(currentMonthIdx - (4 - i) + 12) % 12],
         value: Math.floor(totalFollowers * Math.pow(0.85, 4 - i))
       })));
-
       setRatingsChart(Array.from({ length: 10 }).map((_, i) => ({
         name: `Day ${i * 3}`,
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
+      // Main Data Query with Pagination
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id
+        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
       `);
       
-      if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
-      const { data, error } = await qb;
+      if (query) {
+        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
+      }
+
+      const { data, error } = await qb.limit(maxUsersToLoad);
       if (error) throw error;
 
       const processed = (data || []).map(item => ({
@@ -179,7 +179,7 @@ const Scoretable = () => {
       else if (currentSort === "streak") sorted.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
       else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
 
-      setLeaders(sorted.slice(0, 10));
+      setLeaders(sorted);
     } catch (err) {
       console.error("Fetch Error:", err);
     } finally {
@@ -189,7 +189,11 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchData(searchQuery, sortBy);
+    setCurrentPage(0); // Reset to first page on search/sort change
   }, [sortBy, searchQuery]);
+
+  const paginatedLeaders = leaders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const totalPages = Math.ceil(leaders.length / pageSize);
 
   return (
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
@@ -234,20 +238,33 @@ const Scoretable = () => {
         )}
 
         {/* LEADERBOARD */}
-        {loading ? (
-          <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
-        ) : (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
-            <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
-              <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
-              
-              <div className="relative">
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
+          <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
+            <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
+            
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
+              {/* Search Bar */}
+              <div className="relative w-full md:w-80">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input 
+                  type="text"
+                  placeholder="SEARCH NAME, EMAIL, COUNTRY..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-600"
+                />
+              </div>
+
+              {/* Filter Button */}
+              <div className="relative w-full md:w-auto">
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="flex items-center gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
+                  className="w-full flex items-center justify-between gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
                 >
-                  <Filter size={16} className="text-orange-600" />
-                  Filter By: {sortBy.toUpperCase()}
+                  <div className="flex items-center gap-2">
+                    <Filter size={16} className="text-orange-600" />
+                    Filter By: {sortBy.toUpperCase()}
+                  </div>
                   <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -278,8 +295,14 @@ const Scoretable = () => {
                 )}
               </div>
             </div>
+          </div>
 
-            <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[400px] relative">
+            {loading ? (
+               <div className="absolute inset-0 flex justify-center items-center bg-black/20 backdrop-blur-sm z-10">
+                 <Loader2 className="animate-spin text-orange-600" size={48} />
+               </div>
+            ) : (
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
@@ -294,37 +317,73 @@ const Scoretable = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
-                  {leaders.map((agent) => (
-                    <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
-                      <td className="p-5">
-                        <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
-                          {agent.display_name}
-                        </Link>
-                        <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
-                          <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
-                        </div>
-                      </td>
-                      <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
-                      <td className="p-5">
-                        <button 
-                          onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
-                          className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
-                        >
-                          {(agent.teamNum || 0).toLocaleString()}
-                        </button>
-                      </td>
-                      <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
-                      <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
-                      <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
-                      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
-                      <td className="p-5 text-right text-purple-400 font-black italic">${agent.valueNum.toLocaleString()}</td>
+                  {paginatedLeaders.length > 0 ? (
+                    paginatedLeaders.map((agent) => (
+                      <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
+                        <td className="p-5">
+                          <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                            {agent.display_name}
+                          </Link>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                              <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
+                            </div>
+                            {agent.country && (
+                                <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
+                                  • {agent.country}
+                                </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
+                        <td className="p-5">
+                          <button 
+                            onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
+                            className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
+                          >
+                            {(agent.teamNum || 0).toLocaleString()}
+                          </button>
+                        </td>
+                        <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
+                        <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
+                        <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
+                        <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
+                        <td className="p-5 text-right text-purple-400 font-black italic">${agent.valueNum.toLocaleString()}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
+            )}
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
+            <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
+              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} loaded)
+            </p>
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 0 || loading}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+              >
+                <ChevronLeft size={14} /> Previous
+              </button>
+              <button 
+                disabled={currentPage >= totalPages - 1 || loading}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+              >
+                Next <ChevronRight size={14} />
+              </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* ANALYTICS GRAPHS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
