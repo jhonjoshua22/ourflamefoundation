@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, MapPin, Mail, Heart } from "lucide-react";
+import { Search, X, MapPin, Mail, Heart, Users } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
@@ -30,6 +30,37 @@ const GlobalMap = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // Team Data State
+  const [teamLocations, setTeamLocations] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<"global" | "team">("global");
+
+  // Fetch Team Locations based on referrals
+  const fetchTeamData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: referrals, error } = await supabase
+      .from("profiles")
+      .select("country, display_name")
+      .eq("referred_by", user.id);
+
+    if (!error && referrals) {
+      // Map country codes to coordinates from the locations master list
+      const mappedTeam = referrals
+        .map(ref => {
+          const coords = locations.find(l => l.id === ref.country?.toUpperCase());
+          return coords ? { ...coords, name: ref.display_name } : null;
+        })
+        .filter(Boolean);
+      
+      setTeamLocations(mappedTeam);
+    }
+  };
+
+  useEffect(() => {
+    fetchTeamData();
+  }, []);
 
   useEffect(() => {
     if (!window.L || mapInstance.current) return;
@@ -49,7 +80,6 @@ const GlobalMap = () => {
 
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
 
-    // Custom CSS Heart Icon with Flicker Effect
     const heartIcon = window.L.divIcon({
       className: 'custom-heart-icon',
       html: `
@@ -63,12 +93,17 @@ const GlobalMap = () => {
       iconAnchor: [15, 15],
     });
 
-    locations.forEach((loc) => {
+    // Determine which markers to show
+    const displayList = viewMode === "team" ? teamLocations : locations;
+
+    displayList.forEach((loc) => {
       window.L.marker([loc.lat, loc.lng], { icon: heartIcon })
         .addTo(mapInstance.current)
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 5px;">
-            <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">NODE_${loc.id}</b>
+            <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">
+              ${viewMode === 'team' ? `FAMILY_${loc.name}` : `NODE_${loc.id}`}
+            </b>
           </div>
         `);
     });
@@ -83,7 +118,7 @@ const GlobalMap = () => {
         mapInstance.current = null;
       }
     };
-  }, []);
+  }, [viewMode, teamLocations]); // Re-render markers when mode or team changes
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +142,6 @@ const GlobalMap = () => {
   return (
     <section id="presence" className="bg-background py-20 border-t border-border transition-colors duration-500 relative z-0">
       
-      {/* Injecting Flicker CSS */}
       <style>{`
         @keyframes heart-flicker {
           0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px #ea580c); }
@@ -124,13 +158,31 @@ const GlobalMap = () => {
 
       <div className="container mx-auto px-6">
         
-        <div className="mb-12 border-l-4 border-orange-600 pl-6">
-          <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
-            Find Your <span className="text-orange-600 not-italic">Friends</span>
-          </h2>
-          <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground mt-2">
-            Strategic Infrastructure // Hearts Active
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="border-l-4 border-orange-600 pl-6">
+            <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
+              Find Your <span className="text-orange-600 not-italic">Friends</span>
+            </h2>
+            <p className="text-[10px] font-mono uppercase tracking-[0.4em] text-muted-foreground mt-2">
+              Strategic Infrastructure // Hearts Active
+            </p>
+          </div>
+
+          {/* Map Filter Toggle */}
+          <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-xl border border-border">
+            <button 
+              onClick={() => setViewMode("global")}
+              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${viewMode === 'global' ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-sm' : 'text-zinc-500'}`}
+            >
+              Global
+            </button>
+            <button 
+              onClick={() => setViewMode("team")}
+              className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-2 ${viewMode === 'team' ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-sm' : 'text-zinc-500'}`}
+            >
+              <Heart size={12} fill={viewMode === 'team' ? "#ea580c" : "none"} /> My Team
+            </button>
+          </div>
         </div>
 
         <div className="relative border border-border bg-white/5 shadow-2xl overflow-hidden group z-10 rounded-xl">
@@ -140,8 +192,12 @@ const GlobalMap = () => {
           />
           
           <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border pointer-events-none text-right">
-            <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">Our Flame Foundation</p>
-            <p className="text-xs font-black text-foreground uppercase italic">Hearts Connected: {locations.length}</p>
+            <p className="text-[9px] font-bold text-orange-600 uppercase tracking-[0.2em]">
+              {viewMode === 'team' ? "Your Personal Network" : "Our Flame Foundation"}
+            </p>
+            <p className="text-xs font-black text-foreground uppercase italic">
+              Hearts Connected: {viewMode === 'team' ? teamLocations.length : locations.length}
+            </p>
           </div>
         </div>
 
