@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom"; // Added useParams
 import { 
   User, Mail, Calendar, ArrowLeft, 
   Trophy, Zap, DollarSign, ShieldCheck,
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import defaultAvatar from "../assets/default-user.jpg";
 
 const Profile = () => {
+  const { id } = useParams(); // Capture the ID from the URL
   const [user, setUser] = useState<any>(null);
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -26,19 +27,23 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const fetchUserData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    setLoading(true);
+    // 1. Get the logged-in session for auth-walled actions (like referral submission)
+    const { data: { user: authUser } } = await supabase.auth.getUser();
     
-    if (!user) {
+    if (!authUser) {
       navigate("/login");
       return;
     }
+    setUser(authUser);
 
-    setUser(user);
+    // 2. Determine whose profile to show: URL ID or Current User ID
+    const targetId = id || authUser.id;
 
-    // Fetch profile and the real-time count of referrals
+    // Fetch profile and the real-time count of referrals for the TARGET ID
     const [profileRes, countRes] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).single(),
-      supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", user.id)
+      supabase.from("profiles").select("*").eq("id", targetId).single(),
+      supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", targetId)
     ]);
 
     if (profileRes.data) {
@@ -51,11 +56,15 @@ const Profile = () => {
   };
 
   const fetchTeamMembers = async () => {
+    // Ensure we use the profile being viewed, not necessarily the logged-in user
+    const targetId = id || user?.id;
+    if (!targetId) return;
+
     setLoadingTeam(true);
     const { data, error } = await supabase
       .from("profiles")
       .select("display_name, email, rank, photo_url")
-      .eq("referred_by", user.id);
+      .eq("referred_by", targetId);
     
     if (error) {
       toast.error("Failed to load team members");
@@ -67,7 +76,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, [navigate]);
+  }, [id, navigate]); // Re-run if the URL ID changes
 
   useEffect(() => {
     if (isTeamModalOpen) {
@@ -134,7 +143,9 @@ const Profile = () => {
 
   if (loading || !user) return null;
 
-  const profileImage = profileData?.photo_url || user.user_metadata?.avatar_url || defaultAvatar;
+  // Logic: Use profileData (the target) primarily, fall back to auth user for own profile
+  const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
+  const isOwnProfile = !id || id === user.id;
 
   return (
     <div className="min-h-screen bg-black pt-32 pb-12 px-6 text-white font-sans">
@@ -158,11 +169,14 @@ const Profile = () => {
                 className="w-40 h-40 rounded-[2rem] border-8 border-zinc-950 bg-zinc-900 shadow-2xl object-cover"
                 alt="Profile"
                 referrerPolicy="no-referrer"
+                // Only use the user metadata fallback if it's our own profile
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
               <div className="pb-2">
                 <div className="flex items-center gap-2 mb-1">
-                   <h1 className="text-4xl font-black uppercase italic tracking-tighter">{profileData?.display_name || user.user_metadata?.full_name}</h1>
+                   <h1 className="text-4xl font-black uppercase italic tracking-tighter">
+                     {profileData?.display_name || (isOwnProfile ? user.user_metadata?.full_name : "Anonymous")}
+                   </h1>
                    <ShieldCheck className="text-orange-600" size={24} />
                 </div>
                 <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
@@ -185,10 +199,9 @@ const Profile = () => {
                   <DollarSign size={18} className="text-green-500" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Valuation</span>
                 </div>
-                <p className="text-2xl font-black italic">${(profileData?.valuation || 0).toLocaleString()}</p>
+                <p className="text-2xl font-black italic">${(Number(profileData?.valuation || 0)).toLocaleString()}</p>
               </div>
 
-              {/* Team Members Stat with Modal Trigger */}
               <button 
                 onClick={() => setIsTeamModalOpen(true)}
                 className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group"
@@ -203,48 +216,50 @@ const Profile = () => {
               </button>
             </div>
 
-            {/* Referral Section */}
-            <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
-              <div className="flex items-center gap-4 mb-8">
-                <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
-                  <span className="font-mono text-orange-600 font-bold tracking-widest">
-                    {profileData?.referral_code || "GENERATING..."}
-                  </span>
-                  <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
-                    <Copy size={16} />
-                  </button>
-                </div>
-                <p className="text-[9px] text-zinc-500 uppercase font-black w-24 leading-tight">Share this code to build your network</p>
-              </div>
-
-              {!profileData?.referred_by ? (
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text"
-                      placeholder="ENTER REFERRAL CODE"
-                      value={referralInput}
-                      onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
-                      className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
-                    />
-                    <button 
-                      onClick={handleReferralSubmit}
-                      disabled={isSubmittingReferral || !referralInput}
-                      className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
-                    >
-                      {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
+            {/* Referral Section - ONLY SHOW ON OWN PROFILE */}
+            {isOwnProfile && (
+              <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
+                    <span className="font-mono text-orange-600 font-bold tracking-widest">
+                      {profileData?.referral_code || "GENERATING..."}
+                    </span>
+                    <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
+                      <Copy size={16} />
                     </button>
                   </div>
+                  <p className="text-[9px] text-zinc-500 uppercase font-black w-24 leading-tight">Share this code to build your network</p>
                 </div>
-              ) : (
-                <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
-                  <CheckCircle2 size={18} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
-                </div>
-              )}
-            </div>
+
+                {!profileData?.referred_by ? (
+                  <div className="space-y-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text"
+                        placeholder="ENTER REFERRAL CODE"
+                        value={referralInput}
+                        onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+                        className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
+                      />
+                      <button 
+                        onClick={handleReferralSubmit}
+                        disabled={isSubmittingReferral || !referralInput}
+                        className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
+                      >
+                        {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
+                    <CheckCircle2 size={18} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-4">
               <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-6 ml-2">Verification Details</h3>
@@ -255,7 +270,7 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Secure Email</p>
-                    <p className="font-bold text-sm">{user.email}</p>
+                    <p className="font-bold text-sm">{isOwnProfile ? user.email : profileData?.email || "Private Email"}</p>
                   </div>
                 </div>
 
@@ -265,7 +280,11 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Joined Flame</p>
-                    <p className="font-bold text-sm">{new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</p>
+                    <p className="font-bold text-sm">
+                      {profileData?.updated_at 
+                        ? new Date(profileData.updated_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+                        : "Unknown"}
+                    </p>
                   </div>
                 </div>
               </div>
