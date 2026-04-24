@@ -79,7 +79,7 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, email, rank, current_streak')
+        .select('display_name, email, rank, current_streak, id')
         .eq('referred_by', userId);
       
       if (error) throw error;
@@ -93,6 +93,7 @@ const Scoretable = () => {
     } catch (err) {
       console.error("Error fetching team:", err);
     } finally {
+      setTeamMembers(processedTeam); // Re-added after local mapping
       setLoadingTeam(false);
     }
   };
@@ -100,7 +101,6 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      // FIX: Use 'count: exact' to bypass the 1000 row default limit for stats
       const { data: allProfiles, error: allErr, count } = await supabase
         .from("profiles")
         .select("id, facebook, happiness_score", { count: 'exact' });
@@ -122,7 +122,6 @@ const Scoretable = () => {
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
 
-      // 1. Users (Growth starting from 0 in Feb)
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
         if (i === 0) return { name, value: 0 }; 
         if (i === 1) return { name, value: 0 }; 
@@ -132,7 +131,6 @@ const Scoretable = () => {
         };
       }));
 
-      // 2. Prediction (500,000+ by one year)
       const startValue = totalUsersCount;
       const targetValue = 550000;
       const growthRate = Math.pow(targetValue / (startValue || 1), 1 / 12);
@@ -142,19 +140,16 @@ const Scoretable = () => {
         value: Math.floor(startValue * Math.pow(growthRate, i + 1))
       })));
 
-      // 3. Followers (Exponential growth simulation)
       setFollowersChart(Array.from({ length: 5 }).map((_, i) => ({
         name: months[(currentMonthIdx - (4 - i) + 12) % 12],
         value: Math.floor(totalFollowers * Math.pow(0.85, 4 - i))
       })));
 
-      // 4. Ratings (Last 30 Days, 3-day interval)
       setRatingsChart(Array.from({ length: 10 }).map((_, i) => ({
         name: `Day ${i * 3}`,
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
-      // Fetch Leaderboard
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
         engagement, value, saved, current_streak, referral_count, happiness_score
@@ -221,7 +216,6 @@ const Scoretable = () => {
                   teamMembers.map((member, idx) => (
                     <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
                       <div>
-                        {/* Link to profile added here */}
                         <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
                           {member.computed_name}
                         </Link>
@@ -303,7 +297,6 @@ const Scoretable = () => {
                   {leaders.map((agent) => (
                     <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                       <td className="p-5">
-                        {/* Link to individual profile page added here */}
                         <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
                           {agent.display_name}
                         </Link>
