@@ -175,7 +175,8 @@ const Profile = () => {
               <div className="pb-2">
                 <div className="flex items-center gap-2 mb-1">
                    <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-                     {profileData?.display_name || (isOwnProfile ? user.user_metadata?.full_name : "Anonymous")}
+                     {profileData?.display_name || 
+                      (isOwnProfile ? (user.user_metadata?.full_name || user.email?.split('@')[0]) : (profileData?.email?.split('@')[0] || "Anonymous"))}
                    </h1>
                    <ShieldCheck className="text-orange-600" size={24} />
                 </div>
@@ -337,7 +338,9 @@ const Profile = () => {
                         alt="" 
                       />
                       <div className="flex-1 overflow-hidden">
-                        <p className="font-bold text-sm truncate uppercase tracking-tight">{member.display_name}</p>
+                        <p className="font-bold text-sm truncate uppercase tracking-tight">
+                          {member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous")}
+                        </p>
                         <p className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
                       </div>
                       <div className="text-right">
