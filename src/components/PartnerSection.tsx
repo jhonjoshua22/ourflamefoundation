@@ -44,6 +44,7 @@ const partnerLogos = [
 ];
 
 const PartnerSection = () => {
+  const [totalUsers, setTotalUsers] = useState<number>(0);
   const [groups, setGroups] = useState<{ [key: string]: any[] }>({
     SuperFounder: [],
     SuperFarmer: [],
@@ -55,10 +56,13 @@ const PartnerSection = () => {
 
   useEffect(() => {
     fetchMembers();
+    fetchTotalUsers();
+    
     const channel = supabase
       .channel("live-groups")
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
         fetchMembers();
+        fetchTotalUsers();
       })
       .subscribe();
 
@@ -66,6 +70,14 @@ const PartnerSection = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const fetchTotalUsers = async () => {
+    const { count } = await supabase
+      .from("profiles")
+      .select("*", { count: 'exact', head: true });
+    
+    if (count !== null) setTotalUsers(count);
+  };
 
   const fetchMembers = async () => {
     const { data, error } = await supabase
@@ -173,7 +185,6 @@ const PartnerSection = () => {
           </a>
         </div>
 
-        {/* Restore original Size and Color for Logos */}
         <div className="relative w-full overflow-hidden mb-24 py-12">
           <div className="flex w-max animate-infinite-scroll">
             {[...partnerLogos, ...partnerLogos].map((p, idx) => (
@@ -205,7 +216,7 @@ const PartnerSection = () => {
             <Users size={14}/> Incubator of Incubators
           </h4>
           <p className="text-2xl md:text-3xl font-black leading-tight uppercase italic mb-8">
-            A global collective of 100+ engineers building in public. We 10x every 2 months via AI, Blockchain, and Creative Hardware.
+            A global collective of {totalUsers}+ engineers building in public. We {totalUsers * 10}x by next cycle via AI, Blockchain, and Creative Hardware.
           </p>
         </div>
       </div>
