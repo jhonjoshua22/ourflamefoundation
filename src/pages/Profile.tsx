@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate, useParams } from "react-router-dom"; // Added useParams
+import { useNavigate, useParams } from "react-router-dom";
 import { 
   User, Mail, Calendar, ArrowLeft, 
   Trophy, Zap, DollarSign, ShieldCheck,
-  UserPlus, Copy, CheckCircle2, X, Users
+  UserPlus, Copy, CheckCircle2, X, Users,
+  Flag
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,14 +13,13 @@ import { toast } from "sonner";
 import defaultAvatar from "../assets/default-user.jpg";
 
 const Profile = () => {
-  const { id } = useParams(); // Capture the ID from the URL
+  const { id } = useParams(); 
   const [user, setUser] = useState<any>(null);
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [referralInput, setReferralInput] = useState("");
   const [isSubmittingReferral, setIsSubmittingReferral] = useState(false);
   
-  // Modal State
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
@@ -28,7 +28,6 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     setLoading(true);
-    // 1. Get the logged-in session for auth-walled actions (like referral submission)
     const { data: { user: authUser } } = await supabase.auth.getUser();
     
     if (!authUser) {
@@ -37,10 +36,8 @@ const Profile = () => {
     }
     setUser(authUser);
 
-    // 2. Determine whose profile to show: URL ID or Current User ID
     const targetId = id || authUser.id;
 
-    // Fetch profile and the real-time count of referrals for the TARGET ID
     const [profileRes, countRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", targetId).single(),
       supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", targetId)
@@ -56,18 +53,17 @@ const Profile = () => {
   };
 
   const fetchTeamMembers = async () => {
-    // Ensure we use the profile being viewed, not necessarily the logged-in user
     const targetId = id || user?.id;
     if (!targetId) return;
 
     setLoadingTeam(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("display_name, email, rank, photo_url")
+      .select("display_name, rank, photo_url")
       .eq("referred_by", targetId);
     
     if (error) {
-      toast.error("Failed to load team members");
+      toast.error("Failed to load family members");
     } else {
       setTeamMembers(data || []);
     }
@@ -76,7 +72,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, [id, navigate]); // Re-run if the URL ID changes
+  }, [id, navigate]);
 
   useEffect(() => {
     if (isTeamModalOpen) {
@@ -143,7 +139,6 @@ const Profile = () => {
 
   if (loading || !user) return null;
 
-  // Logic: Use profileData (the target) primarily, fall back to auth user for own profile
   const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
   const isOwnProfile = !id || id === user.id;
 
@@ -169,7 +164,6 @@ const Profile = () => {
                 className="w-40 h-40 rounded-[2rem] border-8 border-zinc-950 bg-zinc-900 shadow-2xl object-cover"
                 alt="Profile"
                 referrerPolicy="no-referrer"
-                // Only use the user metadata fallback if it's our own profile
                 onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
               />
               <div className="pb-2">
@@ -180,9 +174,16 @@ const Profile = () => {
                    </h1>
                    <ShieldCheck className="text-orange-600" size={24} />
                 </div>
-                <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
-                  {profileData?.rank || "Foundation Member"}
-                </p>
+                <div className="flex flex-col gap-1">
+                  <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
+                    {profileData?.rank || "Foundation Member"}
+                  </p>
+                  {profileData?.tribe_id && (
+                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[10px] flex items-center gap-1">
+                      <Flag size={10} className="text-purple-500" /> {profileData.tribe_id}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -198,9 +199,9 @@ const Profile = () => {
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <DollarSign size={18} className="text-green-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Valuation</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Invested</span>
                 </div>
-                <p className="text-2xl font-black italic">${(Number(profileData?.valuation || 0)).toLocaleString()}</p>
+                <p className="text-2xl font-black italic">${(Number(profileData?.paid || 0)).toLocaleString()}</p>
               </div>
 
               <button 
@@ -209,15 +210,14 @@ const Profile = () => {
               >
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Trophy size={18} className="text-purple-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Team Members</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Families</span>
                 </div>
                 <p className="text-2xl font-black italic group-hover:text-purple-400 transition-colors">
-                  {profileData?.referral_count || 0} MEMBERS
+                  {profileData?.referral_count || 0}
                 </p>
               </button>
             </div>
 
-            {/* Referral Section - ONLY SHOW ON OWN PROFILE */}
             {isOwnProfile && (
               <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
@@ -267,24 +267,12 @@ const Profile = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
                   <div className="p-3 bg-black rounded-xl">
-                    <Mail className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Secure Email</p>
-                    <p className="font-bold text-sm">{isOwnProfile ? user.email : profileData?.email || "Private Email"}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
-                  <div className="p-3 bg-black rounded-xl">
                     <Calendar className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
                     <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Joined Flame</p>
                     <p className="font-bold text-sm">
-                      {profileData?.updated_at 
-                        ? new Date(profileData.updated_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
-                        : "Unknown"}
+                      {profileData?.Rebirth || "Unknown"}
                     </p>
                   </div>
                 </div>
@@ -311,7 +299,7 @@ const Profile = () => {
           <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
             <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
               <div>
-                <h2 className="text-2xl font-black uppercase italic tracking-tighter">Team Members</h2>
+                <h2 className="text-2xl font-black uppercase italic tracking-tighter">Families</h2>
                 <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Active Recruitment Network</p>
               </div>
               <button 
@@ -339,7 +327,7 @@ const Profile = () => {
                       />
                       <div className="flex-1 overflow-hidden">
                         <p className="font-bold text-sm truncate uppercase tracking-tight">
-                          {member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous")}
+                          {member.display_name || "Anonymous"}
                         </p>
                         <p className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
                       </div>
