@@ -329,7 +329,7 @@ const Scoretable = () => {
                     <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.paidNum, 0).toLocaleString()}</td>
                     <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.savedNum, 0).toLocaleString()}</td>
                     <td className="px-5 py-3">{stats.totalFollowers.toLocaleString()}</td>
-                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.engagementNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3">100M+</td>
                     <td className="px-5 py-3 text-right">100M</td>
                   </tr>
                 </thead>
