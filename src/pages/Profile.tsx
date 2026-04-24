@@ -252,73 +252,71 @@ const Profile = () => {
             </div>
 
             {isOwnProfile && (
-              <>
-                <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
-                  <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
-                      <span className="font-mono text-orange-600 font-bold tracking-widest text-[18px]">
-                        {profileData?.referral_code || "GENERATING..."}
-                      </span>
-                      <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
-                        <Copy size={20} />
+              <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
+                <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
+                    <span className="font-mono text-orange-600 font-bold tracking-widest text-[18px]">
+                      {profileData?.referral_code || "GENERATING..."}
+                    </span>
+                    <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
+                      <Copy size={20} />
+                    </button>
+                  </div>
+                  <p className="text-[16px] text-zinc-500 uppercase font-black w-32 leading-tight">Share this code to build your network</p>
+                </div>
+
+                {!profileData?.referred_by ? (
+                  <div className="space-y-4">
+                    <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text"
+                        placeholder="ENTER REFERRAL CODE"
+                        value={referralInput}
+                        onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+                        className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-[16px] font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
+                      />
+                      <button 
+                        onClick={handleReferralSubmit}
+                        disabled={isSubmittingReferral || !referralInput}
+                        className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[16px] uppercase tracking-widest transition-all active:scale-95"
+                      >
+                        {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
                       </button>
                     </div>
-                    <p className="text-[16px] text-zinc-500 uppercase font-black w-32 leading-tight">Share this code to build your network</p>
                   </div>
-
-                  {!profileData?.referred_by ? (
-                    <div className="space-y-4">
-                      <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
-                      <div className="flex gap-2">
-                        <input 
-                          type="text"
-                          placeholder="ENTER REFERRAL CODE"
-                          value={referralInput}
-                          onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
-                          className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-[16px] font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
-                        />
-                        <button 
-                          onClick={handleReferralSubmit}
-                          disabled={isSubmittingReferral || !referralInput}
-                          className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[16px] uppercase tracking-widest transition-all active:scale-95"
-                        >
-                          {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
-                      <CheckCircle2 size={24} />
-                      <span className="text-[16px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mb-10">
-                  <div className="flex items-center gap-3 mb-6 ml-2">
-                    <Target className="text-orange-600" size={24} />
-                    <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Next Objectives</h3>
+                ) : (
+                  <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
+                    <CheckCircle2 size={24} />
+                    <span className="text-[16px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {objectives.map((obj, idx) => (
-                      <div key={idx} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] group hover:border-orange-600/50 transition-all">
-                         <div className="flex items-start gap-4">
-                            <div className="p-3 bg-black rounded-xl border border-zinc-800 group-hover:border-orange-600/50 transition-colors">
-                              {obj.icon}
-                            </div>
-                            <div>
-                              <p className="text-[16px] font-black uppercase tracking-tight mb-2 group-hover:text-orange-500 transition-colors">{obj.title}</p>
-                              <p className="text-[16px] text-zinc-500 font-medium leading-relaxed">{obj.desc}</p>
-                            </div>
-                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
+                )}
+              </div>
             )}
+
+            <div className="mb-10">
+              <div className="flex items-center gap-3 mb-6 ml-2">
+                <Target className="text-orange-600" size={24} />
+                <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Next Objectives</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {objectives.map((obj, idx) => (
+                  <div key={idx} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] group hover:border-orange-600/50 transition-all">
+                     <div className="flex items-start gap-4">
+                        <div className="p-3 bg-black rounded-xl border border-zinc-800 group-hover:border-orange-600/50 transition-colors">
+                          {obj.icon}
+                        </div>
+                        <div>
+                          <p className="text-[16px] font-black uppercase tracking-tight mb-2 group-hover:text-orange-500 transition-colors">{obj.title}</p>
+                          <p className="text-[16px] text-zinc-500 font-medium leading-relaxed">{obj.desc}</p>
+                        </div>
+                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-4">
               <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-6 ml-2">Verification Details</h3>
