@@ -1,486 +1,351 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import {
-  Trophy, Target, Loader2, Zap,
-  ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown, X
+import { useNavigate } from "react-router-dom";
+import { 
+  User, Mail, Calendar, ArrowLeft, 
+  Trophy, Zap, DollarSign, ShieldCheck,
+  UserPlus, Copy, CheckCircle2, X, Users
 } from "lucide-react";
-import {
-  XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
-} from "recharts";
+import { toast } from "sonner";
 
-import AboutUsSection from "@/components/AboutUsSection";
-import HeroSection from "@/components/HeroSection";
+// Asset Import
+import defaultAvatar from "../assets/default-user.jpg";
 
-// Tier Image Imports
-import partnerImg from "../assets/partners.jpg"; 
-import scoutImg from "../assets/scout.png";
-import stormtrooperImg from "../assets/superheroes.png";
-import angelImg from "../assets/angel.png";
-import farmerImg from "../assets/superfarmer.png";
-import founderImg from "../assets/founder.png";
-
-const Scoretable = () => {
-  const [leaders, setLeaders] = useState<any[]>([]);
+const Profile = () => {
+  const [user, setUser] = useState<any>(null);
+  const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("team"); 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [stats, setStats] = useState({ totalMembers: 0, totalFollowers: 0, avgHappiness: 0 });
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [referralLink, setReferralLink] = useState<string>('');
+  const [referralInput, setReferralInput] = useState("");
+  const [isSubmittingReferral, setIsSubmittingReferral] = useState(false);
   
-  // Team Modal State
-  const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
+  // Modal State
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
-  // Real graph data state
-  const [usersChart, setUsersChart] = useState<any[]>([]);
-  const [predictionChart, setPredictionChart] = useState<any[]>([]);
-  const [followersChart, setFollowersChart] = useState<any[]>([]);
-  const [ratingsChart, setRatingsChart] = useState<any[]>([]);
+  const navigate = useNavigate();
 
-  const tiers = [
-    { role: "Partner", image: partnerImg, price: "Forever Free", benefit: "Ethical stakeholder support.", button: "I'm Partner" },
-    { role: "Normies", image: scoutImg, price: "From $1 pm", benefit: "Enjoy life, work, and family.", button: "I'm Normal" },
-    { role: "SuperHeroes", image: stormtrooperImg, price: "From $5 pm", benefit: "10x Superbot powers for good.", button: "I'm SuperHero" },
-    { role: "Angels", image: angelImg, price: "From $50 pm", benefit: "Fuel the mission, share magic.", button: "I'm Angel" },
-    { role: "SuperFarmers", image: farmerImg, price: "From $500 pm", benefit: "Boost ecosystem growth.", button: "I'm SuperFarmer" },
-    { role: "SuperFounder", image: founderImg, price: "From $5,000 pm", benefit: "Founding legacy & elite governance.", button: "I'm SuperFounder" },
-  ];
-
-  const staticChallenges = [
-    { id: 1, title: "1. DO GOOD & SHARE", goal: "Share video on Clapmi to set good example and inspire the network.", icon: <Video size={24} className="text-orange-500" /> },
-    { id: 2, title: "2. SUPERBOTS", goal: "Build your dreams & add to our $1 PM Wholesale Family Pack. Keep your markup.", icon: <Bot size={24} className="text-orange-500" /> },
-    { id: 3, title: "3. RECRUIT 10", goal: "Recruit 10 people from age decile below you per week thru family friends network.", icon: <Users size={24} className="text-orange-500" /> },
-  ];
-
-  const rankPriority: Record<string, number> = {
-    "SuperFounder": 0, "SuperFarmer": 1, "Angel": 2, "SuperHero": 3, "Normie": 4, "Partner": 5
-  };
-
-  useEffect(() => {
-    const initUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUserId(user.id);
-        const { data: profile } = await supabase.from('profiles').select('referral_code').eq('id', user.id).single();
-        if (profile) setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
-      }
-    };
-    initUser();
-  }, []);
-
-  const fetchTeamMembers = async (userId: string, displayName: string) => {
-    setSelectedTeamUser({ name: displayName, id: userId });
-    setLoadingTeam(true);
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('display_name, email, rank, current_streak')
-        .eq('referred_by', userId);
-      
-      if (error) throw error;
-      
-      const processedTeam = (data || []).map(member => ({
-        ...member,
-        computed_name: member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous")
-      }));
-
-      setTeamMembers(processedTeam);
-    } catch (err) {
-      console.error("Error fetching team:", err);
-    } finally {
-      setLoadingTeam(false);
+  const fetchUserData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      navigate("/login");
+      return;
     }
-  };
 
-  const fetchData = async (query = "", currentSort = sortBy) => {
-    setLoading(true);
-    try {
-      // FIX: Use 'count: exact' to bypass the 1000 row default limit for stats
-      const { data: allProfiles, error: allErr, count } = await supabase
-        .from("profiles")
-        .select("id, facebook, happiness_score", { count: 'exact' });
-      
-      if (allErr) throw allErr;
+    setUser(user);
 
-      const totalUsersCount = count || allProfiles.length;
-      const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
-      const avgHappiness = allProfiles.length > 0 
-        ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
-        : 0;
+    // Fetch profile and the real-time count of referrals
+    const [profileRes, countRes] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).single(),
+      supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", user.id)
+    ]);
 
-      setStats({ 
-        totalMembers: totalUsersCount, 
-        totalFollowers: totalFollowers,
-        avgHappiness: Number(avgHappiness.toFixed(2))
+    if (profileRes.data) {
+      setProfileData({
+        ...profileRes.data,
+        referral_count: countRes.count || 0
       });
-
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const currentMonthIdx = new Date().getMonth();
-
-      // 1. Users (Growth starting from 0 in Feb)
-      setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
-        if (i === 0) return { name, value: 0 }; 
-        if (i === 1) return { name, value: 0 }; 
-        return {
-          name,
-          value: Math.floor(totalUsersCount * Math.pow(i / (currentMonthIdx || 1), 2))
-        };
-      }));
-
-      // 2. Prediction (500,000+ by one year)
-      const startValue = totalUsersCount;
-      const targetValue = 550000;
-      const growthRate = Math.pow(targetValue / (startValue || 1), 1 / 12);
-
-      setPredictionChart(Array.from({ length: 12 }).map((_, i) => ({
-        name: months[(currentMonthIdx + i + 1) % 12],
-        value: Math.floor(startValue * Math.pow(growthRate, i + 1))
-      })));
-
-      // 3. Followers (Exponential growth simulation)
-      setFollowersChart(Array.from({ length: 5 }).map((_, i) => ({
-        name: months[(currentMonthIdx - (4 - i) + 12) % 12],
-        value: Math.floor(totalFollowers * Math.pow(0.85, 4 - i))
-      })));
-
-      // 4. Ratings (Last 30 Days, 3-day interval)
-      setRatingsChart(Array.from({ length: 10 }).map((_, i) => ({
-        name: `Day ${i * 3}`,
-        value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
-      })));
-
-      // Fetch Leaderboard
-      let qb = supabase.from('profiles').select(`
-        id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, referral_count, happiness_score
-      `);
-      
-      if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
-      const { data, error } = await qb;
-      if (error) throw error;
-
-      const processed = (data || []).map(item => ({
-        ...item,
-        display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
-        followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
-        paidNum: Number(item.paid || 0),
-        savedNum: Number(item.saved || 0),
-        valueNum: Number(item.value || 0),
-        engagementNum: Number(item.engagement || 0),
-        teamNum: Number(item.referral_count || 0)
-      }));
-
-      let sorted = [...processed];
-      if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
-      else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
-      else if (currentSort === "value") sorted.sort((a, b) => b.valueNum - a.valueNum);
-      else if (currentSort === "engagement") sorted.sort((a, b) => b.engagementNum - a.engagementNum);
-      else if (currentSort === "paid") sorted.sort((a, b) => b.paidNum - a.paidNum);
-      else if (currentSort === "saved") sorted.sort((a, b) => b.savedNum - a.savedNum);
-      else if (currentSort === "streak") sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
-      else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
-
-      setLeaders(sorted.slice(0, 10));
-    } catch (err) {
-      console.error("Fetch Error:", err);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
+  };
+
+  const fetchTeamMembers = async () => {
+    setLoadingTeam(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("display_name, email, rank, photo_url")
+      .eq("referred_by", user.id);
+    
+    if (error) {
+      toast.error("Failed to load team members");
+    } else {
+      setTeamMembers(data || []);
+    }
+    setLoadingTeam(false);
   };
 
   useEffect(() => {
-    fetchData(searchQuery, sortBy);
-  }, [sortBy, searchQuery]);
+    fetchUserData();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (isTeamModalOpen) {
+      fetchTeamMembers();
+    }
+  }, [isTeamModalOpen]);
+
+  const handleReferralSubmit = async () => {
+    if (!referralInput.trim()) return;
+    setIsSubmittingReferral(true);
+
+    try {
+      const { data: referrer, error: findError } = await supabase
+        .from("profiles")
+        .select("id, referral_count")
+        .eq("referral_code", referralInput.trim())
+        .single();
+
+      if (findError || !referrer) {
+        toast.error("Invalid referral code.");
+        return;
+      }
+
+      if (referrer.id === user.id) {
+        toast.error("You cannot refer yourself.");
+        return;
+      }
+
+      if (profileData?.referred_by) {
+        toast.error("You have already been referred.");
+        return;
+      }
+
+      const { error: updateMeError } = await supabase
+        .from("profiles")
+        .update({ referred_by: referrer.id })
+        .eq("id", user.id);
+
+      if (updateMeError) throw updateMeError;
+
+      const { error: updateReferrerError } = await supabase
+        .from("profiles")
+        .update({ referral_count: (referrer.referral_count || 0) + 1 })
+        .eq("id", referrer.id);
+
+      if (updateReferrerError) throw updateReferrerError;
+
+      toast.success("Referral successful!");
+      setReferralInput("");
+      fetchUserData();
+    } catch (err: any) {
+      toast.error(err.message || "Referral failed");
+    } finally {
+      setIsSubmittingReferral(false);
+    }
+  };
+
+  const copyReferralCode = () => {
+    if (profileData?.referral_code) {
+      navigator.clipboard.writeText(profileData.referral_code);
+      toast.success("Code copied to clipboard!");
+    }
+  };
+
+  if (loading || !user) return null;
+
+  const profileImage = profileData?.photo_url || user.user_metadata?.avatar_url || defaultAvatar;
 
   return (
-    <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
-      <div className="container mx-auto max-w-7xl">
+    <div className="min-h-screen bg-black pt-32 pb-12 px-6 text-white font-sans">
+      <div className="max-w-3xl mx-auto">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="flex items-center gap-2 text-zinc-500 hover:text-orange-600 mb-8 transition-all font-black uppercase text-xs tracking-widest"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Network
+        </button>
 
-        {/* TEAM MODAL */}
-        {selectedTeamUser && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-                <div>
-                  <h3 className="text-orange-600 font-black uppercase italic tracking-tighter text-xl">Team {selectedTeamUser.name}</h3>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Referral List</p>
+        <div className="bg-zinc-950 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
+          <div className="h-40 bg-gradient-to-r from-orange-600 to-purple-900 w-full relative">
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+          </div>
+
+          <div className="px-8 pb-12">
+            <div className="relative -mt-20 mb-8 flex flex-col md:flex-row md:items-end gap-6">
+              <img 
+                src={profileImage} 
+                className="w-40 h-40 rounded-[2rem] border-8 border-zinc-950 bg-zinc-900 shadow-2xl object-cover"
+                alt="Profile"
+                referrerPolicy="no-referrer"
+                onError={(e) => { (e.target as HTMLImageElement).src = defaultAvatar; }}
+              />
+              <div className="pb-2">
+                <div className="flex items-center gap-2 mb-1">
+                   <h1 className="text-4xl font-black uppercase italic tracking-tighter">{profileData?.display_name || user.user_metadata?.full_name}</h1>
+                   <ShieldCheck className="text-orange-600" size={24} />
                 </div>
-                <button onClick={() => setSelectedTeamUser(null)} className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400">
-                  <X size={20} />
-                </button>
+                <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">
+                  {profileData?.rank || "Foundation Member"}
+                </p>
               </div>
-              <div className="max-h-[400px] overflow-y-auto p-4 space-y-3">
-                {loadingTeam ? (
-                  <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-600" /></div>
-                ) : teamMembers.length > 0 ? (
-                  teamMembers.map((member, idx) => (
-                    <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                      <div>
-                        {/* Link to profile added here */}
-                        <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
-                          {member.computed_name}
-                        </Link>
-                        <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+                <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                  <Zap size={18} className="text-orange-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Active Streak</span>
+                </div>
+                <p className="text-2xl font-black italic">{profileData?.current_streak || 0} DAYS</p>
+              </div>
+
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+                <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                  <DollarSign size={18} className="text-green-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Valuation</span>
+                </div>
+                <p className="text-2xl font-black italic">${(profileData?.valuation || 0).toLocaleString()}</p>
+              </div>
+
+              {/* Team Members Stat with Modal Trigger */}
+              <button 
+                onClick={() => setIsTeamModalOpen(true)}
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group"
+              >
+                <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                  <Trophy size={18} className="text-purple-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Team Members</span>
+                </div>
+                <p className="text-2xl font-black italic group-hover:text-purple-400 transition-colors">
+                  {profileData?.referral_count || 0} MEMBERS
+                </p>
+              </button>
+            </div>
+
+            {/* Referral Section */}
+            <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
+              <div className="flex items-center gap-4 mb-8">
+                <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
+                  <span className="font-mono text-orange-600 font-bold tracking-widest">
+                    {profileData?.referral_code || "GENERATING..."}
+                  </span>
+                  <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
+                    <Copy size={16} />
+                  </button>
+                </div>
+                <p className="text-[9px] text-zinc-500 uppercase font-black w-24 leading-tight">Share this code to build your network</p>
+              </div>
+
+              {!profileData?.referred_by ? (
+                <div className="space-y-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text"
+                      placeholder="ENTER REFERRAL CODE"
+                      value={referralInput}
+                      onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+                      className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
+                    />
+                    <button 
+                      onClick={handleReferralSubmit}
+                      disabled={isSubmittingReferral || !referralInput}
+                      className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
+                    >
+                      {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
+                  <CheckCircle2 size={18} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-6 ml-2">Verification Details</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
+                  <div className="p-3 bg-black rounded-xl">
+                    <Mail className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Secure Email</p>
+                    <p className="font-bold text-sm">{user.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
+                  <div className="p-3 bg-black rounded-xl">
+                    <Calendar className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-zinc-500 uppercase font-black tracking-wider">Joined Flame</p>
+                    <p className="font-bold text-sm">{new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-12 pt-8 border-t border-zinc-800 flex justify-between items-center">
+              <div className="flex gap-2">
+                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Node Active</span>
+              </div>
+              <button className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
+                Privacy Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Team Members Modal */}
+      {isTeamModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+              <div>
+                <h2 className="text-2xl font-black uppercase italic tracking-tighter">Team Members</h2>
+                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">Active Recruitment Network</p>
+              </div>
+              <button 
+                onClick={() => setIsTeamModalOpen(false)}
+                className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-500 hover:text-white"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-4 overflow-y-auto custom-scrollbar">
+              {loadingTeam ? (
+                <div className="py-20 text-center">
+                  <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full mx-auto mb-4" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Scanning Database...</p>
+                </div>
+              ) : teamMembers.length > 0 ? (
+                <div className="space-y-3">
+                  {teamMembers.map((member, idx) => (
+                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
+                      <img 
+                        src={member.photo_url || defaultAvatar} 
+                        className="w-12 h-12 rounded-xl object-cover border border-zinc-700" 
+                        alt="" 
+                      />
+                      <div className="flex-1 overflow-hidden">
+                        <p className="font-bold text-sm truncate uppercase tracking-tight">{member.display_name}</p>
+                        <p className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
                       </div>
-                      <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
-                        <Zap size={10} fill="currentColor" /> {member.current_streak || 0}
+                      <div className="text-right">
+                        <Users size={14} className="text-orange-600 ml-auto mb-1" />
+                        <p className="text-[9px] text-zinc-600 font-black uppercase tracking-tighter">Verified Node</p>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-10 text-zinc-500 text-xs font-bold uppercase tracking-widest">No recruits yet</div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* LEADERBOARD */}
-        {loading ? (
-          <div className="flex justify-center py-32"><Loader2 className="animate-spin text-orange-600" size={48} /></div>
-        ) : (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
-            <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
-              <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
-              
-              <div className="relative">
-                <button 
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="flex items-center gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
-                >
-                  <Filter size={16} className="text-orange-600" />
-                  Filter By: {sortBy.toUpperCase()}
-                  <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isFilterOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
-                    {[
-                      { id: "team", label: "Team Count" },
-                      { id: "followers", label: "Followers" },
-                      { id: "paid", label: "Paid" },
-                      { id: "saved", label: "Saved" },
-                      { id: "engagement", label: "Engagement" },
-                      { id: "value", label: "Value" },
-                      { id: "rank", label: "Rank" }
-                    ].map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => {
-                          setSortBy(option.id);
-                          setIsFilterOpen(false);
-                        }}
-                        className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px]">
-                <thead>
-                  <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
-                    <th className="p-5">Agent</th>
-                    <th className="p-5">Rank</th>
-                    <th className="p-5">Team</th>
-                    <th className="p-5">Paid (MBI)</th>
-                    <th className="p-5">Saved</th>
-                    <th className="p-5">Followers</th>
-                    <th className="p-5">Engagement</th>
-                    <th className="p-5 text-right">Value</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {leaders.map((agent) => (
-                    <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
-                      <td className="p-5">
-                        {/* Link to individual profile page added here */}
-                        <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
-                          {agent.display_name}
-                        </Link>
-                        <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
-                          <Zap size={10} fill="currentColor" /> {agent.current_streak || 0} DAY STREAK
-                        </div>
-                      </td>
-                      <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
-                      <td className="p-5">
-                        <button 
-                          onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
-                          className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
-                        >
-                          {(agent.teamNum || 0).toLocaleString()}
-                        </button>
-                      </td>
-                      <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
-                      <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
-                      <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
-                      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
-                      <td className="p-5 text-right text-purple-400 font-black italic">${agent.valueNum.toLocaleString()}</td>
-                    </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ANALYTICS GRAPHS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {[
-            { title: "Number of Users", data: usersChart, color: "#f97316", icon: <Users size={20}/> },
-            { title: "Number of Users Prediction (1 Year)", data: predictionChart, color: "#a855f7", icon: <TrendingUp size={20}/> },
-            { title: "Number of Followers", data: followersChart, color: "#3b82f6", icon: <UserPlus size={20}/> },
-            { title: "Happiness ratings", data: ratingsChart, color: "#22c55e", icon: <Smile size={20}/> }
-          ].map((chart, idx) => (
-            <div key={idx} className="bg-zinc-950 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
-              <div className="flex items-center gap-3 mb-6">
-                <span style={{ color: chart.color }}>{chart.icon}</span>
-                <h4 className="text-sm font-black uppercase tracking-widest text-zinc-300">{chart.title}</h4>
-              </div>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chart.data}>
-                    <defs>
-                      <linearGradient id={`grad-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={chart.color} stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor={chart.color} stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="#52525b" 
-                      fontSize={10} 
-                      tickLine={false} 
-                      axisLine={false}
-                      dy={10}
-                    />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}
-                      itemStyle={{ color: chart.color }}
-                      cursor={{ stroke: '#3f3f46', strokeWidth: 1 }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={chart.color} 
-                      fillOpacity={1} 
-                      fill={`url(#grad-${idx})`} 
-                      strokeWidth={3}
-                      animationDuration={2000}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ANALYTICS EXPLANATION PARAGRAPH */}
-        <div className="bg-zinc-900/20 border border-zinc-800 p-8 rounded-3xl mb-16 text-center">
-          <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-            This dashboard tracks our ecosystem's health across four vital dimensions. 
-            The <span className="text-[#f97316] font-bold">Number of Users</span> has shown significant growth starting from February. 
-            Our <span className="text-[#a855f7] font-bold">Prediction</span> shows us reaching a milestone of 500,000+ users within the year as we scale. 
-            Currently, we have an <span className="text-[#3b82f6] font-bold">Average of {stats.totalFollowers.toLocaleString()} Followers</span> across the platform. 
-            These metrics grow exponentially alongside our <span className="text-[#22c55e] font-bold">Happiness Score</span>, which currently maintains an <span className="text-white font-bold">Average of {stats.avgHappiness}</span>, ensuring our network scales without compromising quality of life.
-          </p>
-        </div>
-        
-        {/* membership tiers */}
-        <div id="tiers" className="mb-32 space-y-12">
-          <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-            {tiers.map((tier, i) => (
-              <div key={i} className="p-10 bg-zinc-900/50 border border-zinc-800 rounded-[3rem] flex flex-col items-center text-center group hover:border-orange-600 transition-all duration-500">
-                <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-zinc-800 mb-8 transform group-hover:scale-105 transition-all">
-                  <img src={tier.image} alt={tier.role} className="w-full h-full object-cover" />
                 </div>
-                <h4 className="text-2xl font-black text-white uppercase italic mb-2">{tier.role}</h4>
-                <p className="text-orange-600 font-bold text-sm mb-4 tracking-widest">{tier.price}</p>
-                <Link to="/login" className="mt-auto w-full py-4 text-[10px] font-black uppercase tracking-widest bg-white text-black rounded-xl flex items-center justify-center gap-2 hover:bg-orange-600 hover:text-white transition-all">
-                  {tier.button} <ChevronRight size={14} />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-zinc-950 border border-zinc-800 rounded-[3rem] p-10 mb-12">
-          <div className="flex justify-between items-center mb-10">
-            <h3 className="text-3xl font-black flex items-center gap-3 uppercase italic text-orange-600">
-              <Target size={32} /> Daily Tasks
-            </h3>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {staticChallenges.map((challenge) => (
-              <div key={challenge.id} className="border border-zinc-800 p-8 rounded-3xl bg-black hover:border-orange-600 transition-all group">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 bg-zinc-900 rounded-2xl group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                    {challenge.icon}
-                  </div>
-                  <div className="font-black text-xl text-white uppercase italic tracking-tighter leading-none">{challenge.title}</div>
+              ) : (
+                <div className="py-20 text-center">
+                  <Trophy size={40} className="mx-auto mb-4 text-zinc-800" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 text-balance">No members found. Share your code to start building.</p>
                 </div>
-                <p className="text-zinc-500 text-xs font-bold uppercase leading-relaxed">{challenge.goal}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-zinc-900/30 border border-zinc-800 rounded-[3rem] p-10 md:p-14 mb-12 relative overflow-hidden">
-          <div className="relative z-10">
-            <div className="flex items-center gap-4 mb-12">
-              <Activity className="text-orange-600" size={32} />
-              <h2 className="text-4xl font-black uppercase italic tracking-tighter">MBI Rewards Ledger</h2>
+              )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-              {[
-                { rank: "Normies / Partners", val: "Free & Premium Content" },
-                { rank: "Superheros", val: "$5-25 PW" },
-                { rank: "Angels", val: "$25-50 PW" },
-                { rank: "Superfarmers", val: "$50-100 PM" },
-                { rank: "Superfounders", val: "$100-500 PW" }
-              ].map((item, i) => (
-                <div key={i}>
-                  <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">{item.rank}</p>
-                  <p className="text-lg font-black uppercase italic">{item.val}</p>
-                </div>
-              ))}
+            
+            <div className="p-8 border-t border-zinc-800 bg-zinc-900/50 text-center">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                Total Strength: {teamMembers.length}
+              </p>
             </div>
           </div>
         </div>
-
-        {referralLink && (
-          <div className="mt-12 bg-gradient-to-br from-orange-700 to-purple-800 p-10 rounded-[3rem] text-center border border-orange-500/40 shadow-2xl relative overflow-hidden">
-            <div className="relative z-10">
-              <h3 className="text-4xl md:text-5xl font-black mb-4 italic uppercase tracking-tighter">Recruit & Explode 🔥</h3>
-              <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-8 italic">Add to our $1 PM Wholesale Family Pack</p>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6">
-                <div className="bg-black/40 p-5 rounded-2xl font-mono text-sm border border-white/10 break-all w-full md:w-auto">{referralLink}</div>
-                <button 
-                  onClick={() => { navigator.clipboard.writeText(referralLink); alert("Copied!"); }} 
-                  className="whitespace-nowrap px-10 py-5 bg-white text-orange-700 font-black rounded-2xl hover:scale-105 transition shadow-xl"
-                >
-                  COPY LINK
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-      </div>
-      <AboutUsSection />
-      <HeroSection />
+      )}
     </div>
   );
 };
 
-export default Scoretable;
+export default Profile;
