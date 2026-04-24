@@ -206,11 +206,16 @@ const Profile = () => {
                   <p className="text-orange-600 font-black uppercase tracking-[0.3em] text-[25px]">
                     {profileData?.rank || "Foundation Member"}
                   </p>
-                  {profileData?.tribe_id && (
-                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[20px] flex items-center gap-2">
-                      <Flag size={18} className="text-purple-500" /> {profileData.tribe_id}
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
+                    {profileData?.tribe_id && (
+                      <p className="text-zinc-500 font-black uppercase tracking-widest text-[18px] flex items-center gap-2">
+                        <Flag size={18} className="text-purple-500" /> {profileData.tribe_id}
+                      </p>
+                    )}
+                    <p className="text-zinc-500 font-black uppercase tracking-widest text-[18px] flex items-center gap-2">
+                      <Calendar size={18} className="text-orange-600" /> Rebirth: <span className="text-white">{profileData?.Rebirth || "Unknown"}</span>
                     </p>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -320,26 +325,14 @@ const Profile = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-4 p-5 rounded-2xl bg-zinc-900 border border-zinc-800 transition-colors">
                   <div className="p-3 bg-black rounded-xl">
-                    <Calendar className="w-6 h-6 text-orange-600" />
+                    <ShieldCheck className="w-6 h-6 text-orange-600" />
                   </div>
                   <div>
-                    <p className="text-[16px] text-zinc-500 uppercase font-black tracking-wider">Rebirth</p>
-                    <p className="font-bold text-[18px]">
-                      {profileData?.Rebirth || "Unknown"}
-                    </p>
+                    <p className="text-[16px] text-zinc-500 uppercase font-black tracking-wider">Status</p>
+                    <p className="font-bold text-[18px]">Verified Network Node</p>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-zinc-800 flex justify-between items-center">
-              <div className="flex gap-2 items-center">
-                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                 <span className="text-[16px] font-black uppercase tracking-widest text-zinc-500">Node Active</span>
-              </div>
-              <button className="text-[16px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
-                Privacy Settings
-              </button>
             </div>
           </div>
         </div>
