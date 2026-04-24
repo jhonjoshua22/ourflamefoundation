@@ -100,14 +100,14 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      // Get all profiles for stats and charts
-      const { data: allProfiles, error: allErr } = await supabase
+      // FIX: Use 'count: exact' to bypass the 1000 row default limit for stats
+      const { data: allProfiles, error: allErr, count } = await supabase
         .from("profiles")
-        .select("id, facebook, happiness_score");
+        .select("id, facebook, happiness_score", { count: 'exact' });
       
       if (allErr) throw allErr;
 
-      const totalUsersCount = allProfiles.length;
+      const totalUsersCount = count || allProfiles.length;
       const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
       const avgHappiness = allProfiles.length > 0 
         ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
@@ -221,7 +221,10 @@ const Scoretable = () => {
                   teamMembers.map((member, idx) => (
                     <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
                       <div>
-                        <div className="font-black text-sm uppercase italic">{member.computed_name}</div>
+                        {/* Link to profile added here */}
+                        <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
+                          {member.computed_name}
+                        </Link>
                         <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
                       </div>
                       <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
@@ -300,7 +303,10 @@ const Scoretable = () => {
                   {leaders.map((agent) => (
                     <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                       <td className="p-5">
-                        <div className="font-black text-base uppercase italic tracking-tighter">{agent.display_name}</div>
+                        {/* Link to individual profile page added here */}
+                        <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                          {agent.display_name}
+                        </Link>
                         <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
                           <Zap size={10} fill="currentColor" /> {agent.current_streak || 0} DAY STREAK
                         </div>
