@@ -5,7 +5,7 @@ import {
   User, Mail, Calendar, ArrowLeft, 
   Trophy, Zap, DollarSign, ShieldCheck,
   UserPlus, Copy, CheckCircle2, X, Users,
-  Flag
+  Flag, Target, Share2, Award, TrendingUp
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -142,6 +142,45 @@ const Profile = () => {
   const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
   const isOwnProfile = !id || id === user.id;
 
+  // Next Objectives Data
+  const objectives = [
+    {
+      title: "Expand Your Dynasty",
+      desc: "Recruit 5 new members using your unique referral code to reach the next tier.",
+      icon: <UserPlus className="text-orange-500" size={18} />,
+      metric: `${profileData?.referral_count || 0}/5`,
+      target: "REFERRALS"
+    },
+    {
+      title: "Viral Integration",
+      desc: "Share your node status to social media to increase your network visibility.",
+      icon: <Share2 className="text-blue-500" size={18} />,
+      metric: "READY",
+      target: "SOCIAL"
+    },
+    {
+      title: "Maintain Dominance",
+      desc: "Log in daily to keep your active streak alive and boost your node priority.",
+      icon: <Zap className="text-yellow-500" size={18} />,
+      metric: `${profileData?.current_streak || 0}d`,
+      target: "STREAK"
+    },
+    {
+      title: "Rank Elevation",
+      desc: "Increase your total investment to unlock the 'Elite Founder' rank badge.",
+      icon: <TrendingUp className="text-green-500" size={18} />,
+      metric: "GOAL: $1,000",
+      target: "INVESTMENT"
+    },
+    {
+      title: "Complete Identity",
+      desc: "Ensure your photo and display name are set to maximize trust within the network.",
+      icon: <Award className="text-purple-500" size={18} />,
+      metric: profileData?.photo_url ? "100%" : "50%",
+      target: "PROFILE"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-black pt-32 pb-12 px-6 text-white font-sans">
       <div className="max-w-3xl mx-auto">
@@ -219,47 +258,95 @@ const Profile = () => {
             </div>
 
             {isOwnProfile && (
-              <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
-                    <span className="font-mono text-orange-600 font-bold tracking-widest">
-                      {profileData?.referral_code || "GENERATING..."}
-                    </span>
-                    <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
-                      <Copy size={16} />
-                    </button>
-                  </div>
-                  <p className="text-[9px] text-zinc-500 uppercase font-black w-24 leading-tight">Share this code to build your network</p>
-                </div>
-
-                {!profileData?.referred_by ? (
-                  <div className="space-y-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
-                    <div className="flex gap-2">
-                      <input 
-                        type="text"
-                        placeholder="ENTER REFERRAL CODE"
-                        value={referralInput}
-                        onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
-                        className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
-                      />
-                      <button 
-                        onClick={handleReferralSubmit}
-                        disabled={isSubmittingReferral || !referralInput}
-                        className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
-                      >
-                        {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
+              <>
+                <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-4">Your Recruitment Asset</h3>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center group">
+                      <span className="font-mono text-orange-600 font-bold tracking-widest">
+                        {profileData?.referral_code || "GENERATING..."}
+                      </span>
+                      <button onClick={copyReferralCode} className="text-zinc-500 hover:text-white transition-colors">
+                        <Copy size={16} />
                       </button>
                     </div>
+                    <p className="text-[9px] text-zinc-500 uppercase font-black w-24 leading-tight">Share this code to build your network</p>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
-                    <CheckCircle2 size={18} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
+
+                  {!profileData?.referred_by ? (
+                    <div className="space-y-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Referred By?</h3>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text"
+                          placeholder="ENTER REFERRAL CODE"
+                          value={referralInput}
+                          onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
+                          className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold tracking-widest focus:border-orange-600 outline-none transition-all uppercase"
+                        />
+                        <button 
+                          onClick={handleReferralSubmit}
+                          disabled={isSubmittingReferral || !referralInput}
+                          className="bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95"
+                        >
+                          {isSubmittingReferral ? "LINKING..." : "LINK FOUNDER"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 text-green-500 bg-green-500/5 border border-green-500/20 p-4 rounded-xl">
+                      <CheckCircle2 size={18} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Network Node Linked Successfully</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Next Objectives Section */}
+                <div className="mb-10">
+                  <div className="flex items-center gap-3 mb-6 ml-2">
+                    <Target className="text-orange-600" size={20} />
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500">Next Objectives</h3>
                   </div>
-                )}
-              </div>
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden">
+                    <table className="w-full text-left border-collapse">
+                      <thead className="bg-zinc-950/50 border-b border-zinc-800">
+                        <tr>
+                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-zinc-600">Objective</th>
+                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-zinc-600 hidden md:table-cell">Metric</th>
+                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-zinc-600 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800">
+                        {objectives.map((obj, idx) => (
+                          <tr key={idx} className="group hover:bg-zinc-800/30 transition-colors">
+                            <td className="px-6 py-5">
+                              <div className="flex items-start gap-4">
+                                <div className="mt-1 p-2 bg-black rounded-lg border border-zinc-800 group-hover:border-orange-600/50 transition-colors">
+                                  {obj.icon}
+                                </div>
+                                <div>
+                                  <p className="text-xs font-black uppercase tracking-tight mb-1">{obj.title}</p>
+                                  <p className="text-[10px] text-zinc-500 font-medium leading-relaxed max-w-[200px]">{obj.desc}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 hidden md:table-cell">
+                              <span className="text-[10px] font-black font-mono text-orange-600 bg-orange-600/5 px-2 py-1 rounded border border-orange-600/20">
+                                {obj.metric}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-right">
+                              <button className="text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white border border-zinc-800 px-3 py-1.5 rounded-lg transition-all hover:bg-zinc-800">
+                                Deploy
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="space-y-4">
