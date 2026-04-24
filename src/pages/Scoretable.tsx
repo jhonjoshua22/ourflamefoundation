@@ -322,6 +322,16 @@ const Scoretable = () => {
                     <th className="p-5">Engagement</th>
                     <th className="p-5 text-right">Value</th>
                   </tr>
+                  <tr className="bg-zinc-900/50 text-[11px] uppercase text-orange-500 border-b border-zinc-800/50 text-left font-black tracking-widest">
+                    <td className="px-5 py-3">{stats.totalMembers.toLocaleString()}</td>
+                    <td className="px-5 py-3">-</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.teamNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.paidNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.savedNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3">{stats.totalFollowers.toLocaleString()}</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.engagementNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right">100M</td>
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
                   {paginatedLeaders.length > 0 ? (
@@ -354,7 +364,7 @@ const Scoretable = () => {
                         <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
                         <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
                         <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
-                        <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
+                        <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}</td>
                         <td className="p-5 text-right text-purple-400 font-black italic">${agent.valueNum.toLocaleString()}</td>
                       </tr>
                     ))
