@@ -25,6 +25,7 @@ const locations = [
 const GlobalMap = () => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
+  const markerLayerGroup = useRef<any>(null);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,7 +48,6 @@ const GlobalMap = () => {
       const mappedTeam = referrals
         .map(ref => {
           const userCountry = ref.country?.toUpperCase() || "";
-          // Check for both ISO code (PH) and full name (PHILIPPINES)
           const coords = locations.find(l => 
             l.id === userCountry || 
             (userCountry === "PHILIPPINES" && l.id === "PH")
@@ -68,6 +68,7 @@ const GlobalMap = () => {
     fetchTeamData();
   }, []);
 
+  // Initialize Map
   useEffect(() => {
     if (!window.L || mapInstance.current) return;
 
@@ -85,6 +86,24 @@ const GlobalMap = () => {
     });
 
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
+    
+    // Initialize a LayerGroup to manage markers easily
+    markerLayerGroup.current = window.L.layerGroup().addTo(mapInstance.current);
+
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
+  }, []);
+
+  // Update Markers when viewMode or teamLocations change
+  useEffect(() => {
+    if (!mapInstance.current || !markerLayerGroup.current) return;
+
+    // Clear previous markers
+    markerLayerGroup.current.clearLayers();
 
     const heartIcon = window.L.divIcon({
       className: 'custom-heart-icon',
@@ -101,16 +120,9 @@ const GlobalMap = () => {
 
     const displayList = viewMode === "team" ? teamLocations : locations;
 
-    // Clear existing markers before adding new ones
-    mapInstance.current.eachLayer((layer: any) => {
-      if (layer instanceof window.L.Marker) {
-        mapInstance.current.removeLayer(layer);
-      }
-    });
-
     displayList.forEach((loc) => {
       window.L.marker([loc.lat, loc.lng], { icon: heartIcon })
-        .addTo(mapInstance.current)
+        .addTo(markerLayerGroup.current)
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 5px;">
             <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">
@@ -122,14 +134,8 @@ const GlobalMap = () => {
 
     setTimeout(() => {
       if(mapInstance.current) mapInstance.current.invalidateSize();
-    }, 500);
+    }, 100);
 
-    return () => {
-      if (mapInstance.current) {
-        // We don't remove the instance on every viewMode change to prevent flickering, 
-        // we just clear markers (handled above). Instance is removed on unmount.
-      }
-    };
   }, [viewMode, teamLocations]);
 
   const handleSearch = async (e: React.FormEvent) => {
