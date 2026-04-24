@@ -1,8 +1,32 @@
-import { ArrowRight, Users, Flag, ThumbsUp, Bot, Scale, Heart, Globe } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { ArrowRight, Users, Flag, ThumbsUp, Bot, Scale, Heart, Globe, TrendingUp, Smile } from "lucide-react";
 import heroImage from "@/assets/hero-professionals.png";
 import clickSound from "@/assets/button.m4a"; 
 
 const HeroSection = () => {
+  const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  
+  // Static/Calculated Data
+  const happinessScore = 98.4;
+  const projectedUsers = 500000;
+
+  useEffect(() => {
+    const fetchTotalUsers = async () => {
+      const { count, error } = await supabase
+        .from("profiles")
+        .select("*", { count: 'exact', head: true });
+      
+      if (!error && count !== null) {
+        setTotalUsers(count);
+      }
+      setLoading(false);
+    };
+
+    fetchTotalUsers();
+  }, []);
+
   // Sound helper function
   const playClickSound = () => {
     new Audio(clickSound).play().catch(e => console.log("Audio playback failed", e));
@@ -21,7 +45,6 @@ const HeroSection = () => {
             alt="Professionals"
             className="w-full h-full object-cover object-center 
                        brightness-[0.7] contrast-[1.1] 
-                       /* Removed dark mode brightness/contrast overrides to keep it light */
                        transition-all duration-700"
           />
           
@@ -33,7 +56,7 @@ const HeroSection = () => {
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-3xl">
             
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none mb-8 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-none mb-8 backdrop-blur-sm bg-orange-600/10 border-l-2 border-orange-600">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600">
                 Empowering Communities Since 1876
               </span>
@@ -73,6 +96,37 @@ const HeroSection = () => {
               >
                 My Rewards
               </a>
+            </div>
+
+            {/* Dynamic Data Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-foreground/10">
+               <div>
+                  <div className="flex items-center gap-2 mb-1 text-orange-600">
+                    <Users size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Active Agents</span>
+                  </div>
+                  <p className="text-3xl font-black italic uppercase tabular-nums">
+                    {loading ? "---" : totalUsers.toLocaleString()}
+                  </p>
+               </div>
+               <div>
+                  <div className="flex items-center gap-2 mb-1 text-orange-600">
+                    <TrendingUp size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Yearly Target</span>
+                  </div>
+                  <p className="text-3xl font-black italic uppercase tabular-nums">
+                    {projectedUsers.toLocaleString()}
+                  </p>
+               </div>
+               <div>
+                  <div className="flex items-center gap-2 mb-1 text-orange-600">
+                    <Smile size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Happiness Score</span>
+                  </div>
+                  <p className="text-3xl font-black italic uppercase tabular-nums">
+                    {happinessScore}%
+                  </p>
+               </div>
             </div>
           </div>
         </div>
