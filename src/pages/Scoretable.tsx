@@ -273,7 +273,7 @@ const Scoretable = () => {
                     {[
                       { id: "team", label: "Team Count" },
                       { id: "followers", label: "Followers" },
-                      { id: "paid", label: "Paid" },
+                      { id: "paid", label: "Invested" },
                       { id: "saved", label: "Saved" },
                       { id: "engagement", label: "Engagement" },
                       { id: "value", label: "Value" },
