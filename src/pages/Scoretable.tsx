@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Zap,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown, X
+  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield
 } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -79,7 +79,7 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, email, rank, current_streak, id')
+        .select('display_name, email, rank, current_streak, id, tribe_id')
         .eq('referred_by', userId);
       
       if (error) throw error;
@@ -93,7 +93,6 @@ const Scoretable = () => {
     } catch (err) {
       console.error("Error fetching team:", err);
     } finally {
-      setTeamMembers(processedTeam); // Re-added after local mapping
       setLoadingTeam(false);
     }
   };
@@ -152,7 +151,7 @@ const Scoretable = () => {
 
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, referral_count, happiness_score
+        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id
       `);
       
       if (query) qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%`);
@@ -177,7 +176,7 @@ const Scoretable = () => {
       else if (currentSort === "engagement") sorted.sort((a, b) => b.engagementNum - a.engagementNum);
       else if (currentSort === "paid") sorted.sort((a, b) => b.paidNum - a.paidNum);
       else if (currentSort === "saved") sorted.sort((a, b) => b.savedNum - a.savedNum);
-      else if (currentSort === "streak") sorted.sort((a, b) => (b.current_streak || 0) - (a.current_streak || 0));
+      else if (currentSort === "streak") sorted.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
       else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
 
       setLeaders(sorted.slice(0, 10));
@@ -221,8 +220,8 @@ const Scoretable = () => {
                         </Link>
                         <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
                       </div>
-                      <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
-                        <Zap size={10} fill="currentColor" /> {member.current_streak || 0}
+                      <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                        <Shield size={10} fill="currentColor" /> {member.tribe_id || "NO TRIBE"}
                       </div>
                     </div>
                   ))
@@ -261,7 +260,8 @@ const Scoretable = () => {
                       { id: "saved", label: "Saved" },
                       { id: "engagement", label: "Engagement" },
                       { id: "value", label: "Value" },
-                      { id: "rank", label: "Rank" }
+                      { id: "rank", label: "Rank" },
+                      { id: "streak", label: "Tribe" }
                     ].map((option) => (
                       <button
                         key={option.id}
@@ -286,7 +286,7 @@ const Scoretable = () => {
                     <th className="p-5">Agent</th>
                     <th className="p-5">Rank</th>
                     <th className="p-5">Team</th>
-                    <th className="p-5">Paid (MBI)</th>
+                    <th className="p-5">Invested</th>
                     <th className="p-5">Saved</th>
                     <th className="p-5">Followers</th>
                     <th className="p-5">Engagement</th>
@@ -300,8 +300,8 @@ const Scoretable = () => {
                         <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
                           {agent.display_name}
                         </Link>
-                        <div className="flex items-center gap-1 text-green-500 text-[9px] font-black uppercase">
-                          <Zap size={10} fill="currentColor" /> {agent.current_streak || 0} DAY STREAK
+                        <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                          <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
                         </div>
                       </td>
                       <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
