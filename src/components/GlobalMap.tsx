@@ -31,11 +31,9 @@ const GlobalMap = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Team Data State
   const [teamLocations, setTeamLocations] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<"global" | "team">("global");
 
-  // Fetch Team Locations based on referrals
   const fetchTeamData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -46,11 +44,19 @@ const GlobalMap = () => {
       .eq("referred_by", user.id);
 
     if (!error && referrals) {
-      // Map country codes to coordinates from the locations master list
       const mappedTeam = referrals
         .map(ref => {
-          const coords = locations.find(l => l.id === ref.country?.toUpperCase());
-          return coords ? { ...coords, name: ref.display_name } : null;
+          const userCountry = ref.country?.toUpperCase() || "";
+          // Check for both ISO code (PH) and full name (PHILIPPINES)
+          const coords = locations.find(l => 
+            l.id === userCountry || 
+            (userCountry === "PHILIPPINES" && l.id === "PH")
+          );
+          
+          if (coords) {
+            return { ...coords, name: ref.display_name };
+          }
+          return null;
         })
         .filter(Boolean);
       
@@ -93,8 +99,14 @@ const GlobalMap = () => {
       iconAnchor: [15, 15],
     });
 
-    // Determine which markers to show
     const displayList = viewMode === "team" ? teamLocations : locations;
+
+    // Clear existing markers before adding new ones
+    mapInstance.current.eachLayer((layer: any) => {
+      if (layer instanceof window.L.Marker) {
+        mapInstance.current.removeLayer(layer);
+      }
+    });
 
     displayList.forEach((loc) => {
       window.L.marker([loc.lat, loc.lng], { icon: heartIcon })
@@ -102,7 +114,7 @@ const GlobalMap = () => {
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; text-align: center; padding: 5px;">
             <b style="color: #ea580c; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">
-              ${viewMode === 'team' ? `FAMILY_${loc.name}` : `NODE_${loc.id}`}
+              ${viewMode === 'team' ? `FAMILY_${loc.name || 'MEMBER'}` : `NODE_${loc.id}`}
             </b>
           </div>
         `);
@@ -114,11 +126,11 @@ const GlobalMap = () => {
 
     return () => {
       if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
+        // We don't remove the instance on every viewMode change to prevent flickering, 
+        // we just clear markers (handled above). Instance is removed on unmount.
       }
     };
-  }, [viewMode, teamLocations]); // Re-render markers when mode or team changes
+  }, [viewMode, teamLocations]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,7 +180,6 @@ const GlobalMap = () => {
             </p>
           </div>
 
-          {/* Map Filter Toggle */}
           <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-xl border border-border">
             <button 
               onClick={() => setViewMode("global")}
