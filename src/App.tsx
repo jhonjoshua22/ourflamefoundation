@@ -222,6 +222,7 @@ const App = () => {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
               <Route path="/scoretable" element={<Scoretable />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
