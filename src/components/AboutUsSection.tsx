@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import clickSound from "../assets/button.m4a"; 
 
-// IMPORT YOUR PDF FILES HERE
-import SchedulePDF from "../assets/2026_Daily_Timetable.pdf";
-import MasterplanPDF from "../assets/The_Masterplan.pdf";
-import MagicWorldsPDF from "../assets/Magic_Worlds_Guide.pdf";
-import FlameFoundationPDF from "../assets/Flame_Foundation_Guide.pdf";
+// PDF IMPORTS
+import FlameFoundationPDF from "../assets/FlameFoundationBrandGuide.pdf";
+import MagicWorldsPDF from "../assets/MagicWorldsBrandGuide.pdf";
+import MasterplanPDF from "../assets/masterplan.pdf";
+import SchedulePDF from "../assets/schedule.pdf";
 
 import {  
   ExternalLink, Copy, Check, Sparkles, ArrowRight, FolderOpen, FileText, Video, Flame, Star,
@@ -193,7 +193,7 @@ const AboutUsSection = () => {
           </div>
         </div>
 
-        {/* SECTION 3: RESOURCES & SOCIALS (KEEPING ORIGINAL FOOTER LAYOUT) */}
+        {/* SECTION 3: RESOURCES & SOCIALS */}
         <div id="resources" className="space-y-4 mb-12">
           <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 ml-1">Resources</h3>
           <div className="grid md:grid-cols-3 gap-px bg-zinc-200 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800">
