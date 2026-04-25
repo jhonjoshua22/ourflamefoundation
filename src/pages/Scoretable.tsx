@@ -31,9 +31,9 @@ const Scoretable = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
   
-  // Pagination State
+  // Pagination State - Increased pageSize to show more/all users
   const [currentPage, setCurrentPage] = useState(0);
-  const pageSize = 10;
+  const pageSize = 1000; // Set to a high number to show all users on one page
 
   // Team Modal State
   const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
@@ -104,7 +104,6 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      // Step 1: Fetch ALL profile data for stats and leaderboard
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
         engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
@@ -114,7 +113,7 @@ const Scoretable = () => {
         qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
       }
 
-      const { data, error, count } = await qb; // Limit removed to load ALL
+      const { data, error, count } = await qb; 
       if (error) throw error;
 
       const allProfiles = data || [];
