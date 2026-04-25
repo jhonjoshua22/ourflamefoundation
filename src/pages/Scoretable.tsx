@@ -109,7 +109,6 @@ const Scoretable = () => {
       const batchSize = 1000;
       let hasMore = true;
 
-      // Recursive or iterative fetch to overcome Supabase 1000 limit per request
       while (hasMore) {
         const { data, error } = await supabase
           .from('profiles')
@@ -146,6 +145,28 @@ const Scoretable = () => {
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
+      // Processed with Client-Side Calculation for "Value"
+      const processed = allFetchedData.map(item => {
+        const followersCount = Number(item.facebook || 0) + Number(item.linkedin || 0);
+        const teamCount = Number(item.referral_count || 0);
+        
+        // Custom Calculation: (team count * followers) / total users
+        const calculatedValue = totalUsersCount > 0 
+          ? (teamCount * followersCount) / totalUsersCount 
+          : 0;
+
+        return {
+          ...item,
+          display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
+          followers: followersCount,
+          paidNum: Number(item.paid || 0),
+          savedNum: Number(item.saved || 0),
+          valueNum: calculatedValue, // Replaced DB value with computed value
+          engagementNum: Number(item.engagement || 0),
+          teamNum: teamCount
+        };
+      });
+
       // Chart Logic
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
@@ -167,17 +188,6 @@ const Scoretable = () => {
         name: `Day ${i * 3}`,
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
-
-      const processed = allFetchedData.map(item => ({
-        ...item,
-        display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
-        followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
-        paidNum: Number(item.paid || 0),
-        savedNum: Number(item.saved || 0),
-        valueNum: Number(item.value || 0),
-        engagementNum: Number(item.engagement || 0),
-        teamNum: Number(item.referral_count || 0)
-      }));
 
       let filtered = processed;
       if (query) {
@@ -332,16 +342,15 @@ const Scoretable = () => {
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
-                    <th className="p-5">Agent</th>
+                    <th className="p-5">Families</th>
                     <th className="p-5">Rank</th>
-                    <th className="p-5">Referrals</th>
+                    <th className="p-5">Team</th>
                     <th className="p-5">Invested</th>
                     <th className="p-5">Saved</th>
                     <th className="p-5">Followers</th>
                     <th className="p-5">Engagement</th>
                     <th className="p-5 text-right">Value</th>
                   </tr>
-                  {/* TOTAL ROW ADDED BELOW TH */}
                   <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
                     <td className="p-5">
                        <div className="font-black text-sm uppercase italic">TOTAL AGENTS</div>
@@ -399,7 +408,9 @@ const Scoretable = () => {
                         <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
                         <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
                         <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
-                        <td className="p-5 text-right text-purple-400 font-black italic">${agent.valueNum.toLocaleString()}</td>
+                        <td className="p-5 text-right text-purple-400 font-black italic">
+                          ${agent.valueNum.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </td>
                       </tr>
                     ))
                   ) : (
@@ -577,10 +588,7 @@ const Scoretable = () => {
             </div>
           </div>
         )}
-
       </div>
-      <AboutUsSection />
-      <HeroSection />
     </div>
   );
 };
