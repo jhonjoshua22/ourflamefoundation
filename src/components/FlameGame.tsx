@@ -101,11 +101,10 @@ const FlameGame = () => {
   };
 
   const videoList = [
-    { id: 1, src: video5, title: "Money World", poster: moneyPlaceholder }, 
-    { id: 2, src: magicWorlds, title: "Magic Worlds Intro" },
-    { id: 3, src: video2, title: "Play2Help" },
-    { id: 4, src: video3, title: "2026 I Dream For" },
-    { id: 5, src: video4, title: "Avatars" },
+    { id: 1, src: magicWorlds, title: "Magic Worlds Intro" },
+    { id: 2, src: video2, title: "Play2Help" },
+    { id: 3, src: video3, title: "2026 I Dream For" },
+    { id: 4, src: video4, title: "Avatars" },
   ];
 
   return (
