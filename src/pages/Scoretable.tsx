@@ -145,14 +145,11 @@ const Scoretable = () => {
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
-      // Processed with Client-Side Calculation for "Value"
       const processed = allFetchedData.map(item => {
         const followersCount = Number(item.facebook || 0) + Number(item.linkedin || 0);
         const teamCount = Number(item.referral_count || 0);
-        
-        // Custom Calculation: (team count * followers) / total users
         const calculatedValue = totalUsersCount > 0 
-          ? (teamCount * followersCount) / totalUsersCount 
+          ? (teamCount * followersCount) / totalUsersCount * 100
           : 0;
 
         return {
@@ -161,7 +158,7 @@ const Scoretable = () => {
           followers: followersCount,
           paidNum: Number(item.paid || 0),
           savedNum: Number(item.saved || 0),
-          valueNum: calculatedValue, // Replaced DB value with computed value
+          valueNum: calculatedValue,
           engagementNum: Number(item.engagement || 0),
           teamNum: teamCount
         };
@@ -342,9 +339,8 @@ const Scoretable = () => {
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
-                    <th className="p-5">Families</th>
-                    <th className="p-5">Rank</th>
-                    <th className="p-5">Team</th>
+                    <th className="p-5">Agent</th>
+                    <th className="p-5">Referrals</th>
                     <th className="p-5">Invested</th>
                     <th className="p-5">Saved</th>
                     <th className="p-5">Followers</th>
@@ -356,7 +352,6 @@ const Scoretable = () => {
                        <div className="font-black text-sm uppercase italic">TOTAL AGENTS</div>
                        <div className="text-[10px] text-orange-500 font-bold uppercase">{stats.totalMembers.toLocaleString()}</div>
                     </td>
-                    <td className="p-5 text-[10px] font-black uppercase text-zinc-500">—</td>
                     <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
                     <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
                     <td className="p-5 font-black text-zinc-500">—</td>
@@ -386,6 +381,9 @@ const Scoretable = () => {
                                 <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
                                   <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
                                 </div>
+                                <div className="text-[9px] text-orange-500 uppercase font-black">
+                                  • {agent.rank || "Normie"}
+                                </div>
                                 {agent.country && (
                                     <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
                                       • {agent.country}
@@ -395,7 +393,6 @@ const Scoretable = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
                         <td className="p-5">
                           <button 
                             onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
@@ -415,7 +412,7 @@ const Scoretable = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={8} className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</td>
+                      <td colSpan={7} className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</td>
                     </tr>
                   )}
                 </tbody>
