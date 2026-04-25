@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Zap, Search,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft
+  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft, AlertCircle
 } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -103,7 +103,7 @@ const Scoretable = () => {
       // 1. Fetch GLOBAL Stats
       const { data: allStats, error: statsError, count } = await supabase
         .from('profiles')
-        .select('facebook, linkedin, happiness_score, referral_count, paid, saved, referred_by', { count: 'exact' });
+        .select('facebook, linkedin, happiness_score, referral_count, paid, saved, referred_by, is_urgent', { count: 'exact' });
 
       if (statsError) throw statsError;
 
@@ -115,10 +115,10 @@ const Scoretable = () => {
         ? allStats!.reduce((sum, r) => sum + (Number(r.happiness_score) || 0), 0) / allStats!.length 
         : 0;
 
-      // 2. Fetch Leaderboard Data with counts from the table
+      // 2. Fetch Leaderboard Data
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, happiness_score, tribe_id, country, avatar_url
+        engagement, value, saved, current_streak, happiness_score, tribe_id, country, avatar_url, is_urgent
       `, { count: 'exact' });
 
       if (query) {
@@ -128,7 +128,6 @@ const Scoretable = () => {
       const { data: pageData, error: pageError } = await qb;
       if (pageError) throw pageError;
 
-      // Process each user to find how many people they REFERRED (count occurrences of their ID in referred_by)
       const processed = (pageData || []).map(item => {
         const teamCount = allStats?.filter(p => p.referred_by === item.id).length || 0;
         return {
@@ -139,17 +138,18 @@ const Scoretable = () => {
           savedNum: Number(item.saved || 0),
           valueNum: Number(item.value || 0),
           engagementNum: Number(item.engagement || 0),
-          teamNum: teamCount
+          teamNum: teamCount,
+          urgentNum: item.is_urgent ? 1 : 0
         };
       });
 
-      // Apply Sorting manually since teamNum is calculated client-side in this logic
+      // Apply Sorting
       const sortedData = [...processed].sort((a, b) => {
-        if (currentSort === "rank") return 0; // Rank sorting usually requires priority map
+        if (currentSort === "rank") return 0;
+        if (currentSort === "urgentNum") return b.urgentNum - a.urgentNum;
         return b[currentSort] - a[currentSort];
       });
 
-      // Apply Pagination
       const paginatedData = sortedData.slice(page * pageSize, (page + 1) * pageSize);
       setLeaders(paginatedData);
 
@@ -157,12 +157,11 @@ const Scoretable = () => {
         totalMembers: totalUsersCount, 
         totalFollowers: totalFollowers,
         avgHappiness: Number(avgHappiness.toFixed(2)),
-        totalTeam: totalUsersCount, // Sum of all accounts in the system
+        totalTeam: totalUsersCount,
         totalInvested: totalPaid,
         totalSaved
       });
 
-      // 3. Chart Calculations
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => ({
@@ -275,7 +274,7 @@ const Scoretable = () => {
                 >
                   <div className="flex items-center gap-2">
                     <Filter size={16} className="text-orange-600" />
-                    Filter By: {sortBy === "teamNum" ? "TEAM COUNT" : sortBy.toUpperCase()}
+                    Filter By: {sortBy === "teamNum" ? "TEAM COUNT" : sortBy === "urgentNum" ? "URGENT FLAG" : sortBy.toUpperCase()}
                   </div>
                   <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -283,6 +282,7 @@ const Scoretable = () => {
                 {isFilterOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
                     {[
+                      { id: "urgentNum", label: "Urgent Flag" },
                       { id: "teamNum", label: "Team Count" },
                       { id: "followers", label: "Followers" },
                       { id: "paidNum", label: "Invested" },
@@ -344,17 +344,27 @@ const Scoretable = () => {
                       <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                         <td className="p-5">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700">
+                            <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700 relative">
                               {agent.avatar_url ? (
                                 <img src={agent.avatar_url} alt="" className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-zinc-600"><Users size={12}/></div>
                               )}
+                              {agent.is_urgent && (
+                                <div className="absolute inset-0 bg-orange-600/20 flex items-center justify-center">
+                                  <AlertCircle size={14} className="text-orange-500" />
+                                </div>
+                              )}
                             </div>
                             <div>
-                              <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
-                                {agent.display_name}
-                              </Link>
+                              <div className="flex items-center gap-2">
+                                <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                                  {agent.display_name}
+                                </Link>
+                                {agent.is_urgent && (
+                                  <span className="bg-orange-600 text-white text-[8px] px-1 rounded font-black animate-pulse">URGENT</span>
+                                )}
+                              </div>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
                                   <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
