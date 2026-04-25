@@ -6,7 +6,7 @@ import {
   Trophy, Zap, DollarSign, ShieldCheck,
   UserPlus, Copy, CheckCircle2, X, Users,
   Flag, Target, Share2, Award, TrendingUp,
-  Link as LinkIcon, Globe, Plus
+  Link as LinkIcon, Globe, Plus, Edit3, Linkedin, Facebook, Smile
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +24,18 @@ const Profile = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
+
+  // Edit Profile States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    display_name: "",
+    linkedin_link: "",
+    country: "",
+    facebook: "", // Used for Followers
+    happiness_score: "",
+    photo_url: ""
+  });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Team Locations States
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -58,7 +70,6 @@ const Profile = () => {
       if (profileRes.error) throw profileRes.error;
 
       if (profileRes.data) {
-        // Ensure team_countries is always handled as a clean array
         let rawCountries = profileRes.data.team_countries;
         let formattedCountries: string[] = [];
 
@@ -66,19 +77,28 @@ const Profile = () => {
           formattedCountries = rawCountries;
         } else if (typeof rawCountries === 'string') {
           try {
-            // Attempt to parse if it's a JSON string like '["UK"]'
             const parsed = JSON.parse(rawCountries);
             formattedCountries = Array.isArray(parsed) ? parsed : [rawCountries];
           } catch (e) {
-            // If it's just a comma separated string
             formattedCountries = rawCountries.split(',').map(c => c.trim()).filter(Boolean);
           }
         }
 
-        setProfileData({
+        const data = {
           ...profileRes.data,
           team_countries: formattedCountries,
           referral_count: countRes.count || 0
+        };
+        setProfileData(data);
+        
+        // Prep edit form
+        setEditFormData({
+          display_name: data.display_name || "",
+          linkedin_link: data.linkedin_link || "",
+          country: data.country || "",
+          facebook: data.facebook || "",
+          happiness_score: data.happiness_score || "",
+          photo_url: data.photo_url || ""
         });
       }
     } catch (err: any) {
@@ -86,6 +106,32 @@ const Profile = () => {
       toast.error("Error loading profile");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    setIsSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          display_name: editFormData.display_name,
+          linkedin_link: editFormData.linkedin_link,
+          country: editFormData.country,
+          facebook: editFormData.facebook, // Followers
+          happiness_score: editFormData.happiness_score,
+          photo_url: editFormData.photo_url
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+      toast.success("Profile fully integrated");
+      setIsEditModalOpen(false);
+      fetchUserData();
+    } catch (err: any) {
+      toast.error(err.message || "Update failed");
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -247,6 +293,14 @@ const Profile = () => {
   const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
   const isOwnProfile = !id || id === user.id;
 
+  // Payment Request Validation
+  const isPaymentClickable = 
+    profileData?.display_name && 
+    profileData?.linkedin_link && 
+    profileData?.country && 
+    profileData?.facebook && 
+    profileData?.happiness_score;
+
   const objectives = [
     {
       title: "Expand Your Dynasty",
@@ -278,12 +332,23 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-black pt-32 pb-12 px-6 text-white font-sans">
       <div className="max-w-3xl mx-auto">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 text-zinc-500 hover:text-orange-600 mb-8 transition-all font-black uppercase text-[16px] tracking-widest"
-        >
-          <ArrowLeft className="w-5 h-5" /> Back to Network
-        </button>
+        <div className="flex justify-between items-center mb-8">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center gap-2 text-zinc-500 hover:text-orange-600 transition-all font-black uppercase text-[16px] tracking-widest"
+          >
+            <ArrowLeft className="w-5 h-5" /> Back to Network
+          </button>
+          
+          {isOwnProfile && (
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-6 py-2 rounded-xl text-[14px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
+            >
+              <Edit3 size={18} className="text-orange-600" /> Edit Profile
+            </button>
+          )}
+        </div>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
           <div className="h-40 bg-gradient-to-r from-orange-600 to-purple-900 w-full relative">
@@ -312,9 +377,9 @@ const Profile = () => {
                     {profileData?.rank || "Foundation Member"}
                   </p>
                   <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
-                    {profileData?.tribe_id && (
+                    {profileData?.country && (
                       <p className="text-zinc-500 font-black uppercase tracking-widest text-[18px] flex items-center gap-2">
-                        <Flag size={18} className="text-purple-500" /> {profileData.tribe_id}
+                        <Globe size={18} className="text-blue-500" /> {profileData.country}
                       </p>
                     )}
                     <p className="text-zinc-500 font-black uppercase tracking-widest text-[18px] flex items-center gap-2">
@@ -360,6 +425,28 @@ const Profile = () => {
                 </p>
               </button>
             </div>
+
+            {/* Request Payment Button */}
+            {isOwnProfile && (
+              <div className="mb-10">
+                 <button 
+                  disabled={!isPaymentClickable}
+                  className={`w-full py-6 rounded-3xl font-black uppercase tracking-[0.2em] text-xl transition-all shadow-xl ${
+                    isPaymentClickable 
+                    ? "bg-gradient-to-r from-green-600 to-green-400 text-black hover:scale-[1.02] active:scale-95" 
+                    : "bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed"
+                  }`}
+                  onClick={() => toast.success("Payment request submitted to governance.")}
+                >
+                  {isPaymentClickable ? "Request Payment" : "Profile Incomplete - Payment Locked"}
+                </button>
+                {!isPaymentClickable && (
+                  <p className="text-center text-zinc-500 text-xs font-bold uppercase mt-3 tracking-widest">
+                    Fill all profile data to unlock rewards
+                  </p>
+                )}
+              </div>
+            )}
 
             {isOwnProfile && (
               <div className="mb-10 p-6 bg-zinc-900 border border-zinc-800 rounded-3xl">
@@ -476,6 +563,115 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-md" onClick={() => setIsEditModalOpen(false)} />
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-orange-600">Integrate Identity</h2>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-zinc-500 hover:text-white"><X size={28} /></button>
+            </div>
+            
+            <div className="p-8 overflow-y-auto space-y-6">
+              <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Display Name</label>
+                <div className="relative">
+                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-600" />
+                  <input 
+                    type="text" 
+                    value={editFormData.display_name}
+                    onChange={(e) => setEditFormData({...editFormData, display_name: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
+                    placeholder="Justice1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">LinkedIn Link</label>
+                <div className="relative">
+                  <Linkedin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" />
+                  <input 
+                    type="url" 
+                    value={editFormData.linkedin_link}
+                    onChange={(e) => setEditFormData({...editFormData, linkedin_link: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
+                    placeholder="https://linkedin.com/in/username"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Country</label>
+                <div className="relative">
+                  <Globe size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-500" />
+                  <input 
+                    type="text" 
+                    value={editFormData.country}
+                    onChange={(e) => setEditFormData({...editFormData, country: e.target.value.toUpperCase()})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none uppercase"
+                    placeholder="UNITED KINGDOM"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Total Followers</label>
+                <div className="relative">
+                  <Facebook size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600" />
+                  <input 
+                    type="number" 
+                    value={editFormData.facebook}
+                    onChange={(e) => setEditFormData({...editFormData, facebook: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
+                    placeholder="5000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Happiness Score (1-100)</label>
+                <div className="relative">
+                  <Smile size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500" />
+                  <input 
+                    type="number" 
+                    value={editFormData.happiness_score}
+                    onChange={(e) => setEditFormData({...editFormData, happiness_score: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
+                    placeholder="95"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Profile Image URL</label>
+                <div className="relative">
+                  <LinkIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-500" />
+                  <input 
+                    type="text" 
+                    value={editFormData.photo_url}
+                    onChange={(e) => setEditFormData({...editFormData, photo_url: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
+                    placeholder="https://image-link.com/photo.jpg"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-8 border-t border-zinc-800 bg-zinc-900/50">
+              <button 
+                onClick={handleUpdateProfile}
+                disabled={isSavingProfile}
+                className="w-full bg-orange-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-orange-500 transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isSavingProfile ? "INTEGRATING..." : "SAVE IDENTITY"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Team Locations Modal */}
       {isLocationModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
@@ -568,7 +764,7 @@ const Profile = () => {
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
-          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
             <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
               <div>
                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Families</h2>
