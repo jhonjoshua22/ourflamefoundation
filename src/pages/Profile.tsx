@@ -58,11 +58,22 @@ const Profile = () => {
       if (profileRes.error) throw profileRes.error;
 
       if (profileRes.data) {
-        // Ensure team_countries is always handled as an array
-        const rawCountries = profileRes.data.team_countries;
-        const formattedCountries = Array.isArray(rawCountries) 
-          ? rawCountries 
-          : (typeof rawCountries === 'string' ? rawCountries.split(',').filter(Boolean) : []);
+        // Ensure team_countries is always handled as a clean array
+        let rawCountries = profileRes.data.team_countries;
+        let formattedCountries: string[] = [];
+
+        if (Array.isArray(rawCountries)) {
+          formattedCountries = rawCountries;
+        } else if (typeof rawCountries === 'string') {
+          try {
+            // Attempt to parse if it's a JSON string like '["UK"]'
+            const parsed = JSON.parse(rawCountries);
+            formattedCountries = Array.isArray(parsed) ? parsed : [rawCountries];
+          } catch (e) {
+            // If it's just a comma separated string
+            formattedCountries = rawCountries.split(',').map(c => c.trim()).filter(Boolean);
+          }
+        }
 
         setProfileData({
           ...profileRes.data,
@@ -101,7 +112,6 @@ const Profile = () => {
     setIsUpdatingLocation(true);
     
     try {
-      // Treat existing data as array safely
       const currentLocations = Array.isArray(profileData?.team_countries) 
         ? profileData.team_countries 
         : [];
@@ -111,8 +121,6 @@ const Profile = () => {
       const { error } = await supabase
         .from("profiles")
         .update({ 
-          // If your DB is text, you might need .join(',') 
-          // But it's better to change DB column to text[]
           team_countries: updatedLocations 
         })
         .eq("id", user.id);
