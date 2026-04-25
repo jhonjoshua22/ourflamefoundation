@@ -202,7 +202,16 @@ const Profile = () => {
     }
   };
 
-  if (loading || !user) return null;
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-[16px] font-black uppercase tracking-[0.3em] text-orange-600">Syncing Profile</p>
+        </div>
+      </div>
+    );
+  }
 
   const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
   const isOwnProfile = !id || id === user.id;
@@ -564,7 +573,6 @@ const Profile = () => {
                         <p className="text-[16px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
                       </div>
                       <div className="text-right">
-                        <Users size={18} className="text-orange-600 ml-auto mb-1" />
                         <p className="text-[16px] text-zinc-600 font-black uppercase tracking-tighter">Verified</p>
                       </div>
                     </div>
