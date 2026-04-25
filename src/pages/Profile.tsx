@@ -6,7 +6,7 @@ import {
   Trophy, Zap, DollarSign, ShieldCheck,
   UserPlus, Copy, CheckCircle2, X, Users,
   Flag, Target, Share2, Award, TrendingUp,
-  Link as LinkIcon
+  Link as LinkIcon, Globe, Plus
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +24,11 @@ const Profile = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
+
+  // Team Locations States
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [newLocation, setNewLocation] = useState("");
+  const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
 
   // Clapmi Specific States
   const [isClapmiModalOpen, setIsClapmiModalOpen] = useState(false);
@@ -74,6 +79,32 @@ const Profile = () => {
       setTeamMembers(data || []);
     }
     setLoadingTeam(false);
+  };
+
+  const handleAddLocation = async () => {
+    if (!newLocation.trim()) return;
+    setIsUpdatingLocation(true);
+    
+    try {
+      const currentLocations = profileData?.team_countries || [];
+      const updatedLocations = [...currentLocations, newLocation.trim()];
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ team_countries: updatedLocations })
+        .eq("id", user.id);
+
+      if (error) throw error;
+      
+      toast.success("Location added to the network");
+      setNewLocation("");
+      setIsLocationModalOpen(false);
+      fetchUserData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update locations");
+    } finally {
+      setIsUpdatingLocation(false);
+    }
   };
 
   useEffect(() => {
@@ -334,6 +365,36 @@ const Profile = () => {
               </div>
             )}
 
+            {/* Team Locations Section */}
+            <div className="mb-10">
+              <div className="flex items-center justify-between mb-6 ml-2">
+                <div className="flex items-center gap-3">
+                  <Globe className="text-orange-600" size={24} />
+                  <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Team Locations</h3>
+                </div>
+                {isOwnProfile && (
+                  <button 
+                    onClick={() => setIsLocationModalOpen(true)}
+                    className="p-2 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-orange-600 transition-all"
+                  >
+                    <Plus size={20} className="text-orange-600" />
+                  </button>
+                )}
+              </div>
+              
+              <div className="flex flex-wrap gap-3">
+                {profileData?.team_countries && profileData.team_countries.length > 0 ? (
+                  profileData.team_countries.map((country: string, idx: number) => (
+                    <div key={idx} className="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[14px] font-black uppercase tracking-widest text-white italic">
+                      {country}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-zinc-600 uppercase font-black tracking-widest text-[14px] ml-2">No locations identified</p>
+                )}
+              </div>
+            </div>
+
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-6 ml-2">
                 <Target className="text-orange-600" size={24} />
@@ -375,13 +436,49 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Team Locations Modal */}
+      {isLocationModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsLocationModalOpen(false)} />
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-orange-600">Add Location</h2>
+              <button onClick={() => setIsLocationModalOpen(false)} className="text-zinc-500 hover:text-white">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <p className="text-[14px] text-zinc-500 font-black uppercase tracking-widest mb-2">Country Name</p>
+                <input 
+                  type="text"
+                  placeholder="E.G. UNITED KINGDOM"
+                  value={newLocation}
+                  onChange={(e) => setNewLocation(e.target.value.toUpperCase())}
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-[16px] font-bold focus:border-orange-600 outline-none transition-all uppercase tracking-widest"
+                />
+              </div>
+
+              <button 
+                onClick={handleAddLocation}
+                disabled={isUpdatingLocation || !newLocation}
+                className="w-full bg-orange-600 text-white hover:bg-orange-500 disabled:opacity-50 py-4 rounded-xl font-black uppercase tracking-widest transition-all active:scale-95"
+              >
+                {isUpdatingLocation ? "SYNCING..." : "ADD TO NETWORK"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Clapmi Modal */}
       {isClapmiModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsClapmiModalOpen(false)} />
           <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl p-8">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-black uppercase italic italic tracking-tighter">Link Clapmi</h2>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter">Link Clapmi</h2>
               <button onClick={() => setIsClapmiModalOpen(false)} className="text-zinc-500 hover:text-white">
                 <X size={24} />
               </button>
@@ -427,6 +524,7 @@ const Profile = () => {
         </div>
       )}
 
+      {/* Families Modal */}
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
