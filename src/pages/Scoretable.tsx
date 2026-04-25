@@ -113,7 +113,11 @@ const Scoretable = () => {
 
       const totalUsersCount = count || 0;
       const totalFollowers = allStats?.reduce((sum, r) => sum + (Number(r.facebook) || 0) + (Number(r.linkedin) || 0), 0) || 0;
-      const totalTeam = allStats?.reduce((sum, r) => sum + (Number(r.referral_count) || 0), 0) || 0;
+      
+      // CHANGE: Instead of summing referral_count (which is just direct referrals), 
+      // we use totalUsersCount to show the actual total network size.
+      const totalTeamSize = totalUsersCount; 
+      
       const totalPaid = allStats?.reduce((sum, r) => sum + (Number(r.paid) || 0), 0) || 0;
       const totalSaved = allStats?.reduce((sum, r) => sum + (Number(r.saved) || 0), 0) || 0;
       const avgHappiness = (allStats?.length || 0) > 0 
@@ -124,7 +128,7 @@ const Scoretable = () => {
         totalMembers: totalUsersCount, 
         totalFollowers: totalFollowers,
         avgHappiness: Number(avgHappiness.toFixed(2)),
-        totalTeam,
+        totalTeam: totalTeamSize,
         totalInvested: totalPaid,
         totalSaved
       });
@@ -133,7 +137,7 @@ const Scoretable = () => {
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
         engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
-      `, { count: 'exact' }); // Get count for the filtered results to handle pagination correctly
+      `, { count: 'exact' });
 
       if (query) {
         qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
@@ -171,7 +175,7 @@ const Scoretable = () => {
 
       setLeaders(processed);
 
-      // 3. Chart Calculations (using total count)
+      // 3. Chart Calculations
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
