@@ -40,7 +40,7 @@ const Scoretable = () => {
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
-  // Real graph data state
+  // Graph data state
   const [usersChart, setUsersChart] = useState<any[]>([]);
   const [predictionChart, setPredictionChart] = useState<any[]>([]);
   const [followersChart, setFollowersChart] = useState<any[]>([]);
@@ -100,10 +100,10 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy, page = currentPage) => {
     setLoading(true);
     try {
-      // 1. Fetch GLOBAL Stats
+      // 1. Fetch ALL stats for totals and calculating Team Counts
       const { data: allStats, error: statsError, count } = await supabase
         .from('profiles')
-        .select('facebook, linkedin, happiness_score, referral_count, paid, saved, referred_by, is_urgent', { count: 'exact' });
+        .select('id, facebook, linkedin, happiness_score, referral_count, paid, saved, referred_by, is_urgent', { count: 'exact' });
 
       if (statsError) throw statsError;
 
@@ -115,11 +115,11 @@ const Scoretable = () => {
         ? allStats!.reduce((sum, r) => sum + (Number(r.happiness_score) || 0), 0) / allStats!.length 
         : 0;
 
-      // 2. Fetch Leaderboard Data
+      // 2. Build the leaderboard query
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
         engagement, value, saved, current_streak, happiness_score, tribe_id, country, avatar_url, is_urgent
-      `, { count: 'exact' });
+      `);
 
       if (query) {
         qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
@@ -129,6 +129,7 @@ const Scoretable = () => {
       if (pageError) throw pageError;
 
       const processed = (pageData || []).map(item => {
+        // Count how many people have 'referred_by' equal to this user's ID
         const teamCount = allStats?.filter(p => p.referred_by === item.id).length || 0;
         return {
           ...item,
@@ -143,10 +144,9 @@ const Scoretable = () => {
         };
       });
 
-      // Apply Sorting
+      // Apply Sorting manually because teamNum is calculated on client-side here
       const sortedData = [...processed].sort((a, b) => {
         if (currentSort === "rank") return 0;
-        if (currentSort === "urgentNum") return b.urgentNum - a.urgentNum;
         return b[currentSort] - a[currentSort];
       });
 
@@ -162,23 +162,17 @@ const Scoretable = () => {
         totalSaved
       });
 
+      // Graph Generation logic
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => ({
-        name, value: i < 2 ? 0 : Math.floor(totalUsersCount * Math.pow(i / (currentMonthIdx || 1), 2))
+        name, value: i < 2 ? 10 : Math.floor(totalUsersCount * Math.pow((i + 1) / (currentMonthIdx + 1), 2))
       })));
+      
       const growthRate = Math.pow(550000 / (totalUsersCount || 1), 1 / 12);
       setPredictionChart(Array.from({ length: 12 }).map((_, i) => ({
         name: months[(currentMonthIdx + i + 1) % 12],
         value: Math.floor(totalUsersCount * Math.pow(growthRate, i + 1))
-      })));
-      setFollowersChart(Array.from({ length: 5 }).map((_, i) => ({
-        name: months[(currentMonthIdx - (4 - i) + 12) % 12],
-        value: Math.floor(totalFollowers * Math.pow(0.85, 4 - i))
-      })));
-      setRatingsChart(Array.from({ length: 10 }).map((_, i) => ({
-        name: `Day ${i * 3}`,
-        value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
     } catch (err) {
@@ -480,10 +474,10 @@ const Scoretable = () => {
         <div className="bg-zinc-900/20 border border-zinc-800 p-8 rounded-3xl mb-16 text-center">
           <p className="text-zinc-400 text-sm leading-relaxed font-medium">
             This dashboard tracks our ecosystem's health across four vital dimensions. 
-            The <span className="text-[#f97316] font-bold">Number of Users</span> has shown significant growth starting from February. 
+            The <span className="text-[#f97316] font-bold">Number of Users</span> has shown significant growth. 
             Our <span className="text-[#a855f7] font-bold">Prediction</span> shows us reaching a milestone of 500,000+ users within the year as we scale. 
             Currently, we have an <span className="text-[#3b82f6] font-bold">Average of {stats.totalFollowers.toLocaleString()} Followers</span> across the platform. 
-            These metrics grow exponentially alongside our <span className="text-[#22c55e] font-bold">Happiness Score</span>, which currently maintains an <span className="text-white font-bold">Average of {stats.avgHappiness}</span>, ensuring our network scales without compromising quality of life.
+            These metrics grow exponentially alongside our <span className="text-[#22c55e] font-bold">Happiness Score</span>, which currently maintains an <span className="text-white font-bold">Average of {stats.avgHappiness}</span>.
           </p>
         </div>
         
