@@ -104,23 +104,38 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      // Fetching all records to satisfy the "10 000+" requirement for totals and full list
-      const { data: allProfiles, error: allErr } = await supabase
-        .from('profiles')
-        .select(`
-          id, display_name, email, rank, paid, facebook, linkedin, 
-          engagement, value, saved, current_streak, referral_count, 
-          happiness_score, tribe_id, country, photo_url, referred_by
-        `);
-      
-      if (allErr) throw allErr;
+      let allFetchedData: any[] = [];
+      let page = 0;
+      const batchSize = 1000;
+      let hasMore = true;
 
-      const totalUsersCount = allProfiles.length;
-      const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
-      const totalInvested = allProfiles.reduce((sum, r) => sum + Number(r.paid || 0), 0);
-      const totalReferred = allProfiles.filter(u => u.referred_by).length;
-      const avgHappiness = allProfiles.length > 0 
-        ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
+      // Recursive or iterative fetch to overcome Supabase 1000 limit per request
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select(`
+            id, display_name, email, rank, paid, facebook, linkedin, 
+            engagement, value, saved, current_streak, referral_count, 
+            happiness_score, tribe_id, country, photo_url, referred_by
+          `)
+          .range(page * batchSize, (page + 1) * batchSize - 1);
+
+        if (error) throw error;
+        if (data && data.length > 0) {
+          allFetchedData = [...allFetchedData, ...data];
+          page++;
+          if (data.length < batchSize) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      const totalUsersCount = allFetchedData.length;
+      const totalFollowers = allFetchedData.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
+      const totalInvested = allFetchedData.reduce((sum, r) => sum + Number(r.paid || 0), 0);
+      const totalReferred = allFetchedData.filter(u => u.referred_by).length;
+      const avgHappiness = allFetchedData.length > 0 
+        ? allFetchedData.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allFetchedData.length 
         : 0;
 
       setStats({ 
@@ -153,7 +168,7 @@ const Scoretable = () => {
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
-      const processed = (allProfiles || []).map(item => ({
+      const processed = allFetchedData.map(item => ({
         ...item,
         display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
