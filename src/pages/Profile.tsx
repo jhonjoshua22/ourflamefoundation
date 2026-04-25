@@ -5,7 +5,8 @@ import {
   User, Mail, Calendar, ArrowLeft, 
   Trophy, Zap, DollarSign, ShieldCheck,
   UserPlus, Copy, CheckCircle2, X, Users,
-  Flag, Target, Share2, Award, TrendingUp
+  Flag, Target, Share2, Award, TrendingUp,
+  Link as LinkIcon
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +24,11 @@ const Profile = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
+
+  // Clapmi Specific States
+  const [isClapmiModalOpen, setIsClapmiModalOpen] = useState(false);
+  const [clapmiLinkInput, setClapmiLinkInput] = useState("");
+  const [isUpdatingClapmi, setIsUpdatingClapmi] = useState(false);
 
   const navigate = useNavigate();
 
@@ -137,6 +143,34 @@ const Profile = () => {
     }
   };
 
+  const handleClapmiAction = () => {
+    if (profileData?.clapmi) {
+      window.open(profileData.clapmi, "_blank");
+    } else {
+      setIsClapmiModalOpen(true);
+    }
+  };
+
+  const updateClapmiLink = async () => {
+    if (!clapmiLinkInput.trim()) return;
+    setIsUpdatingClapmi(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ clapmi: clapmiLinkInput.trim() })
+        .eq("id", user.id);
+
+      if (error) throw error;
+      toast.success("Clapmi link updated!");
+      setIsClapmiModalOpen(false);
+      fetchUserData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update link");
+    } finally {
+      setIsUpdatingClapmi(false);
+    }
+  };
+
   if (loading || !user) return null;
 
   const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
@@ -221,13 +255,18 @@ const Profile = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+              <button 
+                onClick={handleClapmiAction}
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group"
+              >
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Zap size={20} className="text-orange-500" />
-                  <span className="text-[16px] font-black uppercase tracking-widest">Active Streak</span>
+                  <span className="text-[16px] font-black uppercase tracking-widest">Clapmi</span>
                 </div>
-                <p className="text-2xl font-black italic">{profileData?.current_streak || 0} DAYS</p>
-              </div>
+                <p className="text-2xl font-black italic uppercase truncate">
+                  {profileData?.clapmi ? "CONNECTED" : "LINK ACCOUNT"}
+                </p>
+              </button>
 
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
@@ -335,6 +374,58 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Clapmi Modal */}
+      {isClapmiModalOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsClapmiModalOpen(false)} />
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-black uppercase italic italic tracking-tighter">Link Clapmi</h2>
+              <button onClick={() => setIsClapmiModalOpen(false)} className="text-zinc-500 hover:text-white">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <p className="text-[14px] text-zinc-500 font-black uppercase tracking-widest mb-2">Paste Your Link</p>
+                <input 
+                  type="url"
+                  placeholder="https://app.clapmi.com/yourname"
+                  value={clapmiLinkInput}
+                  onChange={(e) => setClapmiLinkInput(e.target.value)}
+                  className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-[16px] font-bold focus:border-orange-600 outline-none transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={updateClapmiLink}
+                  disabled={isUpdatingClapmi || !clapmiLinkInput}
+                  className="w-full bg-white text-black hover:bg-zinc-200 disabled:opacity-50 py-4 rounded-xl font-black uppercase tracking-widest transition-all"
+                >
+                  {isUpdatingClapmi ? "UPDATING..." : "SAVE LINK"}
+                </button>
+                
+                <div className="relative py-2">
+                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800"></div></div>
+                   <div className="relative flex justify-center text-xs uppercase"><span className="bg-zinc-950 px-2 text-zinc-500 font-black">OR</span></div>
+                </div>
+
+                <a 
+                  href="https://app.clapmi.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full bg-orange-600/10 border border-orange-600/50 text-orange-500 hover:bg-orange-600/20 py-4 rounded-xl font-black uppercase tracking-widest text-center transition-all"
+                >
+                  Create a Clapmi Account
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
