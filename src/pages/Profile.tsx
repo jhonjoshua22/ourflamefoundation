@@ -38,29 +38,44 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const fetchUserData = async () => {
-    setLoading(true);
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    
-    if (!authUser) {
-      navigate("/login");
-      return;
+    try {
+      setLoading(true);
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !authUser) {
+        navigate("/login");
+        return;
+      }
+      setUser(authUser);
+
+      const targetId = id || authUser.id;
+
+      const [profileRes, countRes] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", targetId).maybeSingle(),
+        supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", targetId)
+      ]);
+
+      if (profileRes.error) throw profileRes.error;
+
+      if (profileRes.data) {
+        // Ensure team_countries is always handled as an array
+        const rawCountries = profileRes.data.team_countries;
+        const formattedCountries = Array.isArray(rawCountries) 
+          ? rawCountries 
+          : (typeof rawCountries === 'string' ? rawCountries.split(',').filter(Boolean) : []);
+
+        setProfileData({
+          ...profileRes.data,
+          team_countries: formattedCountries,
+          referral_count: countRes.count || 0
+        });
+      }
+    } catch (err: any) {
+      console.error("Error fetching profile:", err);
+      toast.error("Error loading profile");
+    } finally {
+      setLoading(false);
     }
-    setUser(authUser);
-
-    const targetId = id || authUser.id;
-
-    const [profileRes, countRes] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", targetId).single(),
-      supabase.from("profiles").select("*", { count: 'exact', head: true }).eq("referred_by", targetId)
-    ]);
-
-    if (profileRes.data) {
-      setProfileData({
-        ...profileRes.data,
-        referral_count: countRes.count || 0
-      });
-    }
-    setLoading(false);
   };
 
   const fetchTeamMembers = async () => {
@@ -86,12 +101,20 @@ const Profile = () => {
     setIsUpdatingLocation(true);
     
     try {
-      const currentLocations = profileData?.team_countries || [];
+      // Treat existing data as array safely
+      const currentLocations = Array.isArray(profileData?.team_countries) 
+        ? profileData.team_countries 
+        : [];
+        
       const updatedLocations = [...currentLocations, newLocation.trim()];
 
       const { error } = await supabase
         .from("profiles")
-        .update({ team_countries: updatedLocations })
+        .update({ 
+          // If your DB is text, you might need .join(',') 
+          // But it's better to change DB column to text[]
+          team_countries: updatedLocations 
+        })
         .eq("id", user.id);
 
       if (error) throw error;
@@ -109,7 +132,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, [id, navigate]);
+  }, [id]);
 
   useEffect(() => {
     if (isTeamModalOpen) {
@@ -392,7 +415,7 @@ const Profile = () => {
               </div>
               
               <div className="flex flex-wrap gap-3">
-                {profileData?.team_countries && profileData.team_countries.length > 0 ? (
+                {Array.isArray(profileData?.team_countries) && profileData.team_countries.length > 0 ? (
                   profileData.team_countries.map((country: string, idx: number) => (
                     <div key={idx} className="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[14px] font-black uppercase tracking-widest text-white italic">
                       {country}
