@@ -339,8 +339,8 @@ const Scoretable = () => {
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
-                    <th className="p-5">Agent</th>
-                    <th className="p-5">Referrals</th>
+                    <th className="p-5">Families</th>
+                    <th className="p-5">Team</th>
                     <th className="p-5">Invested</th>
                     <th className="p-5">Saved</th>
                     <th className="p-5">Followers</th>
