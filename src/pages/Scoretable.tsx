@@ -34,7 +34,6 @@ const Scoretable = () => {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
-  const maxUsersToLoad = 100;
 
   // Team Modal State
   const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
@@ -102,17 +101,25 @@ const Scoretable = () => {
     }
   };
 
-  const fetchData = async (query = "", currentSort = sortBy, page = 0) => {
+  const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      const { data: allProfiles, error: allErr, count } = await supabase
-        .from("profiles")
-        .select("id, facebook, happiness_score", { count: 'exact' });
+      // Step 1: Fetch ALL profile data for stats and leaderboard
+      let qb = supabase.from('profiles').select(`
+        id, display_name, email, rank, paid, facebook, linkedin, 
+        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
+      `, { count: 'exact' });
       
-      if (allErr) throw allErr;
+      if (query) {
+        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
+      }
 
+      const { data, error, count } = await qb; // Limit removed to load ALL
+      if (error) throw error;
+
+      const allProfiles = data || [];
       const totalUsersCount = count || allProfiles.length;
-      const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
+      const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0) + Number(r.linkedin || 0), 0);
       const avgHappiness = allProfiles.length > 0 
         ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
         : 0;
@@ -123,6 +130,7 @@ const Scoretable = () => {
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
+      // Chart Calculations
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
@@ -144,19 +152,8 @@ const Scoretable = () => {
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
-      let qb = supabase.from('profiles').select(`
-        id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
-      `);
-      
-      if (query) {
-        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
-      }
-
-      const { data, error } = await qb.limit(maxUsersToLoad);
-      if (error) throw error;
-
-      const processed = (data || []).map(item => ({
+      // Process Data
+      const processed = allProfiles.map(item => ({
         ...item,
         display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
@@ -167,6 +164,7 @@ const Scoretable = () => {
         teamNum: Number(item.referral_count || 0)
       }));
 
+      // Sorting
       let sorted = [...processed];
       if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
       else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
@@ -380,7 +378,7 @@ const Scoretable = () => {
 
           <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
             <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
-              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} loaded)
+              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} total)
             </p>
             <div className="flex gap-2">
               <button 
