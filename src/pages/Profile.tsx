@@ -390,24 +390,12 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-              <button 
-                onClick={handleClapmiAction}
-                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group"
-              >
-                <div className="flex items-center gap-3 text-zinc-500 mb-2">
-                  <Zap size={20} className="text-orange-500" />
-                  <span className="text-[16px] font-black uppercase tracking-widest">Clapmi</span>
-                </div>
-                <p className="text-2xl font-black italic uppercase truncate">
-                  {profileData?.clapmi ? "CONNECTED" : "LINK ACCOUNT"}
-                </p>
-              </button>
-
+            {/* Core Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <DollarSign size={20} className="text-green-500" />
-                  <span className="text-[16px] font-black uppercase tracking-widest">Invested</span>
+                  <span className="text-[12px] font-black uppercase tracking-widest">Invested</span>
                 </div>
                 <p className="text-2xl font-black italic">${(Number(profileData?.paid || 0)).toLocaleString()}</p>
               </div>
@@ -418,12 +406,70 @@ const Profile = () => {
               >
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Trophy size={20} className="text-purple-500" />
-                  <span className="text-[16px] font-black uppercase tracking-widest">Families</span>
+                  <span className="text-[12px] font-black uppercase tracking-widest">Families</span>
                 </div>
                 <p className="text-2xl font-black italic group-hover:text-purple-400 transition-colors">
                   {profileData?.referral_count || 0}
                 </p>
               </button>
+
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+                <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                  <Users size={20} className="text-blue-500" />
+                  <span className="text-[12px] font-black uppercase tracking-widest">Followers</span>
+                </div>
+                <p className="text-2xl font-black italic">{profileData?.facebook || "0"}</p>
+              </div>
+
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+                <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                  <Smile size={20} className="text-yellow-500" />
+                  <span className="text-[12px] font-black uppercase tracking-widest">Happiness</span>
+                </div>
+                <p className="text-2xl font-black italic">{profileData?.happiness_score || "0"}%</p>
+              </div>
+            </div>
+
+            {/* Profile Action Links */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                <button 
+                  onClick={handleClapmiAction}
+                  className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group flex justify-between items-center"
+                >
+                  <div>
+                    <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                      <Zap size={20} className="text-orange-500" />
+                      <span className="text-[14px] font-black uppercase tracking-widest">Clapmi Node</span>
+                    </div>
+                    <p className="text-xl font-black italic uppercase truncate">
+                      {profileData?.clapmi ? "CONNECTED" : "LINK ACCOUNT"}
+                    </p>
+                  </div>
+                  <ArrowLeft size={24} className="rotate-180 text-zinc-800 group-hover:text-orange-500" />
+                </button>
+
+                {profileData?.linkedin_link ? (
+                   <a 
+                    href={profileData.linkedin_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-blue-500/50 transition-all group flex justify-between items-center"
+                   >
+                    <div>
+                      <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                        <Linkedin size={20} className="text-blue-500" />
+                        <span className="text-[14px] font-black uppercase tracking-widest">Professional Node</span>
+                      </div>
+                      <p className="text-xl font-black italic uppercase truncate text-blue-400">View LinkedIn</p>
+                    </div>
+                    <LinkIcon size={24} className="text-zinc-800 group-hover:text-blue-500" />
+                   </a>
+                ) : (
+                  <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl opacity-50 flex items-center gap-4">
+                    <Linkedin size={20} className="text-zinc-600" />
+                    <p className="font-black uppercase tracking-widest text-zinc-600 text-sm">LinkedIn Unlinked</p>
+                  </div>
+                )}
             </div>
 
             {/* Request Payment Button */}
