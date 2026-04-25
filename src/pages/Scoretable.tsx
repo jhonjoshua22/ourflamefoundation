@@ -156,17 +156,7 @@ const Scoretable = () => {
       const { data, error } = await qb.limit(maxUsersToLoad);
       if (error) throw error;
 
-      // FETCH CURRENT USER SEPARATELY TO ENSURE THEY ARE ALWAYS PRESENT
-      let currentUserData = null;
-      if (currentUserId) {
-        const { data: me } = await supabase.from('profiles').select(`
-          id, display_name, email, rank, paid, facebook, linkedin, 
-          engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
-        `).eq('id', currentUserId).single();
-        if (me) currentUserData = me;
-      }
-
-      const processItem = (item: any) => ({
+      const processed = (data || []).map(item => ({
         ...item,
         display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
@@ -175,10 +165,8 @@ const Scoretable = () => {
         valueNum: Number(item.value || 0),
         engagementNum: Number(item.engagement || 0),
         teamNum: Number(item.referral_count || 0)
-      });
+      }));
 
-      const processed = (data || []).map(processItem);
-      
       let sorted = [...processed];
       if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
       else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
@@ -189,17 +177,7 @@ const Scoretable = () => {
       else if (currentSort === "streak") sorted.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
       else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
 
-      // FORCE CURRENT USER TO THE TOP
-      if (currentUserData) {
-        const processedMe = processItem(currentUserData);
-        // Remove me from the list if I'm already there to avoid duplicates
-        const filtered = sorted.filter(u => u.id !== currentUserId);
-        // Put me at the very start
-        setLeaders([processedMe, ...filtered]);
-      } else {
-        setLeaders(sorted);
-      }
-
+      setLeaders(sorted);
     } catch (err) {
       console.error("Fetch Error:", err);
     } finally {
@@ -210,7 +188,7 @@ const Scoretable = () => {
   useEffect(() => {
     fetchData(searchQuery, sortBy);
     setCurrentPage(0); 
-  }, [sortBy, searchQuery, currentUserId]); // Added currentUserId as dependency
+  }, [sortBy, searchQuery]);
 
   const paginatedLeaders = leaders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   const totalPages = Math.ceil(leaders.length / pageSize);
@@ -358,10 +336,10 @@ const Scoretable = () => {
                 <tbody className="divide-y divide-zinc-800">
                   {paginatedLeaders.length > 0 ? (
                     paginatedLeaders.map((agent) => (
-                      <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/40 border-l-4 border-orange-600 scale-[1.01] shadow-xl z-10 relative' : 'hover:bg-zinc-900/70'}`}>
+                      <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                         <td className="p-5">
                           <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
-                            {agent.display_name} {agent.id === currentUserId && "(YOU)"}
+                            {agent.display_name}
                           </Link>
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
