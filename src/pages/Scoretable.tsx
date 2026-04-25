@@ -84,7 +84,7 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, email, rank, current_streak, id, tribe_id, avatar_url')
+        .select('display_name, email, rank, current_streak, id, tribe_id')
         .eq('referred_by', userId);
       
       if (error) throw error;
@@ -123,6 +123,7 @@ const Scoretable = () => {
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
+      // Chart Logic (Same as existing)
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
@@ -144,6 +145,7 @@ const Scoretable = () => {
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
+      // Main Data Query with Pagination
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
         engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
@@ -187,7 +189,7 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchData(searchQuery, sortBy);
-    setCurrentPage(0); 
+    setCurrentPage(0); // Reset to first page on search/sort change
   }, [sortBy, searchQuery]);
 
   const paginatedLeaders = leaders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
@@ -216,22 +218,11 @@ const Scoretable = () => {
                 ) : teamMembers.length > 0 ? (
                   teamMembers.map((member, idx) => (
                     <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 flex-shrink-0">
-                          {member.avatar_url ? (
-                            <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-zinc-600">
-                              <Users size={16} />
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
-                            {member.computed_name}
-                          </Link>
-                          <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
-                        </div>
+                      <div>
+                        <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
+                          {member.computed_name}
+                        </Link>
+                        <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
                       </div>
                       <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
                         <Shield size={10} fill="currentColor" /> {member.tribe_id || "NO TRIBE"}
@@ -252,6 +243,7 @@ const Scoretable = () => {
             <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
             
             <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
+              {/* Search Bar */}
               <div className="relative w-full md:w-80">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input 
@@ -263,6 +255,7 @@ const Scoretable = () => {
                 />
               </div>
 
+              {/* Filter Button */}
               <div className="relative w-full md:w-auto">
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -280,7 +273,7 @@ const Scoretable = () => {
                     {[
                       { id: "team", label: "Team Count" },
                       { id: "followers", label: "Followers" },
-                      { id: "paid", label: "Invested" },
+                      { id: "paid", label: "Paid" },
                       { id: "saved", label: "Saved" },
                       { id: "engagement", label: "Engagement" },
                       { id: "value", label: "Value" },
@@ -368,6 +361,7 @@ const Scoretable = () => {
             )}
           </div>
 
+          {/* Pagination Controls */}
           <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
             <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
               Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} loaded)
@@ -391,6 +385,7 @@ const Scoretable = () => {
           </div>
         </div>
 
+        {/* ANALYTICS GRAPHS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {[
             { title: "Number of Users", data: usersChart, color: "#f97316", icon: <Users size={20}/> },
@@ -441,6 +436,7 @@ const Scoretable = () => {
           ))}
         </div>
 
+        {/* ANALYTICS EXPLANATION PARAGRAPH */}
         <div className="bg-zinc-900/20 border border-zinc-800 p-8 rounded-3xl mb-16 text-center">
           <p className="text-zinc-400 text-sm leading-relaxed font-medium">
             This dashboard tracks our ecosystem's health across four vital dimensions. 
@@ -451,6 +447,7 @@ const Scoretable = () => {
           </p>
         </div>
         
+        {/* membership tiers */}
         <div id="tiers" className="mb-32 space-y-12">
           <h3 className="text-[12px] font-black uppercase tracking-[0.4em] text-zinc-400 text-center">Membership Tiers</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
