@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import clickSound from "../assets/button.m4a"; 
 
+// IMPORT YOUR PDF FILES HERE
+import SchedulePDF from "../assets/2026_Daily_Timetable.pdf";
+import MasterplanPDF from "../assets/The_Masterplan.pdf";
+import MagicWorldsPDF from "../assets/Magic_Worlds_Guide.pdf";
+import FlameFoundationPDF from "../assets/Flame_Foundation_Guide.pdf";
+
 import {  
   ExternalLink, Copy, Check, Sparkles, ArrowRight, FolderOpen, FileText, Video, Flame, Star,
   Facebook, Twitter, Youtube, Linkedin, Github, MapPin, MessageCircle, Mail,
@@ -86,10 +92,10 @@ const AboutUsSection = () => {
   };
 
   const brandFiles = [
-    { name: "2026 Daily Timetable", path: "SchedulePDF", type: "pdf" }, 
-    { name: "The Masterplan", path: "MasterplanPDF", type: "pdf" },
-    { name: "Magic Worlds Guide", path: "MagicWorldsPDF", type: "pdf" },
-    { name: "Flame Foundation Guide", path: "FlameFoundationPDF", type: "pdf" },
+    { name: "2026 Daily Timetable", path: SchedulePDF, type: "pdf" }, 
+    { name: "The Masterplan", path: MasterplanPDF, type: "pdf" },
+    { name: "Magic Worlds Guide", path: MagicWorldsPDF, type: "pdf" },
+    { name: "Flame Foundation Guide", path: FlameFoundationPDF, type: "pdf" },
     { name: "Assets (GDrive)", path: "https://drive.google.com/drive/folders/1gyPVyYdPpXL-SbvInD6IWueCsK51k4sU?usp=drive_link", type: "drive" },
   ];
   
