@@ -25,15 +25,16 @@ const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("referral_count"); 
+  const [sortBy, setSortBy] = useState("team"); 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [stats, setStats] = useState({ totalMembers: 0, totalFollowers: 0, avgHappiness: 0, totalTeam: 0, totalInvested: 0, totalSaved: 0 });
+  const [stats, setStats] = useState({ totalMembers: 0, totalFollowers: 0, avgHappiness: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
+  const maxUsersToLoad = 100;
 
   // Team Modal State
   const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
@@ -101,81 +102,27 @@ const Scoretable = () => {
     }
   };
 
-  const fetchData = async (query = "", currentSort = sortBy, page = currentPage) => {
+  const fetchData = async (query = "", currentSort = sortBy, page = 0) => {
     setLoading(true);
     try {
-      // 1. Fetch GLOBAL Stats (Unfiltered) to ensure Totals Row is always correct
-      const { data: allStats, error: statsError, count } = await supabase
-        .from('profiles')
-        .select('facebook, linkedin, happiness_score, referral_count, paid, saved', { count: 'exact' });
-
-      if (statsError) throw statsError;
-
-      const totalUsersCount = count || 0;
-      const totalFollowers = allStats?.reduce((sum, r) => sum + (Number(r.facebook) || 0) + (Number(r.linkedin) || 0), 0) || 0;
+      const { data: allProfiles, error: allErr, count } = await supabase
+        .from("profiles")
+        .select("id, facebook, happiness_score", { count: 'exact' });
       
-      // CHANGE: Instead of summing referral_count (which is just direct referrals), 
-      // we use totalUsersCount to show the actual total network size.
-      const totalTeamSize = totalUsersCount; 
-      
-      const totalPaid = allStats?.reduce((sum, r) => sum + (Number(r.paid) || 0), 0) || 0;
-      const totalSaved = allStats?.reduce((sum, r) => sum + (Number(r.saved) || 0), 0) || 0;
-      const avgHappiness = (allStats?.length || 0) > 0 
-        ? allStats!.reduce((sum, r) => sum + (Number(r.happiness_score) || 0), 0) / allStats!.length 
+      if (allErr) throw allErr;
+
+      const totalUsersCount = count || allProfiles.length;
+      const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
+      const avgHappiness = allProfiles.length > 0 
+        ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
         : 0;
 
       setStats({ 
         totalMembers: totalUsersCount, 
         totalFollowers: totalFollowers,
-        avgHappiness: Number(avgHappiness.toFixed(2)),
-        totalTeam: totalTeamSize,
-        totalInvested: totalPaid,
-        totalSaved
+        avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
-      // 2. Fetch Paginated Leaders (Filtered)
-      let qb = supabase.from('profiles').select(`
-        id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
-      `, { count: 'exact' });
-
-      if (query) {
-        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
-      }
-
-      const sortColumnMap: Record<string, string> = {
-        "team": "referral_count",
-        "followers": "facebook",
-        "paid": "paid",
-        "saved": "saved",
-        "engagement": "engagement",
-        "value": "value",
-        "rank": "rank",
-        "streak": "tribe_id"
-      };
-
-      const dbSortColumn = sortColumnMap[currentSort] || "referral_count";
-      
-      const { data: pageData, error: pageError } = await qb
-        .order(dbSortColumn, { ascending: currentSort === "rank" })
-        .range(page * pageSize, (page + 1) * pageSize - 1);
-
-      if (pageError) throw pageError;
-
-      const processed = (pageData || []).map(item => ({
-        ...item,
-        display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
-        followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
-        paidNum: Number(item.paid || 0),
-        savedNum: Number(item.saved || 0),
-        valueNum: Number(item.value || 0),
-        engagementNum: Number(item.engagement || 0),
-        teamNum: Number(item.referral_count || 0)
-      }));
-
-      setLeaders(processed);
-
-      // 3. Chart Calculations
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
@@ -197,6 +144,40 @@ const Scoretable = () => {
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
+      let qb = supabase.from('profiles').select(`
+        id, display_name, email, rank, paid, facebook, linkedin, 
+        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
+      `);
+      
+      if (query) {
+        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
+      }
+
+      const { data, error } = await qb.limit(maxUsersToLoad);
+      if (error) throw error;
+
+      const processed = (data || []).map(item => ({
+        ...item,
+        display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
+        followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
+        paidNum: Number(item.paid || 0),
+        savedNum: Number(item.saved || 0),
+        valueNum: Number(item.value || 0),
+        engagementNum: Number(item.engagement || 0),
+        teamNum: Number(item.referral_count || 0)
+      }));
+
+      let sorted = [...processed];
+      if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
+      else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
+      else if (currentSort === "value") sorted.sort((a, b) => b.valueNum - a.valueNum);
+      else if (currentSort === "engagement") sorted.sort((a, b) => b.engagementNum - a.engagementNum);
+      else if (currentSort === "paid") sorted.sort((a, b) => b.paidNum - a.paidNum);
+      else if (currentSort === "saved") sorted.sort((a, b) => b.savedNum - a.savedNum);
+      else if (currentSort === "streak") sorted.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
+      else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
+
+      setLeaders(sorted);
     } catch (err) {
       console.error("Fetch Error:", err);
     } finally {
@@ -205,10 +186,12 @@ const Scoretable = () => {
   };
 
   useEffect(() => {
-    fetchData(searchQuery, sortBy, currentPage);
-  }, [sortBy, searchQuery, currentPage]);
+    fetchData(searchQuery, sortBy);
+    setCurrentPage(0); 
+  }, [sortBy, searchQuery]);
 
-  const totalPages = Math.ceil(stats.totalMembers / pageSize);
+  const paginatedLeaders = leaders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const totalPages = Math.ceil(leaders.length / pageSize);
 
   return (
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
@@ -275,10 +258,7 @@ const Scoretable = () => {
                   type="text"
                   placeholder="SEARCH NAME, EMAIL, COUNTRY..."
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(0);
-                  }}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-600"
                 />
               </div>
@@ -311,7 +291,6 @@ const Scoretable = () => {
                         key={option.id}
                         onClick={() => {
                           setSortBy(option.id);
-                          setCurrentPage(0);
                           setIsFilterOpen(false);
                         }}
                         className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
@@ -346,17 +325,17 @@ const Scoretable = () => {
                   <tr className="bg-zinc-900/50 text-[11px] uppercase text-orange-500 border-b border-zinc-800/50 text-left font-black tracking-widest">
                     <td className="px-5 py-3">{stats.totalMembers.toLocaleString()}</td>
                     <td className="px-5 py-3">-</td>
-                    <td className="px-5 py-3">{stats.totalTeam.toLocaleString()}</td>
-                    <td className="px-5 py-3">{stats.totalInvested.toLocaleString()}</td>
-                    <td className="px-5 py-3">{stats.totalSaved.toLocaleString()}</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.teamNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.paidNum, 0).toLocaleString()}</td>
+                    <td className="px-5 py-3">{leaders.reduce((sum, item) => sum + item.savedNum, 0).toLocaleString()}</td>
                     <td className="px-5 py-3">{stats.totalFollowers.toLocaleString()}</td>
                     <td className="px-5 py-3">100M+</td>
                     <td className="px-5 py-3 text-right">100M</td>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
-                  {leaders.length > 0 ? (
-                    leaders.map((agent) => (
+                  {paginatedLeaders.length > 0 ? (
+                    paginatedLeaders.map((agent) => (
                       <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                         <td className="p-5">
                           <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
@@ -401,7 +380,7 @@ const Scoretable = () => {
 
           <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
             <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
-              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({stats.totalMembers} total)
+              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} loaded)
             </p>
             <div className="flex gap-2">
               <button 
