@@ -33,7 +33,8 @@ const Profile = () => {
     country: "",
     facebook: "", // Used for Followers
     happiness_score: "",
-    photo_url: ""
+    photo_url: "",
+    paid: "" // Added Invested field
   });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
@@ -98,7 +99,8 @@ const Profile = () => {
           country: data.country || "",
           facebook: data.facebook || "",
           happiness_score: data.happiness_score || "",
-          photo_url: data.photo_url || ""
+          photo_url: data.photo_url || "",
+          paid: data.paid || ""
         });
       }
     } catch (err: any) {
@@ -118,9 +120,10 @@ const Profile = () => {
           display_name: editFormData.display_name,
           linkedin_link: editFormData.linkedin_link,
           country: editFormData.country,
-          facebook: editFormData.facebook, // Followers
+          facebook: editFormData.facebook,
           happiness_score: editFormData.happiness_score,
-          photo_url: editFormData.photo_url
+          photo_url: editFormData.photo_url,
+          paid: editFormData.paid
         })
         .eq("id", user.id);
 
@@ -293,6 +296,11 @@ const Profile = () => {
   const profileImage = profileData?.photo_url || (id ? defaultAvatar : user.user_metadata?.avatar_url) || defaultAvatar;
   const isOwnProfile = !id || id === user.id;
 
+  // Happiness score rounded to 2 decimals
+  const formattedHappiness = profileData?.happiness_score 
+    ? parseFloat(profileData.happiness_score).toFixed(2) 
+    : "0.00";
+
   // Payment Request Validation
   const isPaymentClickable = 
     profileData?.display_name && 
@@ -426,7 +434,7 @@ const Profile = () => {
                   <Smile size={20} className="text-yellow-500" />
                   <span className="text-[12px] font-black uppercase tracking-widest">Happiness</span>
                 </div>
-                <p className="text-2xl font-black italic">{profileData?.happiness_score || "0"}%</p>
+                <p className="text-2xl font-black italic">{formattedHappiness}%</p>
               </div>
             </div>
 
@@ -677,15 +685,30 @@ const Profile = () => {
               </div>
 
               <div>
+                <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Invested Amount ($)</label>
+                <div className="relative">
+                  <DollarSign size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-500" />
+                  <input 
+                    type="number" 
+                    value={editFormData.paid}
+                    onChange={(e) => setEditFormData({...editFormData, paid: e.target.value})}
+                    className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
                 <label className="text-[12px] font-black uppercase tracking-widest text-zinc-500 block mb-2">Happiness Score (1-100)</label>
                 <div className="relative">
                   <Smile size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-500" />
                   <input 
                     type="number" 
+                    step="0.01"
                     value={editFormData.happiness_score}
                     onChange={(e) => setEditFormData({...editFormData, happiness_score: e.target.value})}
                     className="w-full bg-black border border-zinc-800 rounded-xl py-3 pl-12 pr-4 font-bold focus:border-orange-600 outline-none"
-                    placeholder="95"
+                    placeholder="95.00"
                   />
                 </div>
               </div>
