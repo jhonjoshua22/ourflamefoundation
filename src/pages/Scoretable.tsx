@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Zap, Search,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft
+  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft, User
 } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
@@ -27,14 +27,13 @@ const Scoretable = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("team"); 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [stats, setStats] = useState({ totalMembers: 0, totalFollowers: 0, avgHappiness: 0 });
+  const [stats, setStats] = useState({ totalMembers: 0, totalFollowers: 0, avgHappiness: 0, totalInvested: 0, totalReferred: 0 });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [referralLink, setReferralLink] = useState<string>('');
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
-  const maxUsersToLoad = 100;
 
   // Team Modal State
   const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
@@ -84,7 +83,7 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, email, rank, current_streak, id, tribe_id')
+        .select('display_name, email, rank, current_streak, id, tribe_id, avatar_url')
         .eq('referred_by', userId);
       
       if (error) throw error;
@@ -102,17 +101,24 @@ const Scoretable = () => {
     }
   };
 
-  const fetchData = async (query = "", currentSort = sortBy, page = 0) => {
+  const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
-      const { data: allProfiles, error: allErr, count } = await supabase
-        .from("profiles")
-        .select("id, facebook, happiness_score", { count: 'exact' });
+      // Fetching all records to satisfy the "10 000+" requirement for totals and full list
+      const { data: allProfiles, error: allErr } = await supabase
+        .from('profiles')
+        .select(`
+          id, display_name, email, rank, paid, facebook, linkedin, 
+          engagement, value, saved, current_streak, referral_count, 
+          happiness_score, tribe_id, country, avatar_url, referred_by
+        `);
       
       if (allErr) throw allErr;
 
-      const totalUsersCount = count || allProfiles.length;
+      const totalUsersCount = allProfiles.length;
       const totalFollowers = allProfiles.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
+      const totalInvested = allProfiles.reduce((sum, r) => sum + Number(r.paid || 0), 0);
+      const totalReferred = allProfiles.filter(u => u.referred_by).length;
       const avgHappiness = allProfiles.length > 0 
         ? allProfiles.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allProfiles.length 
         : 0;
@@ -120,10 +126,12 @@ const Scoretable = () => {
       setStats({ 
         totalMembers: totalUsersCount, 
         totalFollowers: totalFollowers,
+        totalInvested: totalInvested,
+        totalReferred: totalReferred,
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
 
-      // Chart Logic (Same as existing)
+      // Chart Logic
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
@@ -145,20 +153,7 @@ const Scoretable = () => {
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
 
-      // Main Data Query with Pagination
-      let qb = supabase.from('profiles').select(`
-        id, display_name, email, rank, paid, facebook, linkedin, 
-        engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
-      `);
-      
-      if (query) {
-        qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
-      }
-
-      const { data, error } = await qb.limit(maxUsersToLoad);
-      if (error) throw error;
-
-      const processed = (data || []).map(item => ({
+      const processed = (allProfiles || []).map(item => ({
         ...item,
         display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
         followers: Number(item.facebook || 0) + Number(item.linkedin || 0),
@@ -169,17 +164,26 @@ const Scoretable = () => {
         teamNum: Number(item.referral_count || 0)
       }));
 
-      let sorted = [...processed];
-      if (currentSort === "followers") sorted.sort((a, b) => b.followers - a.followers);
-      else if (currentSort === "rank") sorted.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
-      else if (currentSort === "value") sorted.sort((a, b) => b.valueNum - a.valueNum);
-      else if (currentSort === "engagement") sorted.sort((a, b) => b.engagementNum - a.engagementNum);
-      else if (currentSort === "paid") sorted.sort((a, b) => b.paidNum - a.paidNum);
-      else if (currentSort === "saved") sorted.sort((a, b) => b.savedNum - a.savedNum);
-      else if (currentSort === "streak") sorted.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
-      else if (currentSort === "team") sorted.sort((a, b) => b.teamNum - a.teamNum);
+      let filtered = processed;
+      if (query) {
+        const q = query.toLowerCase();
+        filtered = processed.filter(p => 
+          p.display_name.toLowerCase().includes(q) || 
+          (p.email && p.email.toLowerCase().includes(q)) || 
+          (p.country && p.country.toLowerCase().includes(q))
+        );
+      }
 
-      setLeaders(sorted);
+      if (currentSort === "followers") filtered.sort((a, b) => b.followers - a.followers);
+      else if (currentSort === "rank") filtered.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
+      else if (currentSort === "value") filtered.sort((a, b) => b.valueNum - a.valueNum);
+      else if (currentSort === "engagement") filtered.sort((a, b) => b.engagementNum - a.engagementNum);
+      else if (currentSort === "paid") filtered.sort((a, b) => b.paidNum - a.paidNum);
+      else if (currentSort === "saved") filtered.sort((a, b) => b.savedNum - a.savedNum);
+      else if (currentSort === "streak") filtered.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
+      else if (currentSort === "team") filtered.sort((a, b) => b.teamNum - a.teamNum);
+
+      setLeaders(filtered);
     } catch (err) {
       console.error("Fetch Error:", err);
     } finally {
@@ -189,7 +193,7 @@ const Scoretable = () => {
 
   useEffect(() => {
     fetchData(searchQuery, sortBy);
-    setCurrentPage(0); // Reset to first page on search/sort change
+    setCurrentPage(0);
   }, [sortBy, searchQuery]);
 
   const paginatedLeaders = leaders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
@@ -218,11 +222,20 @@ const Scoretable = () => {
                 ) : teamMembers.length > 0 ? (
                   teamMembers.map((member, idx) => (
                     <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                      <div>
-                        <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
-                          {member.computed_name}
-                        </Link>
-                        <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700">
+                          {member.avatar_url ? (
+                            <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-zinc-600"><User size={20}/></div>
+                          )}
+                        </div>
+                        <div>
+                          <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
+                            {member.computed_name}
+                          </Link>
+                          <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
                         <Shield size={10} fill="currentColor" /> {member.tribe_id || "NO TRIBE"}
@@ -243,7 +256,6 @@ const Scoretable = () => {
             <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
             
             <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
-              {/* Search Bar */}
               <div className="relative w-full md:w-80">
                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input 
@@ -255,7 +267,6 @@ const Scoretable = () => {
                 />
               </div>
 
-              {/* Filter Button */}
               <div className="relative w-full md:w-auto">
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -315,24 +326,49 @@ const Scoretable = () => {
                     <th className="p-5">Engagement</th>
                     <th className="p-5 text-right">Value</th>
                   </tr>
+                  {/* TOTAL ROW ADDED BELOW TH */}
+                  <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
+                    <td className="p-5">
+                       <div className="font-black text-sm uppercase italic">TOTAL AGENTS</div>
+                       <div className="text-[10px] text-orange-500 font-bold uppercase">{stats.totalMembers.toLocaleString()}</div>
+                    </td>
+                    <td className="p-5 text-[10px] font-black uppercase text-zinc-500">—</td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
+                    <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
+                    <td className="p-5 font-black text-zinc-500">—</td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalFollowers.toLocaleString()}</td>
+                    <td className="p-5 text-blue-400 font-mono font-bold text-sm">100M+</td>
+                    <td className="p-5 text-right text-purple-400 font-black italic">$100M</td>
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
                   {paginatedLeaders.length > 0 ? (
                     paginatedLeaders.map((agent) => (
                       <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                         <td className="p-5">
-                          <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
-                            {agent.display_name}
-                          </Link>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
-                              <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0">
+                               {agent.avatar_url ? (
+                                 <img src={agent.avatar_url} alt="" className="w-full h-full object-cover" />
+                               ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
+                               )}
                             </div>
-                            {agent.country && (
-                                <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
-                                  • {agent.country}
-                                </span>
-                            )}
+                            <div>
+                              <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                                {agent.display_name}
+                              </Link>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                                  <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
+                                </div>
+                                {agent.country && (
+                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
+                                      • {agent.country}
+                                    </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td className="p-5 text-[10px] text-orange-500 uppercase font-black">{agent.rank || "Normie"}</td>
@@ -361,10 +397,9 @@ const Scoretable = () => {
             )}
           </div>
 
-          {/* Pagination Controls */}
           <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
             <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
-              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} loaded)
+              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} users)
             </p>
             <div className="flex gap-2">
               <button 
