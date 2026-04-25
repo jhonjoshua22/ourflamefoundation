@@ -83,7 +83,7 @@ const Scoretable = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, email, rank, current_streak, id, tribe_id, avatar_url')
+        .select('display_name, email, rank, current_streak, id, tribe_id, photo_url')
         .eq('referred_by', userId);
       
       if (error) throw error;
@@ -110,7 +110,7 @@ const Scoretable = () => {
         .select(`
           id, display_name, email, rank, paid, facebook, linkedin, 
           engagement, value, saved, current_streak, referral_count, 
-          happiness_score, tribe_id, country, avatar_url, referred_by
+          happiness_score, tribe_id, country, photo_url, referred_by
         `);
       
       if (allErr) throw allErr;
@@ -224,8 +224,8 @@ const Scoretable = () => {
                     <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700">
-                          {member.avatar_url ? (
-                            <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />
+                          {member.photo_url ? (
+                            <img src={member.photo_url} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-zinc-600"><User size={20}/></div>
                           )}
@@ -348,8 +348,8 @@ const Scoretable = () => {
                         <td className="p-5">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0">
-                               {agent.avatar_url ? (
-                                 <img src={agent.avatar_url} alt="" className="w-full h-full object-cover" />
+                               {agent.photo_url ? (
+                                 <img src={agent.photo_url} alt="" className="w-full h-full object-cover" />
                                ) : (
                                  <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
                                )}
