@@ -349,7 +349,7 @@ const Scoretable = () => {
                   </tr>
                   <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
                     <td className="p-5">
-                       <div className="font-black text-sm uppercase italic">TOTAL AGENTS</div>
+                       <div className="font-black text-sm uppercase italic">TOTAL FAMILIES</div>
                        <div className="text-[10px] text-orange-500 font-bold uppercase">{stats.totalMembers.toLocaleString()}</div>
                     </td>
                     <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
