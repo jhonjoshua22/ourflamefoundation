@@ -586,6 +586,8 @@ const Scoretable = () => {
           </div>
         )}
       </div>
+      <AboutUsSection />
+      <HeroSection />
     </div>
   );
 };
