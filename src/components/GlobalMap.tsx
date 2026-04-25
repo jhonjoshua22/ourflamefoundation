@@ -39,8 +39,9 @@ const GlobalMap = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Fetching from team_countries instead of profiles
     const { data: referrals, error } = await supabase
-      .from("profiles")
+      .from("team_countries")
       .select("country, display_name")
       .eq("referred_by", user.id);
 
