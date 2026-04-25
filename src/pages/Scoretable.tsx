@@ -104,8 +104,7 @@ const Scoretable = () => {
   const fetchData = async (query = "", currentSort = sortBy, page = currentPage) => {
     setLoading(true);
     try {
-      // 1. Fetch Global Stats (Aggregated)
-      // Note: In a real high-scale DB, you'd use a RPC or view for these sums
+      // 1. Fetch GLOBAL Stats (Unfiltered) to ensure Totals Row is always correct
       const { data: allStats, error: statsError, count } = await supabase
         .from('profiles')
         .select('facebook, linkedin, happiness_score, referral_count, paid, saved', { count: 'exact' });
@@ -130,20 +129,19 @@ const Scoretable = () => {
         totalSaved
       });
 
-      // 2. Fetch Paginated Leaders
+      // 2. Fetch Paginated Leaders (Filtered)
       let qb = supabase.from('profiles').select(`
         id, display_name, email, rank, paid, facebook, linkedin, 
         engagement, value, saved, current_streak, referral_count, happiness_score, tribe_id, country
-      `);
+      `, { count: 'exact' }); // Get count for the filtered results to handle pagination correctly
 
       if (query) {
         qb = qb.or(`display_name.ilike.%${query}%,email.ilike.%${query}%,country.ilike.%${query}%`);
       }
 
-      // Mapping sort keys to DB columns
       const sortColumnMap: Record<string, string> = {
         "team": "referral_count",
-        "followers": "facebook", // approximation for DB sort
+        "followers": "facebook",
         "paid": "paid",
         "saved": "saved",
         "engagement": "engagement",
@@ -173,7 +171,7 @@ const Scoretable = () => {
 
       setLeaders(processed);
 
-      // Chart Calculations (using total count)
+      // 3. Chart Calculations (using total count)
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
       setUsersChart(months.slice(0, currentMonthIdx + 1).map((name, i) => {
