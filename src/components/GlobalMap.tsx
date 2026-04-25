@@ -5,21 +5,21 @@ import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
 const locations = [
-  { id: "UK", lat: 54.0, lng: -2.0 },
-  { id: "IE", lat: 53.3, lng: -6.2 }, 
-  { id: "GE", lat: 42.3, lng: 43.3 },
-  { id: "PK", lat: 30.3, lng: 69.3 },
-  { id: "IN", lat: 21.0, lng: 78.0 },
-  { id: "BD", lat: 23.6, lng: 90.3 },
-  { id: "PH", lat: 13.0, lng: 122.0 },
-  { id: "KE", lat: -1.2, lng: 36.8 }, 
-  { id: "QA", lat: 25.3, lng: 51.5 }, 
-  { id: "NG", lat: 9.0, lng: 8.6 }, 
-  { id: "BR", lat: -14.2, lng: -51.9 }, 
-  { id: "US", lat: 37.0, lng: -95.7 }, 
-  { id: "HK", lat: 22.3, lng: 114.1 }, 
-  { id: "CN", lat: 35.8, lng: 104.1 }, 
-  { id: "JP", lat: 36.2, lng: 138.2 }, 
+  { id: "UK", lat: 54.0, lng: -2.0, names: ["UK", "UNITED KINGDOM", "GB", "GREAT BRITAIN"] },
+  { id: "IE", lat: 53.3, lng: -6.2, names: ["IE", "IRELAND"] }, 
+  { id: "GE", lat: 42.3, lng: 43.3, names: ["GE", "GEORGIA"] },
+  { id: "PK", lat: 30.3, lng: 69.3, names: ["PK", "PAKISTAN"] },
+  { id: "IN", lat: 21.0, lng: 78.0, names: ["IN", "INDIA"] },
+  { id: "BD", lat: 23.6, lng: 90.3, names: ["BD", "BANGLADESH"] },
+  { id: "PH", lat: 13.0, lng: 122.0, names: ["PH", "PHILIPPINES"] },
+  { id: "KE", lat: -1.2, lng: 36.8, names: ["KE", "KENYA"] }, 
+  { id: "QA", lat: 25.3, lng: 51.5, names: ["QA", "QATAR"] }, 
+  { id: "NG", lat: 9.0, lng: 8.6, names: ["NG", "NIGERIA"] }, 
+  { id: "BR", lat: -14.2, lng: -51.9, names: ["BR", "BRAZIL"] }, 
+  { id: "US", lat: 37.0, lng: -95.7, names: ["US", "USA", "UNITED STATES", "UNITED STATES OF AMERICA"] }, 
+  { id: "HK", lat: 22.3, lng: 114.1, names: ["HK", "HONG KONG"] }, 
+  { id: "CN", lat: 35.8, lng: 104.1, names: ["CN", "CHINA"] }, 
+  { id: "JP", lat: 36.2, lng: 138.2, names: ["JP", "JAPAN"] }, 
 ];
 
 const GlobalMap = () => {
@@ -39,7 +39,6 @@ const GlobalMap = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Fetching from team_countries instead of profiles
     const { data: referrals, error } = await supabase
       .from("team_countries")
       .select("country, display_name")
@@ -48,10 +47,12 @@ const GlobalMap = () => {
     if (!error && referrals) {
       const mappedTeam = referrals
         .map(ref => {
-          const userCountry = ref.country?.toUpperCase() || "";
+          const userCountry = ref.country?.toUpperCase().trim() || "";
+          
+          // Match by ID or by checking if the country name exists in our names array
           const coords = locations.find(l => 
             l.id === userCountry || 
-            (userCountry === "PHILIPPINES" && l.id === "PH")
+            l.names.includes(userCountry)
           );
           
           if (coords) {
@@ -88,7 +89,6 @@ const GlobalMap = () => {
 
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
     
-    // Initialize a LayerGroup to manage markers easily
     markerLayerGroup.current = window.L.layerGroup().addTo(mapInstance.current);
 
     return () => {
@@ -103,7 +103,6 @@ const GlobalMap = () => {
   useEffect(() => {
     if (!mapInstance.current || !markerLayerGroup.current) return;
 
-    // Clear previous markers
     markerLayerGroup.current.clearLayers();
 
     const heartIcon = window.L.divIcon({
