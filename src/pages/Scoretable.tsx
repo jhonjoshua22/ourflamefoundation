@@ -149,7 +149,7 @@ const Scoretable = () => {
         const followersCount = Number(item.facebook || 0) + Number(item.linkedin || 0);
         const teamCount = Number(item.referral_count || 0);
         const calculatedValue = totalUsersCount > 0 
-          ? (teamCount * (followersCount + 100)) / totalUsersCount * 100
+          ? ((teamCount + 5) * (followersCount + 100)) / totalUsersCount * 100
           : 0;
 
         return {
