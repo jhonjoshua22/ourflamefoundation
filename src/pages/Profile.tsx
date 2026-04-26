@@ -438,6 +438,29 @@ const Profile = () => {
               </div>
             </div>
 
+            <div className="mb-10">
+              <div className="flex items-center gap-3 mb-6 ml-2">
+                <Target className="text-orange-600" size={24} />
+                <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Next Objectives</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {objectives.map((obj, idx) => (
+                  <div key={idx} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] group hover:border-orange-600/50 transition-all">
+                     <div className="flex items-start gap-4">
+                        <div className="p-3 bg-black rounded-xl border border-zinc-800 group-hover:border-orange-600/50 transition-colors">
+                          {obj.icon}
+                        </div>
+                        <div>
+                          <p className="text-[16px] font-black uppercase tracking-tight mb-2 group-hover:text-orange-500 transition-colors">{obj.title}</p>
+                          <p className="text-[16px] text-zinc-500 font-medium leading-relaxed">{obj.desc}</p>
+                        </div>
+                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Profile Action Links */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
                 <button 
@@ -573,29 +596,6 @@ const Profile = () => {
                 ) : (
                   <p className="text-zinc-600 uppercase font-black tracking-widest text-[14px] ml-2">No locations identified</p>
                 )}
-              </div>
-            </div>
-
-            <div className="mb-10">
-              <div className="flex items-center gap-3 mb-6 ml-2">
-                <Target className="text-orange-600" size={24} />
-                <h3 className="text-[16px] font-black uppercase tracking-[0.4em] text-zinc-500">Next Objectives</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {objectives.map((obj, idx) => (
-                  <div key={idx} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] group hover:border-orange-600/50 transition-all">
-                     <div className="flex items-start gap-4">
-                        <div className="p-3 bg-black rounded-xl border border-zinc-800 group-hover:border-orange-600/50 transition-colors">
-                          {obj.icon}
-                        </div>
-                        <div>
-                          <p className="text-[16px] font-black uppercase tracking-tight mb-2 group-hover:text-orange-500 transition-colors">{obj.title}</p>
-                          <p className="text-[16px] text-zinc-500 font-medium leading-relaxed">{obj.desc}</p>
-                        </div>
-                     </div>
-                  </div>
-                ))}
               </div>
             </div>
 
