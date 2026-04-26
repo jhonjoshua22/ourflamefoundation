@@ -339,9 +339,15 @@ const Profile = () => {
 
   const calculateIOU = (dateString) => {
     if (!dateString) return 0;
+    
     const joined = new Date(dateString);
     const now = new Date();
-    return Math.max(0, (now.getFullYear() - joined.getFullYear()) * 12 + (now.getMonth() - joined.getMonth()));
+    
+    // Calculate difference in months
+    const months = (now.getFullYear() - joined.getFullYear()) * 12 + (now.getMonth() - joined.getMonth());
+    
+    // Return at least 1 if they just joined, or the actual count
+    return months <= 0 ? 0 : months;
   };
 
   return (
