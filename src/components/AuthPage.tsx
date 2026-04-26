@@ -20,11 +20,9 @@ const AuthPage: React.FC = () => {
 
   /**
    * Captures country via IP and syncs it to the user's profile
-   * This is called after a successful session is detected.
    */
   const syncUserLocation = async (userId: string) => {
     try {
-      // 1. Check if user already has a country assigned to avoid redundant calls
       const { data: profile } = await supabase
         .from("profiles")
         .select("country")
@@ -33,12 +31,10 @@ const AuthPage: React.FC = () => {
 
       if (profile?.country) return;
 
-      // 2. Fetch geolocation from public API
       const response = await fetch("https://ipapi.co/json/");
       const geo = await response.json();
 
       if (geo.country_name) {
-        // 3. Update the profiles table
         await supabase
           .from("profiles")
           .update({ country: geo.country_name })
@@ -55,11 +51,12 @@ const AuthPage: React.FC = () => {
     provider: "google" | "discord" | "facebook" | "github" | "linkedin_oidc"
   ): Promise<void> => {
     try {
+      // FIX: Ensure the redirectTo matches exactly what is in your Supabase Auth > Redirect URLs
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin, 
-          scopes: 'openid profile email',
+          redirectTo: `${window.location.origin}/`, 
+          scopes: provider === 'discord' ? 'identify email' : 'openid profile email',
         },
       });
 
@@ -67,9 +64,6 @@ const AuthPage: React.FC = () => {
         console.error(`${provider} login error:`, error.message);
         alert(error.message);
       }
-      
-      // Note: The actual database sync happens on the landing page 
-      // after redirect, as signInWithOAuth redirects the entire window.
     } catch (err) {
       console.error("Unexpected OAuth error:", err);
       alert("Authentication failed. Please try again.");
