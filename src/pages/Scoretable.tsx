@@ -348,10 +348,7 @@ const Scoretable = () => {
                     <th className="p-5 text-right">Value</th>
                   </tr>
                   <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
-                    <td className="p-5">
-                       <div className="font-black text-sm uppercase italic">TOTAL TRIBES</div>
-                       <div className="text-[10px] text-orange-500 font-bold uppercase">{stats.totalMembers.toLocaleString()}</div>
-                    </td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalMembers.toLocaleString()}</td>
                     <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
                     <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
                     <td className="p-5 font-black text-zinc-500">—</td>
