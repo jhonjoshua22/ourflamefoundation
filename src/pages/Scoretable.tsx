@@ -274,14 +274,14 @@ const Scoretable = () => {
 
         {/* LEADERBOARD CONTAINER */}
         <div className="relative group mb-12">
-            {/* FLOATING PNG DECORATIONS (Optional placeholders as per layout reference) */}
+            {/* FLOATING PNG DECORATIONS */}
             <div className="absolute -top-16 -left-16 w-32 h-32 animate-hologram z-30 pointer-events-none opacity-50 filter drop-shadow-[0_0_8px_#ea580c] bg-orange-500/10 rounded-full flex items-center justify-center text-[8px] font-black uppercase text-orange-500/40">HUD_01</div>
             <div className="absolute -bottom-10 -right-20 w-36 h-36 animate-hologram z-30 pointer-events-none opacity-40 filter drop-shadow-[0_0_12px_#22d3ee] bg-cyan-500/10 rounded-full flex items-center justify-center text-[8px] font-black uppercase text-cyan-500/40" style={{ animationDelay: "1.5s" }}>NAV_02</div>
-
+        
             <div className="sci-fi-frame bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl relative scoreboard-panel">
                 {/* SCANLINE OVERLAY */}
                 <div className="scanlines"></div>
-
+        
                 {/* MAIN HEADER */}
                 <div className="p-8 border-b-2 border-zinc-900 bg-black/50 flex flex-col xl:flex-row justify-between items-center gap-6 relative z-10">
                     <div className="flex items-center gap-3">
@@ -303,7 +303,7 @@ const Scoretable = () => {
                                 className="w-full bg-black border-2 border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-cyan-600 transition-all placeholder:text-zinc-700 text-cyan-500 shadow-[inset_0_0_8px_rgba(34,211,238,0.1)]"
                             />
                         </div>
-
+        
                         <div className="relative w-full md:w-auto">
                             <button 
                                 onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -313,19 +313,20 @@ const Scoretable = () => {
                                     <Filter size={16} className="text-cyan-600 group-hover:drop-shadow-[0_0_5px_#22d3ee]" />
                                     Filter By: {sortBy.toUpperCase()}
                                 </div>
-                                <ChevronDown size={14} className={`text-zinc-600 transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                                <button type="button">
+                                    <ChevronDown size={14} className={`text-zinc-600 transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                                </button>
                             </button>
                             {isFilterOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-black border-2 border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
                                     {[
-                                        { id: "team", label: "Team Count" },
+                                        { id: "teamNum", label: "Team Count" },
                                         { id: "followers", label: "Followers" },
-                                        { id: "paid", label: "Paid" },
-                                        { id: "saved", label: "Saved" },
-                                        { id: "engagement", label: "Engagement" },
-                                        { id: "value", label: "Value" },
-                                        { id: "rank", label: "Rank" },
-                                        { id: "streak", label: "Tribe" }
+                                        { id: "paidNum", label: "Paid" },
+                                        { id: "savedNum", label: "Saved" },
+                                        { id: "engagementNum", label: "Engagement" },
+                                        { id: "valueNum", label: "Value" },
+                                        { id: "tribe_id", label: "Tribe" }
                                     ].map((option) => (
                                         <button
                                             key={option.id}
@@ -343,7 +344,7 @@ const Scoretable = () => {
                         </div>
                     </div>
                 </div>
-
+        
                 {/* BODY - FLEXGRID LAYOUT */}
                 <div className="min-h-[400px] relative z-10 px-6 py-4">
                     {loading && (
@@ -351,12 +352,11 @@ const Scoretable = () => {
                             <Loader2 className="animate-spin text-cyan-600" size={48} />
                         </div>
                     )}
-
-                    {/* HEADER ROW */}
+        
+                    {/* HEADER ROW - RANK REMOVED */}
                     <div className="sci-fi-border bg-zinc-900/50 p-5 rounded-md text-[11px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center border border-zinc-800/50">
                         <div className="flex-grow flex items-center">
-                            <div className="w-16">Rank</div>
-                            <div className="flex-grow ml-4">Tribes</div>
+                            <div className="flex-grow">Tribes</div>
                         </div>
                         <div className="flex-none flex items-center text-center gap-1 w-[700px] justify-between">
                             <div className="w-20">Team</div>
@@ -367,12 +367,14 @@ const Scoretable = () => {
                             <div className="sci-fi-divider w-20 text-right">Value</div>
                         </div>
                     </div>
-
-                    {/* TOTALS DISPLAY ROW */}
+        
+                    {/* TOTALS DISPLAY ROW - TEXT REPLACED WITH TOTAL UNITS */}
                     <div className="border border-orange-600/30 bg-orange-950/20 my-2 p-5 rounded-md text-white backdrop-blur-sm flex items-center">
                         <div className="flex-grow flex items-center">
-                            <div className="w-16 font-mono text-lg text-orange-500 font-bold">∑</div>
-                            <div className="flex-grow ml-4 font-black uppercase text-[10px] tracking-widest text-zinc-300">Global Network Totals</div>
+                            <div className="w-10 font-mono text-lg text-orange-500 font-bold">∑</div>
+                            <div className="flex-grow font-black uppercase text-[10px] tracking-widest text-zinc-300">
+                                Total Users: {leaders.length.toLocaleString()}
+                            </div>
                         </div>
                         <div className="flex-none flex items-center text-center gap-1 w-[700px] justify-between font-black text-white">
                             <div className="w-20 text-orange-500">{stats.totalReferred.toLocaleString()}</div>
@@ -383,15 +385,14 @@ const Scoretable = () => {
                             <div className="sci-fi-divider w-20 text-right text-purple-400 italic font-black">$100M</div>
                         </div>
                     </div>
-
-                    {/* LEADER LIST CONTENT */}
+        
+                    {/* LEADER LIST CONTENT - RANK REMOVED */}
                     <div className="space-y-1 mt-4">
                         {paginatedLeaders.length > 0 ? (
-                            paginatedLeaders.map((agent, index) => (
+                            paginatedLeaders.map((agent) => (
                                 <div key={agent.id} className={`p-4 rounded-lg flex items-center transition-all border ${agent.id === currentUserId ? 'bg-orange-950/20 border-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.2)]' : 'bg-black/40 border-zinc-900 hover:border-cyan-800'}`}>
                                     <div className="flex-grow flex items-center">
-                                        <div className="w-16 font-mono text-2xl font-black italic text-zinc-700">{(currentPage * pageSize) + index + 1}</div>
-                                        <div className="flex-grow ml-4 flex items-center gap-3">
+                                        <div className="flex-grow flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border-2 border-zinc-800 shrink-0 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
                                                 {agent.photo_url ? (
                                                     <img src={agent.photo_url} alt="" className="w-full h-full object-cover" />
@@ -435,7 +436,7 @@ const Scoretable = () => {
                         )}
                     </div>
                 </div>
-
+        
                 {/* FOOTER */}
                 <div className="p-6 border-t-2 border-zinc-900 bg-black/80 flex items-center justify-between relative z-10">
                     <p className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">
