@@ -337,6 +337,13 @@ const Profile = () => {
     }
   ];
 
+  const calculateIOU = (dateString) => {
+    if (!dateString) return 0;
+    const joined = new Date(dateString);
+    const now = new Date();
+    return Math.max(0, (now.getFullYear() - joined.getFullYear()) * 12 + (now.getMonth() - joined.getMonth()));
+  };
+
   return (
     <div className="min-h-screen bg-black pt-32 pb-12 px-6 text-white font-sans">
       <div className="max-w-3xl mx-auto">
@@ -462,45 +469,58 @@ const Profile = () => {
             </div>
 
             {/* Profile Action Links */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-                <button 
-                  onClick={handleClapmiAction}
-                  className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group flex justify-between items-center"
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+              <button 
+                onClick={handleClapmiAction}
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group flex justify-between items-center"
+              >
+                <div>
+                  <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                    <Zap size={20} className="text-orange-500" />
+                    <span className="text-[14px] font-black uppercase tracking-widest">Clapmi Node</span>
+                  </div>
+                  <p className="text-xl font-black italic uppercase truncate">
+                    {profileData?.clapmi ? "CONNECTED" : "LINK ACCOUNT"}
+                  </p>
+                </div>
+                <ArrowLeft size={24} className="rotate-180 text-zinc-800 group-hover:text-orange-500" />
+              </button>
+            
+              {profileData?.linkedin_link ? (
+                <a 
+                  href={profileData.linkedin_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-blue-500/50 transition-all group flex justify-between items-center"
                 >
                   <div>
                     <div className="flex items-center gap-3 text-zinc-500 mb-2">
-                      <Zap size={20} className="text-orange-500" />
-                      <span className="text-[14px] font-black uppercase tracking-widest">Clapmi Node</span>
+                      <Linkedin size={20} className="text-blue-500" />
+                      <span className="text-[14px] font-black uppercase tracking-widest">Professional Node</span>
                     </div>
-                    <p className="text-xl font-black italic uppercase truncate">
-                      {profileData?.clapmi ? "CONNECTED" : "LINK ACCOUNT"}
-                    </p>
+                    <p className="text-xl font-black italic uppercase truncate text-blue-400">View LinkedIn</p>
                   </div>
-                  <ArrowLeft size={24} className="rotate-180 text-zinc-800 group-hover:text-orange-500" />
-                </button>
-
-                {profileData?.linkedin_link ? (
-                   <a 
-                    href={profileData.linkedin_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-blue-500/50 transition-all group flex justify-between items-center"
-                   >
-                    <div>
-                      <div className="flex items-center gap-3 text-zinc-500 mb-2">
-                        <Linkedin size={20} className="text-blue-500" />
-                        <span className="text-[14px] font-black uppercase tracking-widest">Professional Node</span>
-                      </div>
-                      <p className="text-xl font-black italic uppercase truncate text-blue-400">View LinkedIn</p>
-                    </div>
-                    <LinkIcon size={24} className="text-zinc-800 group-hover:text-blue-500" />
-                   </a>
-                ) : (
-                  <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl opacity-50 flex items-center gap-4">
-                    <Linkedin size={20} className="text-zinc-600" />
-                    <p className="font-black uppercase tracking-widest text-zinc-600 text-sm">LinkedIn Unlinked</p>
+                  <LinkIcon size={24} className="text-zinc-800 group-hover:text-blue-500" />
+                </a>
+              ) : (
+                <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl opacity-50 flex items-center gap-4">
+                  <Linkedin size={20} className="text-zinc-600" />
+                  <p className="font-black uppercase tracking-widest text-zinc-600 text-sm">LinkedIn Unlinked</p>
+                </div>
+              )}
+            
+              {/* NEW IOU COLUMN */}
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left flex justify-between items-center">
+                <div>
+                  <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                    <DollarSign size={20} className="text-green-500" />
+                    <span className="text-[14px] font-black uppercase tracking-widest">IOU</span>
                   </div>
-                )}
+                  <p className="text-xl font-black italic uppercase truncate text-white">
+                    ${calculateIOU(profileData?.created_at)}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Request Payment Button */}
