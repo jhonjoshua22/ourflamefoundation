@@ -20,6 +20,8 @@ import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
 import farmerImg from "../assets/superfarmer.png";
 import founderImg from "../assets/founder.png";
+import space1 from "../assets/space1.png";
+import space2 from "../assets/space2.png";
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -275,8 +277,14 @@ const Scoretable = () => {
         {/* LEADERBOARD CONTAINER */}
         <div className="relative group mb-12">
             {/* FLOATING PNG DECORATIONS */}
-            <div className="absolute -top-16 -left-16 w-32 h-32 animate-hologram z-10 pointer-events-none opacity-50 filter drop-shadow-[0_0_8px_#ea580c] bg-orange-500/10 rounded-full flex items-center justify-center text-[8px] font-black uppercase text-orange-500/40">HUD_01</div>
-            <div className="absolute -bottom-10 -right-20 w-36 h-36 animate-hologram z-10 pointer-events-none opacity-40 filter drop-shadow-[0_0_12px_#22d3ee] bg-cyan-500/10 rounded-full flex items-center justify-center text-[8px] font-black uppercase text-cyan-500/40" style={{ animationDelay: "1.5s" }}>NAV_02</div>
+            <div className="absolute -top-16 -left-16 w-32 h-32 animate-hologram z-10 pointer-events-none opacity-60 filter drop-shadow-[0_0_15px_#ea580c] overflow-hidden rounded-full border border-orange-500/30">
+              <img src={space1} alt="HUD_01" className="w-full h-full object-cover mix-blend-screen" />
+              <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent" />
+            </div>
+            <div className="absolute -bottom-10 -right-20 w-40 h-40 animate-hologram z-10 pointer-events-none opacity-50 filter drop-shadow-[0_0_20px_#22d3ee] overflow-hidden rounded-full border border-cyan-500/30" style={{ animationDelay: "1.5s" }}>
+              <img src={space2} alt="NAV_02" className="w-full h-full object-cover mix-blend-screen" />
+              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent" />
+            </div>
         
             <div className="sci-fi-frame bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl relative scoreboard-panel z-20">
                 {/* SCANLINE OVERLAY */}
