@@ -411,8 +411,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Core Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <DollarSign size={20} className="text-green-500" />
@@ -420,7 +419,7 @@ const Profile = () => {
                 </div>
                 <p className="text-2xl font-black italic">${(Number(profileData?.paid || 0)).toLocaleString()}</p>
               </div>
-
+            
               <button 
                 onClick={() => setIsTeamModalOpen(true)}
                 className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group"
@@ -433,7 +432,7 @@ const Profile = () => {
                   {profileData?.referral_count || 0}
                 </p>
               </button>
-
+            
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Users size={20} className="text-blue-500" />
@@ -441,7 +440,7 @@ const Profile = () => {
                 </div>
                 <p className="text-2xl font-black italic">{profileData?.facebook || "0"}</p>
               </div>
-
+            
               <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Smile size={20} className="text-yellow-500" />
@@ -449,6 +448,22 @@ const Profile = () => {
                 </div>
                 <p className="text-2xl font-black italic">{formattedHappiness}%</p>
               </div>
+            
+              {/* NEW PROJECTS CARD */}
+              <a 
+                href="https://crowd-funding-orpin.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group"
+              >
+                <div className="flex items-center gap-3 text-zinc-500 mb-2">
+                  <Target size={20} className="text-orange-500" />
+                  <span className="text-[12px] font-black uppercase tracking-widest">Projects</span>
+                </div>
+                <p className="text-xs font-black italic uppercase text-zinc-400 group-hover:text-white transition-colors">
+                  Visit Crowdfund Site
+                </p>
+              </a>
             </div>
 
             <div className="mb-10">
