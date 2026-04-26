@@ -272,190 +272,170 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* LEADERBOARD WRAPPER WITH SPACESHIP CONSOLE STYLING */}
-        <div className="relative group">
-          {/* FLOATING PNG PLACEHOLDERS */}
-          <img src="/path-to-your-ship1.png" className="absolute -top-20 -left-10 w-24 h-24 animate-hologram z-20 pointer-events-none opacity-50" alt="" />
-          <img src="/path-to-your-ship2.png" className="absolute -bottom-10 -right-20 w-32 h-32 animate-hologram z-20 pointer-events-none opacity-40" style={{ animationDelay: '1s' }} alt="" />
-          <img src="/path-to-your-planet.png" className="absolute top-1/2 -right-16 w-20 h-20 animate-hologram z-20 pointer-events-none opacity-30" style={{ animationDelay: '2s' }} alt="" />
-        
-          <div className="bg-zinc-950 border-2 border-zinc-800 rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,1)] mb-12 relative">
-            {/* CONSOLE SCANLINE EFFECT */}
-            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-10 opacity-20"></div>
+        {/* LEADERBOARD */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
+          <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
+            <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
             
-            {/* CONSOLE HEADER */}
-            <div className="p-6 border-b-2 border-zinc-800 bg-gradient-to-b from-zinc-900 to-black flex flex-col xl:flex-row justify-between items-center gap-6 relative z-20">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-8 bg-orange-600 animate-pulse rounded-full shadow-[0_0_15px_rgba(234,88,12,0.5)]" />
-                <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3 tracking-tighter">
-                  <Trophy size={28} className="drop-shadow-[0_0_8px_rgba(234,88,12,0.8)]" /> 
-                  Leaderboard
-                </h2>
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
+              <div className="relative w-full md:w-80">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input 
+                  type="text"
+                  placeholder="SEARCH NAME, EMAIL, COUNTRY..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-600"
+                />
               </div>
-              
-              <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
-                <div className="relative w-full md:w-80">
-                  <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-600" />
-                  <input 
-                    type="text"
-                    placeholder="SEARCH NAME, EMAIL, COUNTRY..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-black border-2 border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-700 text-orange-500 shadow-inner"
-                  />
-                </div>
-        
-                <div className="relative w-full md:w-auto">
-                  <button 
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="w-full flex items-center justify-between gap-3 px-6 py-3 bg-black border-2 border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all text-zinc-400"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Filter size={16} className="text-orange-600" />
-                      Filter By: {sortBy.toUpperCase()}
-                    </div>
-                    <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
-                  </button>
-        
-                  {isFilterOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-black border-2 border-zinc-800 rounded-xl overflow-hidden z-50 shadow-[0_10px_40px_rgba(0,0,0,1)]">
-                      {[
-                        { id: "team", label: "Team Count" },
-                        { id: "followers", label: "Followers" },
-                        { id: "paid", label: "Paid" },
-                        { id: "saved", label: "Saved" },
-                        { id: "engagement", label: "Engagement" },
-                        { id: "value", label: "Value" },
-                        { id: "rank", label: "Rank" },
-                        { id: "streak", label: "Tribe" }
-                      ].map((option) => (
-                        <button
-                          key={option.id}
-                          onClick={() => {
-                            setSortBy(option.id);
-                            setIsFilterOpen(false);
-                          }}
-                          className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-500 hover:bg-zinc-900 hover:text-white"}`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+
+              <div className="relative w-full md:w-auto">
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="w-full flex items-center justify-between gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <Filter size={16} className="text-orange-600" />
+                    Filter By: {sortBy.toUpperCase()}
+                  </div>
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
+                    {[
+                      { id: "team", label: "Team Count" },
+                      { id: "followers", label: "Followers" },
+                      { id: "paid", label: "Paid" },
+                      { id: "saved", label: "Saved" },
+                      { id: "engagement", label: "Engagement" },
+                      { id: "value", label: "Value" },
+                      { id: "rank", label: "Rank" },
+                      { id: "streak", label: "Tribe" }
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => {
+                          setSortBy(option.id);
+                          setIsFilterOpen(false);
+                        }}
+                        className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-        
-            {/* CONSOLE BODY */}
-            <div className="overflow-x-auto min-h-[400px] relative z-20">
-              {loading ? (
-                <div className="absolute inset-0 flex justify-center items-center bg-black/60 backdrop-blur-md z-10">
-                  <Loader2 className="animate-spin text-orange-600" size={48} />
-                </div>
-              ) : (
-                <table className="w-full min-w-[900px] border-collapse">
-                  <thead>
-                    <tr className="bg-zinc-900/80 text-[10px] uppercase text-zinc-500 border-b-2 border-zinc-800 text-left font-black tracking-[0.2em]">
-                      <th className="p-5">Tribes</th>
-                      <th className="p-5">Team</th>
-                      <th className="p-5">Invested</th>
-                      <th className="p-5">Saved</th>
-                      <th className="p-5">Followers</th>
-                      <th className="p-5">Engagement</th>
-                      <th className="p-5 text-right">Value</th>
-                    </tr>
-                    {/* TOTALS DISPLAY ROW */}
-                    <tr className="bg-orange-600/5 border-b-2 border-orange-600/20 text-white backdrop-blur-sm">
-                      <td className="p-5 font-black text-orange-500 shadow-[inset_4px_0_0_#ea580c]">{stats.totalMembers.toLocaleString()}</td>
-                      <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
-                      <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
-                      <td className="p-5 font-black text-zinc-700">—</td>
-                      <td className="p-5 font-black text-orange-500">{stats.totalFollowers.toLocaleString()}</td>
-                      <td className="p-5 text-blue-400 font-mono font-bold text-sm">100M+</td>
-                      <td className="p-5 text-right text-purple-500 font-black italic drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]">$100M</td>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y-2 divide-zinc-900">
-                    {paginatedLeaders.length > 0 ? (
-                      paginatedLeaders.map((agent) => (
-                        <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/30 border-l-4 border-orange-600' : 'hover:bg-zinc-900/40'} transition-colors`}>
-                          <td className="p-5">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full overflow-hidden bg-black border-2 border-zinc-800 shrink-0 ring-2 ring-zinc-900">
-                                {agent.photo_url ? (
-                                  <img src={agent.photo_url} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
-                                )}
-                              </div>
-                              <div>
-                                <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter text-zinc-300 hover:text-orange-500 transition-colors">
-                                  {agent.display_name}
-                                </Link>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex items-center gap-1 text-blue-600 text-[9px] font-black uppercase">
-                                    <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
-                                  </div>
-                                  <div className="text-[9px] text-orange-600 uppercase font-black">
-                                    • {agent.rank || "Normie"}
-                                  </div>
-                                  {agent.country && (
-                                    <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-tighter">
+          </div>
+
+          <div className="overflow-x-auto min-h-[400px] relative">
+            {loading ? (
+               <div className="absolute inset-0 flex justify-center items-center bg-black/20 backdrop-blur-sm z-10">
+                 <Loader2 className="animate-spin text-orange-600" size={48} />
+               </div>
+            ) : (
+              <table className="w-full min-w-[900px]">
+                <thead>
+                  <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
+                    <th className="p-5">Tribes</th>
+                    <th className="p-5">Team</th>
+                    <th className="p-5">Invested</th>
+                    <th className="p-5">Saved</th>
+                    <th className="p-5">Followers</th>
+                    <th className="p-5">Engagement</th>
+                    <th className="p-5 text-right">Value</th>
+                  </tr>
+                  <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
+                    <td className="p-5 font-black text-orange-500">{stats.totalMembers.toLocaleString()}</td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
+                    <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
+                    <td className="p-5 font-black text-zinc-500">—</td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalFollowers.toLocaleString()}</td>
+                    <td className="p-5 text-blue-400 font-mono font-bold text-sm">100M+</td>
+                    <td className="p-5 text-right text-purple-400 font-black italic">$100M</td>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  {paginatedLeaders.length > 0 ? (
+                    paginatedLeaders.map((agent) => (
+                      <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
+                        <td className="p-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0">
+                               {agent.photo_url ? (
+                                 <img src={agent.photo_url} alt="" className="w-full h-full object-cover" />
+                               ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
+                               )}
+                            </div>
+                            <div>
+                              <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                                {agent.display_name}
+                              </Link>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                                  <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
+                                </div>
+                                <div className="text-[9px] text-orange-500 uppercase font-black">
+                                  • {agent.rank || "Normie"}
+                                </div>
+                                {agent.country && (
+                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
                                       • {agent.country}
                                     </span>
-                                  )}
-                                </div>
+                                )}
                               </div>
                             </div>
-                          </td>
-                          <td className="p-5">
-                            <button 
-                              onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
-                              className="font-black text-zinc-400 hover:text-orange-500 transition-colors underline decoration-zinc-800 underline-offset-8"
-                            >
-                              {(agent.teamNum || 0).toLocaleString()}
-                            </button>
-                          </td>
-                          <td className="p-5 font-black text-zinc-300">{(agent.paidNum || 0).toLocaleString()}</td>
-                          <td className="p-5 font-black text-zinc-300">{(agent.savedNum || 0).toLocaleString()}</td>
-                          <td className="p-5 font-black text-zinc-500">{(agent.followers || 0).toLocaleString()}</td>
-                          <td className="p-5 text-blue-500 font-mono font-bold text-sm">{agent.engagementNum}%</td>
-                          <td className="p-5 text-right text-purple-600 font-black italic">
-                            ${agent.valueNum.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={7} className="p-20 text-center text-zinc-700 font-black uppercase tracking-[0.5em] text-[10px]">No users found matching your search</td>
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <button 
+                            onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
+                            className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
+                          >
+                            {(agent.teamNum || 0).toLocaleString()}
+                          </button>
+                        </td>
+                        <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
+                        <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
+                        <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
+                        <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
+                        <td className="p-5 text-right text-purple-400 font-black italic">
+                          ${agent.valueNum.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              )}
-            </div>
-        
-            {/* CONSOLE FOOTER */}
-            <div className="p-6 border-t-2 border-zinc-800 bg-black flex items-center justify-between relative z-20">
-              <p className="text-[10px] font-black uppercase text-zinc-600 tracking-[0.2em]">
-                System Status: <span className="text-green-600 animate-pulse">Online</span> // Page {currentPage + 1} of {Math.max(1, totalPages)}
-              </p>
-              <div className="flex gap-4">
-                <button 
-                  disabled={currentPage === 0 || loading}
-                  onClick={() => setCurrentPage(prev => prev - 1)}
-                  className="flex items-center gap-2 px-6 py-2 bg-zinc-900 border-2 border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-20 transition-all text-zinc-400"
-                >
-                  <ChevronLeft size={14} /> Back
-                </button>
-                <button 
-                  disabled={currentPage >= totalPages - 1 || loading}
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  className="flex items-center gap-2 px-6 py-2 bg-zinc-900 border-2 border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-20 transition-all text-zinc-400"
-                >
-                  Forward <ChevronRight size={14} />
-                </button>
-              </div>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
+            <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
+              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} users)
+            </p>
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 0 || loading}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+              >
+                <ChevronLeft size={14} /> Previous
+              </button>
+              <button 
+                disabled={currentPage >= totalPages - 1 || loading}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+              >
+                Next <ChevronRight size={14} />
+              </button>
             </div>
           </div>
         </div>
