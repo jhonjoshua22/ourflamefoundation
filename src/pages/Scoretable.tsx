@@ -20,8 +20,6 @@ import stormtrooperImg from "../assets/superheroes.png";
 import angelImg from "../assets/angel.png";
 import farmerImg from "../assets/superfarmer.png";
 import founderImg from "../assets/founder.png";
-import space1 from "../assets/space1.png";
-import space2 from "../assets/space2.png";
 
 const Scoretable = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -274,210 +272,172 @@ const Scoretable = () => {
           </div>
         )}
 
-        {/* LEADERBOARD CONTAINER */}
-        <div className="relative group mb-12">
-            {/* FLOATING PNG DECORATIONS */}
-            <div className="absolute -top-16 -left-16 w-32 h-32 animate-hologram z-10 pointer-events-none opacity-60 filter drop-shadow-[0_0_15px_#ea580c] overflow-hidden rounded-full border border-orange-500/30">
-              <img src={space1} alt="HUD_01" className="w-full h-full object-cover mix-blend-screen" />
-              <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent" />
+        {/* LEADERBOARD */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
+          <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
+            <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
+            
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
+              <div className="relative w-full md:w-80">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input 
+                  type="text"
+                  placeholder="SEARCH NAME, EMAIL, COUNTRY..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-600"
+                />
+              </div>
+
+              <div className="relative w-full md:w-auto">
+                <button 
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="w-full flex items-center justify-between gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
+                >
+                  <div className="flex items-center gap-2">
+                    <Filter size={16} className="text-orange-600" />
+                    Filter By: {sortBy.toUpperCase()}
+                  </div>
+                  <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isFilterOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
+                    {[
+                      { id: "team", label: "Team Count" },
+                      { id: "followers", label: "Followers" },
+                      { id: "paid", label: "Paid" },
+                      { id: "saved", label: "Saved" },
+                      { id: "engagement", label: "Engagement" },
+                      { id: "value", label: "Value" },
+                      { id: "rank", label: "Rank" },
+                      { id: "streak", label: "Tribe" }
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => {
+                          setSortBy(option.id);
+                          setIsFilterOpen(false);
+                        }}
+                        className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="absolute -bottom-10 -right-20 w-40 h-40 animate-hologram z-10 pointer-events-none opacity-50 filter drop-shadow-[0_0_20px_#22d3ee] overflow-hidden rounded-full border border-cyan-500/30" style={{ animationDelay: "1.5s" }}>
-              <img src={space2} alt="NAV_02" className="w-full h-full object-cover mix-blend-screen" />
-              <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent" />
-            </div>
-        
-            <div className="sci-fi-frame bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl relative scoreboard-panel z-20">
-                {/* SCANLINE OVERLAY */}
-                <div className="scanlines pointer-events-none"></div>
-        
-                {/* MAIN HEADER */}
-                <div className="p-8 border-b-2 border-zinc-900 bg-black/50 flex flex-col xl:flex-row justify-between items-center gap-6 relative z-30">
-                    <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-10 bg-orange-600 rounded-full animate-pulse shadow-[0_0_10px_#ea580c]" />
-                        <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3 tracking-tighter drop-shadow-[0_0_8px_rgba(234,88,12,0.8)]">
-                            <Trophy size={28} />
-                            Leaderboard
-                        </h2>
-                    </div>
-                    
-                    <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
-                        <div className="relative w-full md:w-80">
-                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-600" />
-                            <input 
-                                type="text"
-                                placeholder="SEARCH NAME, EMAIL, COUNTRY..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-black border-2 border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-cyan-600 transition-all placeholder:text-zinc-700 text-cyan-500 shadow-[inset_0_0_8px_rgba(34,211,238,0.1)]"
-                            />
-                        </div>
-        
-                        <div className="relative w-full md:w-auto">
-                            <button 
-                                type="button"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setIsFilterOpen(!isFilterOpen);
-                                }}
-                                className="relative z-40 w-full flex items-center justify-between gap-3 px-6 py-3 bg-zinc-950 border-2 border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-cyan-600 transition-all text-zinc-400 group/btn"
-                            >
-                                <div className="flex items-center gap-2 pointer-events-none">
-                                    <Filter size={16} className="text-cyan-600 group-hover/btn:drop-shadow-[0_0_5px_#22d3ee]" />
-                                    Filter By: {sortBy.toUpperCase()}
-                                </div>
-                                <ChevronDown size={14} className={`text-zinc-600 transition-transform duration-300 pointer-events-none ${isFilterOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                            
-                            {isFilterOpen && (
-                                <>
-                                    {/* OVERLAY TO CLOSE ON CLICK OUTSIDE */}
-                                    <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)}></div>
-                                    <div className="absolute right-0 mt-2 w-48 bg-black border-2 border-zinc-800 rounded-xl overflow-hidden z-50 shadow-[0_0_30px_rgba(0,0,0,1)]">
-                                        {[
-                                            { id: "teamNum", label: "Team Count" },
-                                            { id: "followers", label: "Followers" },
-                                            { id: "paidNum", label: "Paid" },
-                                            { id: "savedNum", label: "Saved" },
-                                            { id: "engagementNum", label: "Engagement" },
-                                            { id: "valueNum", label: "Value" },
-                                            { id: "tribe_id", label: "Tribe" }
-                                        ].map((option) => (
-                                            <button
-                                                key={option.id}
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSortBy(option.id);
-                                                    setIsFilterOpen(false);
-                                                }}
-                                                className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors relative z-50 ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
-                                            >
-                                                {option.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-        
-                {/* BODY - FLEXGRID LAYOUT */}
-                <div className="min-h-[400px] relative z-10 px-6 py-4">
-                    {loading && (
-                        <div className="absolute inset-0 flex justify-center items-center bg-black/60 backdrop-blur-md z-40 rounded-xl">
-                            <Loader2 className="animate-spin text-cyan-600" size={48} />
-                        </div>
-                    )}
-        
-                    {/* HEADER ROW */}
-                    <div className="sci-fi-border bg-zinc-900/50 p-5 rounded-md text-[11px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center border border-zinc-800/50">
-                        <div className="flex-grow flex items-center">
-                            <div className="flex-grow">Tribes</div>
-                        </div>
-                        <div className="flex-none flex items-center text-center gap-1 w-[700px] justify-between">
-                            <div className="w-20">Team</div>
-                            <div className="sci-fi-divider w-20">Invested</div>
-                            <div className="sci-fi-divider w-20">Saved</div>
-                            <div className="sci-fi-divider w-20">Followers</div>
-                            <div className="sci-fi-divider w-20">Engagement</div>
-                            <div className="sci-fi-divider w-20 text-right">Value</div>
-                        </div>
-                    </div>
-        
-                    {/* TOTALS DISPLAY ROW */}
-                    <div className="border border-orange-600/30 bg-orange-950/20 my-2 p-5 rounded-md text-white backdrop-blur-sm flex items-center">
-                        <div className="flex-grow flex items-center">
-                            <div className="w-10 font-mono text-lg text-orange-500 font-bold">∑</div>
-                            <div className="flex-grow font-black uppercase text-[10px] tracking-widest text-zinc-300">
-                                Total Users: {leaders.length.toLocaleString()}
+          </div>
+
+          <div className="overflow-x-auto min-h-[400px] relative">
+            {loading ? (
+               <div className="absolute inset-0 flex justify-center items-center bg-black/20 backdrop-blur-sm z-10">
+                 <Loader2 className="animate-spin text-orange-600" size={48} />
+               </div>
+            ) : (
+              <table className="w-full min-w-[900px]">
+                <thead>
+                  <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
+                    <th className="p-5">Tribes</th>
+                    <th className="p-5">Team</th>
+                    <th className="p-5">Invested</th>
+                    <th className="p-5">Saved</th>
+                    <th className="p-5">Followers</th>
+                    <th className="p-5">Engagement</th>
+                    <th className="p-5 text-right">Value</th>
+                  </tr>
+                  <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
+                    <td className="p-5 font-black text-orange-500">{stats.totalMembers.toLocaleString()}</td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
+                    <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
+                    <td className="p-5 font-black text-zinc-500">—</td>
+                    <td className="p-5 font-black text-orange-500">{stats.totalFollowers.toLocaleString()}</td>
+                    <td className="p-5 text-blue-400 font-mono font-bold text-sm">100M+</td>
+                    <td className="p-5 text-right text-purple-400 font-black italic">$100M</td>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  {paginatedLeaders.length > 0 ? (
+                    paginatedLeaders.map((agent) => (
+                      <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
+                        <td className="p-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0">
+                               {agent.photo_url ? (
+                                 <img src={agent.photo_url} alt="" className="w-full h-full object-cover" />
+                               ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
+                               )}
                             </div>
-                        </div>
-                        <div className="flex-none flex items-center text-center gap-1 w-[700px] justify-between font-black text-white">
-                            <div className="w-20 text-orange-500">{stats.totalReferred.toLocaleString()}</div>
-                            <div className="sci-fi-divider w-20 text-orange-500">${stats.totalInvested.toLocaleString()}</div>
-                            <div className="sci-fi-divider w-20 text-orange-500">—</div>
-                            <div className="sci-fi-divider w-20 text-orange-500">{stats.totalFollowers.toLocaleString()}</div>
-                            <div className="sci-fi-divider w-20 text-blue-400 font-mono font-bold text-sm">100M+</div>
-                            <div className="sci-fi-divider w-20 text-right text-purple-400 italic font-black">$100M</div>
-                        </div>
-                    </div>
-        
-                    {/* LEADER LIST CONTENT */}
-                    <div className="space-y-1 mt-4">
-                        {paginatedLeaders.length > 0 ? (
-                            paginatedLeaders.map((agent) => (
-                                <div key={agent.id} className={`p-4 rounded-lg flex items-center transition-all border ${agent.id === currentUserId ? 'bg-orange-950/20 border-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.2)]' : 'bg-black/40 border-zinc-900 hover:border-cyan-800'}`}>
-                                    <div className="flex-grow flex items-center">
-                                        <div className="flex-grow flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border-2 border-zinc-800 shrink-0 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-                                                {agent.photo_url ? (
-                                                    <img src={agent.photo_url} alt="" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-cyan-500 transition-colors">
-                                                    {agent.display_name}
-                                                </Link>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
-                                                        <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
-                                                    </div>
-                                                    <div className="text-[9px] text-orange-500 uppercase font-black animate-pulse">
-                                                        • {agent.rank || "Normie"}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex-none flex items-center text-center gap-1 w-[700px] justify-between font-black text-white">
-                                        <div className="w-20">
-                                            <button onClick={() => fetchTeamMembers(agent.id, agent.display_name)} className="hover:text-cyan-400 underline decoration-zinc-800 underline-offset-4">
-                                                {(agent.teamNum || 0).toLocaleString()}
-                                            </button>
-                                        </div>
-                                        <div className="sci-fi-divider w-20">{(agent.paidNum || 0).toLocaleString()}</div>
-                                        <div className="sci-fi-divider w-20">{(agent.savedNum || 0).toLocaleString()}</div>
-                                        <div className="sci-fi-divider w-20 text-zinc-400">{(agent.followers || 0).toLocaleString()}</div>
-                                        <div className="sci-fi-divider w-20 text-cyan-400 font-mono font-bold text-sm">{agent.engagementNum}%</div>
-                                        <div className="sci-fi-divider w-20 text-right text-purple-400 italic">
-                                            ${agent.valueNum.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                                        </div>
-                                    </div>
+                            <div>
+                              <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                                {agent.display_name}
+                              </Link>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                                  <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
                                 </div>
-                            ))
-                        ) : (
-                            <div className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</div>
-                        )}
-                    </div>
-                </div>
-        
-                {/* FOOTER */}
-                <div className="p-6 border-t-2 border-zinc-900 bg-black/80 flex items-center justify-between relative z-10">
-                    <p className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">
-                        SYSTEM_PAGE: {currentPage + 1} // TOTAL_UNITS: {leaders.length}
-                    </p>
-                    <div className="flex gap-2">
-                        <button 
-                            disabled={currentPage === 0 || loading}
-                            onClick={() => setCurrentPage(prev => prev - 1)}
-                            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-cyan-600 disabled:opacity-50 transition-all"
-                        >
-                            <ChevronLeft size={14} /> Prev
-                        </button>
-                        <button 
-                            disabled={currentPage >= totalPages - 1 || loading}
-                            onClick={() => setCurrentPage(prev => prev + 1)}
-                            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-cyan-600 disabled:opacity-50 transition-all"
-                        >
-                            Next <ChevronRight size={14} />
-                        </button>
-                    </div>
-                </div>
+                                <div className="text-[9px] text-orange-500 uppercase font-black">
+                                  • {agent.rank || "Normie"}
+                                </div>
+                                {agent.country && (
+                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
+                                      • {agent.country}
+                                    </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-5">
+                          <button 
+                            onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
+                            className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
+                          >
+                            {(agent.teamNum || 0).toLocaleString()}
+                          </button>
+                        </td>
+                        <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
+                        <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
+                        <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
+                        <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
+                        <td className="p-5 text-right text-purple-400 font-black italic">
+                          ${agent.valueNum.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
+            <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
+              Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} users)
+            </p>
+            <div className="flex gap-2">
+              <button 
+                disabled={currentPage === 0 || loading}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+              >
+                <ChevronLeft size={14} /> Previous
+              </button>
+              <button 
+                disabled={currentPage >= totalPages - 1 || loading}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+              >
+                Next <ChevronRight size={14} />
+              </button>
             </div>
+          </div>
         </div>
 
         {/* ANALYTICS GRAPHS */}
@@ -488,13 +448,12 @@ const Scoretable = () => {
             { title: "Number of Followers", data: followersChart, color: "#3b82f6", icon: <UserPlus size={20}/> },
             { title: "Happiness ratings", data: ratingsChart, color: "#22c55e", icon: <Smile size={20}/> }
           ].map((chart, idx) => (
-            <div key={idx} className="bg-zinc-950 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-              <div className="scanlines opacity-5"></div>
-              <div className="flex items-center gap-3 mb-6 relative z-10">
+            <div key={idx} className="bg-zinc-950 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
+              <div className="flex items-center gap-3 mb-6">
                 <span style={{ color: chart.color }}>{chart.icon}</span>
                 <h4 className="text-sm font-black uppercase tracking-widest text-zinc-300">{chart.title}</h4>
               </div>
-              <div className="h-64 w-full relative z-10">
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chart.data}>
                     <defs>
