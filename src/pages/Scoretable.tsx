@@ -339,7 +339,7 @@ const Scoretable = () => {
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
-                    <th className="p-5">Families</th>
+                    <th className="p-5">Tribes</th>
                     <th className="p-5">Team</th>
                     <th className="p-5">Invested</th>
                     <th className="p-5">Saved</th>
@@ -349,7 +349,7 @@ const Scoretable = () => {
                   </tr>
                   <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
                     <td className="p-5">
-                       <div className="font-black text-sm uppercase italic">TOTAL FAMILIES</div>
+                       <div className="font-black text-sm uppercase italic">TOTAL TRIBES</div>
                        <div className="text-[10px] text-orange-500 font-bold uppercase">{stats.totalMembers.toLocaleString()}</div>
                     </td>
                     <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
