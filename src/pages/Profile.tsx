@@ -411,8 +411,9 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
+              {/* TOP ROW (effectively 3 items) */}
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl w-full md:w-[calc(33.33%-1rem)] min-w-[200px]">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <DollarSign size={20} className="text-green-500" />
                   <span className="text-[12px] font-black uppercase tracking-widest">Invested</span>
@@ -422,7 +423,7 @@ const Profile = () => {
             
               <button 
                 onClick={() => setIsTeamModalOpen(true)}
-                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group"
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-purple-500/50 transition-all group w-full md:w-[calc(33.33%-1rem)] min-w-[200px]"
               >
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Trophy size={20} className="text-purple-500" />
@@ -433,7 +434,7 @@ const Profile = () => {
                 </p>
               </button>
             
-              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl w-full md:w-[calc(33.33%-1rem)] min-w-[200px]">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Users size={20} className="text-blue-500" />
                   <span className="text-[12px] font-black uppercase tracking-widest">Followers</span>
@@ -441,7 +442,8 @@ const Profile = () => {
                 <p className="text-2xl font-black italic">{profileData?.facebook || "0"}</p>
               </div>
             
-              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl">
+              {/* BOTTOM ROW (centered 2 items) */}
+              <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl w-full md:w-[calc(33.33%-1rem)] min-w-[200px]">
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Smile size={20} className="text-yellow-500" />
                   <span className="text-[12px] font-black uppercase tracking-widest">Happiness</span>
@@ -449,12 +451,11 @@ const Profile = () => {
                 <p className="text-2xl font-black italic">{formattedHappiness}%</p>
               </div>
             
-              {/* NEW PROJECTS CARD */}
               <a 
                 href="https://crowd-funding-orpin.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group"
+                className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl text-left hover:border-orange-500/50 transition-all group w-full md:w-[calc(33.33%-1rem)] min-w-[200px]"
               >
                 <div className="flex items-center gap-3 text-zinc-500 mb-2">
                   <Target size={20} className="text-orange-500" />
