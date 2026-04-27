@@ -29,7 +29,7 @@ import fashion from "@/assets/fashion.png";
 import aitraining from "@/assets/aitraining.jpeg";
 import homecare from "@/assets/homecare.jpeg";
 
-const YOUTUBE_LINK = "https://www.youtube.com/@MagicworldsTV/playlists";
+const YOUTUBE_LINK = "https://www.youtube.com/@FlameFoundationTV";
 const CALENDLY_LINK = "https://calendly.com/ourflamefoundation/30min?back=1";
 
 const playClickSound = () => {
