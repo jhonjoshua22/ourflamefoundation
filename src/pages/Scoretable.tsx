@@ -225,48 +225,112 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
 
-        {/* TEAM MODAL */}
+        {/* TEAM MODAL - REFRACTORED TO SCOREBOARD LAYOUT */}
         {selectedTeamUser && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-                <div>
-                  <h3 className="text-orange-600 font-black uppercase italic tracking-tighter text-xl">Team {selectedTeamUser.name}</h3>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Referral List</p>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+            {/* MODAL CONTAINER */}
+            <div className="bg-zinc-950 border border-zinc-800 w-full max-w-6xl rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,1)] flex flex-col relative">
+              
+              {/* HEADER SECTION */}
+              <div className="p-6 border-b-2 border-zinc-900 bg-black/50 flex justify-between items-center relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-8 bg-orange-600 rounded-full shadow-[0_0_10px_#ea580c]" />
+                  <div>
+                    <h3 className="text-2xl font-black uppercase italic tracking-tighter text-orange-600 drop-shadow-[0_0_8px_rgba(234,88,12,0.6)]">
+                      TEAM: {selectedTeamUser.name}
+                    </h3>
+                    <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em]">Recruitment Protocol // Data Stream</p>
+                  </div>
                 </div>
-                <button onClick={() => setSelectedTeamUser(null)} className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400">
-                  <X size={20} />
+                <button 
+                  onClick={() => setSelectedTeamUser(null)} 
+                  className="p-2 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 rounded-lg transition-all text-zinc-500 hover:text-white"
+                >
+                  <X size={24} />
                 </button>
               </div>
-              <div className="max-h-[400px] overflow-y-auto p-4 space-y-3">
-                {loadingTeam ? (
-                  <div className="flex justify-center py-10"><Loader2 className="animate-spin text-orange-600" /></div>
-                ) : teamMembers.length > 0 ? (
-                  teamMembers.map((member, idx) => (
-                    <div key={idx} className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700">
-                          {member.photo_url ? (
-                            <img src={member.photo_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-zinc-600"><User size={20}/></div>
-                          )}
-                        </div>
-                        <div>
-                          <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic hover:text-orange-500 transition-colors">
-                            {member.computed_name}
-                          </Link>
-                          <div className="text-[10px] text-orange-500 font-black uppercase">{member.rank || "Normie"}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
-                        <Shield size={10} fill="currentColor" /> {member.tribe_id || "NO TRIBE"}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-10 text-zinc-500 text-xs font-bold uppercase tracking-widest">No recruits yet</div>
-                )}
+        
+              {/* TABLE SECTION */}
+              <div className="overflow-x-auto max-h-[70vh] relative bg-black/20">
+                <table className="w-full min-w-[900px] border-collapse">
+                  <thead>
+                    <tr className="bg-zinc-900/80 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest sticky top-0 z-20 backdrop-blur-md">
+                      <th className="p-5">Tribes / Recruits</th>
+                      <th className="p-5">Invested</th>
+                      <th className="p-5">Saved</th>
+                      <th className="p-5">Followers</th>
+                      <th className="p-5">Engagement</th>
+                      <th className="p-5 text-right">Value</th>
+                    </tr>
+                  </thead>
+                  
+                  <tbody className="divide-y divide-zinc-900/50">
+                    {loadingTeam ? (
+                      <tr>
+                        <td colSpan={6} className="py-20 text-center">
+                          <div className="flex flex-col items-center gap-4">
+                            <Loader2 className="animate-spin text-orange-600" size={40} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Accessing Database...</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : teamMembers.length > 0 ? (
+                      teamMembers.map((member, idx) => (
+                        <tr key={idx} className="hover:bg-zinc-900/40 transition-colors group">
+                          <td className="p-5">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0 shadow-lg">
+                                {member.photo_url ? (
+                                  <img src={member.photo_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-zinc-700 bg-zinc-900">
+                                    <User size={18}/>
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <Link to={`/profile/${member.id}`} className="font-black text-sm uppercase italic tracking-tighter text-zinc-200 group-hover:text-orange-500 transition-colors">
+                                  {member.computed_name || member.display_name}
+                                </Link>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                                    <Shield size={10} fill="currentColor" /> {member.tribe_id || member.referred_by || "NO TRIBE"}
+                                  </div>
+                                  <div className="text-[9px] text-orange-500 uppercase font-black opacity-80">
+                                    • {member.rank || "Normie"}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          {/* DATA COLUMNS */}
+                          <td className="p-5 font-black text-white text-sm">{(member.paidNum || 0).toLocaleString()}</td>
+                          <td className="p-5 font-black text-white text-sm">{(member.savedNum || 0).toLocaleString()}</td>
+                          <td className="p-5 font-black text-zinc-400 text-sm">{(member.followers || 0).toLocaleString()}</td>
+                          <td className="p-5 text-blue-400 font-mono font-bold text-sm">
+                            {member.engagementNum || 0}%
+                          </td>
+                          <td className="p-5 text-right text-purple-400 font-black italic text-sm">
+                            ${(member.valueNum || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="p-20 text-center text-zinc-600 font-black uppercase tracking-[0.3em] text-xs">
+                          Zero Recruits Detected in Sector
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+        
+              {/* MODAL FOOTER */}
+              <div className="p-4 border-t border-zinc-900 bg-black/80 text-right relative z-10">
+                <span className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.2em]">
+                  TOTAL_RECRUITS: {teamMembers.length} // SESSION_ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
+                </span>
               </div>
             </div>
           </div>
