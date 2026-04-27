@@ -274,8 +274,10 @@ const Scoretable = () => {
                           </div>
                         </td>
                       </tr>
-                    ) : teamMembers.length > 0 ? (
-                      teamMembers.map((member, idx) => (
+                    ) : teamMembers.filter(m => m.display_name !== "Social Media Fan").length > 0 ? (
+                      teamMembers
+                        .filter(member => member.display_name !== "Social Media Fan")
+                        .map((member, idx) => (
                         <tr key={idx} className="hover:bg-zinc-900/40 transition-colors group">
                           <td className="p-5">
                             <div className="flex items-center gap-4">
@@ -329,7 +331,7 @@ const Scoretable = () => {
               {/* MODAL FOOTER */}
               <div className="p-4 border-t border-zinc-900 bg-black/80 text-right relative z-10">
                 <span className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.2em]">
-                  TOTAL_RECRUITS: {teamMembers.length} // SESSION_ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
+                  TOTAL_RECRUITS: {teamMembers.filter(m => m.display_name !== "Social Media Fan").length} // SESSION_ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
                 </span>
               </div>
             </div>
