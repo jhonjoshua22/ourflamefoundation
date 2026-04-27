@@ -52,7 +52,7 @@ const UnifiedFooter = () => {
     { icon: Twitter, href: "https://x.com/OurFlameFoundtn", label: "Twitter" },
     { icon: Youtube, href: "https://www.youtube.com/@FlameFoundationTV", label: "Youtube" },
     { icon: MessageSquare, href: "https://discord.com/invite/NcNSaTVNdn", label: "Discord" },
-    { icon: Github, href: "https://github.com/TheMagicWorlds", label: "Github" },
+    { icon: Github, href: "https://github.com/TheFlameFoundation", label: "Github" },
     { icon: Linkedin, href: "https://www.linkedin.com/company/magic-worlds", label: "Linkedin" },
   ];
 
@@ -62,7 +62,7 @@ const UnifiedFooter = () => {
     { name: "News", href: "https://x.com/OurFlameFoundtn", icon: Twitter },
     { name: "TV", href: "https://www.youtube.com/@FlameFoundationTV", icon: Youtube },
     { name: "Teams", href: "https://www.linkedin.com/company/magic-worlds", icon: Linkedin },
-    { name: "Code", href: "https://github.com/TheMagicWorlds", icon: Github },
+    { name: "Code", href: "https://github.com/TheFlameFoundation", icon: Github },
   ];
 
   return (
