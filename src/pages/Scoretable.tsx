@@ -82,17 +82,46 @@ const Scoretable = () => {
     setSelectedTeamUser({ name: displayName, id: userId });
     setLoadingTeam(true);
     try {
+      // 1. Fetch total user count first for the 'Value' calculation
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      const totalUsersCount = count || 1;
+
+      // 2. Fetch the team members
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, email, rank, current_streak, id, tribe_id, photo_url')
+        .select(`
+          id, display_name, email, rank, paid, facebook, linkedin, 
+          engagement, value, saved, current_streak, referral_count, 
+          tribe_id, country, photo_url
+        `)
         .eq('referred_by', userId);
       
       if (error) throw error;
       
-      const processedTeam = (data || []).map(member => ({
-        ...member,
-        computed_name: member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous")
-      }));
+      // 3. Process data with the same logic as the main Leaderboard
+      const processedTeam = (data || []).map(member => {
+        const followersCount = Number(member.facebook || 0) + Number(member.linkedin || 0);
+        const teamCount = Number(member.referral_count || 0);
+        
+        // Use the exact same formula as the main table
+        const calculatedValue = totalUsersCount > 0 
+          ? ((teamCount + 5) * (followersCount + 100)) / totalUsersCount * 100
+          : 0;
+
+        return {
+          ...member,
+          display_name: member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous"),
+          followers: followersCount,
+          paidNum: Number(member.paid || 0),
+          savedNum: Number(member.saved || 0),
+          valueNum: calculatedValue,
+          engagementNum: Number(member.engagement || 0),
+          teamNum: teamCount
+        };
+      });
 
       setTeamMembers(processedTeam);
     } catch (err) {
