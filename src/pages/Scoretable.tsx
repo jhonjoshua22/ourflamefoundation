@@ -331,7 +331,7 @@ const Scoretable = () => {
               {/* MODAL FOOTER */}
               <div className="p-4 border-t border-zinc-900 bg-black/80 text-right relative z-10">
                 <span className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.2em]">
-                  TOTAL_RECRUITS: {teamMembers.filter(m => m.display_name !== "Social Media Fan").length} // SESSION_ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
+                  TOTAL_RECRUITS: {teamMembers.length} // SESSION_ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
                 </span>
               </div>
             </div>
@@ -424,7 +424,9 @@ const Scoretable = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
-                  {paginatedLeaders.length > 0 ? (
+                  {paginatedLeaders
+                    .filter((agent) => agent.display_name !== "Social Media Fan")
+                    .length > 0 ? (
                     paginatedLeaders
                       .filter((agent) => agent.display_name !== "Social Media Fan")
                       .map((agent) => (
