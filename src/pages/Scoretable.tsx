@@ -352,7 +352,7 @@ const Scoretable = () => {
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-600"
                 />
               </div>
-
+        
               <div className="relative w-full md:w-auto">
                 <button 
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -364,7 +364,7 @@ const Scoretable = () => {
                   </div>
                   <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
-
+        
                 {isFilterOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
                     {[
@@ -393,7 +393,7 @@ const Scoretable = () => {
               </div>
             </div>
           </div>
-
+        
           <div className="overflow-x-auto min-h-[400px] relative">
             {loading ? (
                <div className="absolute inset-0 flex justify-center items-center bg-black/20 backdrop-blur-sm z-10">
@@ -423,7 +423,9 @@ const Scoretable = () => {
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
                   {paginatedLeaders.length > 0 ? (
-                    paginatedLeaders.map((agent) => (
+                    paginatedLeaders
+                      .filter((agent) => agent.display_name !== "Social Media Fan")
+                      .map((agent) => (
                       <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
                         <td className="p-5">
                           <div className="flex items-center gap-3">
@@ -480,7 +482,7 @@ const Scoretable = () => {
               </table>
             )}
           </div>
-
+        
           <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
             <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
               Showing page {currentPage + 1} of {Math.max(1, totalPages)} ({leaders.length} users)
