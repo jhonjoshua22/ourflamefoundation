@@ -350,6 +350,184 @@ const Scoretable = () => {
           );
         })()}
 
+        {/* LEADERBOARD */}
+        {(() => {
+          // Apply the filter to the entire source list so total counts and pagination are correct
+          const activeLeaders = leaders.filter(agent => agent.display_name !== "Social Media Fan");
+          const totalFiltered = activeLeaders.length;
+          const totalFilteredPages = Math.ceil(totalFiltered / itemsPerPage);
+          const paginatedFiltered = activeLeaders.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+
+          return (
+            <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
+              <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
+                <h2 className="text-3xl font-black uppercase text-orange-600 flex items-center gap-3"><Trophy size={28} /> Leaderboard</h2>
+                
+                <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
+                  <div className="relative w-full md:w-80">
+                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input 
+                      type="text"
+                      placeholder="SEARCH NAME, EMAIL, COUNTRY..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest focus:outline-none focus:border-orange-600 transition-all placeholder:text-zinc-600"
+                    />
+                  </div>
+            
+                  <div className="relative w-full md:w-auto">
+                    <button 
+                      onClick={() => setIsFilterOpen(!isFilterOpen)}
+                      className="w-full flex items-center justify-between gap-3 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-orange-600 transition-all"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Filter size={16} className="text-orange-600" />
+                        Filter By: {sortBy.toUpperCase()}
+                      </div>
+                      <ChevronDown size={14} className={`transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                    </button>
+            
+                    {isFilterOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden z-50 shadow-2xl">
+                        {[
+                          { id: "team", label: "Team Count" },
+                          { id: "followers", label: "Followers" },
+                          { id: "paid", label: "Paid" },
+                          { id: "saved", label: "Saved" },
+                          { id: "engagement", label: "Engagement" },
+                          { id: "value", label: "Value" },
+                          { id: "rank", label: "Rank" },
+                          { id: "streak", label: "Tribe" }
+                        ].map((option) => (
+                          <button
+                            key={option.id}
+                            onClick={() => {
+                              setSortBy(option.id);
+                              setIsFilterOpen(false);
+                            }}
+                            className={`w-full px-5 py-3 text-left text-[10px] font-black uppercase tracking-widest transition-colors ${sortBy === option.id ? "bg-orange-600 text-white" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"}`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            
+              <div className="overflow-x-auto min-h-[400px] relative">
+                {loading ? (
+                  <div className="absolute inset-0 flex justify-center items-center bg-black/20 backdrop-blur-sm z-10">
+                    <Loader2 className="animate-spin text-orange-600" size={48} />
+                  </div>
+                ) : (
+                  <table className="w-full min-w-[900px]">
+                    <thead>
+                      <tr className="bg-zinc-900 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest">
+                        <th className="p-5">Tribes</th>
+                        <th className="p-5">Team</th>
+                        <th className="p-5">Invested</th>
+                        <th className="p-5">Saved</th>
+                        <th className="p-5">Followers</th>
+                        <th className="p-5">Engagement</th>
+                        <th className="p-5 text-right">Value</th>
+                      </tr>
+                      <tr className="bg-orange-600/10 border-b border-orange-600/20 text-white">
+                        <td className="p-5 font-black text-orange-500">{stats.totalMembers.toLocaleString()}</td>
+                        <td className="p-5 font-black text-orange-500">{stats.totalReferred.toLocaleString()}</td>
+                        <td className="p-5 font-black text-orange-500">${stats.totalInvested.toLocaleString()}</td>
+                        <td className="p-5 font-black text-zinc-500">—</td>
+                        <td className="p-5 font-black text-orange-500">{stats.totalFollowers.toLocaleString()}</td>
+                        <td className="p-5 text-blue-400 font-mono font-bold text-sm">100M+</td>
+                        <td className="p-5 text-right text-purple-400 font-black italic">$100M</td>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800">
+                      {paginatedFiltered.length > 0 ? (
+                        paginatedFiltered.map((agent) => (
+                          <tr key={agent.id} className={`${agent.id === currentUserId ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/70'}`}>
+                            <td className="p-5">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0">
+                                  {agent.photo_url ? (
+                                    <img src={agent.photo_url} alt="" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-zinc-700"><User size={18}/></div>
+                                  )}
+                                </div>
+                                <div>
+                                  <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                                    {agent.display_name}
+                                  </Link>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                                      <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
+                                    </div>
+                                    <div className="text-[9px] text-orange-500 uppercase font-black">
+                                      • {agent.rank || "Normie"}
+                                    </div>
+                                    {agent.country && (
+                                      <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">
+                                        • {agent.country}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-5">
+                              <button 
+                                onClick={() => fetchTeamMembers(agent.id, agent.display_name)}
+                                className="font-black text-white hover:text-orange-500 transition-colors underline decoration-zinc-700 underline-offset-4"
+                              >
+                                {(agent.teamNum || 0).toLocaleString()}
+                              </button>
+                            </td>
+                            <td className="p-5 font-black text-white">{(agent.paidNum || 0).toLocaleString()}</td>
+                            <td className="p-5 font-black text-white">{(agent.savedNum || 0).toLocaleString()}</td>
+                            <td className="p-5 font-black text-zinc-300">{(agent.followers || 0).toLocaleString()}</td>
+                            <td className="p-5 text-blue-400 font-mono font-bold text-sm">{agent.engagementNum}%</td>
+                            <td className="p-5 text-right text-purple-400 font-black italic">
+                              ${agent.valueNum.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="p-20 text-center text-zinc-500 font-black uppercase tracking-widest text-xs">No users found matching your search</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            
+              <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
+                  Showing page {currentPage + 1} of {Math.max(1, totalFilteredPages)} ({totalFiltered} users)
+                </p>
+                <div className="flex gap-2">
+                  <button 
+                    disabled={currentPage === 0 || loading}
+                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+                  >
+                    <ChevronLeft size={14} /> Previous
+                  </button>
+                  <button 
+                    disabled={currentPage >= totalFilteredPages - 1 || loading}
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-[10px] font-black uppercase tracking-widest hover:border-orange-600 disabled:opacity-50 disabled:hover:border-zinc-800 transition-all"
+                  >
+                    Next <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ANALYTICS GRAPHS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {[
