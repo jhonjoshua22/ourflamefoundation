@@ -34,6 +34,7 @@ const Scoretable = () => {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 10;
+  const itemsPerPage = 10; // Fixed: Defined the missing variable
 
   // Team Modal State
   const [selectedTeamUser, setSelectedTeamUser] = useState<{name: string, id: string} | null>(null);
