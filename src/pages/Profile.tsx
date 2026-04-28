@@ -888,7 +888,7 @@ const Profile = () => {
                 <X size={28} />
               </button>
             </div>
-
+      
             <div className="p-4 overflow-y-auto custom-scrollbar">
               {loadingTeam ? (
                 <div className="py-20 text-center">
@@ -898,16 +898,21 @@ const Profile = () => {
               ) : teamMembers.length > 0 ? (
                 <div className="space-y-3">
                   {teamMembers.map((member, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
+                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 group">
                       <img 
                         src={member.photo_url || defaultAvatar} 
                         className="w-14 h-14 rounded-xl object-cover border border-zinc-700" 
                         alt="" 
                       />
                       <div className="flex-1 overflow-hidden">
-                        <p className="font-bold text-[16px] truncate uppercase tracking-tight">
-                          {member.display_name || "Anonymous"}
-                        </p>
+                        <div className="block truncate">
+                          <Link 
+                            to={`/profile/${member.id}`} 
+                            className="font-black text-sm uppercase italic tracking-tighter text-zinc-200 group-hover:text-orange-500 transition-colors"
+                          >
+                            {member.display_name || "Anonymous"}
+                          </Link>
+                        </div>
                         <p className="text-[16px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
                       </div>
                       <div className="text-right">
