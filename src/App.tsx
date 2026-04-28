@@ -124,8 +124,11 @@ const App = () => {
     }
     sessionStorage.setItem("hasSeenPopup", "true");
     setShowPopup(false);
-    // Trigger the next modal
-    setTimeout(() => setShowDreamersModal(true), 300);
+    
+    // Explicitly trigger next modal after state update
+    setTimeout(() => {
+      setShowDreamersModal(true);
+    }, 400); 
   };
 
   const closeDreamersModal = () => {
@@ -148,9 +151,10 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AnimatePresence>
+          {/* First Modal AnimatePresence */}
+          <AnimatePresence mode="wait">
             {showPopup && (
-              <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
+              <div key="command-center-modal" className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -222,10 +226,12 @@ const App = () => {
                 </motion.div>
               </div>
             )}
+          </AnimatePresence>
 
-            {/* PRODUCT DREAMERS MODAL */}
+          {/* Second Modal AnimatePresence - Separate to ensure it triggers independantly */}
+          <AnimatePresence>
             {showDreamersModal && (
-              <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+              <div key="dreamers-modal" className="fixed inset-0 z-[10001] flex items-center justify-center p-4">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -234,19 +240,19 @@ const App = () => {
                   className="absolute inset-0 bg-black/98 backdrop-blur-2xl"
                 />
                 <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.9, opacity: 0 }}
-                  className="relative bg-zinc-950 border border-orange-600/30 rounded-[2rem] max-w-[600px] w-full shadow-[0_0_100px_rgba(234,88,12,0.2)] overflow-hidden flex flex-col max-h-[90vh]"
+                  initial={{ scale: 0.9, opacity: 0, y: 30 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 30 }}
+                  className="relative bg-zinc-950 border border-orange-600/30 rounded-[2.5rem] max-w-[550px] w-full shadow-[0_0_100px_rgba(234,88,12,0.2)] overflow-hidden flex flex-col max-h-[90vh]"
                 >
                   <div className="p-8 border-b border-zinc-900 bg-black/50">
                     <div className="flex justify-between items-start">
                       <div>
                         <h2 className="text-orange-600 font-black text-xs uppercase tracking-[0.4em] mb-2">Weekly Sprint Protocol</h2>
-                        <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter">PRODUCT DREAMERS 😻</h1>
+                        <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">PRODUCT DREAMERS 😻</h1>
                       </div>
-                      <button onClick={closeDreamersModal} className="text-zinc-500 hover:text-white transition-colors">
-                        <X size={24} />
+                      <button onClick={closeDreamersModal} className="p-2 bg-white/5 rounded-full text-zinc-500 hover:text-white transition-colors">
+                        <X size={20} />
                       </button>
                     </div>
                   </div>
@@ -256,14 +262,14 @@ const App = () => {
                       {sprintDays.map((item, idx) => (
                         <div key={idx} className="flex items-center gap-4 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800/50 group hover:border-orange-600/40 transition-all">
                           <div className="w-12 h-12 rounded-lg bg-orange-600/10 flex flex-col items-center justify-center text-orange-600 border border-orange-600/20 shrink-0">
-                            <span className="text-[10px] font-black">{item.day}</span>
+                            <span className="text-[10px] font-black leading-none mb-1">{item.day}</span>
                             {item.icon}
                           </div>
                           <div className="flex-1">
                             <h3 className="text-zinc-200 font-black uppercase text-xs tracking-wider group-hover:text-white transition-colors">{item.task}</h3>
-                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-tight mt-0.5">{item.sub}</p>
+                            <p className="text-zinc-500 text-[10px] uppercase font-bold tracking-tight mt-0.5 leading-tight">{item.sub}</p>
                           </div>
-                          {idx === 4 && <div className="flex gap-1"><div className="w-2 h-2 rounded-full bg-red-500"/><div className="w-2 h-2 rounded-full bg-orange-500"/><div className="w-2 h-2 rounded-full bg-green-500"/></div>}
+                          {idx === 4 && <div className="flex gap-1 shrink-0"><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"/><div className="w-2 h-2 rounded-full bg-orange-500"/><div className="w-2 h-2 rounded-full bg-green-500"/></div>}
                         </div>
                       ))}
                     </div>
@@ -273,7 +279,7 @@ const App = () => {
                     <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-6">Production Ready // No Weak Prototypes Anymore</p>
                     <button 
                       onClick={closeDreamersModal}
-                      className="w-full py-4 bg-white text-black font-black uppercase italic tracking-widest rounded-xl hover:bg-orange-600 hover:text-white transition-all flex items-center justify-center gap-3"
+                      className="w-full py-4 bg-white text-black font-black uppercase italic tracking-widest rounded-xl hover:bg-orange-600 hover:text-white transition-all flex items-center justify-center gap-3 shadow-xl"
                     >
                       <Play size={18} fill="currentColor" /> START 24H SPRINT
                     </button>
