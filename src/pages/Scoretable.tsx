@@ -271,16 +271,24 @@ const Scoretable = () => {
                 a: "The TRIBE_ID identifies the designated Leader of a recruitment sector. Every member belongs to a tribe, working under the strategic guidance of their leader."
               },
               {
-                q: "How is FAMILY VALUE calculated?",
-                a: "Family Value is the aggregate digital reach of a profile. It represents the TOTAL FOLLOWERS across Facebook, Instagram, X (Twitter), YouTube, and LinkedIn."
+                q: "How is FOLLOWERS calculated?",
+                a: "FOLLOWERS is the aggregate digital reach of a profile. It represents the TOTAL FOLLOWERS across Facebook, Instagram, X (Twitter), YouTube, and LinkedIn."
               },
               {
                 q: "What does INVESTED represent?",
                 a: "The Invested metric tracks the TOTAL CAPITAL PAID out by the Flame Foundation to that specific member for their contributions and recruitment success."
               },
               {
+                q: "What are TEAM counts?",
+                a: "Your Team is comprised of members who onboarded to the Flame Foundation via your referral link. You serve as their primary point of contact, responsible for their mentorship and collective growth."
+              },
+              {
                 q: "What are SAVED counts?",
                 a: "Saved represents the impact score—the total number of PEOPLE SAVED or positively impacted through the network's active missions."
+              },
+              {
+                q: "How is VALUE calculated?",
+                a: "Family Value is a performance-based metric representing a member's share of the ecosystem's impact; it is derived by dividing your personal reach (Followers × Engagement × Posts) by the network's total aggregate reach and multiplying by the $100M foundation benchmark."
               }
             ].map((item, i) => (
               <div key={i} className="bg-zinc-950 p-6 hover:bg-zinc-900/50 transition-colors">
