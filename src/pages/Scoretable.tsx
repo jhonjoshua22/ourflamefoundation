@@ -255,6 +255,54 @@ const Scoretable = () => {
     <div className="pt-32 pb-24 px-6 bg-black min-h-screen text-white font-sans">
       <div className="container mx-auto max-w-7xl">
 
+        {/* FAQ & DEFINITIONS AREA */}
+        <div className="mt-12 bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+          <div className="p-6 border-b border-zinc-800 bg-black/40">
+            <h2 className="text-xl font-black uppercase italic tracking-tighter text-orange-600 flex items-center gap-3">
+              <HelpCircle size={24} /> Protocol Intelligence // FAQ
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-zinc-800">
+            {[
+              {
+                q: "What is a TRIBE_ID?",
+                a: "The TRIBE_ID identifies the designated Leader of a recruitment sector. Every member belongs to a tribe, working under the strategic guidance of their leader."
+              },
+              {
+                q: "How is FAMILY VALUE calculated?",
+                a: "Family Value is the aggregate digital reach of a profile. It represents the TOTAL FOLLOWERS across Facebook, Instagram, X (Twitter), YouTube, and LinkedIn."
+              },
+              {
+                q: "What does INVESTED represent?",
+                a: "The Invested metric tracks the TOTAL CAPITAL PAID out by the Flame Foundation to that specific member for their contributions and recruitment success."
+              },
+              {
+                q: "What are SAVED counts?",
+                a: "Saved represents the impact score—the total number of PEOPLE SAVED or positively impacted through the network's active missions."
+              }
+            ].map((item, i) => (
+              <div key={i} className="bg-zinc-950 p-6 hover:bg-zinc-900/50 transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 w-1.5 h-1.5 rounded-full bg-orange-600 shadow-[0_0_8px_#ea580c] shrink-0" />
+                  <div>
+                    <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-200 mb-2">{item.q}</h4>
+                    <p className="text-[13px] text-zinc-500 font-medium leading-relaxed uppercase tracking-tight">
+                      {item.a}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4 bg-orange-600/5 text-center border-t border-zinc-800">
+            <p className="text-[9px] font-black uppercase text-zinc-600 tracking-[0.3em]">
+              Data integrity secured by Flame Foundation Cryptography // 2026 Update
+            </p>
+          </div>
+        </div>
+
         {/* TEAM MODAL - SYNCED WITH LEADERBOARD DATA STRUCTURE */}
         {selectedTeamUser && (() => {
           // Filter team members at the source
