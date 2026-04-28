@@ -4,7 +4,8 @@ import { supabase } from "../lib/supabaseClient";
 import {
   Trophy, Target, Loader2, Zap, Search,
   ChevronRight, Video, Bot, Users, Activity, Filter,
-  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft, User
+  TrendingUp, Smile, UserPlus, ChevronDown, X, Shield, ChevronLeft, User,
+  HelpCircle
 } from "lucide-react";
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area
