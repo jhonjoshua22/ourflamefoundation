@@ -219,7 +219,7 @@ const App = () => {
                         className="group relative flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-black uppercase italic tracking-widest transition-all shadow-[0_10px_20px_rgba(234,88,12,0.3)]"
                       >
                         <Sparkles size={20} className="group-hover:rotate-12 transition-transform" />
-                        ACCESS MISSION
+                        SIGN IN
                       </button>
                     </div>
                   </div>
