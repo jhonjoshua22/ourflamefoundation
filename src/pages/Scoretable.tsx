@@ -72,7 +72,7 @@ const Scoretable = () => {
       if (user) {
         setCurrentUserId(user.id);
         const { data: profile } = await supabase.from('profiles').select('referral_code').eq('id', user.id).single();
-        if (profile) setReferralLink(`https://ourflamefoundation.vercel.app/?ref=${profile.referral_code}`);
+        if (profile) setReferralLink(`https://www.ourflamefoundation.org/?ref=${profile.referral_code}`);
       }
     };
     initUser();
