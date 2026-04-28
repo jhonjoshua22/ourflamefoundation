@@ -874,8 +874,16 @@ const Profile = () => {
       {/* Families Modal */}
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+            onClick={() => setIsTeamModalOpen(false)} 
+          />
+          
+          {/* Modal Content */}
           <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            
+            {/* Header */}
             <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
               <div>
                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Families</h2>
@@ -888,7 +896,8 @@ const Profile = () => {
                 <X size={28} />
               </button>
             </div>
-
+      
+            {/* Body / List */}
             <div className="p-4 overflow-y-auto custom-scrollbar">
               {loadingTeam ? (
                 <div className="py-20 text-center">
@@ -899,7 +908,7 @@ const Profile = () => {
                 <div className="space-y-3">
                   {teamMembers.map((member, idx) => (
                     <Link 
-                      key={idx} 
+                      key={member.id || idx} 
                       to={`/profile/${member.id}`}
                       onClick={() => setIsTeamModalOpen(false)}
                       className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-orange-600 hover:bg-zinc-900 transition-all group"
@@ -907,13 +916,15 @@ const Profile = () => {
                       <img 
                         src={member.photo_url || defaultAvatar} 
                         className="w-14 h-14 rounded-xl object-cover border border-zinc-700 group-hover:border-orange-600" 
-                        alt="" 
+                        alt={member.display_name || "Member"} 
                       />
                       <div className="flex-1 overflow-hidden">
                         <p className="font-bold text-[16px] truncate uppercase tracking-tight group-hover:text-orange-500 transition-colors">
                           {member.display_name || "Anonymous"}
                         </p>
-                        <p className="text-[16px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
+                        <p className="text-[16px] text-zinc-500 font-black tracking-widest uppercase">
+                          {member.rank || "Recruit"}
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-[16px] text-zinc-600 font-black uppercase tracking-tighter">Verified</p>
@@ -929,6 +940,7 @@ const Profile = () => {
               )}
             </div>
             
+            {/* Footer */}
             <div className="p-8 border-t border-zinc-800 bg-zinc-900/50 text-center">
               <p className="text-[16px] font-black uppercase tracking-widest text-zinc-500">
                 Total Strength: {teamMembers.length}
