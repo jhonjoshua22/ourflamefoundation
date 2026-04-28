@@ -875,7 +875,7 @@ const Profile = () => {
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
-          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+          <div className="relative bg-zinc-950 border border-zinc-800 w-7xl max-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
             <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
               <div>
                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Families</h2>
