@@ -874,8 +874,11 @@ const Profile = () => {
       {/* Families Modal */}
       {isTeamModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsTeamModalOpen(false)} />
-          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-lg rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+          <div 
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+            onClick={() => setIsTeamModalOpen(false)} 
+          />
+          <div className="relative bg-zinc-950 border border-zinc-800 w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
             <div className="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
               <div>
                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">Families</h2>
@@ -898,22 +901,31 @@ const Profile = () => {
               ) : teamMembers.length > 0 ? (
                 <div className="space-y-3">
                   {teamMembers.map((member, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800">
+                    <Link 
+                      key={idx} 
+                      to={`/profile/${member.id}`}
+                      onClick={() => setIsTeamModalOpen(false)}
+                      className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 hover:border-orange-600 hover:bg-zinc-900 transition-all group cursor-pointer"
+                    >
                       <img 
                         src={member.photo_url || defaultAvatar} 
-                        className="w-14 h-14 rounded-xl object-cover border border-zinc-700" 
+                        className="w-14 h-14 rounded-xl object-cover border border-zinc-700 group-hover:border-orange-600 transition-colors" 
                         alt="" 
                       />
                       <div className="flex-1 overflow-hidden">
-                        <p className="font-bold text-[16px] truncate uppercase tracking-tight">
+                        <p className="font-bold text-[16px] truncate uppercase tracking-tight group-hover:text-orange-500 transition-colors">
                           {member.display_name || "Anonymous"}
                         </p>
-                        <p className="text-[16px] text-zinc-500 font-black tracking-widest uppercase">{member.rank}</p>
+                        <p className="text-[16px] text-zinc-500 font-black tracking-widest uppercase">
+                          {member.rank || "Recruit"}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[16px] text-zinc-600 font-black uppercase tracking-tighter">Verified</p>
+                        <p className="text-[16px] text-zinc-600 font-black uppercase tracking-tighter group-hover:text-zinc-400 transition-colors">
+                          Verified
+                        </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
