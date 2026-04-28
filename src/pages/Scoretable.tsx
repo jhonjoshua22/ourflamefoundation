@@ -534,7 +534,7 @@ const Scoretable = () => {
             
               <div className="p-6 border-t border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
                 <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">
-                  Showing page {currentPage + 1} of {Math.max(1, totalFilteredPages)} ({totalFiltered} users)
+                  Showing page {currentPage + 1} of {Math.max(1, totalFilteredPages)} ({totalFiltered} tribes)
                 </p>
                 <div className="flex gap-2">
                   <button 
