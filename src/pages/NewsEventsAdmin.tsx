@@ -45,29 +45,37 @@ const NewsEventsAdmin = () => {
 
     try {
       setUploading(true);
+      
+      // Create a unique filename
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `news-images/${fileName}`;
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `uploads/${fileName}`;
 
+      // Upload to the 'news' bucket
       const { error: uploadError } = await supabase.storage
-        .from('flamegame') // Using your existing bucket
-        .upload(filePath, file);
+        .from('news')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) throw uploadError;
 
+      // Generate the Public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('flamegame')
+        .from('news')
         .getPublicUrl(filePath);
 
       setForm(prev => ({ ...prev, image_url: publicUrl }));
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Upload failed.');
+      
+    } catch (error: any) {
+      console.error('Upload Error:', error.message);
+      alert('Upload failed: ' + error.message);
     } finally {
       setUploading(false);
     }
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
