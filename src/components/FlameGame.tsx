@@ -1,141 +1,249 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import React, { useRef, useState, useEffect } from "react";
 import { 
-  Play, 
+  ChevronRight, 
+  ChevronLeft, 
   Users, 
   Globe, 
-  Flame, 
-  ChevronRight, 
-  Loader2 
+  X, 
+  Maximize2, 
+  Zap, 
+  Gem, 
+  HeartHandshake 
 } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
+import clickSound from "../assets/button.m4a"; 
 
-const FlameGame: React.FC = () => {
-  const [gameData, setGameData] = useState<any[]>([]);
+const FlameGame = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
+  
+  // Data States
+  const [videoList, setVideoList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchGameContent = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("flame_game")
-        .select("*")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
+  // Aggregated Stats States
+  const [memberCount, setMemberCount] = useState<string>("0");
+  const [totalReach, setTotalReach] = useState<string>("0");
+  const [totalEngagements, setTotalEngagements] = useState<string>("0");
+  const [totalInvested, setTotalInvested] = useState<string>("0");
+  const [totalSaved, setTotalSaved] = useState<string>("0"); 
+  const [totalValue, setTotalValue] = useState<string>("0");
 
-      if (!error && data) {
-        setGameData(data);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+
+      // 1. Fetch Videos and Content from FlameGame table
+      const { data: games, error: gameError } = await supabase
+        .from('flame_game')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (!gameError && games) {
+        // Map DB columns to UI needs
+        const formattedVideos = games.map(g => ({
+          id: g.id,
+          src: g.video_url,
+          title: g.title,
+          poster: g.thumbnail_url
+        }));
+        setVideoList(formattedVideos);
+
+        // 2. Aggregate Totals from the FlameGame table columns
+        const sumReach = games.reduce((acc, curr) => acc + (Number(curr.reach_count) || 0), 0);
+        const sumFamilies = games.reduce((acc, curr) => acc + (Number(curr.families_impacted) || 0), 0);
+        const sumValue = games.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
+        const sumSaved = games.reduce((acc, curr) => acc + (Number(curr.saved) || 0), 0);
+        const sumPaid = games.reduce((acc, curr) => acc + (Number(curr.paid) || 0), 0);
+        const sumEngage = games.reduce((acc, curr) => acc + (Number(curr.engagement) || 0), 0);
+
+        const formatNumber = (num: number) => {
+          return new Intl.NumberFormat('en-US', {
+            notation: "compact",
+            compactDisplay: "short",
+            maximumFractionDigits: 1
+          }).format(num);
+        };
+
+        setMemberCount(formatNumber(sumFamilies));
+        setTotalReach(formatNumber(sumReach));
+        setTotalEngagements(formatNumber(sumEngage));
+        setTotalInvested(formatNumber(sumPaid));
+        setTotalSaved(formatNumber(sumSaved));
+        setTotalValue(formatNumber(sumValue));
       }
+
       setLoading(false);
     };
 
-    fetchGameContent();
+    fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="text-orange-600 animate-spin" size={40} />
-      </div>
-    );
-  }
+  const playClickSound = () => {
+    try {
+      new Audio(clickSound).play();
+    } catch (e) {
+      console.log("Audio playback failed", e);
+    }
+  };
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === "left" ? scrollLeft - clientWidth : scrollLeft + clientWidth;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white py-20 px-6 lg:px-20 font-sans">
-      {/* Header Section */}
-      <div className="max-w-7xl mx-auto mb-16">
-        <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic mb-4">
-          The <span className="text-orange-600 not-italic">Flame</span> Game
-        </h2>
-        <div className="h-1 w-32 bg-orange-600 mb-8"></div>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <section id="flame-game" className="relative pt-32 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
+      
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
         
-        {/* Dynamic Video / Game List */}
-        <div className="lg:col-span-8 space-y-12">
-          {gameData.map((item) => (
-            <div key={item.id} className="group relative bg-[#0a0a0a] border border-white/5 overflow-hidden">
-              {/* Video/Thumbnail Container */}
-              <div className="aspect-video bg-zinc-900 relative overflow-hidden">
-                {item.video_url ? (
+        <div className="text-center mb-16 space-y-3">
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-black dark:text-white">
+            Welcome to the <span className="text-orange-600">Flame Game</span>
+          </h2>
+          <p className="text-lg text-black dark:text-white max-w-2xl mx-auto font-light tracking-wide">
+            Help your family save the universe(s) & enjoy magical rewards. 
+            <span className="block text-orange-600 font-bold mt-1 italic">Forever Free & Open Source.</span>
+          </p>
+        </div>
+
+        {/* Video Scroller */}
+        <div className="relative mb-24 group">
+          <button 
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-orange-600 text-white p-4 rounded-r-2xl transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronLeft size={32} />
+          </button>
+
+          <div 
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+          >
+            {videoList.length > 0 ? (
+              videoList.map((video) => (
+                <div 
+                  key={video.id} 
+                  className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
+                  onClick={() => { playClickSound(); setSelectedVideo(video); }}
+                >
                   <video 
-                    src={item.video_url} 
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-                    poster={item.thumbnail_url}
-                    controls
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Flame size={60} className="text-zinc-800" />
+                    muted 
+                    playsInline 
+                    poster={video.poster}
+                    className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
+                  >
+                    <source src={video.src} type="video/mp4" />
+                  </video>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
+                      <Maximize2 size={48} className="text-white animate-pulse" />
                   </div>
-                )}
-                
-                <div className="absolute inset-0 flex items-center justify-center group-hover:scale-110 transition-transform pointer-events-none">
-                  <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(234,88,12,0.4)]">
-                    <Play fill="black" size={32} className="ml-1 text-black" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Content Details from DB */}
-              <div className="p-8">
-                <h3 className="text-2xl font-black uppercase italic mb-4">{item.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-2xl">
-                  {item.description}
-                </p>
-                
-                {/* Stats Bar */}
-                <div className="flex flex-wrap gap-8 py-6 border-t border-white/5">
-                  <div className="flex flex-col">
-                    <span className="text-zinc-600 text-[10px] font-black uppercase tracking-widest mb-1">Impacted Families</span>
-                    <span className="text-xl font-black text-white">{item.families_impacted?.toLocaleString()}+</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-zinc-600 text-[10px] font-black uppercase tracking-widest mb-1">Global Reach</span>
-                    <span className="text-xl font-black text-white">{item.reach_count?.toLocaleString()}+</span>
+                  <div className="absolute bottom-4 left-6">
+                    <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 tracking-widest">
+                      {video.title}
+                    </span>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="w-full h-64 flex items-center justify-center border-2 border-dashed border-zinc-500 rounded-3xl">
+                <p className="text-zinc-500 uppercase font-black italic tracking-widest">Awaiting Mission Briefings...</p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Side Info / CTA */}
-        <div className="lg:col-span-4 space-y-8">
-          <div className="bg-orange-600 p-8 rounded-none">
-            <h4 className="text-black font-black uppercase text-xl mb-4 leading-tight">Join the Movement</h4>
-            <p className="text-black/80 text-xs font-bold uppercase tracking-wider mb-6">
-              Our data is verified on-chain to ensure transparency in every flame ignited.
-            </p>
-            <button className="w-full bg-black text-white py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-zinc-900 transition-colors">
-              Play Now <ChevronRight size={16} />
-            </button>
+            )}
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/5 p-8">
-            <h4 className="text-white font-black uppercase text-sm mb-6 tracking-widest">Live Metrics</h4>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <Users className="text-orange-600" size={24} />
-                <div>
-                  <p className="text-white text-xs font-black uppercase">Active Players</p>
-                  <p className="text-zinc-500 text-[10px] font-bold tracking-tighter">Updating Live...</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Globe className="text-orange-600" size={24} />
-                <div>
-                  <p className="text-white text-xs font-black uppercase">Nodes Active</p>
-                  <p className="text-zinc-500 text-[10px] font-bold tracking-tighter">Global Foundation Grid</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <button 
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-orange-600 text-white p-4 rounded-l-2xl transition-all opacity-0 group-hover:opacity-100"
+          >
+            <ChevronRight size={32} />
+          </button>
         </div>
-        
+
+        {/* Stats Grid - Integrated with DB */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
+          <div className="text-center flex flex-col items-center">
+            <Users className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white tabular-nums">{memberCount}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Families</p>
+          </div>
+          
+          <div className="text-center flex flex-col items-center">
+            <Globe className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">{totalReach}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
+          </div>
+
+          <div className="text-center flex flex-col items-center">
+            <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">{totalEngagements}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
+          </div>
+
+          <div className="text-center flex flex-col items-center">
+            <Zap className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">{totalInvested}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Invested</p>
+          </div>
+
+          <div className="text-center flex flex-col items-center">
+            <Users className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">{totalSaved}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Saved</p>
+          </div>
+
+          <div className="text-center flex flex-col items-center">
+            <Gem className="w-6 h-6 text-orange-600 mb-2" />
+            <span className="text-4xl font-black text-black dark:text-white">{totalValue}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
+          </div>
+        </div> 
       </div>
-    </div>
+
+      {/* Video Modal Overlay */}
+      {selectedVideo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-xl transition-all duration-300">
+          <button 
+            onClick={() => setSelectedVideo(null)}
+            className="absolute top-8 right-8 text-white hover:text-orange-600 transition-colors z-[110]"
+          >
+            <X size={48} strokeWidth={3} />
+          </button>
+          
+          <div className="w-full max-w-6xl aspect-video rounded-2xl overflow-hidden border-2 border-white/20 shadow-[0_0_50px_rgba(234,88,12,0.3)] bg-black">
+             <video 
+                autoPlay 
+                controls 
+                poster={selectedVideo.poster}
+                className="w-full h-full"
+                onEnded={() => setSelectedVideo(null)}
+             >
+                <source src={selectedVideo.src} type="video/mp4" />
+             </video>
+          </div>
+          
+          <div className="absolute bottom-8 text-center">
+            <h3 className="text-white text-2xl font-black uppercase italic tracking-widest">
+                Mission Intel: <span className="text-orange-600">{selectedVideo.title}</span>
+            </h3>
+          </div>
+        </div>
+      )}
+    </section>
   );
 };
 
