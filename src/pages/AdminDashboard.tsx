@@ -1,5 +1,5 @@
 import React from "react";
-import AdminLayout from "./AdminLayout";
+import AdminLayout from "../components/AdminLayout";
 import { ShieldCheck, Zap } from "lucide-react";
 
 const AdminDashboard: React.FC = () => {
