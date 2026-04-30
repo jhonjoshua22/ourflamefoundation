@@ -143,7 +143,7 @@ const FlameGameAdmin = () => {
         
         {/* STATS SECTION */}
         <section>
-          <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+          <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6 pt-6">
             <h2 className="text-3xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-white">
               <BarChart3 className="text-orange-600" /> Global Impact Stats
             </h2>
