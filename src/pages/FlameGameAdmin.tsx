@@ -24,14 +24,11 @@ const FlameGameAdmin = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    
-    // Fetch Videos
     const { data: vData } = await supabase
       .from("flamegame_videos")
       .select("*")
       .order("created_at", { ascending: false });
 
-    // Fetch Stats
     const { data: sData } = await supabase
       .from("flamegame_stats")
       .select("*")
@@ -54,13 +51,12 @@ const FlameGameAdmin = () => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `uploads/${fileName}`;
 
-      // Upload to the 'flamegame' bucket
       const { error: uploadError } = await supabase.storage
         .from('flamegame')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          contentType: file.type // Explicitly set content type
+          contentType: file.type 
         });
 
       if (uploadError) throw uploadError;
@@ -72,7 +68,7 @@ const FlameGameAdmin = () => {
       setVideoForm({ ...videoForm, video_url: publicUrl });
     } catch (error) {
       console.error('Error uploading:', error);
-      alert('Upload failed. Check if bucket "flamegame" exists and is public.');
+      alert('Upload failed.');
     } finally {
       setUploading(false);
     }
@@ -80,12 +76,28 @@ const FlameGameAdmin = () => {
 
   const handleVideoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Auto-thumbnail logic: if link is null/empty, use video first frame
+    const finalFormData = {
+        ...videoForm,
+        thumbnail_url: videoForm.thumbnail_url || `${videoForm.video_url}#t=0.5`
+    };
+
     if (editingVideo) {
-      await supabase.from("flamegame_videos").update(videoForm).eq("id", editingVideo.id);
+      const { error } = await supabase
+        .from("flamegame_videos")
+        .update(finalFormData)
+        .eq("id", editingVideo.id);
+      if (error) alert("Edit failed: " + error.message);
     } else {
-      await supabase.from("flamegame_videos").insert([videoForm]);
+      const { error } = await supabase
+        .from("flamegame_videos")
+        .insert([finalFormData]);
+      if (error) alert("Insert failed: " + error.message);
     }
+    
     setModalMode(null);
+    setEditingVideo(null);
     fetchData();
   };
 
@@ -147,7 +159,11 @@ const FlameGameAdmin = () => {
               <Video className="text-orange-600" /> Video Library
             </h2>
             <button 
-              onClick={() => { setEditingVideo(null); setVideoForm({title:"", description:"", video_url:"", thumbnail_url:"", is_active:true}); setModalMode("video"); }}
+              onClick={() => { 
+                setEditingVideo(null); 
+                setVideoForm({title:"", description:"", video_url:"", thumbnail_url:"", is_active:true}); 
+                setModalMode("video"); 
+              }}
               className="bg-white text-black px-6 py-3 font-black uppercase text-[10px] tracking-widest hover:bg-orange-600 hover:text-white transition-all flex items-center gap-2"
             >
               <Plus size={16} strokeWidth={3} /> Add New Video
@@ -157,11 +173,23 @@ const FlameGameAdmin = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {videos.map((v) => (
               <div key={v.id} className="group relative bg-zinc-900 border border-white/5 aspect-video overflow-hidden">
-                {v.thumbnail_url && <img src={v.thumbnail_url} className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" alt="" />}
+                {v.thumbnail_url && (
+                    <video className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" src={v.video_url} poster={v.thumbnail_url} muted />
+                )}
                 <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent">
                   <h3 className="font-black uppercase italic text-lg leading-tight mb-4">{v.title}</h3>
                   <div className="flex gap-2 text-white">
-                    <button onClick={() => { setEditingVideo(v); setVideoForm(v); setModalMode("video"); }} className="bg-white/10 backdrop-blur-md p-2 hover:bg-orange-600 transition-colors">
+                    <button onClick={() => { 
+                        setEditingVideo(v); 
+                        setVideoForm({
+                            title: v.title,
+                            description: v.description || "",
+                            video_url: v.video_url,
+                            thumbnail_url: v.thumbnail_url || "",
+                            is_active: v.is_active
+                        }); 
+                        setModalMode("video"); 
+                    }} className="bg-white/10 backdrop-blur-md p-2 hover:bg-orange-600 transition-colors">
                       <Pencil size={16} />
                     </button>
                     <button onClick={async () => { if(confirm("Delete video?")) { await supabase.from("flamegame_videos").delete().eq("id", v.id); fetchData(); } }} className="bg-white/10 backdrop-blur-md p-2 hover:bg-red-600 transition-colors">
@@ -208,7 +236,7 @@ const FlameGameAdmin = () => {
           <div className="bg-[#0f0f0f] w-full max-w-xl border border-white/10 p-8 max-h-[90vh] overflow-y-auto text-white">
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black uppercase italic">{editingVideo ? "Edit Video" : "Add Video"}</h2>
-                <button onClick={() => setModalMode(null)}><X size={32}/></button>
+                <button onClick={() => { setModalMode(null); setEditingVideo(null); }}><X size={32}/></button>
             </div>
             <form onSubmit={handleVideoSubmit} className="space-y-6">
               <div 
@@ -236,7 +264,7 @@ const FlameGameAdmin = () => {
                    <label className="text-[10px] uppercase font-black text-orange-600 italic">Video Path (Auto-filled or URL)</label>
                    <input placeholder="Video URL" required className="w-full bg-white/5 border border-white/10 p-4 font-bold outline-none text-zinc-400 text-sm" value={videoForm.video_url} onChange={e => setVideoForm({...videoForm, video_url: e.target.value})} />
                 </div>
-                <input placeholder="Thumbnail URL" className="w-full bg-white/5 border border-white/10 p-4 font-bold outline-none" value={videoForm.thumbnail_url} onChange={e => setVideoForm({...videoForm, thumbnail_url: e.target.value})} />
+                <input placeholder="Thumbnail URL (Leave empty for auto-frame)" className="w-full bg-white/5 border border-white/10 p-4 font-bold outline-none" value={videoForm.thumbnail_url} onChange={e => setVideoForm({...videoForm, thumbnail_url: e.target.value})} />
               </div>
 
               <button type="submit" disabled={uploading} className="w-full bg-orange-600 p-5 font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all disabled:opacity-50 text-white">
