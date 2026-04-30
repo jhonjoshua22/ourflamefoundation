@@ -57,7 +57,7 @@ const FooterAdmin = () => {
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto">
-        <header className="flex justify-between items-center mb-12 border-b border-white/5 pb-8">
+        <header className="flex justify-between items-center mb-12 border-b border-white/5 pb-8 pt-16">
           <div>
             <h1 className="text-4xl font-black italic uppercase tracking-tighter">
               Footer <span className="text-orange-600">Admin</span>
