@@ -152,15 +152,17 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                {/* MODIFIED: Priority set to use video frame for thumbnail */}
-                <img 
-                  src={`${video.video_url}#t=0.5`} 
-                  alt={video.title}
+                {/* 
+                   FIX: Using a <video> tag for the thumbnail instead of <img>. 
+                   Most browsers block video-to-image conversion for security/performance, 
+                   so the <video> tag with #t=0.2 is the most reliable way to show a frame.
+                */}
+                <video 
+                  src={`${video.video_url}#t=0.2`}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-100 transition-opacity duration-500"
-                  onError={(e) => {
-                    // Fallback to DB URL ONLY if the video frame fails to load
-                    (e.target as HTMLImageElement).src = video.thumbnail_url;
-                  }}
+                  preload="metadata"
+                  muted
+                  playsInline
                 />
                 
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
@@ -236,7 +238,7 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={`${selectedVideo.video_url}#t=0.5`}
+                poster={`${selectedVideo.video_url}#t=0.2`}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
