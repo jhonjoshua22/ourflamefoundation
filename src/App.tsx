@@ -20,6 +20,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsPage from "./pages/TermsPage";
 import Profile from "./pages/Profile";
 import Scoretable from "./pages/Scoretable";
+import AdminLogin from "./pages/AdminLogin";
 
 const queryClient = new QueryClient();
 
@@ -297,6 +298,7 @@ const App = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:id" element={<Profile />} />
               <Route path="/scoretable" element={<Scoretable />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
             <Route path="*" element={<NotFound />} />
