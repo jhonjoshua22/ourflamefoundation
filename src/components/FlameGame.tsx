@@ -13,72 +13,88 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import clickSound from "../assets/button.m4a"; 
 
+interface FlameGameItem {
+  id: string;
+  title: string;
+  video_url: string;
+  thumbnail_url: string;
+  families_impacted: number;
+  reach_count: number;
+  description: string;
+}
+
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [games, setGames] = useState<FlameGameItem[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
   
-  // Data States
-  const [videoList, setVideoList] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Aggregated Stats States
-  const [memberCount, setMemberCount] = useState<string>("0");
+  // Stats States
+  const [memberCount, setMemberCount] = useState<string>("10K");
   const [totalReach, setTotalReach] = useState<string>("0");
-  const [totalEngagements, setTotalEngagements] = useState<string>("0");
-  const [totalInvested, setTotalInvested] = useState<string>("0");
+  const [totalImpact, setTotalImpact] = useState<string>("0");
+  const [totalValue, setTotalValue] = useState<string>("$0");
   const [totalSaved, setTotalSaved] = useState<string>("0"); 
-  const [totalValue, setTotalValue] = useState<string>("0");
+  const [totalPaid, setTotalPaid] = useState<string>("$0");
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-
-      // 1. Fetch Videos and Content from FlameGame table
-      const { data: games, error: gameError } = await supabase
+      // 1. Fetch Flame Game Videos/Data
+      const { data: gameData, error: gameError } = await supabase
         .from('flame_game')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (!gameError && games) {
-        // Map DB columns to UI needs
-        const formattedVideos = games.map(g => ({
-          id: g.id,
-          src: g.video_url,
-          title: g.title,
-          poster: g.thumbnail_url
-        }));
-        setVideoList(formattedVideos);
-
-        // 2. Aggregate Totals from the FlameGame table columns
-        const sumReach = games.reduce((acc, curr) => acc + (Number(curr.reach_count) || 0), 0);
-        const sumFamilies = games.reduce((acc, curr) => acc + (Number(curr.families_impacted) || 0), 0);
-        const sumValue = games.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
-        const sumSaved = games.reduce((acc, curr) => acc + (Number(curr.saved) || 0), 0);
-        const sumPaid = games.reduce((acc, curr) => acc + (Number(curr.paid) || 0), 0);
-        const sumEngage = games.reduce((acc, curr) => acc + (Number(curr.engagement) || 0), 0);
-
-        const formatNumber = (num: number) => {
-          return new Intl.NumberFormat('en-US', {
-            notation: "compact",
-            compactDisplay: "short",
-            maximumFractionDigits: 1
-          }).format(num);
-        };
-
-        setMemberCount(formatNumber(sumFamilies));
+      if (!gameError && gameData) {
+        setGames(gameData);
+        
+        // Aggregate totals from the flame_game table entries
+        const sumReach = gameData.reduce((acc, curr) => acc + (Number(curr.reach_count) || 0), 0);
+        const sumImpact = gameData.reduce((acc, curr) => acc + (Number(curr.families_impacted) || 0), 0);
+        
         setTotalReach(formatNumber(sumReach));
-        setTotalEngagements(formatNumber(sumEngage));
-        setTotalInvested(formatNumber(sumPaid));
-        setTotalSaved(formatNumber(sumSaved));
-        setTotalValue(formatNumber(sumValue));
+        setTotalImpact(formatNumber(sumImpact));
       }
 
-      setLoading(false);
+      // 2. Fetch Profiles for Member Count and financial stats
+      const { data: profileData, count, error: profileError } = await supabase
+        .from('profiles')
+        .select('value, saved, paid', { count: 'exact' });
+
+      if (count !== null) {
+        const displayCount = count < 10000 ? 10000 : count;
+        setMemberCount(formatNumber(displayCount));
+      }
+
+      if (!profileError && profileData) {
+        const totalV = profileData.reduce((acc, curr) => acc + Math.abs(Number(curr.value) || 0), 0);
+        const totalS = profileData.reduce((acc, curr) => acc + Math.abs(Number(curr.saved) || 0), 0);
+        const totalP = profileData.reduce((acc, curr) => acc + Math.abs(Number(curr.paid) || 0), 0);
+
+        setTotalValue(moneyFormatter(totalV));
+        setTotalSaved(formatNumber(totalS)); 
+        setTotalPaid(moneyFormatter(totalP));
+      }
     };
 
     fetchData();
   }, []);
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-US', {
+      notation: "compact",
+      compactDisplay: "short",
+      maximumFractionDigits: 1
+    }).format(num);
+  };
+
+  const moneyFormatter = (val: number) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 1,
+    notation: "compact",
+    compactDisplay: "short"
+  }).format(val);
 
   const playClickSound = () => {
     try {
@@ -121,7 +137,6 @@ const FlameGame = () => {
           </p>
         </div>
 
-        {/* Video Scroller */}
         <div className="relative mb-24 group">
           <button 
             onClick={() => scroll("left")}
@@ -134,36 +149,29 @@ const FlameGame = () => {
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar"
           >
-            {videoList.length > 0 ? (
-              videoList.map((video) => (
-                <div 
-                  key={video.id} 
-                  className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
-                  onClick={() => { playClickSound(); setSelectedVideo(video); }}
-                >
-                  <video 
-                    muted 
-                    playsInline 
-                    poster={video.poster}
-                    className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
-                  >
-                    <source src={video.src} type="video/mp4" />
-                  </video>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
-                      <Maximize2 size={48} className="text-white animate-pulse" />
-                  </div>
-                  <div className="absolute bottom-4 left-6">
-                    <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 tracking-widest">
-                      {video.title}
-                    </span>
-                  </div>
+            {games.map((game) => (
+              <div 
+                key={game.id} 
+                className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
+                onClick={() => { playClickSound(); setSelectedVideo({ src: game.video_url, title: game.title, poster: game.thumbnail_url }); }}
+              >
+                {/* We use an image/poster for the slider to save bandwidth, or a muted video preview */}
+                <img 
+                  src={game.thumbnail_url || ""} 
+                  alt={game.title}
+                  className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
+                />
+                
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
+                    <Maximize2 size={48} className="text-white animate-pulse" />
                 </div>
-              ))
-            ) : (
-              <div className="w-full h-64 flex items-center justify-center border-2 border-dashed border-zinc-500 rounded-3xl">
-                <p className="text-zinc-500 uppercase font-black italic tracking-widest">Awaiting Mission Briefings...</p>
+                <div className="absolute bottom-4 left-6">
+                  <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 tracking-widest">
+                    {game.title}
+                  </span>
+                </div>
               </div>
-            )}
+            ))}
           </div>
 
           <button 
@@ -174,7 +182,6 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Stats Grid - Integrated with DB */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
@@ -190,13 +197,13 @@ const FlameGame = () => {
 
           <div className="text-center flex flex-col items-center">
             <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalEngagements}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
+            <span className="text-4xl font-black text-black dark:text-white">{totalImpact}</span>
+            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Impacted</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
             <Zap className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalInvested}</span>
+            <span className="text-4xl font-black text-black dark:text-white">{totalPaid}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Invested</p>
           </div>
 
@@ -214,7 +221,6 @@ const FlameGame = () => {
         </div> 
       </div>
 
-      {/* Video Modal Overlay */}
       {selectedVideo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-xl transition-all duration-300">
           <button 
