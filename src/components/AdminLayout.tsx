@@ -21,7 +21,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const menuItems = [
     { label: "Profiles", path: "/admin/dashboard", icon: <Users size={18} />, group: "Command" },
-    { label: "Flame Game", path: "/admin/flame-game", icon: <Gamepad2 size={18} />, group: "Command" },
+    { label: "Flame Game", path: "/admin/flamegame", icon: <Gamepad2 size={18} />, group: "Command" },
     { label: "News", path: "/admin/news", icon: <Newspaper size={18} />, group: "Command" },
     { label: "About", path: "/admin/about", icon: <Info size={18} />, group: "Foundation" },
     { label: "Contacts", path: "/admin/contacts", icon: <Contact size={18} />, group: "Foundation" },
