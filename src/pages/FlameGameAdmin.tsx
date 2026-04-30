@@ -92,7 +92,6 @@ const FlameGameAdmin = () => {
 
     try {
         if (editingVideo && editingVideo.id) {
-            // FIX: Explicitly target the ID for the update
             const { error } = await supabase
                 .from("flamegame_videos")
                 .update(finalFormData)
@@ -192,13 +191,14 @@ const FlameGameAdmin = () => {
                 <video 
                     className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" 
                     src={v.video_url} 
-                    poster={v.thumbnail_url} 
+                    // Fallback to video frame if thumbnail_url is missing
+                    poster={v.thumbnail_url || `${v.video_url}#t=0.001`} 
                     muted 
+                    playsInline
                 />
                 <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent">
                   <h3 className="font-black uppercase italic text-lg leading-tight mb-4 text-white">{v.title}</h3>
                   <div className="flex gap-2">
-                    {/* EDIT BUTTON */}
                     <button onClick={() => { 
                         setEditingVideo(v); 
                         setVideoForm({
@@ -212,7 +212,6 @@ const FlameGameAdmin = () => {
                     }} className="bg-white/10 backdrop-blur-md p-2 text-white hover:bg-orange-600 transition-colors">
                       <Pencil size={16} />
                     </button>
-                    {/* DELETE BUTTON */}
                     <button onClick={async () => { if(confirm("Delete video?")) { await supabase.from("flamegame_videos").delete().eq("id", v.id); fetchData(); } }} className="bg-white/10 backdrop-blur-md p-2 text-white hover:bg-red-600 transition-colors">
                       <Trash2 size={16} />
                     </button>
@@ -228,11 +227,11 @@ const FlameGameAdmin = () => {
       {modalMode === "stats" && stats && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md">
           <div className="bg-[#0f0f0f] w-full max-w-xl border border-white/10 p-8">
-             <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black uppercase italic text-white">Update Global Stats</h2>
                 <button onClick={() => setModalMode(null)} className="text-white"><X size={32}/></button>
-             </div>
-             <form onSubmit={handleStatsSubmit} className="grid grid-cols-2 gap-6">
+              </div>
+              <form onSubmit={handleStatsSubmit} className="grid grid-cols-2 gap-6">
                 {Object.keys(stats).filter(k => !['id', 'updated_at'].includes(k)).map(key => (
                   <div key={key}>
                     <label className="text-[9px] font-black uppercase text-zinc-500 mb-2 block">{key.replace('_', ' ')}</label>
@@ -246,7 +245,7 @@ const FlameGameAdmin = () => {
                   </div>
                 ))}
                 <button type="submit" className="col-span-2 bg-orange-600 p-5 font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all text-white">Save Changes</button>
-             </form>
+              </form>
           </div>
         </div>
       )}
