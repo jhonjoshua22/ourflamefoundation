@@ -25,6 +25,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import FlameGameAdmin from "./pages/FlameGameAdmin";
 import NewsEventsAdmin from "./pages/NewsEventsAdmin";
 import AboutUsAdmin from "./pages/AboutUsAdmin";
+import FooterAdmin from "./pages/FooterAdmin";
+
 
 const queryClient = new QueryClient();
 
@@ -348,6 +350,7 @@ const App = () => {
               <Route path="/admin/flamegame" element={<AdminGuard><FlameGameAdmin /></AdminGuard>} />
               <Route path="/admin/news" element={<AdminGuard><NewsEventsAdmin /></AdminGuard>} />
               <Route path="/admin/aboutus" element={<AdminGuard><AboutUsAdmin /></AdminGuard>} />
+              <Route path="/admin/footer" element={<AdminGuard><FooterAdmin /></AdminGuard>} />
 
               
               {/* LOGIN PAGE (KEEP PUBLIC) */}
