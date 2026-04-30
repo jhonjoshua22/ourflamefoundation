@@ -147,13 +147,17 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                {video.thumbnail_url && (
-                  <img 
-                    src={video.thumbnail_url} 
-                    alt={video.title}
-                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-100 transition-opacity duration-500"
-                  />
-                )}
+                {/* FIX: Use thumbnail_url or fallback to video frame 0.5s */}
+                <img 
+                  src={video.thumbnail_url || `${video.video_url}#t=0.5`} 
+                  alt={video.title}
+                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-100 transition-opacity duration-500"
+                  onError={(e) => {
+                    // Final fallback if thumbnail fails to load
+                    (e.target as HTMLImageElement).src = `${video.video_url}#t=0.5`;
+                  }}
+                />
+                
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
                     <Maximize2 size={48} className="text-white animate-pulse" />
                 </div>
@@ -227,7 +231,7 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={selectedVideo.thumbnail_url}
+                poster={selectedVideo.thumbnail_url || `${selectedVideo.video_url}#t=0.5`}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
