@@ -38,11 +38,13 @@ const FlameGame = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // 1. Fetch Global Stats from flamegame_stats
+      // 1. Fetch Latest Global Stats from flamegame_stats ordered by updated_at
       const { data: sData, error: sError } = await supabase
         .from('flamegame_stats')
         .select('*')
-        .single(); // Gets the unique stats row
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       // 2. Fetch Video Content from flamegame_videos
       const { data: vData, error: vError } = await supabase
