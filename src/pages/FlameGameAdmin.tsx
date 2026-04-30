@@ -31,7 +31,7 @@ const FlameGameAdmin = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    // Fetch Stats: Force order by updated_at DESC to get the absolute latest
+    // Fetch Stats
     const { data: sData } = await supabase
       .from("flamegame_stats")
       .select("*")
@@ -54,9 +54,14 @@ const FlameGameAdmin = () => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `uploads/${fileName}`;
 
+      // Upload to the 'flamegame' bucket
       const { error: uploadError } = await supabase.storage
         .from('flamegame')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type // Explicitly set content type
+        });
 
       if (uploadError) throw uploadError;
 
@@ -67,7 +72,7 @@ const FlameGameAdmin = () => {
       setVideoForm({ ...videoForm, video_url: publicUrl });
     } catch (error) {
       console.error('Error uploading:', error);
-      alert('Upload failed.');
+      alert('Upload failed. Check if bucket "flamegame" exists and is public.');
     } finally {
       setUploading(false);
     }
@@ -88,7 +93,6 @@ const FlameGameAdmin = () => {
     e.preventDefault();
     if (!stats?.id) return;
 
-    // CRITICAL: We must manually set updated_at to NOW so it reflects as the "latest"
     const { error } = await supabase
       .from("flamegame_stats")
       .update({ 
