@@ -16,7 +16,6 @@ import clickSound from "../assets/button.m4a";
 interface VideoItem {
   id: string;
   video_url: string;
-  thumbnail_url: string;
   title: string;
   description?: string;
 }
@@ -37,7 +36,7 @@ const FlameGame = () => {
       // 1. Fetch Videos from flamegame_videos
       const { data: vData } = await supabase
         .from('flamegame_videos')
-        .select('*')
+        .select('id, video_url, title, description') // Only select what we need
         .eq('is_active', true)
         .order('created_at', { ascending: false });
       
@@ -147,18 +146,23 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
+                {/* 
+                  Using a small time offset (#t=0.001) forces the browser 
+                  to load the video and show the first frame as the thumbnail 
+                */}
                 <video 
                   muted 
                   playsInline 
                   preload="metadata"
-                  poster={video.thumbnail_url || `${video.video_url}#t=0.2`}
                   className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
                 >
-                  <source src={video.video_url} type="video/mp4" />
+                  <source src={`${video.video_url}#t=0.001`} type="video/mp4" />
                 </video>
+                
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
                     <Maximize2 size={48} className="text-white animate-pulse" />
                 </div>
+                
                 <div className="absolute bottom-4 left-6">
                   <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 tracking-widest">
                     {video.title}
@@ -228,7 +232,6 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={selectedVideo.thumbnail_url || `${selectedVideo.video_url}#t=0.2`}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
