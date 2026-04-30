@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Share2, Bot, Users, Calendar, Rocket, Brain, CheckCircle2, Play, Trophy } from "lucide-react";
+import { X, Sparkles, Share2, Bot, Users, Calendar, Rocket, Brain, CheckCircle2, Play, Trophy, Loader2 } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient";
 
 // Assets
@@ -25,15 +25,57 @@ import AdminDashboard from "./pages/AdminDashboard";
 import FlameGameAdmin from "./pages/FlameGameAdmin";
 import NewsEventsAdmin from "./pages/NewsEventsAdmin";
 
-
 const queryClient = new QueryClient();
+
+// --- ADMIN GUARD COMPONENT ---
+const AdminGuard = ({ children }: { children: React.ReactNode }) => {
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setAuthorized(false);
+        navigate("/admin/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", session.user.id)
+        .single();
+
+      if (!profile?.is_admin) {
+        setAuthorized(false);
+        navigate("/");
+        return;
+      }
+
+      setAuthorized(true);
+    };
+    checkAdmin();
+  }, [navigate]);
+
+  if (authorized === null) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-black">
+        <Loader2 className="animate-spin text-orange-600 mb-4" size={48} />
+        <p className="text-white font-black uppercase italic tracking-widest text-xs">Verifying Clearance...</p>
+      </div>
+    );
+  }
+
+  return authorized ? <>{children}</> : null;
+};
 
 const App = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showDreamersModal, setShowDreamersModal] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // NEW: Function to record country via IP
   const recordCountry = async (userId: string) => {
     try {
       const { data: profile } = await supabase
@@ -130,7 +172,6 @@ const App = () => {
     sessionStorage.setItem("hasSeenPopup", "true");
     setShowPopup(false);
     
-    // Explicitly trigger next modal after state update
     setTimeout(() => {
       setShowDreamersModal(true);
     }, 400); 
@@ -156,7 +197,6 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* First Modal AnimatePresence */}
           <AnimatePresence mode="wait">
             {showPopup && (
               <div key="command-center-modal" className="fixed inset-0 z-[10000] flex items-center justify-center p-6">
@@ -233,7 +273,6 @@ const App = () => {
             )}
           </AnimatePresence>
 
-          {/* Second Modal AnimatePresence - Separate to ensure it triggers independantly */}
           <AnimatePresence>
             {showDreamersModal && (
               <div key="dreamers-modal" className="fixed inset-0 z-[10001] flex items-center justify-center p-4">
@@ -303,9 +342,12 @@ const App = () => {
               <Route path="/profile/:id" element={<Profile />} />
               <Route path="/scoretable" element={<Scoretable />} />
 
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/flamegame" element={<FlameGameAdmin />} />
-              <Route path="/admin/news" element={<NewsEventsAdmin />} />
+              {/* PROTECTED ADMIN ROUTES */}
+              <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+              <Route path="/admin/flamegame" element={<AdminGuard><FlameGameAdmin /></AdminGuard>} />
+              <Route path="/admin/news" element={<AdminGuard><NewsEventsAdmin /></AdminGuard>} />
+              
+              {/* LOGIN PAGE (KEEP PUBLIC) */}
               <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
