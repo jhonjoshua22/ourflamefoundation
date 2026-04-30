@@ -36,9 +36,11 @@ const FlameGame = () => {
     value: "$0"
   });
 
+  // Fixed the effect to prevent unnecessary re-renders/reloads
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
-      // 1. Fetch Latest Global Stats from flamegame_stats ordered by updated_at
       const { data: sData, error: sError } = await supabase
         .from('flamegame_stats')
         .select('*')
@@ -46,12 +48,13 @@ const FlameGame = () => {
         .limit(1)
         .maybeSingle();
 
-      // 2. Fetch Video Content from flamegame_videos
       const { data: vData, error: vError } = await supabase
         .from('flamegame_videos')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
+
+      if (!isMounted) return;
 
       const formatCompact = (num: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -86,11 +89,13 @@ const FlameGame = () => {
     };
 
     fetchData();
+    return () => { isMounted = false; };
   }, []);
 
   const playClickSound = () => {
     try {
-      new Audio(clickSound).play();
+      const audio = new Audio(clickSound);
+      audio.play();
     } catch (e) {
       console.log("Audio playback failed", e);
     }
@@ -147,14 +152,14 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                {/* FIX: Use thumbnail_url or fallback to video frame 0.5s */}
+                {/* MODIFIED: Priority set to use video frame for thumbnail */}
                 <img 
-                  src={video.thumbnail_url || `${video.video_url}#t=0.5`} 
+                  src={`${video.video_url}#t=0.5`} 
                   alt={video.title}
                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-100 transition-opacity duration-500"
                   onError={(e) => {
-                    // Final fallback if thumbnail fails to load
-                    (e.target as HTMLImageElement).src = `${video.video_url}#t=0.5`;
+                    // Fallback to DB URL ONLY if the video frame fails to load
+                    (e.target as HTMLImageElement).src = video.thumbnail_url;
                   }}
                 />
                 
@@ -231,7 +236,7 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={selectedVideo.thumbnail_url || `${selectedVideo.video_url}#t=0.5`}
+                poster={`${selectedVideo.video_url}#t=0.5`}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
