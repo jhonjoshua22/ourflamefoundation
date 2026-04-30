@@ -70,7 +70,7 @@ const AboutUsAdmin = () => {
       const newItems = [...items];
       newItems[items.indexOf(item)].url = publicUrl;
       setItems(newItems);
-      toast.success("File uploaded and linked");
+      toast.success("File uploaded successfully");
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -88,7 +88,6 @@ const AboutUsAdmin = () => {
       sort_order: items.length
     };
     setItems([newItem, ...items]);
-    // Ensure the category is expanded if we add a new item
     setExpandedCats(prev => ({ ...prev, [category]: true }));
   };
 
@@ -157,7 +156,7 @@ const AboutUsAdmin = () => {
 
                     <div className="md:col-span-2 space-y-1">
                       <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
-                        {cat === 'resource' ? 'PDF Resource' : 'Content / URL'}
+                        {cat === 'resource' ? 'Resource Link (Paste or Upload)' : 'Content / URL'}
                       </label>
                       
                       {cat === 'resource' ? (
@@ -165,9 +164,14 @@ const AboutUsAdmin = () => {
                             <div className="relative flex-1">
                                 <input 
                                     type="text"
-                                    readOnly
-                                    value={item.url ? "File Uploaded ✓" : "No file attached"}
-                                    className="w-full bg-black border border-white/10 rounded px-3 py-2 text-xs text-zinc-400 outline-none"
+                                    placeholder="Paste URL here..."
+                                    value={item.url || ""}
+                                    onChange={(e) => {
+                                      const newItems = [...items];
+                                      newItems[items.indexOf(item)].url = e.target.value;
+                                      setItems(newItems);
+                                    }}
+                                    className="w-full bg-black border border-white/10 rounded px-3 py-2 text-sm outline-none focus:border-orange-600 transition-colors" 
                                 />
                             </div>
                             <label className="cursor-pointer bg-zinc-800 hover:bg-zinc-700 p-2 rounded transition-colors flex items-center justify-center min-w-[40px]">
