@@ -22,6 +22,7 @@ const AdminLogin: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
+        // This ensures Supabase sends the user directly to the dashboard after Google auth
         redirectTo: `${window.location.origin}/admin/dashboard`,
       },
     });
@@ -101,6 +102,7 @@ const AdminLogin: React.FC = () => {
           {/* GOOGLE LOGIN BUTTON */}
           <button
             onClick={handleGoogleLogin}
+            type="button"
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 bg-white text-black py-4 px-6 rounded-none text-[10px] font-black uppercase tracking-widest transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-50 mb-6"
           >
