@@ -18,7 +18,7 @@ interface VideoItem {
   video_url: string;
   thumbnail_url: string;
   title: string;
-  description: string;
+  description?: string;
 }
 
 const FlameGame = () => {
@@ -27,36 +27,28 @@ const FlameGame = () => {
   const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
   
   // Stats States
-  const [stats, setStats] = useState({
-    families: "0",
-    reach: "0",
-    engagement: "0",
-    invested: "$0",
-    saved: "0",
-    value: "$0"
-  });
+  const [memberCount, setMemberCount] = useState<string>("10K");
+  const [totalValue, setTotalValue] = useState<string>("$0");
+  const [totalSaved, setTotalSaved] = useState<string>("0"); 
+  const [totalPaid, setTotalPaid] = useState<string>("$0");
 
-  // Fixed the effect to prevent unnecessary re-renders/reloads
   useEffect(() => {
-    let isMounted = true;
-
     const fetchData = async () => {
-      const { data: sData, error: sError } = await supabase
-        .from('flamegame_stats')
-        .select('*')
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const { data: vData, error: vError } = await supabase
+      // 1. Fetch Videos from flamegame_videos
+      const { data: vData } = await supabase
         .from('flamegame_videos')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
+      
+      if (vData) setVideoList(vData);
 
-      if (!isMounted) return;
-
-      const formatCompact = (num: number) => {
+      // 2. Fetch Member Count from profiles
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      const formatNumber = (num: number) => {
         return new Intl.NumberFormat('en-US', {
           notation: "compact",
           compactDisplay: "short",
@@ -64,38 +56,41 @@ const FlameGame = () => {
         }).format(num);
       };
 
-      const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 1,
-        notation: "compact",
-        compactDisplay: "short"
-      }).format(val);
-
-      if (!sError && sData) {
-        setStats({
-          families: formatCompact(Number(sData.families_impacted) || 0),
-          reach: formatCompact(Number(sData.reach_count) || 0),
-          engagement: formatCompact(Number(sData.engagement) || 0),
-          invested: formatCurrency(Number(sData.paid) || 0),
-          saved: formatCompact(Number(sData.saved) || 0),
-          value: formatCurrency(Number(sData.value) || 0)
-        });
+      if (count !== null) {
+        const displayCount = count < 10000 ? 10000 : count;
+        setMemberCount(formatNumber(displayCount));
       }
 
-      if (!vError && vData) {
-        setVideoList(vData);
+      // 3. Fetch Totals from profiles
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('value, saved, paid');
+
+      if (!error && data) {
+        const totalV = data.reduce((acc, curr) => acc + Math.abs(Number(curr.value) || 0), 0);
+        const totalS = data.reduce((acc, curr) => acc + Math.abs(Number(curr.saved) || 0), 0);
+        const totalP = data.reduce((acc, curr) => acc + Math.abs(Number(curr.paid) || 0), 0);
+
+        const moneyFormatter = (val: number) => new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 1,
+          notation: "compact",
+          compactDisplay: "short"
+        }).format(val);
+
+        setTotalValue(moneyFormatter(totalV));
+        setTotalSaved(formatNumber(totalS)); 
+        setTotalPaid(moneyFormatter(totalP));
       }
     };
 
     fetchData();
-    return () => { isMounted = false; };
   }, []);
 
   const playClickSound = () => {
     try {
-      const audio = new Audio(clickSound);
-      audio.play();
+      new Audio(clickSound).play();
     } catch (e) {
       console.log("Audio playback failed", e);
     }
@@ -152,19 +147,15 @@ const FlameGame = () => {
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
                 onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                {/* 
-                   FIX: Using a <video> tag for the thumbnail instead of <img>. 
-                   Most browsers block video-to-image conversion for security/performance, 
-                   so the <video> tag with #t=0.2 is the most reliable way to show a frame.
-                */}
                 <video 
-                  src={`${video.video_url}#t=0.2`}
-                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-100 transition-opacity duration-500"
+                  muted 
+                  playsInline 
                   preload="metadata"
-                  muted
-                  playsInline
-                />
-                
+                  poster={video.thumbnail_url || `${video.video_url}#t=0.2`}
+                  className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
+                >
+                  <source src={video.video_url} type="video/mp4" />
+                </video>
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
                     <Maximize2 size={48} className="text-white animate-pulse" />
                 </div>
@@ -185,41 +176,40 @@ const FlameGame = () => {
           </button>
         </div>
 
-        {/* Global Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white tabular-nums">{stats.families}</span>
+            <span className="text-4xl font-black text-black dark:text-white tabular-nums">{memberCount}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Families</p>
           </div>
           
           <div className="text-center flex flex-col items-center">
             <Globe className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{stats.reach}</span>
+            <span className="text-4xl font-black text-black dark:text-white">1M+</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
             <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{stats.engagement}</span>
+            <span className="text-4xl font-black text-black dark:text-white">100M+</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Engagements</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
             <Zap className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{stats.invested}</span>
+            <span className="text-4xl font-black text-black dark:text-white">{totalPaid}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Invested</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
             <Users className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{stats.saved}</span>
+            <span className="text-4xl font-black text-black dark:text-white">{totalSaved}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Saved</p>
           </div>
 
           <div className="text-center flex flex-col items-center">
             <Gem className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{stats.value}</span>
+            <span className="text-4xl font-black text-black dark:text-white">{totalValue}</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
           </div>
         </div> 
@@ -238,7 +228,7 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={`${selectedVideo.video_url}#t=0.2`}
+                poster={selectedVideo.thumbnail_url || `${selectedVideo.video_url}#t=0.2`}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
