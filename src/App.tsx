@@ -21,6 +21,8 @@ import TermsPage from "./pages/TermsPage";
 import Profile from "./pages/Profile";
 import Scoretable from "./pages/Scoretable";
 import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+
 
 const queryClient = new QueryClient();
 
@@ -298,6 +300,8 @@ const App = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:id" element={<Profile />} />
               <Route path="/scoretable" element={<Scoretable />} />
+
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
