@@ -23,7 +23,7 @@ import Scoretable from "./pages/Scoretable";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import FlameGameAdmin from "./pages/FlameGameAdmin";
-
+import NewsEventsAdmin from "./pages/NewsEventsAdmin";
 
 
 const queryClient = new QueryClient();
@@ -305,6 +305,7 @@ const App = () => {
 
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/flamegame" element={<FlameGameAdmin />} />
+              <Route path="/admin/news" element={<NewsEventsAdmin />} />
               <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
