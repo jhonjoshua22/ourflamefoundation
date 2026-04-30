@@ -22,6 +22,8 @@ import Profile from "./pages/Profile";
 import Scoretable from "./pages/Scoretable";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import FlameGameAdmin from "./pages/FlameGameAdmin";
+
 
 
 const queryClient = new QueryClient();
@@ -302,6 +304,7 @@ const App = () => {
               <Route path="/scoretable" element={<Scoretable />} />
 
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/flamegame" element={<FlameGameAdmin />} />
               <Route path="/admin/login" element={<AdminLogin />} />
             </Route>
             <Route path="/login" element={<AuthPage />} />
