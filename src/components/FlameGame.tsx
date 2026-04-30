@@ -13,95 +13,88 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import clickSound from "../assets/button.m4a"; 
 
-interface FlameGameItem {
+interface VideoItem {
   id: string;
-  title: string;
   video_url: string;
   thumbnail_url: string;
+  title: string;
+  description: string;
   families_impacted: number;
   reach_count: number;
-  description: string;
+  engagement: number;
+  paid: number;
+  saved: number;
+  value: number;
 }
 
 const FlameGame = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [games, setGames] = useState<FlameGameItem[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<{ src: string, title: string, poster?: string } | null>(null);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Stats States
-  const [memberCount, setMemberCount] = useState<string>("10K");
-  const [totalReach, setTotalReach] = useState<string>("0");
-  const [totalImpact, setTotalImpact] = useState<string>("0");
-  const [totalValue, setTotalValue] = useState<string>("$0");
-  const [totalSaved, setTotalSaved] = useState<string>("0"); 
-  const [totalPaid, setTotalPaid] = useState<string>("$0");
+  const [stats, setStats] = useState({
+    families: "0",
+    reach: "0",
+    engagement: "0",
+    invested: "$0",
+    saved: "0",
+    value: "$0"
+  });
 
   useEffect(() => {
     const fetchData = async () => {
-      // 1. Fetch Flame Game Videos/Data
-      const { data: gameData, error: gameError } = await supabase
+      setLoading(true);
+      
+      // 1. Fetch Video List from flame_game table
+      const { data: videoData, error: videoError } = await supabase
         .from('flame_game')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (!gameError && gameData) {
-        setGames(gameData);
-        
-        // Aggregate totals from the flame_game table entries
-        const sumReach = gameData.reduce((acc, curr) => acc + (Number(curr.reach_count) || 0), 0);
-        const sumImpact = gameData.reduce((acc, curr) => acc + (Number(curr.families_impacted) || 0), 0);
-        
-        setTotalReach(formatNumber(sumReach));
-        setTotalImpact(formatNumber(sumImpact));
+      if (!videoError && videoData) {
+        setVideos(videoData);
+
+        // 2. Aggregate Stats from the fetched videos
+        const totals = videoData.reduce((acc, curr) => ({
+          families: acc.families + (Number(curr.families_impacted) || 0),
+          reach: acc.reach + (Number(curr.reach_count) || 0),
+          engagement: acc.engagement + (Number(curr.engagement) || 0),
+          invested: acc.invested + (Number(curr.paid) || 0),
+          saved: acc.saved + (Number(curr.saved) || 0),
+          value: acc.value + (Number(curr.value) || 0),
+        }), { families: 0, reach: 0, engagement: 0, invested: 0, saved: 0, value: 0 });
+
+        // Formatters
+        const compact = (val: number) => new Intl.NumberFormat('en-US', {
+          notation: "compact", compactDisplay: "short", maximumFractionDigits: 1
+        }).format(val);
+
+        const currency = (val: number) => new Intl.NumberFormat('en-US', {
+          style: 'currency', currency: 'USD', notation: "compact", compactDisplay: "short", maximumFractionDigits: 1
+        }).format(val);
+
+        setStats({
+          families: compact(totals.families),
+          reach: compact(totals.reach),
+          engagement: compact(totals.engagement),
+          invested: currency(totals.invested),
+          saved: compact(totals.saved),
+          value: currency(totals.value)
+        });
       }
-
-      // 2. Fetch Profiles for Member Count and financial stats
-      const { data: profileData, count, error: profileError } = await supabase
-        .from('profiles')
-        .select('value, saved, paid', { count: 'exact' });
-
-      if (count !== null) {
-        const displayCount = count < 10000 ? 10000 : count;
-        setMemberCount(formatNumber(displayCount));
-      }
-
-      if (!profileError && profileData) {
-        const totalV = profileData.reduce((acc, curr) => acc + Math.abs(Number(curr.value) || 0), 0);
-        const totalS = profileData.reduce((acc, curr) => acc + Math.abs(Number(curr.saved) || 0), 0);
-        const totalP = profileData.reduce((acc, curr) => acc + Math.abs(Number(curr.paid) || 0), 0);
-
-        setTotalValue(moneyFormatter(totalV));
-        setTotalSaved(formatNumber(totalS)); 
-        setTotalPaid(moneyFormatter(totalP));
-      }
+      setLoading(false);
     };
 
     fetchData();
   }, []);
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US', {
-      notation: "compact",
-      compactDisplay: "short",
-      maximumFractionDigits: 1
-    }).format(num);
-  };
-
-  const moneyFormatter = (val: number) => new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 1,
-    notation: "compact",
-    compactDisplay: "short"
-  }).format(val);
-
   const playClickSound = () => {
     try {
       new Audio(clickSound).play();
-    } catch (e) {
-      console.log("Audio playback failed", e);
-    }
+    } catch (e) { console.log("Audio error", e); }
   };
 
   const scroll = (direction: "left" | "right") => {
@@ -112,21 +105,13 @@ const FlameGame = () => {
     }
   };
 
+  if (loading && videos.length === 0) return null;
+
   return (
     <section id="flame-game" className="relative pt-32 pb-24 px-6 overflow-hidden bg-white dark:bg-black transition-colors duration-500">
-      
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
       
       <div className="container mx-auto max-w-7xl relative z-10">
-        
         <div className="text-center mb-16 space-y-3">
           <h2 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-black dark:text-white">
             Welcome to the <span className="text-orange-600">Flame Game</span>
@@ -137,6 +122,7 @@ const FlameGame = () => {
           </p>
         </div>
 
+        {/* Video Scroller */}
         <div className="relative mb-24 group">
           <button 
             onClick={() => scroll("left")}
@@ -145,29 +131,26 @@ const FlameGame = () => {
             <ChevronLeft size={32} />
           </button>
 
-          <div 
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar"
-          >
-            {games.map((game) => (
+          <div ref={scrollRef} className="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+            {videos.map((video) => (
               <div 
-                key={game.id} 
+                key={video.id} 
                 className="min-w-[90%] md:min-w-[70%] lg:min-w-[60%] aspect-video bg-black rounded-3xl relative overflow-hidden border-2 border-black dark:border-white snap-center shadow-2xl cursor-pointer group/video"
-                onClick={() => { playClickSound(); setSelectedVideo({ src: game.video_url, title: game.title, poster: game.thumbnail_url }); }}
+                onClick={() => { playClickSound(); setSelectedVideo(video); }}
               >
-                {/* We use an image/poster for the slider to save bandwidth, or a muted video preview */}
-                <img 
-                  src={game.thumbnail_url || ""} 
-                  alt={game.title}
-                  className="w-full h-full object-cover opacity-80 group-hover/video:opacity-100 transition-opacity"
-                />
-                
+                {video.thumbnail_url && (
+                  <img 
+                    src={video.thumbnail_url} 
+                    alt={video.title}
+                    className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover/video:opacity-100 transition-opacity duration-500"
+                  />
+                )}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity bg-black/40">
                     <Maximize2 size={48} className="text-white animate-pulse" />
                 </div>
-                <div className="absolute bottom-4 left-6">
-                  <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-3 py-1 tracking-widest">
-                    {game.title}
+                <div className="absolute bottom-6 left-8">
+                  <span className="bg-orange-600 text-white text-[10px] font-black uppercase px-4 py-2 tracking-[0.2em]">
+                    {video.title}
                   </span>
                 </div>
               </div>
@@ -182,45 +165,26 @@ const FlameGame = () => {
           </button>
         </div>
 
+        {/* Dynamic Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 border-t border-zinc-100 dark:border-zinc-900 pt-24">
-          <div className="text-center flex flex-col items-center">
-            <Users className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white tabular-nums">{memberCount}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Families</p>
-          </div>
-          
-          <div className="text-center flex flex-col items-center">
-            <Globe className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalReach}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Reach</p>
-          </div>
-
-          <div className="text-center flex flex-col items-center">
-            <HeartHandshake className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalImpact}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Impacted</p>
-          </div>
-
-          <div className="text-center flex flex-col items-center">
-            <Zap className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalPaid}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Invested</p>
-          </div>
-
-          <div className="text-center flex flex-col items-center">
-            <Users className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalSaved}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Saved</p>
-          </div>
-
-          <div className="text-center flex flex-col items-center">
-            <Gem className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">{totalValue}</span>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
-          </div>
+          {[
+            { icon: Users, label: "Families", val: stats.families },
+            { icon: Globe, label: "Reach", val: stats.reach },
+            { icon: HeartHandshake, label: "Engagements", val: stats.engagement },
+            { icon: Zap, label: "Invested", val: stats.invested },
+            { icon: Users, label: "Saved", val: stats.saved },
+            { icon: Gem, label: "Value", val: stats.value },
+          ].map((item, idx) => (
+            <div key={idx} className="text-center flex flex-col items-center">
+              <item.icon className="w-6 h-6 text-orange-600 mb-2" />
+              <span className="text-4xl font-black text-black dark:text-white tabular-nums">{item.val}</span>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">{item.label}</p>
+            </div>
+          ))}
         </div> 
       </div>
 
+      {/* Video Overlay Modal */}
       {selectedVideo && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/95 backdrop-blur-xl transition-all duration-300">
           <button 
@@ -234,18 +198,21 @@ const FlameGame = () => {
              <video 
                 autoPlay 
                 controls 
-                poster={selectedVideo.poster}
+                poster={selectedVideo.thumbnail_url}
                 className="w-full h-full"
                 onEnded={() => setSelectedVideo(null)}
              >
-                <source src={selectedVideo.src} type="video/mp4" />
+                <source src={selectedVideo.video_url} type="video/mp4" />
              </video>
           </div>
           
-          <div className="absolute bottom-8 text-center">
-            <h3 className="text-white text-2xl font-black uppercase italic tracking-widest">
+          <div className="absolute bottom-8 text-center px-6">
+            <h3 className="text-white text-2xl font-black uppercase italic tracking-widest mb-2">
                 Mission Intel: <span className="text-orange-600">{selectedVideo.title}</span>
             </h3>
+            <p className="text-white/60 text-sm max-w-xl mx-auto uppercase font-bold tracking-tighter">
+              {selectedVideo.description}
+            </p>
           </div>
         </div>
       )}
