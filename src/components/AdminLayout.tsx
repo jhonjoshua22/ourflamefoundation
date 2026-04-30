@@ -31,7 +31,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { label: "Flame Game", path: "/admin/flamegame", icon: <Gamepad2 size={18} /> },
     { label: "News", path: "/admin/news", icon: <Newspaper size={18} /> },
     { label: "About Us", path: "/admin/aboutus", icon: <Info size={18} /> },
-    { label: "Contacts", path: "/admin/contacts", icon: <Contact size={18} /> },
+    { label: "Footer", path: "/admin/footer", icon: <Contact size={18} /> },
   ];
 
   const SidebarContent = () => (
