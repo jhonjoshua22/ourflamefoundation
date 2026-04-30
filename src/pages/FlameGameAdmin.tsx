@@ -3,14 +3,13 @@ import { supabase } from "../lib/supabaseClient";
 import AdminLayout from "../components/AdminLayout";
 import { 
   Plus, Pencil, Trash2, X, Video, 
-  BarChart3, Loader2, UploadCloud
+  Loader2, UploadCloud
 } from "lucide-react";
 
 const FlameGameAdmin = () => {
   const [videos, setVideos] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [modalMode, setModalMode] = useState<"video" | "stats" | null>(null);
+  const [modalMode, setModalMode] = useState<"video" | null>(null);
   const [editingVideo, setEditingVideo] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,14 +33,7 @@ const FlameGameAdmin = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
-    const { data: sData } = await supabase
-      .from("flamegame_stats")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-    
     if (vData) setVideos(vData);
-    if (sData) setStats(sData);
     setLoading(false);
   };
 
@@ -115,60 +107,13 @@ const FlameGameAdmin = () => {
     }
   };
 
-  const handleStatsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stats?.id) return;
-
-    const { error } = await supabase
-      .from("flamegame_stats")
-      .update({ 
-        ...stats, 
-        updated_at: new Date().toISOString() 
-      })
-      .eq("id", stats.id);
-
-    if (error) {
-      console.error("Update error:", error);
-    } else {
-      setModalMode(null);
-      fetchData();
-    }
-  };
-
   return (
     <AdminLayout>
       <div className="space-y-16">
         
-        {/* STATS SECTION */}
-        <section>
-          <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6 pt-16">
-            <h2 className="text-3xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-white">
-              <BarChart3 className="text-orange-600" /> Global Impact Stats
-            </h2>
-            <button onClick={() => setModalMode("stats")} className="bg-orange-600 text-white px-6 py-3 font-black uppercase text-[10px] tracking-widest hover:bg-white hover:text-black transition-all">
-              Update Database Stats
-            </button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {stats && [
-              { label: "Families", val: stats.families_impacted },
-              { label: "Reach", val: stats.reach_count },
-              { label: "Engagement", val: stats.engagement },
-              { label: "Invested", val: `$${stats.paid}` },
-              { label: "Saved", val: stats.saved },
-              { label: "Value", val: `$${stats.value}` },
-            ].map((s, i) => (
-              <div key={i} className="bg-zinc-900 border border-white/5 p-6 text-center">
-                <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mb-1">{s.label}</p>
-                <p className="text-2xl font-black text-white italic">{s.val || 0}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* VIDEO SECTION */}
         <section>
-          <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+          <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6 pt-16">
             <h2 className="text-3xl font-black uppercase italic tracking-tighter flex items-center gap-3 text-white">
               <Video className="text-orange-600" /> Video Library
             </h2>
@@ -220,33 +165,6 @@ const FlameGameAdmin = () => {
           </div>
         </section>
       </div>
-
-      {/* STATS MODAL */}
-      {modalMode === "stats" && stats && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md">
-          <div className="bg-[#0f0f0f] w-full max-w-xl border border-white/10 p-8">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black uppercase italic text-white">Update Global Stats</h2>
-                <button onClick={() => setModalMode(null)} className="text-white"><X size={32}/></button>
-              </div>
-              <form onSubmit={handleStatsSubmit} className="grid grid-cols-2 gap-6">
-                {Object.keys(stats).filter(k => !['id', 'updated_at'].includes(k)).map(key => (
-                  <div key={key}>
-                    <label className="text-[9px] font-black uppercase text-zinc-500 mb-2 block">{key.replace('_', ' ')}</label>
-                    <input 
-                      type="number" 
-                      step="any"
-                      className="w-full bg-white/5 border border-white/10 p-4 font-bold outline-none focus:border-orange-600 text-white" 
-                      value={stats[key]} 
-                      onChange={e => setStats({...stats, [key]: Number(e.target.value)})} 
-                    />
-                  </div>
-                ))}
-                <button type="submit" className="col-span-2 bg-orange-600 p-5 font-black uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all text-white">Save Changes</button>
-              </form>
-          </div>
-        </div>
-      )}
 
       {/* VIDEO MODAL */}
       {modalMode === "video" && (
