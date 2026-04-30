@@ -5,7 +5,7 @@ import { ShieldCheck, Zap } from "lucide-react";
 const AdminDashboard: React.FC = () => {
   return (
     <AdminLayout>
-      <header className="mb-10">
+      <header className="mb-10 pt-16">
         <h2 className="text-4xl font-black uppercase tracking-tighter italic">
           Mission <span className="text-orange-600 not-italic">Control</span>
         </h2>
