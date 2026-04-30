@@ -71,7 +71,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   );
 
   return (
-    <div className="flex min-h-screen bg-[#050505] text-white font-sans overflow-hidden">
+    <div className="flex h-screen w-full bg-[#050505] text-white font-sans overflow-hidden">
       {/* MOBILE HEADER */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#0a0a0a] border-b border-white/5 flex items-center justify-between px-6 z-50">
         <div className="flex items-center gap-2">
@@ -85,25 +85,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
       {/* MOBILE NAVIGATION OVERLAY */}
       {isMobileOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black/90 backdrop-blur-md z-40 flex flex-col p-8 pt-24">
+        <div className="lg:hidden fixed inset-0 bg-black/95 backdrop-blur-md z-40 flex flex-col p-8 pt-24">
           <SidebarContent />
         </div>
       )}
 
       {/* DESKTOP SIDEBAR */}
-      <nav className={`hidden lg:flex flex-col bg-[#0a0a0a] border-r border-white/5 p-6 sticky top-0 h-screen transition-all duration-300 relative z-30 ${isCollapsed ? "w-20" : "w-64"}`}>
+      <nav className={`hidden lg:flex flex-col bg-[#0a0a0a] border-r border-white/5 p-6 h-full transition-all duration-300 relative z-30 ${isCollapsed ? "w-20" : "w-64"}`}>
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-20 bg-orange-600 rounded-full p-1 text-black hover:scale-110 transition-transform hidden lg:block"
+          className="absolute -right-3 top-20 bg-orange-600 rounded-full p-1 text-black hover:scale-110 transition-transform hidden lg:block z-50"
         >
           {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
         <SidebarContent />
       </nav>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 p-6 lg:p-10 pt-24 lg:pt-10 overflow-y-auto h-screen w-full">
-        <div className="max-w-7xl mx-auto">
+      {/* MAIN CONTENT - scroll handled here to prevent page jitter */}
+      <main className="flex-1 h-full overflow-y-auto overflow-x-hidden pt-24 lg:pt-0">
+        <div className="p-6 lg:p-10 max-w-7xl mx-auto">
           {children}
         </div>
       </main>
@@ -112,10 +112,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 };
 
 const NavItem = ({ icon, label, active = false, isCollapsed = false }: { icon: any, label: string, active?: boolean, isCollapsed?: boolean }) => (
-  <div className={`flex items-center gap-4 px-4 py-4 cursor-pointer transition-all border-l-2 mb-1 group relative ${active ? "bg-orange-600/5 border-orange-600 text-white" : "bg-transparent border-transparent text-zinc-600 hover:text-white hover:bg-white/5"}`}>
-    <span className={`${active ? "text-orange-600" : "text-inherit"} shrink-0 transition-colors`}>{icon}</span>
+  <div className={`flex items-center gap-4 px-4 py-4 cursor-pointer transition-colors border-l-2 mb-1 group relative ${active ? "bg-orange-600/5 border-orange-600 text-white" : "bg-transparent border-transparent text-zinc-600 hover:text-white hover:bg-white/5"}`}>
+    <span className={`${active ? "text-orange-600" : "text-inherit"} shrink-0`}>{icon}</span>
     {!isCollapsed && (
-      <span className="text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap animate-in fade-in duration-300">
+      <span className="text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap">
         {label}
       </span>
     )}
