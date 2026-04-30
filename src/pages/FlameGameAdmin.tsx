@@ -23,8 +23,20 @@ const FlameGameAdmin = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: vData } = await supabase.from("flamegame_videos").select("*").order("created_at", { ascending: false });
-    const { data: sData } = await supabase.from("flamegame_stats").select("*").single();
+    
+    // Fetch Videos: Latest first
+    const { data: vData } = await supabase
+      .from("flamegame_videos")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    // Fetch Stats: Get the single latest entry by updated_at
+    const { data: sData, error: sError } = await supabase
+      .from("flamegame_stats")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(); // uses maybeSingle to avoid errors if table is empty
     
     if (vData) setVideos(vData);
     if (sData) setStats(sData);
@@ -44,9 +56,21 @@ const FlameGameAdmin = () => {
 
   const handleStatsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await supabase.from("flamegame_stats").update(stats).eq("id", stats.id);
-    setModalMode(null);
-    fetchData();
+    if (!stats?.id) return;
+
+    // Update the specific record and refresh updated_at timestamp
+    const { error } = await supabase
+      .from("flamegame_stats")
+      .update({
+        ...stats,
+        updated_at: new Date().toISOString() // Force update the timestamp
+      })
+      .eq("id", stats.id);
+
+    if (!error) {
+      setModalMode(null);
+      fetchData();
+    }
   };
 
   return (
@@ -126,7 +150,7 @@ const FlameGameAdmin = () => {
       </div>
 
       {/* STATS MODAL */}
-      {modalMode === "stats" && (
+      {modalMode === "stats" && stats && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md">
           <div className="bg-[#0f0f0f] w-full max-w-xl border border-white/10 p-8">
              <div className="flex justify-between items-center mb-8">
