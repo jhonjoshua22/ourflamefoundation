@@ -81,12 +81,11 @@ const FlameGameAdmin = () => {
   const handleVideoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Auto-thumbnail logic
     const finalFormData = {
         title: videoForm.title,
         description: videoForm.description,
         video_url: videoForm.video_url,
-        thumbnail_url: videoForm.thumbnail_url || `${videoForm.video_url}#t=0.5`,
+        thumbnail_url: videoForm.thumbnail_url,
         is_active: videoForm.is_active
     };
 
@@ -190,9 +189,8 @@ const FlameGameAdmin = () => {
               <div key={v.id} className="group relative bg-zinc-900 border border-white/5 aspect-video overflow-hidden">
                 <video 
                     className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" 
-                    src={v.video_url} 
-                    // Fallback to video frame if thumbnail_url is missing
-                    poster={v.thumbnail_url || `${v.video_url}#t=0.001`} 
+                    src={`${v.video_url}#t=0.001`} 
+                    preload="metadata"
                     muted 
                     playsInline
                 />
@@ -287,7 +285,7 @@ const FlameGameAdmin = () => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-2">
-                   <label className="text-[10px] uppercase font-black text-orange-600 italic">Thumbnail URL (Leave empty for auto-frame)</label>
+                   <label className="text-[10px] uppercase font-black text-orange-600 italic">Thumbnail URL (Optional)</label>
                    <input placeholder="Thumbnail URL" className="w-full bg-white/5 border border-white/10 p-4 font-bold outline-none text-white" value={videoForm.thumbnail_url} onChange={e => setVideoForm({...videoForm, thumbnail_url: e.target.value})} />
                 </div>
               </div>
