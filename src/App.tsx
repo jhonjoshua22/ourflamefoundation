@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Share2, Bot, Users, Calendar, Rocket, Brain, CheckCircle2, Play, Trophy, Loader2 } from "lucide-react";
+import { X, Sparkles, Share2, Bot, Users, Calendar, Rocket, Brain, CheckCircle2, Play, Trophy, Loader2, HeartHandshake } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -214,7 +214,7 @@ const App = () => {
                   initial={{ scale: 0.9, opacity: 0, y: 20 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  className="relative bg-[#111] border border-white/10 p-1 rounded-[2.5rem] max-w-[400px] w-full shadow-[0_0_80px_rgba(234,88,12,0.15)] overflow-hidden"
+                  className="relative bg-[#111] border border-white/10 p-1 rounded-[2.5rem] max-w-[400px] w-full shadow-[0_0_80px_rgba(234,88,12,0.15)] overflow-hidden flex flex-col max-h-[90vh]"
                 >
                   <button
                     onClick={closePopup}
@@ -223,7 +223,7 @@ const App = () => {
                     <X size={18} strokeWidth={3} className="group-hover:scale-90" />
                   </button>
 
-                  <div className="p-8 md:p-10">
+                  <div className="p-8 md:p-10 overflow-y-auto custom-scrollbar">
                     <div className="mb-8 text-center">
                       <h1 className="text-sm font-black uppercase tracking-[0.3em] text-orange-600 mb-2">Command Center</h1>
                       <h2 className="text-3xl font-black uppercase italic tracking-tighter text-white">USER DASHBOARD</h2>
@@ -274,9 +274,18 @@ const App = () => {
                           <h3 className="text-white font-black uppercase italic text-sm tracking-tight">5. Find Inclusive Talent From All Over The World To Partner With & Invest In</h3>
                         </div>
                       </div>
+
+                      <div className="group flex gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-orange-600/50 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-orange-600/20 flex items-center justify-center text-orange-600 shrink-0">
+                          <HeartHandshake size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">6. Claim rewards, help for family & friends & become a positive ethical Flame node in your community.</h3>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="mt-10">
+                    <div className="mt-10 mb-4">
                       <button
                         onClick={closePopup}
                         className="group relative flex items-center justify-center gap-3 w-full py-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-black uppercase italic tracking-widest transition-all shadow-[0_10px_20px_rgba(234,88,12,0.3)]"
