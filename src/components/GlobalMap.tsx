@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, MapPin, Mail, Heart } from "lucide-react";
+import { Search, X, MapPin, Mail, Heart, User, Shield, Trophy, ChevronLeft, ChevronRight, Filter, ChevronDown, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
-// Dictionary for your specific list + major hubs (Fast lookup)
+// Dictionary for your specific list + major hubs
 const geoReference = [
   { id: "United Kingdom", code: "UK", lat: 54.0, lng: -2.0 },
   { id: "Ireland", code: "IE", lat: 53.3, lng: -6.2 }, 
@@ -42,18 +42,17 @@ const GlobalMap = () => {
   const [globalLocations, setGlobalLocations] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<"global" | "team">("global");
 
-  // Dynamic Coordinate Resolver (List first, then API)
+  // User Data State
+  const [currentUserData, setCurrentUserData] = useState<any>(null);
+  const [topPerformers, setTopPerformers] = useState<any[]>([]);
+
   const resolveCoords = async (countryName: string) => {
     if (!countryName) return null;
-
-    // 1. Try hardcoded list
     const match = geoReference.find(l => 
       l.id.toLowerCase() === countryName.toLowerCase() || 
       l.code.toLowerCase() === countryName.toLowerCase()
     );
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
-
-    // 2. Try OpenStreetMap API for unknown countries
     try {
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?country=${encodeURIComponent(countryName)}&format=json&limit=1`);
       const data = await resp.json();
@@ -79,12 +78,25 @@ const GlobalMap = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data: profile } = await supabase.from("profiles").select("team_countries").eq("id", user.id).single();
-    if (profile?.team_countries) {
-      const countryList = profile.team_countries.split(",").map(c => c.trim());
-      const mapped = await Promise.all(countryList.map(c => resolveCoords(c)));
-      setTeamLocations(mapped.filter(Boolean));
+    // Fetch My Data
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+    if (profile) {
+      setCurrentUserData(profile);
+      if (profile.team_countries) {
+        const countryList = profile.team_countries.split(",").map(c => c.trim());
+        const mapped = await Promise.all(countryList.map(c => resolveCoords(c)));
+        setTeamLocations(mapped.filter(Boolean));
+      }
     }
+
+    // Fetch Top Performers (Green/Amber)
+    const { data: topUsers } = await supabase
+      .from("profiles")
+      .select("*")
+      .in("Performance", ["Green", "Amber"])
+      .neq("id", user.id)
+      .limit(10);
+    setTopPerformers(topUsers || []);
   };
 
   useEffect(() => {
@@ -92,48 +104,33 @@ const GlobalMap = () => {
     fetchTeamData();
   }, []);
 
-  // Init Leaflet
   useEffect(() => {
     if (!window.L || mapInstance.current) return;
-
     mapInstance.current = window.L.map(mapRef.current, {
       center: [20, 10], zoom: 2, dragging: true, scrollWheelZoom: true,
       zoomControl: true, attributionControl: false,
     });
-
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
     markerLayerGroup.current = window.L.layerGroup().addTo(mapInstance.current);
-
     return () => {
       if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
     };
   }, []);
 
-  // Sync Markers
   useEffect(() => {
     if (!mapInstance.current || !markerLayerGroup.current) return;
-
     markerLayerGroup.current.clearLayers();
     const displayList = viewMode === "team" ? teamLocations : globalLocations;
-
     const heartIcon = window.L.divIcon({
       className: 'custom-heart-icon',
-      html: `
-        <div class="heart-flicker">
-          <svg viewBox="0 0 24 24" fill="#ea580c" width="30" height="30">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-        </div>
-      `,
+      html: `<div class="heart-flicker"><svg viewBox="0 0 24 24" fill="#ea580c" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>`,
       iconSize: [30, 30], iconAnchor: [15, 15],
     });
-
     displayList.forEach((loc) => {
       window.L.marker([loc.lat, loc.lng], { icon: heartIcon })
         .addTo(markerLayerGroup.current)
         .bindPopup(`<b style="color: #ea580c; text-transform: uppercase;">${loc.label}</b>`);
     });
-
     setTimeout(() => { if(mapInstance.current) mapInstance.current.invalidateSize(); }, 100);
   }, [viewMode, teamLocations, globalLocations]);
 
@@ -141,11 +138,42 @@ const GlobalMap = () => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     setLoading(true);
-    const { data } = await supabase.from("profiles").select("display_name, email, country, photo_url")
+    const { data } = await supabase.from("profiles").select("*")
       .or(`display_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,country.ilike.%${searchQuery}%`).limit(10);
     setResults(data || []);
     setLoading(false);
   };
+
+  const UserRow = ({ user, isSelf = false }: { user: any, isSelf?: boolean }) => (
+    <tr className={`${isSelf ? 'bg-orange-950/20 border-l-4 border-orange-600' : 'hover:bg-zinc-900/40'} transition-colors group`}>
+      <td className="p-5">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 shrink-0 shadow-lg">
+            <img src={user.photo_url || defaultAvatar} alt="" className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <Link to={`/profile/${user.id}`} className="font-black text-sm uppercase italic tracking-tighter text-zinc-200 group-hover:text-orange-500 transition-colors">
+              {user.display_name}
+            </Link>
+            <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+                <Shield size={10} fill="currentColor" /> {user.tribe_id || "NO TRIBE"}
+              </div>
+              <div className="text-[9px] text-orange-500 uppercase font-black opacity-80">• {user.rank || "Normie"}</div>
+              {user.country && <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">• {user.country}</span>}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td className="p-5 font-black text-white text-sm">{(user.paid || 0).toLocaleString()}</td>
+      <td className="p-5 font-black text-white text-sm">{(user.saved || 0).toLocaleString()}</td>
+      <td className="p-5 font-black text-zinc-400 text-sm">{(user.referral_count || 0).toLocaleString()}</td>
+      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{user.engagement || 0}%</td>
+      <td className="p-5 text-right text-purple-400 font-black italic text-sm">
+        ${(user.value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </td>
+    </tr>
+  );
 
   return (
     <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-6">
@@ -158,6 +186,7 @@ const GlobalMap = () => {
       `}</style>
 
       <div className="container mx-auto px-6">
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="border-l-4 border-orange-600 pl-6">
             <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
@@ -165,25 +194,85 @@ const GlobalMap = () => {
               <p className="text-orange-600 not-italic">Our Flame Foundation Expands All Over the World</p>
             </h2>
           </div>
-
           <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-xl border border-border">
             <button onClick={() => setViewMode("global")} className={`px-4 py-2 text-[10px] font-black uppercase rounded-lg ${viewMode === 'global' ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-sm' : 'text-zinc-500'}`}>Global</button>
             <button onClick={() => setViewMode("team")} className={`px-4 py-2 text-[10px] font-black uppercase rounded-lg flex items-center gap-2 ${viewMode === 'team' ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-sm' : 'text-zinc-500'}`}><Heart size={12} fill={viewMode === 'team' ? "#ea580c" : "none"} /> My Team</button>
           </div>
         </div>
 
-        <div className="relative border border-border bg-white/5 shadow-2xl overflow-hidden rounded-xl">
-          <div ref={mapRef} className="w-full h-[600px] cursor-crosshair filter dark:invert-[90%] dark:hue-rotate-180" />
-          <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border text-right">
-            <p className="text-xs font-black text-foreground uppercase italic">Hearts: {viewMode === 'team' ? teamLocations.length : globalLocations.length}</p>
+        {/* Map + Action Buttons Row */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-12">
+          {/* Map Container */}
+          <div className="flex-1 relative border border-border bg-white/5 shadow-2xl overflow-hidden rounded-xl">
+            <div ref={mapRef} className="w-full h-[600px] cursor-crosshair filter dark:invert-[90%] dark:hue-rotate-180" />
+            <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border text-right">
+              <p className="text-xs font-black text-foreground uppercase italic">Hearts: {viewMode === 'team' ? teamLocations.length : globalLocations.length}</p>
+            </div>
+          </div>
+
+          {/* Buttons Container */}
+          <div className="w-full lg:w-72 flex flex-col gap-3">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Operation Console</h4>
+            {[
+              { label: "New Game", color: "bg-orange-600" },
+              { label: "Edit/Stop Game", color: "bg-zinc-900" },
+              { label: "New Comms", color: "bg-orange-600" },
+              { label: "Edit Stop Comms", color: "bg-zinc-900" },
+              { label: "Other", color: "bg-zinc-800" }
+            ].map((btn, i) => (
+              <button key={i} className={`${btn.color} text-white text-[10px] font-black uppercase py-4 px-6 rounded-lg shadow-lg border border-white/5 hover:scale-[1.02] transition-transform`}>
+                {btn.label}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* User Data & Scoreboard Container */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-6">
+          <div className="p-6 border-b border-zinc-800 bg-black/40">
+            <h3 className="text-xl font-black uppercase italic text-orange-600">Personnel Data Stream</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[900px] border-collapse">
+              <thead>
+                <tr className="bg-zinc-900/80 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest sticky top-0 z-20 backdrop-blur-md">
+                  <th className="p-5">Tribes / Recruits</th>
+                  <th className="p-5">Invested</th>
+                  <th className="p-5">Saved</th>
+                  <th className="p-5">Followers</th>
+                  <th className="p-5">Engagement</th>
+                  <th className="p-5 text-right">Value</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-900/50">
+                {currentUserData && <UserRow user={currentUserData} isSelf={true} />}
+                {topPerformers.map((user) => (
+                  <UserRow key={user.id} user={user} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* View Full Scoretable Link */}
+        <div className="flex justify-center mb-12">
+          <a 
+            href="https://www.ourflamefoundation.org/scoretable" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 bg-white text-black text-[10px] font-black uppercase px-10 py-4 rounded-full hover:bg-orange-600 hover:text-white transition-all shadow-xl"
+          >
+            <Trophy size={16} /> View Full Scoretable
+          </a>
+        </div>
+
+        {/* Search Modal Trigger (Find Friends) */}
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button onClick={() => setIsModalOpen(true)} className="bg-orange-600 text-white text-xs font-black uppercase px-8 py-4 rounded-lg shadow-lg">Find Friends</button>
           <Link to="/login" className="bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase px-8 py-4 rounded-lg">Log In</Link>
         </div>
 
+        {/* Search Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
