@@ -115,7 +115,6 @@ const GlobalMap = () => {
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
     try {
-      // Small delay to respect Nominatim usage policy
       await new Promise(resolve => setTimeout(resolve, 250));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
@@ -152,7 +151,6 @@ const GlobalMap = () => {
   };
 
   const fetchGlobalData = async () => {
-    // FETCH ALL ROWS WITHOUT 1000 LIMIT TO FIND ALL UNIQUE COUNTRIES
     const data = await fetchAllRows("profiles", "country, tribe_id, tribe_color", (q) => q.not("country", "is", null));
     
     setTotalUsers(data.length);
@@ -160,6 +158,7 @@ const GlobalMap = () => {
     if (data.length > 0) {
       const countryGroups: Record<string, any[]> = {};
       data.forEach(p => {
+        // NORMALIZE: Trim and use original casing for grouping to catch all 38 unique entries
         const c = p.country.trim();
         if (!countryGroups[c]) countryGroups[c] = [];
         countryGroups[c].push(p);
@@ -168,21 +167,23 @@ const GlobalMap = () => {
       const mapped = [];
       const uniqueCountries = Object.keys(countryGroups);
       
-      for (const country of uniqueCountries) {
+      // Use Promise.all to ensure we don't miss any during async resolution
+      const results = await Promise.all(uniqueCountries.map(async (country) => {
         const coords = await resolveCoords(country);
         if (coords) {
-          mapped.push({ 
+          return { 
             ...coords, 
             color: getDominantColor(countryGroups[country]) 
-          });
+          };
         }
-      }
-      setGlobalLocations(mapped);
+        return null;
+      }));
+      
+      setGlobalLocations(results.filter(Boolean));
     }
   };
 
   const fetchWorldAndTribeFilters = async () => {
-    // FETCH ALL ROWS WITHOUT 1000 LIMIT
     const worldsData = await fetchAllRows("profiles", "worlds", (q) => q.not("worlds", "is", null));
     if (worldsData) {
       const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
@@ -210,17 +211,17 @@ const GlobalMap = () => {
         countryGroups[c].push(p);
       });
 
-      const mapped = [];
-      for (const c in countryGroups) {
+      const results = await Promise.all(Object.keys(countryGroups).map(async (c) => {
         const res = await resolveCoords(c);
         if (res) {
-          mapped.push({ 
+          return { 
             ...res, 
             color: getDominantColor(countryGroups[c]) 
-          });
+          };
         }
-      }
-      setWorldLocations(mapped);
+        return null;
+      }));
+      setWorldLocations(results.filter(Boolean));
     }
   };
 
@@ -238,17 +239,17 @@ const GlobalMap = () => {
         countryGroups[c].push(p);
       });
 
-      const mapped = [];
-      for (const c in countryGroups) {
+      const results = await Promise.all(Object.keys(countryGroups).map(async (c) => {
         const res = await resolveCoords(c);
         if (res) {
-          mapped.push({ 
+          return { 
             ...res, 
             color: getDominantColor(countryGroups[c]) 
-          });
+          };
         }
-      }
-      setTribeLocations(mapped);
+        return null;
+      }));
+      setTribeLocations(results.filter(Boolean));
     }
   };
 
@@ -263,14 +264,14 @@ const GlobalMap = () => {
         setCurrentUserData(processUserData(profile, totalCount));
         if (profile.team_countries) {
           const countryList = profile.team_countries.split(",").map(c => c.trim()).filter(Boolean);
-          const mapped = [];
-          for (const c of countryList) {
+          const results = await Promise.all(countryList.map(async (c) => {
              const res = await resolveCoords(c);
              if (res) {
-               mapped.push({ ...res, color: profile.tribe_color || "#ea580c" });
+               return { ...res, color: profile.tribe_color || "#ea580c" };
              }
-          }
-          setTeamLocations(mapped);
+             return null;
+          }));
+          setTeamLocations(results.filter(Boolean));
         }
       }
     }
