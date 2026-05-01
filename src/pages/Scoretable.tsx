@@ -235,7 +235,10 @@ const Scoretable = () => {
       else if (currentSort === "saved") filtered.sort((a, b) => b.savedNum - a.savedNum);
       else if (currentSort === "streak") filtered.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
       else if (currentSort === "team") filtered.sort((a, b) => b.teamNum - a.teamNum);
-      else if (currentSort === "Performance") filtered.sort((a, b) => (a.Performance || "").localeCompare(b.Performance || ""));
+      else if (currentSort === "Performance") {
+        const perfOrder: Record<string, number> = { "Green": 1, "Amber": 2, "Red": 3 };
+        filtered.sort((a, b) => (perfOrder[a.Performance] ?? 4) - (perfOrder[b.Performance] ?? 4));
+      }
   
       setLeaders(filtered);
     } catch (err) {
