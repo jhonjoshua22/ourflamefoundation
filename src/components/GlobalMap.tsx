@@ -152,6 +152,7 @@ const GlobalMap = () => {
   };
 
   const fetchGlobalData = async () => {
+    // FETCH ALL ROWS WITHOUT 1000 LIMIT TO FIND ALL UNIQUE COUNTRIES
     const data = await fetchAllRows("profiles", "country, tribe_id, tribe_color", (q) => q.not("country", "is", null));
     
     setTotalUsers(data.length);
@@ -181,6 +182,7 @@ const GlobalMap = () => {
   };
 
   const fetchWorldAndTribeFilters = async () => {
+    // FETCH ALL ROWS WITHOUT 1000 LIMIT
     const worldsData = await fetchAllRows("profiles", "worlds", (q) => q.not("worlds", "is", null));
     if (worldsData) {
       const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
