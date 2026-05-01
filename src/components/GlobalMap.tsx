@@ -56,7 +56,33 @@ const GlobalMap = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
-  // Helper to determine the dominant color for a country based on highest count of tribe_id
+  // Helper to fetch all rows by bypassing the 1000 limit
+  const fetchAllRows = async (tableName: string, selectQuery: string, filterCallback?: (query: any) => any) => {
+    let allData: any[] = [];
+    let rangeStart = 0;
+    const rangeStep = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      let query = supabase.from(tableName).select(selectQuery).range(rangeStart, rangeStart + rangeStep - 1);
+      if (filterCallback) query = filterCallback(query);
+      
+      const { data, error } = await query;
+      if (error || !data) {
+        hasMore = false;
+        break;
+      }
+
+      allData = [...allData, ...data];
+      if (data.length < rangeStep) {
+        hasMore = false;
+      } else {
+        rangeStart += rangeStep;
+      }
+    }
+    return allData;
+  };
+
   const getDominantColor = (rows: any[]) => {
     const counts: Record<string, { count: number; color: string }> = {};
     
@@ -89,7 +115,6 @@ const GlobalMap = () => {
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
     try {
-      // Small delay to prevent hitting Nominatim rate limits during batch processing
       await new Promise(resolve => setTimeout(resolve, 250));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
@@ -126,14 +151,11 @@ const GlobalMap = () => {
   };
 
   const fetchGlobalData = async () => {
-    const { data, count, error } = await supabase
-      .from("profiles")
-      .select("country, tribe_id, tribe_color", { count: 'exact' })
-      .not("country", "is", null);
+    const data = await fetchAllRows("profiles", "country, tribe_id, tribe_color", (q) => q.not("country", "is", null));
     
-    if (count) setTotalUsers(count);
+    setTotalUsers(data.length);
 
-    if (!error && data) {
+    if (data.length > 0) {
       const countryGroups: Record<string, any[]> = {};
       data.forEach(p => {
         const c = p.country.trim();
@@ -142,7 +164,6 @@ const GlobalMap = () => {
       });
 
       const mapped = [];
-      // Process all unique countries found in the data
       const uniqueCountries = Object.keys(countryGroups);
       
       for (const country of uniqueCountries) {
@@ -159,21 +180,13 @@ const GlobalMap = () => {
   };
 
   const fetchWorldAndTribeFilters = async () => {
-    const { data: worldsData } = await supabase
-      .from("profiles")
-      .select("worlds")
-      .not("worlds", "is", null);
-    
+    const worldsData = await fetchAllRows("profiles", "worlds", (q) => q.not("worlds", "is", null));
     if (worldsData) {
       const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
       setUniqueWorlds(worldsList);
     }
 
-    const { data: tribesData } = await supabase
-      .from("profiles")
-      .select("tribe_id")
-      .not("tribe_id", "is", null);
-    
+    const tribesData = await fetchAllRows("profiles", "tribe_id", (q) => q.not("tribe_id", "is", null));
     if (tribesData) {
       const tribesList = Array.from(new Set(tribesData.map(p => p.tribe_id))).filter(Boolean) as string[];
       setUniqueTribes(tribesList);
@@ -182,11 +195,9 @@ const GlobalMap = () => {
 
   const handleWorldSelection = async (worldName: string) => {
     setViewMode("world");
-    const { data } = await supabase
-      .from("profiles")
-      .select("country, tribe_id, tribe_color")
-      .eq("worlds", worldName)
-      .not("country", "is", null);
+    const data = await fetchAllRows("profiles", "country, tribe_id, tribe_color", (q) => 
+      q.eq("worlds", worldName).not("country", "is", null)
+    );
     
     if (data) {
       const countryGroups: Record<string, any[]> = {};
@@ -212,11 +223,9 @@ const GlobalMap = () => {
 
   const handleTribeSelection = async (tribeId: string) => {
     setViewMode("tribes");
-    const { data } = await supabase
-      .from("profiles")
-      .select("country, tribe_id, tribe_color")
-      .eq("tribe_id", tribeId)
-      .not("country", "is", null);
+    const data = await fetchAllRows("profiles", "country, tribe_id, tribe_color", (q) => 
+      q.eq("tribe_id", tribeId).not("country", "is", null)
+    );
     
     if (data) {
       const countryGroups: Record<string, any[]> = {};
@@ -280,12 +289,9 @@ const GlobalMap = () => {
     setSelectedUserForTeam(user);
     setIsTeamModalOpen(true);
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("referred_by", user.id);
+    const data = await fetchAllRows("profiles", "*", (q) => q.eq("referred_by", user.id));
 
-    if (!error && data) {
+    if (data) {
       setTeamMembers(data.map(u => processUserData(u, totalUsers)));
     } else {
       setTeamMembers([]);
