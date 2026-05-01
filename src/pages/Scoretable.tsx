@@ -89,14 +89,14 @@ const Scoretable = () => {
         .select('*', { count: 'exact', head: true });
       
       const totalUsersCount = count || 1;
-
-      // 2. Fetch the team members
+  
+      // 2. Fetch the team members including Performance
       const { data, error } = await supabase
         .from('profiles')
         .select(`
           id, display_name, email, rank, paid, facebook, linkedin, 
           engagement, value, saved, current_streak, referral_count, 
-          tribe_id, country, photo_url
+          tribe_id, country, photo_url, Performance
         `)
         .eq('referred_by', userId);
       
@@ -111,7 +111,7 @@ const Scoretable = () => {
         const calculatedValue = totalUsersCount > 0 
           ? ((teamCount + 5) * (followersCount + 100)) / totalUsersCount * 100
           : 0;
-
+  
         return {
           ...member,
           display_name: member.display_name || (member.email ? member.email.split('@')[0] : "Anonymous"),
@@ -123,7 +123,7 @@ const Scoretable = () => {
           teamNum: teamCount
         };
       });
-
+  
       setTeamMembers(processedTeam);
     } catch (err) {
       console.error("Error fetching team:", err);
@@ -131,7 +131,7 @@ const Scoretable = () => {
       setLoadingTeam(false);
     }
   };
-
+  
   const fetchData = async (query = "", currentSort = sortBy) => {
     setLoading(true);
     try {
@@ -139,17 +139,17 @@ const Scoretable = () => {
       let page = 0;
       const batchSize = 1000;
       let hasMore = true;
-
+  
       while (hasMore) {
         const { data, error } = await supabase
           .from('profiles')
           .select(`
             id, display_name, email, rank, paid, facebook, linkedin, 
             engagement, value, saved, current_streak, referral_count, 
-            happiness_score, tribe_id, country, photo_url, referred_by
+            happiness_score, tribe_id, country, photo_url, referred_by, Performance
           `)
           .range(page * batchSize, (page + 1) * batchSize - 1);
-
+  
         if (error) throw error;
         if (data && data.length > 0) {
           allFetchedData = [...allFetchedData, ...data];
@@ -159,7 +159,7 @@ const Scoretable = () => {
           hasMore = false;
         }
       }
-
+  
       const totalUsersCount = allFetchedData.length;
       const totalFollowers = allFetchedData.reduce((sum, r) => sum + Number(r.facebook || 0), 0);
       const totalInvested = allFetchedData.reduce((sum, r) => sum + Number(r.paid || 0), 0);
@@ -167,7 +167,7 @@ const Scoretable = () => {
       const avgHappiness = allFetchedData.length > 0 
         ? allFetchedData.reduce((sum, r) => sum + Number(r.happiness_score || 0), 0) / allFetchedData.length 
         : 0;
-
+  
       setStats({ 
         totalMembers: totalUsersCount, 
         totalFollowers: totalFollowers,
@@ -175,14 +175,14 @@ const Scoretable = () => {
         totalReferred: totalReferred,
         avgHappiness: Number(avgHappiness.toFixed(2))
       });
-
+  
       const processed = allFetchedData.map(item => {
         const followersCount = Number(item.facebook || 0) + Number(item.linkedin || 0);
         const teamCount = Number(item.referral_count || 0);
         const calculatedValue = totalUsersCount > 0 
           ? ((teamCount + 5) * (followersCount + 100)) / totalUsersCount * 100
           : 0;
-
+  
         return {
           ...item,
           display_name: item.display_name || (item.email ? item.email.split('@')[0] : "Anonymous"),
@@ -194,7 +194,7 @@ const Scoretable = () => {
           teamNum: teamCount
         };
       });
-
+  
       // Chart Logic
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const currentMonthIdx = new Date().getMonth();
@@ -216,7 +216,7 @@ const Scoretable = () => {
         name: `Day ${i * 3}`,
         value: Number((avgHappiness - (Math.random() * 0.5) + (i * 0.05)).toFixed(2))
       })));
-
+  
       let filtered = processed;
       if (query) {
         const q = query.toLowerCase();
@@ -226,7 +226,7 @@ const Scoretable = () => {
           (p.country && p.country.toLowerCase().includes(q))
         );
       }
-
+  
       if (currentSort === "followers") filtered.sort((a, b) => b.followers - a.followers);
       else if (currentSort === "rank") filtered.sort((a, b) => (rankPriority[a.rank] ?? 99) - (rankPriority[b.rank] ?? 99));
       else if (currentSort === "value") filtered.sort((a, b) => b.valueNum - a.valueNum);
@@ -235,7 +235,8 @@ const Scoretable = () => {
       else if (currentSort === "saved") filtered.sort((a, b) => b.savedNum - a.savedNum);
       else if (currentSort === "streak") filtered.sort((a, b) => (a.tribe_id || "").localeCompare(b.tribe_id || ""));
       else if (currentSort === "team") filtered.sort((a, b) => b.teamNum - a.teamNum);
-
+      else if (currentSort === "Performance") filtered.sort((a, b) => (a.Performance || "").localeCompare(b.Performance || ""));
+  
       setLeaders(filtered);
     } catch (err) {
       console.error("Fetch Error:", err);
@@ -443,7 +444,7 @@ const Scoretable = () => {
           const totalFiltered = activeLeaders.length;
           const totalFilteredPages = Math.ceil(totalFiltered / itemsPerPage);
           const paginatedFiltered = activeLeaders.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
-
+        
           return (
             <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-12">
               <div className="p-6 border-b border-zinc-800 bg-black/40 flex flex-col xl:flex-row justify-between items-center gap-6">
@@ -483,7 +484,8 @@ const Scoretable = () => {
                           { id: "engagement", label: "Engagement" },
                           { id: "value", label: "Value" },
                           { id: "rank", label: "Rank" },
-                          { id: "streak", label: "Tribe" }
+                          { id: "streak", label: "Tribe" },
+                          { id: "Performance", label: "Performance" }
                         ].map((option) => (
                           <button
                             key={option.id}
@@ -543,9 +545,21 @@ const Scoretable = () => {
                                   )}
                                 </div>
                                 <div>
-                                  <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
-                                    {agent.display_name}
-                                  </Link>
+                                  <div className="flex items-center gap-2">
+                                    <Link to={`/profile/${agent.id}`} className="font-black text-base uppercase italic tracking-tighter hover:text-orange-500 transition-colors">
+                                      {agent.display_name}
+                                    </Link>
+                                    {/* Performance Color Indicator */}
+                                    <div 
+                                      className={`w-2.5 h-2.5 rounded-full ${
+                                        agent.Performance === 'Green' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
+                                        agent.Performance === 'Amber' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]' :
+                                        agent.Performance === 'Red' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' :
+                                        'bg-zinc-600'
+                                      }`}
+                                      title={`Performance: ${agent.Performance || 'N/A'}`}
+                                    />
+                                  </div>
                                   <div className="flex items-center gap-2">
                                     <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
                                       <Shield size={10} fill="currentColor" /> {agent.tribe_id || "NO TRIBE"}
