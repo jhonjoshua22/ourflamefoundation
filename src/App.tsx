@@ -235,8 +235,7 @@ const App = () => {
                           <Share2 size={20} />
                         </div>
                         <div>
-                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">1. DO GOOD & SHARE</h3>
-                          <p className="text-zinc-500 text-[11px] leading-relaxed mt-1">Share video on Clapmi to set good example.</p>
+                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">1. Enjoy our Magic Worlds inc. Superbot lessons with Einsteinz, Art with PikAsso, Writing with Shakyspear, Football with ImMessy, Sing with Eliviz & Drive with LuzHumulton. All platforms.</h3>
                         </div>
                       </div>
 
@@ -245,8 +244,7 @@ const App = () => {
                           <Bot size={20} />
                         </div>
                         <div>
-                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">2. SUPERBOTS</h3>
-                          <p className="text-zinc-500 text-[11px] leading-relaxed mt-1">Build your dreams & add to our $1 PM Wholesale Family Pack.</p>
+                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">2. Create Your Own Games, GeoTag, Share & Win Rewards</h3>
                         </div>
                       </div>
 
@@ -255,8 +253,25 @@ const App = () => {
                           <Users size={20} />
                         </div>
                         <div>
-                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">3. RECRUIT 10</h3>
-                          <p className="text-zinc-500 text-[11px] leading-relaxed mt-1">Recruit from age decile below you per week.</p>
+                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">3. Bring Your Friends & Family to Help Your Team Win More Rewards</h3>
+                        </div>
+                      </div>
+
+                      <div className="group flex gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-orange-600/50 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-orange-600/20 flex items-center justify-center text-orange-600 shrink-0">
+                          <Bot size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">4. Train Your Own Superbots to Help You 247 Win More Rewards</h3>
+                        </div>
+                      </div>
+
+                      <div className="group flex gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-orange-600/50 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-orange-600/20 flex items-center justify-center text-orange-600 shrink-0">
+                          <Users size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-black uppercase italic text-sm tracking-tight">5. Find Inclusive Talent From All Over The World To Partner With & Invest In</h3>
                         </div>
                       </div>
                     </div>
