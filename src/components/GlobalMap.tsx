@@ -148,7 +148,7 @@ const GlobalMap = () => {
   };
 
   return (
-    <section id="presence" className="bg-background py-20 border-t border-border relative z-0">
+    <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-6">
       <style>{`
         @keyframes heart-flicker {
           0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px #ea580c); }
@@ -161,7 +161,8 @@ const GlobalMap = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="border-l-4 border-orange-600 pl-6">
             <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
-              Find Your <span className="text-orange-600 not-italic">Friends</span>
+              <p>Main Dashboard </p>
+              <p className="text-orange-600 not-italic">Our Flame Foundation Expands All Over the World</p>
             </h2>
           </div>
 
