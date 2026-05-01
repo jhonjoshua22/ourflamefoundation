@@ -4,7 +4,7 @@ import { Search, X, MapPin, Mail, Heart, User, Shield, Trophy, ChevronLeft, Chev
 import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
-// Dictionary for your specific list + major hubs
+// Dictionary expanded - though Nominatim should handle the rest
 const geoReference = [
   { id: "United Kingdom", code: "UK", lat: 54.0, lng: -2.0 },
   { id: "Ireland", code: "IE", lat: 53.3, lng: -6.2 }, 
@@ -44,16 +44,13 @@ const GlobalMap = () => {
   const [tribeLocations, setTribeLocations] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<"global" | "team" | "world" | "tribes">("global");
 
-  // Filter Dropdown Lists
   const [uniqueWorlds, setUniqueWorlds] = useState<string[]>([]);
   const [uniqueTribes, setUniqueTribes] = useState<string[]>([]);
 
-  // User Data State
   const [currentUserData, setCurrentUserData] = useState<any>(null);
   const [topPerformers, setTopPerformers] = useState<any[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
 
-  // Team Modal State
   const [selectedUserForTeam, setSelectedUserForTeam] = useState<any>(null);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
@@ -66,14 +63,16 @@ const GlobalMap = () => {
       l.code.toLowerCase() === name.toLowerCase()
     );
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
+
     try {
+      await new Promise(resolve => setTimeout(resolve, 100));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(name)}&format=json&limit=1`);
       const data = await resp.json();
       if (data && data.length > 0) {
         return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), label: name };
       }
     } catch (e) {
-      console.error("Geocode error", e);
+      console.error("Geocode error for:", name, e);
     }
     return null;
   };
@@ -106,14 +105,17 @@ const GlobalMap = () => {
     if (count) setTotalUsers(count);
 
     if (!error && data) {
-      const uniqueCountries = Array.from(new Set(data.map(p => p.country)));
-      const mapped = await Promise.all(uniqueCountries.map(c => resolveCoords(c)));
-      setGlobalLocations(mapped.filter(Boolean));
+      const uniqueCountries = Array.from(new Set(data.map(p => p.country.trim()))).filter(Boolean);
+      const mapped = [];
+      for (const country of uniqueCountries) {
+        const coords = await resolveCoords(country);
+        if (coords) mapped.push(coords);
+      }
+      setGlobalLocations(mapped);
     }
   };
 
   const fetchWorldAndTribeFilters = async () => {
-    // Fetch unique worlds
     const { data: worldsData } = await supabase
       .from("profiles")
       .select("worlds")
@@ -124,7 +126,6 @@ const GlobalMap = () => {
       setUniqueWorlds(worldsList);
     }
 
-    // Fetch unique tribes
     const { data: tribesData } = await supabase
       .from("profiles")
       .select("tribe_id")
@@ -145,9 +146,13 @@ const GlobalMap = () => {
       .not("country", "is", null);
     
     if (data) {
-      const countries = Array.from(new Set(data.map(p => p.country)));
-      const mapped = await Promise.all(countries.map(c => resolveCoords(c)));
-      setWorldLocations(mapped.filter(Boolean));
+      const countries = Array.from(new Set(data.map(p => p.country.trim())));
+      const mapped = [];
+      for (const c of countries) {
+        const res = await resolveCoords(c);
+        if (res) mapped.push(res);
+      }
+      setWorldLocations(mapped);
     }
   };
 
@@ -160,9 +165,13 @@ const GlobalMap = () => {
       .not("country", "is", null);
     
     if (data) {
-      const countries = Array.from(new Set(data.map(p => p.country)));
-      const mapped = await Promise.all(countries.map(c => resolveCoords(c)));
-      setTribeLocations(mapped.filter(Boolean));
+      const countries = Array.from(new Set(data.map(p => p.country.trim())));
+      const mapped = [];
+      for (const c of countries) {
+        const res = await resolveCoords(c);
+        if (res) mapped.push(res);
+      }
+      setTribeLocations(mapped);
     }
   };
 
@@ -176,9 +185,13 @@ const GlobalMap = () => {
       if (profile) {
         setCurrentUserData(processUserData(profile, totalCount));
         if (profile.team_countries) {
-          const countryList = profile.team_countries.split(",").map(c => c.trim());
-          const mapped = await Promise.all(countryList.map(c => resolveCoords(c)));
-          setTeamLocations(mapped.filter(Boolean));
+          const countryList = profile.team_countries.split(",").map(c => c.trim()).filter(Boolean);
+          const mapped = [];
+          for (const c of countryList) {
+             const res = await resolveCoords(c);
+             if (res) mapped.push(res);
+          }
+          setTeamLocations(mapped);
         }
       }
     }
@@ -322,7 +335,6 @@ const GlobalMap = () => {
       `}</style>
 
       <div className="container mx-auto px-6">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="border-l-4 border-orange-600 pl-6">
             <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-foreground">
@@ -330,13 +342,8 @@ const GlobalMap = () => {
               <p className="text-orange-600 not-italic">Our Flame Foundation Expands All Over the World</p>
             </h2>
           </div>
-          <div className="flex bg-zinc-100 dark:bg-zinc-900 p-1 rounded-xl border border-border">
-            <button onClick={() => setViewMode("global")} className={`px-4 py-2 text-[10px] font-black uppercase rounded-lg ${viewMode === 'global' ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-sm' : 'text-zinc-500'}`}>Global</button>
-            <button onClick={() => setViewMode("team")} className={`px-4 py-2 text-[10px] font-black uppercase rounded-lg flex items-center gap-2 ${viewMode === 'team' ? 'bg-white dark:bg-zinc-800 text-orange-600 shadow-sm' : 'text-zinc-500'}`}><Heart size={12} fill={viewMode === 'team' ? "#ea580c" : "none"} /> My Team</button>
-          </div>
         </div>
 
-        {/* Map + Action Buttons Row */}
         <div className="flex flex-col lg:flex-row gap-6 mb-12">
           <div className="flex-1 relative border border-border bg-white/5 shadow-2xl overflow-hidden rounded-xl">
             <div ref={mapRef} className="w-full h-[600px] cursor-crosshair filter dark:invert-[90%] dark:hue-rotate-180" />
@@ -351,11 +358,24 @@ const GlobalMap = () => {
           </div>
 
           <div className="w-full lg:w-72 flex flex-col gap-3">
-            {/* Filter Group on top of Console */}
             <div className="mb-2 p-1 bg-zinc-900 rounded-xl border border-zinc-800 flex flex-col gap-1">
               <h4 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 px-2 py-1 flex items-center gap-2">
                 <Filter size={10} /> Selection Filters
               </h4>
+              <div className="grid grid-cols-2 gap-1 mb-1">
+                <button 
+                  onClick={() => setViewMode("global")} 
+                  className={`w-full py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all text-center ${viewMode === 'global' ? 'bg-orange-600 text-white shadow-lg' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                >
+                  Global
+                </button>
+                <button 
+                  onClick={() => setViewMode("team")} 
+                  className={`w-full py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'team' ? 'bg-orange-600 text-white shadow-lg' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                >
+                  <Heart size={10} fill={viewMode === 'team' ? "white" : "none"} /> My Team
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-1">
                 <div className="relative group">
                   <button className={`w-full py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-between gap-2 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 ${viewMode === 'world' ? 'border border-orange-600 text-orange-600' : ''}`}>
@@ -408,7 +428,6 @@ const GlobalMap = () => {
           </div>
         </div>
 
-        {/* User Data & Scoreboard Container */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl mb-6">
           <div className="p-6 border-b border-zinc-800 bg-black/40">
             <h3 className="text-xl font-black uppercase italic text-orange-600">Personnel Data Stream</h3>
@@ -436,7 +455,6 @@ const GlobalMap = () => {
           </div>
         </div>
 
-        {/* Team Modal (Score Table Style) */}
         {isTeamModalOpen && (
           <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsTeamModalOpen(false)} />
