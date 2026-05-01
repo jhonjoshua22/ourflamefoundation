@@ -115,6 +115,7 @@ const GlobalMap = () => {
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
     try {
+      // Small delay to respect Nominatim usage policy
       await new Promise(resolve => setTimeout(resolve, 250));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
