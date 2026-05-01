@@ -4,7 +4,7 @@ import { Search, X, MapPin, Mail, Heart, User, Shield, Trophy, ChevronLeft, Chev
 import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
-// Dictionary expanded - though Nominatim should handle the rest
+// Dictionary expanded - fallback for common issues or speed
 const geoReference = [
   { id: "United Kingdom", code: "UK", lat: 54.0, lng: -2.0 },
   { id: "Ireland", code: "IE", lat: 53.3, lng: -6.2 }, 
@@ -56,23 +56,33 @@ const GlobalMap = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
+  // RESOLVE COORDS: Uses hardcoded list first, then fetches dynamically from Nominatim
   const resolveCoords = async (name: string) => {
     if (!name) return null;
+    const cleanName = name.trim();
+    
+    // 1. Check Hardcoded
     const match = geoReference.find(l => 
-      l.id.toLowerCase() === name.toLowerCase() || 
-      l.code.toLowerCase() === name.toLowerCase()
+      l.id.toLowerCase() === cleanName.toLowerCase() || 
+      l.code.toLowerCase() === cleanName.toLowerCase()
     );
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
+    // 2. Fetch Dynamically (e.g., Singapore, Vietnam, etc.)
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(name)}&format=json&limit=1`);
+      // Small delay to prevent hitting Nominatim rate limits during loops
+      await new Promise(resolve => setTimeout(resolve, 200));
+      const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
       if (data && data.length > 0) {
-        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), label: name };
+        return { 
+          lat: parseFloat(data[0].lat), 
+          lng: parseFloat(data[0].lon), 
+          label: cleanName 
+        };
       }
     } catch (e) {
-      console.error("Geocode error for:", name, e);
+      console.error("Geocode error for:", cleanName, e);
     }
     return null;
   };
@@ -107,6 +117,7 @@ const GlobalMap = () => {
     if (!error && data) {
       const uniqueCountries = Array.from(new Set(data.map(p => p.country.trim()))).filter(Boolean);
       const mapped = [];
+      // Use for...of to handle async/await sequentially (safer for API limits)
       for (const country of uniqueCountries) {
         const coords = await resolveCoords(country);
         if (coords) mapped.push(coords);
