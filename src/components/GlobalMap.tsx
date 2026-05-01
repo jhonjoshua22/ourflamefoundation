@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, MapPin, Mail, Heart, User, Shield, Trophy, ChevronLeft, ChevronRight, Filter, ChevronDown, Loader2 } from "lucide-react";
+import { Search, X, MapPin, Mail, Heart, User, Shield, Trophy, ChevronLeft, ChevronRight, Filter, ChevronDown, Loader2, Globe } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
@@ -40,7 +40,9 @@ const GlobalMap = () => {
   
   const [teamLocations, setTeamLocations] = useState<any[]>([]);
   const [globalLocations, setGlobalLocations] = useState<any[]>([]);
-  const [viewMode, setViewMode] = useState<"global" | "team">("global");
+  const [worldLocations, setWorldLocations] = useState<any[]>([]);
+  const [tribeLocations, setTribeLocations] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<"global" | "team" | "world" | "tribes">("global");
 
   // User Data State
   const [currentUserData, setCurrentUserData] = useState<any>(null);
@@ -53,18 +55,18 @@ const GlobalMap = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
-  const resolveCoords = async (countryName: string) => {
-    if (!countryName) return null;
+  const resolveCoords = async (name: string) => {
+    if (!name) return null;
     const match = geoReference.find(l => 
-      l.id.toLowerCase() === countryName.toLowerCase() || 
-      l.code.toLowerCase() === countryName.toLowerCase()
+      l.id.toLowerCase() === name.toLowerCase() || 
+      l.code.toLowerCase() === name.toLowerCase()
     );
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
     try {
-      const resp = await fetch(`https://nominatim.openstreetmap.org/search?country=${encodeURIComponent(countryName)}&format=json&limit=1`);
+      const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(name)}&format=json&limit=1`);
       const data = await resp.json();
       if (data && data.length > 0) {
-        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), label: countryName };
+        return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), label: name };
       }
     } catch (e) {
       console.error("Geocode error", e);
@@ -103,6 +105,32 @@ const GlobalMap = () => {
       const uniqueCountries = Array.from(new Set(data.map(p => p.country)));
       const mapped = await Promise.all(uniqueCountries.map(c => resolveCoords(c)));
       setGlobalLocations(mapped.filter(Boolean));
+    }
+  };
+
+  const fetchWorldAndTribeData = async () => {
+    // Fetch unique worlds
+    const { data: worldsData } = await supabase
+      .from("profiles")
+      .select("worlds")
+      .not("worlds", "is", null);
+    
+    if (worldsData) {
+      const uniqueWorlds = Array.from(new Set(worldsData.map(p => p.worlds)));
+      const mappedWorlds = await Promise.all(uniqueWorlds.map(w => resolveCoords(w)));
+      setWorldLocations(mappedWorlds.filter(Boolean));
+    }
+
+    // Fetch unique tribes (teams)
+    const { data: tribesData } = await supabase
+      .from("profiles")
+      .select("tribe_id")
+      .not("tribe_id", "is", null);
+    
+    if (tribesData) {
+      const uniqueTribes = Array.from(new Set(tribesData.map(p => p.tribe_id)));
+      const mappedTribes = await Promise.all(uniqueTribes.map(t => resolveCoords(t)));
+      setTribeLocations(mappedTribes.filter(Boolean));
     }
   };
 
@@ -156,6 +184,7 @@ const GlobalMap = () => {
   useEffect(() => {
     fetchGlobalData();
     fetchTeamData();
+    fetchWorldAndTribeData();
   }, []);
 
   useEffect(() => {
@@ -174,7 +203,13 @@ const GlobalMap = () => {
   useEffect(() => {
     if (!mapInstance.current || !markerLayerGroup.current) return;
     markerLayerGroup.current.clearLayers();
-    const displayList = viewMode === "team" ? teamLocations : globalLocations;
+    
+    let displayList = [];
+    if (viewMode === "global") displayList = globalLocations;
+    else if (viewMode === "team") displayList = teamLocations;
+    else if (viewMode === "world") displayList = worldLocations;
+    else if (viewMode === "tribes") displayList = tribeLocations;
+
     const heartIcon = window.L.divIcon({
       className: 'custom-heart-icon',
       html: `<div class="heart-flicker"><svg viewBox="0 0 24 24" fill="#ea580c" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>`,
@@ -186,7 +221,7 @@ const GlobalMap = () => {
         .bindPopup(`<b style="color: #ea580c; text-transform: uppercase;">${loc.label}</b>`);
     });
     setTimeout(() => { if(mapInstance.current) mapInstance.current.invalidateSize(); }, 100);
-  }, [viewMode, teamLocations, globalLocations]);
+  }, [viewMode, teamLocations, globalLocations, worldLocations, tribeLocations]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -274,11 +309,37 @@ const GlobalMap = () => {
           <div className="flex-1 relative border border-border bg-white/5 shadow-2xl overflow-hidden rounded-xl">
             <div ref={mapRef} className="w-full h-[600px] cursor-crosshair filter dark:invert-[90%] dark:hue-rotate-180" />
             <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border text-right">
-              <p className="text-xs font-black text-foreground uppercase italic">Hearts: {viewMode === 'team' ? teamLocations.length : globalLocations.length}</p>
+              <p className="text-xs font-black text-foreground uppercase italic">Hearts: {
+                viewMode === 'team' ? teamLocations.length : 
+                viewMode === 'world' ? worldLocations.length :
+                viewMode === 'tribes' ? tribeLocations.length :
+                globalLocations.length
+              }</p>
             </div>
           </div>
 
           <div className="w-full lg:w-72 flex flex-col gap-3">
+            {/* Filter Group on top of Console */}
+            <div className="mb-2 p-1 bg-zinc-900 rounded-xl border border-zinc-800 flex flex-col gap-1">
+              <h4 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 px-2 py-1 flex items-center gap-2">
+                <Filter size={10} /> Selection Filter
+              </h4>
+              <div className="grid grid-cols-2 gap-1">
+                <button 
+                  onClick={() => setViewMode("world")} 
+                  className={`py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'world' ? 'bg-orange-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                >
+                  <Globe size={12} /> World
+                </button>
+                <button 
+                  onClick={() => setViewMode("tribes")} 
+                  className={`py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'tribes' ? 'bg-orange-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                >
+                  <Shield size={12} /> Teams
+                </button>
+              </div>
+            </div>
+
             <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Operation Console</h4>
             {[
               { label: "New Game", color: "bg-orange-600" },
