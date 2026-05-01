@@ -107,10 +107,12 @@ const GlobalMap = () => {
   };
 
   const fetchGlobalData = async () => {
+    // We use a high limit to ensure we bypass the default 1000 row limit
     const { data, count, error } = await supabase
       .from("profiles")
       .select("country", { count: 'exact' })
-      .not("country", "is", null);
+      .not("country", "is", null)
+      .limit(5000); // Increased limit to ensure all unique countries are captured
     
     if (count) setTotalUsers(count);
 
@@ -130,7 +132,8 @@ const GlobalMap = () => {
     const { data: worldsData } = await supabase
       .from("profiles")
       .select("worlds")
-      .not("worlds", "is", null);
+      .not("worlds", "is", null)
+      .limit(5000); // Ensure we scan all rows for unique worlds
     
     if (worldsData) {
       const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
@@ -140,7 +143,8 @@ const GlobalMap = () => {
     const { data: tribesData } = await supabase
       .from("profiles")
       .select("tribe_id")
-      .not("tribe_id", "is", null);
+      .not("tribe_id", "is", null)
+      .limit(5000); // Ensure we scan all rows for unique tribes
     
     if (tribesData) {
       const tribesList = Array.from(new Set(tribesData.map(p => p.tribe_id))).filter(Boolean) as string[];
@@ -154,7 +158,8 @@ const GlobalMap = () => {
       .from("profiles")
       .select("country")
       .eq("worlds", worldName)
-      .not("country", "is", null);
+      .not("country", "is", null)
+      .limit(5000);
     
     if (data) {
       const countries = Array.from(new Set(data.map(p => p.country.trim())));
@@ -173,7 +178,8 @@ const GlobalMap = () => {
       .from("profiles")
       .select("country")
       .eq("tribe_id", tribeId)
-      .not("country", "is", null);
+      .not("country", "is", null)
+      .limit(5000);
     
     if (data) {
       const countries = Array.from(new Set(data.map(p => p.country.trim())));
