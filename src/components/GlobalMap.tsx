@@ -56,7 +56,7 @@ const GlobalMap = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
-  // Helper to determine the dominant color for a country
+  // Helper to determine the dominant color for a country based on highest count of tribe_id
   const getDominantColor = (rows: any[]) => {
     const counts: Record<string, { count: number; color: string }> = {};
     rows.forEach(row => {
@@ -68,10 +68,13 @@ const GlobalMap = () => {
       counts[tribe].count++;
     });
 
-    return Object.values(counts).reduce((prev, current) => 
+    // Return the color of the tribe that has the highest count
+    const dominant = Object.values(counts).reduce((prev, current) => 
       (current.count > prev.count) ? current : prev, 
       { count: 0, color: "#ea580c" }
-    ).color;
+    );
+
+    return dominant.color;
   };
 
   const resolveCoords = async (name: string) => {
@@ -252,7 +255,6 @@ const GlobalMap = () => {
           for (const c of countryList) {
              const res = await resolveCoords(c);
              if (res) {
-               // For "My Team", we use the user's own tribe color or default
                mapped.push({ ...res, color: profile.tribe_color || "#ea580c" });
              }
           }
@@ -398,7 +400,7 @@ const GlobalMap = () => {
   );
 
   return (
-    <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-6">
+    <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-16">
       <style>{`
         @keyframes heart-flicker {
           0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px var(--glow-color)); }
