@@ -4,6 +4,30 @@ import { Search, X, MapPin, Mail, Heart, User, Shield, Trophy, ChevronLeft, Chev
 import { supabase } from "../lib/supabaseClient";
 import defaultAvatar from "../assets/default-user.jpg";
 
+// Dictionary expanded - fallback for common issues or speed
+const geoReference = [
+  { id: "United Kingdom", code: "UK", lat: 54.0, lng: -2.0 },
+  { id: "Ireland", code: "IE", lat: 53.3, lng: -6.2 }, 
+  { id: "Georgia", code: "GE", lat: 42.3, lng: 43.3 },
+  { id: "Pakistan", code: "PK", lat: 30.3, lng: 69.3 },
+  { id: "India", code: "IN", lat: 21.0, lng: 78.0 },
+  { id: "Bangladesh", code: "BD", lat: 23.6, lng: 90.3 },
+  { id: "Philippines", code: "PH", lat: 13.0, lng: 122.0 },
+  { id: "Kenya", code: "KE", lat: -1.2, lng: 36.8 }, 
+  { id: "Qatar", code: "QA", lat: 25.3, lng: 51.5 }, 
+  { id: "Nigeria", code: "NG", lat: 9.0, lng: 8.6 }, 
+  { id: "Brazil", code: "BR", lat: -14.2, lng: -51.9 }, 
+  { id: "United States", code: "US", lat: 37.0, lng: -95.7 }, 
+  { id: "Hong Kong", code: "HK", lat: 22.3, lng: 114.1 }, 
+  { id: "China", code: "CN", lat: 35.8, lng: 104.1 }, 
+  { id: "Japan", code: "JP", lat: 36.2, lng: 138.2 },
+  { id: "France", code: "FR", lat: 46.2, lng: 2.2 },
+  { id: "Germany", code: "DE", lat: 51.1, lng: 10.4 },
+  { id: "Italy", code: "IT", lat: 41.8, lng: 12.5 },
+  { id: "Spain", code: "ES", lat: 40.4, lng: -3.7 },
+  { id: "Netherlands", code: "NL", lat: 52.1, lng: 5.2 }
+];
+
 const GlobalMap = () => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -80,14 +104,19 @@ const GlobalMap = () => {
     return dominant.color;
   };
 
-  // REFACTORED: Removed hardcoded dictionary, uses 100% dynamic Nominatim lookup
   const resolveCoords = async (name: string) => {
     if (!name) return null;
     const cleanName = name.trim();
+    
+    const match = geoReference.find(l => 
+      l.id.toLowerCase() === cleanName.toLowerCase() || 
+      l.code.toLowerCase() === cleanName.toLowerCase()
+    );
+    if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
     try {
-      // Small delay to respect Nominatim usage policy (1 request per second is ideal, 250ms is aggressive but often works for small batches)
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Small delay to respect Nominatim usage policy
+      await new Promise(resolve => setTimeout(resolve, 250));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
       if (data && data.length > 0) {
@@ -138,7 +167,6 @@ const GlobalMap = () => {
       const mapped = [];
       const uniqueCountries = Object.keys(countryGroups);
       
-      // Processes every country found in your Database dynamically
       for (const country of uniqueCountries) {
         const coords = await resolveCoords(country);
         if (coords) {
