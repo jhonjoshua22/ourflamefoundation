@@ -44,6 +44,10 @@ const GlobalMap = () => {
   const [tribeLocations, setTribeLocations] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState<"global" | "team" | "world" | "tribes">("global");
 
+  // Filter Dropdown Lists
+  const [uniqueWorlds, setUniqueWorlds] = useState<string[]>([]);
+  const [uniqueTribes, setUniqueTribes] = useState<string[]>([]);
+
   // User Data State
   const [currentUserData, setCurrentUserData] = useState<any>(null);
   const [topPerformers, setTopPerformers] = useState<any[]>([]);
@@ -108,7 +112,7 @@ const GlobalMap = () => {
     }
   };
 
-  const fetchWorldAndTribeData = async () => {
+  const fetchWorldAndTribeFilters = async () => {
     // Fetch unique worlds
     const { data: worldsData } = await supabase
       .from("profiles")
@@ -116,21 +120,49 @@ const GlobalMap = () => {
       .not("worlds", "is", null);
     
     if (worldsData) {
-      const uniqueWorlds = Array.from(new Set(worldsData.map(p => p.worlds)));
-      const mappedWorlds = await Promise.all(uniqueWorlds.map(w => resolveCoords(w)));
-      setWorldLocations(mappedWorlds.filter(Boolean));
+      const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
+      setUniqueWorlds(worldsList);
     }
 
-    // Fetch unique tribes (teams)
+    // Fetch unique tribes
     const { data: tribesData } = await supabase
       .from("profiles")
       .select("tribe_id")
       .not("tribe_id", "is", null);
     
     if (tribesData) {
-      const uniqueTribes = Array.from(new Set(tribesData.map(p => p.tribe_id)));
-      const mappedTribes = await Promise.all(uniqueTribes.map(t => resolveCoords(t)));
-      setTribeLocations(mappedTribes.filter(Boolean));
+      const tribesList = Array.from(new Set(tribesData.map(p => p.tribe_id))).filter(Boolean) as string[];
+      setUniqueTribes(tribesList);
+    }
+  };
+
+  const handleWorldSelection = async (worldName: string) => {
+    setViewMode("world");
+    const { data } = await supabase
+      .from("profiles")
+      .select("country")
+      .eq("worlds", worldName)
+      .not("country", "is", null);
+    
+    if (data) {
+      const countries = Array.from(new Set(data.map(p => p.country)));
+      const mapped = await Promise.all(countries.map(c => resolveCoords(c)));
+      setWorldLocations(mapped.filter(Boolean));
+    }
+  };
+
+  const handleTribeSelection = async (tribeId: string) => {
+    setViewMode("tribes");
+    const { data } = await supabase
+      .from("profiles")
+      .select("country")
+      .eq("tribe_id", tribeId)
+      .not("country", "is", null);
+    
+    if (data) {
+      const countries = Array.from(new Set(data.map(p => p.country)));
+      const mapped = await Promise.all(countries.map(c => resolveCoords(c)));
+      setTribeLocations(mapped.filter(Boolean));
     }
   };
 
@@ -184,7 +216,7 @@ const GlobalMap = () => {
   useEffect(() => {
     fetchGlobalData();
     fetchTeamData();
-    fetchWorldAndTribeData();
+    fetchWorldAndTribeFilters();
   }, []);
 
   useEffect(() => {
@@ -322,21 +354,42 @@ const GlobalMap = () => {
             {/* Filter Group on top of Console */}
             <div className="mb-2 p-1 bg-zinc-900 rounded-xl border border-zinc-800 flex flex-col gap-1">
               <h4 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 px-2 py-1 flex items-center gap-2">
-                <Filter size={10} /> Selection Filter
+                <Filter size={10} /> Selection Filters
               </h4>
               <div className="grid grid-cols-2 gap-1">
-                <button 
-                  onClick={() => setViewMode("world")} 
-                  className={`py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'world' ? 'bg-orange-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
-                >
-                  <Globe size={12} /> World
-                </button>
-                <button 
-                  onClick={() => setViewMode("tribes")} 
-                  className={`py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-center gap-2 ${viewMode === 'tribes' ? 'bg-orange-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
-                >
-                  <Shield size={12} /> Teams
-                </button>
+                <div className="relative group">
+                  <button className={`w-full py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-between gap-2 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 ${viewMode === 'world' ? 'border border-orange-600 text-orange-600' : ''}`}>
+                    World <ChevronDown size={12} />
+                  </button>
+                  <div className="absolute top-full left-0 w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[600] max-h-40 overflow-y-auto">
+                    {uniqueWorlds.map((world) => (
+                      <button 
+                        key={world} 
+                        onClick={() => handleWorldSelection(world)}
+                        className="w-full text-left px-3 py-2 text-[10px] font-black uppercase text-zinc-400 hover:bg-zinc-800 hover:text-orange-500"
+                      >
+                        {world}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative group">
+                  <button className={`w-full py-2 px-3 text-[10px] font-black uppercase rounded-lg transition-all flex items-center justify-between gap-2 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 ${viewMode === 'tribes' ? 'border border-orange-600 text-orange-600' : ''}`}>
+                    Teams <ChevronDown size={12} />
+                  </button>
+                  <div className="absolute top-full left-0 w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[600] max-h-40 overflow-y-auto">
+                    {uniqueTribes.map((tribe) => (
+                      <button 
+                        key={tribe} 
+                        onClick={() => handleTribeSelection(tribe)}
+                        className="w-full text-left px-3 py-2 text-[10px] font-black uppercase text-zinc-400 hover:bg-zinc-800 hover:text-orange-500"
+                      >
+                        {tribe}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
