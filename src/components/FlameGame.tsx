@@ -201,7 +201,7 @@ const FlameGame = () => {
 
           <div className="text-center flex flex-col items-center">
             <Zap className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">300K</span>
+            <span className="text-4xl font-black text-black dark:text-white">$300K</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Invested</p>
           </div>
 
@@ -213,7 +213,7 @@ const FlameGame = () => {
 
           <div className="text-center flex flex-col items-center">
             <Gem className="w-6 h-6 text-orange-600 mb-2" />
-            <span className="text-4xl font-black text-black dark:text-white">1.9B</span>
+            <span className="text-4xl font-black text-black dark:text-white">$1.9B</span>
             <p className="text-[10px] uppercase font-bold tracking-widest text-black dark:text-white">Value</p>
           </div>
         </div> 
