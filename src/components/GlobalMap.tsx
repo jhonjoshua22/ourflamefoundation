@@ -45,6 +45,7 @@ const GlobalMap = () => {
   // User Data State
   const [currentUserData, setCurrentUserData] = useState<any>(null);
   const [topPerformers, setTopPerformers] = useState<any[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   const resolveCoords = async (countryName: string) => {
     if (!countryName) return null;
@@ -65,8 +66,34 @@ const GlobalMap = () => {
     return null;
   };
 
+  const processUserData = (user: any, totalCount: number) => {
+    const followers = Number(user.facebook || 0);
+    const team = Number(user.referral_count || 0);
+    // Formula from leaderboard: ((team + 5) * (followers + 100)) / totalUsers * 100
+    const calculatedValue = totalCount > 0 
+      ? ((team + 5) * (followers + 100)) / totalCount * 100
+      : 0;
+
+    return {
+      ...user,
+      display_name: user.display_name || (user.email ? user.email.split('@')[0] : "Anonymous"),
+      followersNum: followers,
+      paidNum: Number(user.paid || 0),
+      savedNum: Number(user.saved || 0),
+      teamNum: team,
+      engagementNum: Number(user.engagement || 0),
+      valueNum: calculatedValue
+    };
+  };
+
   const fetchGlobalData = async () => {
-    const { data, error } = await supabase.from("profiles").select("country").not("country", "is", null);
+    const { data, count, error } = await supabase
+      .from("profiles")
+      .select("country", { count: 'exact' })
+      .not("country", "is", null);
+    
+    if (count) setTotalUsers(count);
+
     if (!error && data) {
       const uniqueCountries = Array.from(new Set(data.map(p => p.country)));
       const mapped = await Promise.all(uniqueCountries.map(c => resolveCoords(c)));
@@ -76,27 +103,33 @@ const GlobalMap = () => {
 
   const fetchTeamData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    
+    // Get total count first for formula
+    const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+    const totalCount = count || 0;
 
-    // Fetch My Data
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-    if (profile) {
-      setCurrentUserData(profile);
-      if (profile.team_countries) {
-        const countryList = profile.team_countries.split(",").map(c => c.trim());
-        const mapped = await Promise.all(countryList.map(c => resolveCoords(c)));
-        setTeamLocations(mapped.filter(Boolean));
+    if (user) {
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      if (profile) {
+        setCurrentUserData(processUserData(profile, totalCount));
+        if (profile.team_countries) {
+          const countryList = profile.team_countries.split(",").map(c => c.trim());
+          const mapped = await Promise.all(countryList.map(c => resolveCoords(c)));
+          setTeamLocations(mapped.filter(Boolean));
+        }
       }
     }
 
-    // Fetch Top Performers (Green/Amber)
     const { data: topUsers } = await supabase
       .from("profiles")
       .select("*")
       .in("Performance", ["Green", "Amber"])
-      .neq("id", user.id)
+      .neq("id", user?.id || "")
       .limit(10);
-    setTopPerformers(topUsers || []);
+    
+    if (topUsers) {
+      setTopPerformers(topUsers.map(u => processUserData(u, totalCount)));
+    }
   };
 
   useEffect(() => {
@@ -152,9 +185,17 @@ const GlobalMap = () => {
             <img src={user.photo_url || defaultAvatar} alt="" className="w-full h-full object-cover" />
           </div>
           <div>
-            <Link to={`/profile/${user.id}`} className="font-black text-sm uppercase italic tracking-tighter text-zinc-200 group-hover:text-orange-500 transition-colors">
-              {user.display_name}
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to={`/profile/${user.id}`} className="font-black text-sm uppercase italic tracking-tighter text-zinc-200 group-hover:text-orange-500 transition-colors">
+                {user.display_name}
+              </Link>
+              {/* Performance color indicator synced with leaderboard */}
+              <div className={`w-2.5 h-2.5 rounded-full ${
+                user.Performance === 'Green' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
+                user.Performance === 'Amber' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]' :
+                user.Performance === 'Red' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-zinc-600'
+              }`} />
+            </div>
             <div className="flex items-center gap-2 mt-0.5">
               <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
                 <Shield size={10} fill="currentColor" /> {user.tribe_id || "NO TRIBE"}
@@ -165,12 +206,13 @@ const GlobalMap = () => {
           </div>
         </div>
       </td>
-      <td className="p-5 font-black text-white text-sm">{(user.paid || 0).toLocaleString()}</td>
-      <td className="p-5 font-black text-white text-sm">{(user.saved || 0).toLocaleString()}</td>
-      <td className="p-5 font-black text-zinc-400 text-sm">{(user.referral_count || 0).toLocaleString()}</td>
-      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{user.engagement || 0}%</td>
+      <td className="p-5 font-black text-white text-sm">{(user.teamNum || 0).toLocaleString()}</td>
+      <td className="p-5 font-black text-white text-sm">{(user.paidNum || 0).toLocaleString()}</td>
+      <td className="p-5 font-black text-white text-sm">{(user.savedNum || 0).toLocaleString()}</td>
+      <td className="p-5 font-black text-zinc-400 text-sm">{(user.followersNum || 0).toLocaleString()}</td>
+      <td className="p-5 text-blue-400 font-mono font-bold text-sm">{user.engagementNum || 0}%</td>
       <td className="p-5 text-right text-purple-400 font-black italic text-sm">
-        ${(user.value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        ${(user.valueNum || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </td>
     </tr>
   );
@@ -233,10 +275,11 @@ const GlobalMap = () => {
             <h3 className="text-xl font-black uppercase italic text-orange-600">Personnel Data Stream</h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse">
+            <table className="w-full min-w-[1000px] border-collapse">
               <thead>
                 <tr className="bg-zinc-900/80 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest sticky top-0 z-20 backdrop-blur-md">
                   <th className="p-5">Tribes / Recruits</th>
+                  <th className="p-5">Team</th>
                   <th className="p-5">Invested</th>
                   <th className="p-5">Saved</th>
                   <th className="p-5">Followers</th>
@@ -256,14 +299,12 @@ const GlobalMap = () => {
 
         {/* View Full Scoretable Link */}
         <div className="flex justify-center mb-12">
-          <a 
-            href="https://www.ourflamefoundation.org/scoretable" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <Link 
+            to="/scoretable" 
             className="flex items-center gap-3 bg-white text-black text-[10px] font-black uppercase px-10 py-4 rounded-full hover:bg-orange-600 hover:text-white transition-all shadow-xl"
           >
             <Trophy size={16} /> View Full Scoretable
-          </a>
+          </Link>
         </div>
 
         {/* Search Modal Trigger (Find Friends) */}
