@@ -56,21 +56,35 @@ const GlobalMap = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [loadingTeam, setLoadingTeam] = useState(false);
 
-  // RESOLVE COORDS: Uses hardcoded list first, then fetches dynamically from Nominatim
+  // Helper to determine the dominant color for a country
+  const getDominantColor = (rows: any[]) => {
+    const counts: Record<string, { count: number; color: string }> = {};
+    rows.forEach(row => {
+      const tribe = row.tribe_id || "None";
+      const color = row.tribe_color || "#ea580c";
+      if (!counts[tribe]) {
+        counts[tribe] = { count: 0, color };
+      }
+      counts[tribe].count++;
+    });
+
+    return Object.values(counts).reduce((prev, current) => 
+      (current.count > prev.count) ? current : prev, 
+      { count: 0, color: "#ea580c" }
+    ).color;
+  };
+
   const resolveCoords = async (name: string) => {
     if (!name) return null;
     const cleanName = name.trim();
     
-    // 1. Check Hardcoded
     const match = geoReference.find(l => 
       l.id.toLowerCase() === cleanName.toLowerCase() || 
       l.code.toLowerCase() === cleanName.toLowerCase()
     );
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
-    // 2. Fetch Dynamically (e.g., Singapore, Vietnam, etc.)
     try {
-      // Small delay to prevent hitting Nominatim rate limits during loops
       await new Promise(resolve => setTimeout(resolve, 200));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
@@ -107,22 +121,31 @@ const GlobalMap = () => {
   };
 
   const fetchGlobalData = async () => {
-    // We use a high limit to ensure we bypass the default 1000 row limit
     const { data, count, error } = await supabase
       .from("profiles")
-      .select("country", { count: 'exact' })
+      .select("country, tribe_id, tribe_color", { count: 'exact' })
       .not("country", "is", null)
-      .limit(5000); // Increased limit to ensure all unique countries are captured
+      .limit(5000);
     
     if (count) setTotalUsers(count);
 
     if (!error && data) {
-      const uniqueCountries = Array.from(new Set(data.map(p => p.country.trim()))).filter(Boolean);
+      const countryGroups: Record<string, any[]> = {};
+      data.forEach(p => {
+        const c = p.country.trim();
+        if (!countryGroups[c]) countryGroups[c] = [];
+        countryGroups[c].push(p);
+      });
+
       const mapped = [];
-      // Use for...of to handle async/await sequentially (safer for API limits)
-      for (const country of uniqueCountries) {
+      for (const country in countryGroups) {
         const coords = await resolveCoords(country);
-        if (coords) mapped.push(coords);
+        if (coords) {
+          mapped.push({ 
+            ...coords, 
+            color: getDominantColor(countryGroups[country]) 
+          });
+        }
       }
       setGlobalLocations(mapped);
     }
@@ -133,7 +156,7 @@ const GlobalMap = () => {
       .from("profiles")
       .select("worlds")
       .not("worlds", "is", null)
-      .limit(5000); // Ensure we scan all rows for unique worlds
+      .limit(5000);
     
     if (worldsData) {
       const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
@@ -144,7 +167,7 @@ const GlobalMap = () => {
       .from("profiles")
       .select("tribe_id")
       .not("tribe_id", "is", null)
-      .limit(5000); // Ensure we scan all rows for unique tribes
+      .limit(5000);
     
     if (tribesData) {
       const tribesList = Array.from(new Set(tribesData.map(p => p.tribe_id))).filter(Boolean) as string[];
@@ -156,17 +179,28 @@ const GlobalMap = () => {
     setViewMode("world");
     const { data } = await supabase
       .from("profiles")
-      .select("country")
+      .select("country, tribe_id, tribe_color")
       .eq("worlds", worldName)
       .not("country", "is", null)
       .limit(5000);
     
     if (data) {
-      const countries = Array.from(new Set(data.map(p => p.country.trim())));
+      const countryGroups: Record<string, any[]> = {};
+      data.forEach(p => {
+        const c = p.country.trim();
+        if (!countryGroups[c]) countryGroups[c] = [];
+        countryGroups[c].push(p);
+      });
+
       const mapped = [];
-      for (const c of countries) {
+      for (const c in countryGroups) {
         const res = await resolveCoords(c);
-        if (res) mapped.push(res);
+        if (res) {
+          mapped.push({ 
+            ...res, 
+            color: getDominantColor(countryGroups[c]) 
+          });
+        }
       }
       setWorldLocations(mapped);
     }
@@ -176,17 +210,28 @@ const GlobalMap = () => {
     setViewMode("tribes");
     const { data } = await supabase
       .from("profiles")
-      .select("country")
+      .select("country, tribe_id, tribe_color")
       .eq("tribe_id", tribeId)
       .not("country", "is", null)
       .limit(5000);
     
     if (data) {
-      const countries = Array.from(new Set(data.map(p => p.country.trim())));
+      const countryGroups: Record<string, any[]> = {};
+      data.forEach(p => {
+        const c = p.country.trim();
+        if (!countryGroups[c]) countryGroups[c] = [];
+        countryGroups[c].push(p);
+      });
+
       const mapped = [];
-      for (const c of countries) {
+      for (const c in countryGroups) {
         const res = await resolveCoords(c);
-        if (res) mapped.push(res);
+        if (res) {
+          mapped.push({ 
+            ...res, 
+            color: getDominantColor(countryGroups[c]) 
+          });
+        }
       }
       setTribeLocations(mapped);
     }
@@ -206,7 +251,10 @@ const GlobalMap = () => {
           const mapped = [];
           for (const c of countryList) {
              const res = await resolveCoords(c);
-             if (res) mapped.push(res);
+             if (res) {
+               // For "My Team", we use the user's own tribe color or default
+               mapped.push({ ...res, color: profile.tribe_color || "#ea580c" });
+             }
           }
           setTeamLocations(mapped);
         }
@@ -272,15 +320,23 @@ const GlobalMap = () => {
     else if (viewMode === "world") displayList = worldLocations;
     else if (viewMode === "tribes") displayList = tribeLocations;
 
-    const heartIcon = window.L.divIcon({
-      className: 'custom-heart-icon',
-      html: `<div class="heart-flicker"><svg viewBox="0 0 24 24" fill="#ea580c" width="30" height="30"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>`,
-      iconSize: [30, 30], iconAnchor: [15, 15],
-    });
     displayList.forEach((loc) => {
+      const activeColor = loc.color || "#ea580c";
+      
+      const heartIcon = window.L.divIcon({
+        className: 'custom-heart-icon',
+        html: `
+          <div class="heart-flicker" style="--glow-color: ${activeColor}">
+            <svg viewBox="0 0 24 24" fill="${activeColor}" width="30" height="30">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>`,
+        iconSize: [30, 30], iconAnchor: [15, 15],
+      });
+
       window.L.marker([loc.lat, loc.lng], { icon: heartIcon })
         .addTo(markerLayerGroup.current)
-        .bindPopup(`<b style="color: #ea580c; text-transform: uppercase;">${loc.label}</b>`);
+        .bindPopup(`<b style="color: ${activeColor}; text-transform: uppercase;">${loc.label}</b>`);
     });
     setTimeout(() => { if(mapInstance.current) mapInstance.current.invalidateSize(); }, 100);
   }, [viewMode, teamLocations, globalLocations, worldLocations, tribeLocations]);
@@ -314,7 +370,7 @@ const GlobalMap = () => {
               }`} />
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <div className="flex items-center gap-1 text-blue-500 text-[9px] font-black uppercase">
+              <div className="flex items-center gap-1 text-[9px] font-black uppercase" style={{ color: user.tribe_color || "#3b82f6" }}>
                 <Shield size={10} fill="currentColor" /> {user.tribe_id || "NO TRIBE"}
               </div>
               <div className="text-[9px] text-orange-500 uppercase font-black opacity-80">• {user.rank || "Normie"}</div>
@@ -345,8 +401,8 @@ const GlobalMap = () => {
     <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-6">
       <style>{`
         @keyframes heart-flicker {
-          0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px #ea580c); }
-          50% { opacity: 0.6; transform: scale(0.9); filter: drop-shadow(0 0 8px #ea580c); }
+          0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px var(--glow-color)); }
+          50% { opacity: 0.6; transform: scale(0.9); filter: drop-shadow(0 0 8px var(--glow-color)); }
         }
         .heart-flicker { animation: heart-flicker 2s infinite ease-in-out; display: flex; align-items: center; justify-content: center; }
       `}</style>
