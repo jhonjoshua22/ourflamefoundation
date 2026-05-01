@@ -59,16 +59,17 @@ const GlobalMap = () => {
   // Helper to determine the dominant color for a country based on highest count of tribe_id
   const getDominantColor = (rows: any[]) => {
     const counts: Record<string, { count: number; color: string }> = {};
+    
     rows.forEach(row => {
       const tribe = row.tribe_id || "None";
       const color = row.tribe_color || "#ea580c";
+      
       if (!counts[tribe]) {
         counts[tribe] = { count: 0, color };
       }
       counts[tribe].count++;
     });
 
-    // Return the color of the tribe that has the highest count
     const dominant = Object.values(counts).reduce((prev, current) => 
       (current.count > prev.count) ? current : prev, 
       { count: 0, color: "#ea580c" }
@@ -88,7 +89,8 @@ const GlobalMap = () => {
     if (match) return { lat: match.lat, lng: match.lng, label: match.id };
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Small delay to prevent hitting Nominatim rate limits during batch processing
+      await new Promise(resolve => setTimeout(resolve, 250));
       const resp = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanName)}&format=json&limit=1`);
       const data = await resp.json();
       if (data && data.length > 0) {
@@ -127,8 +129,7 @@ const GlobalMap = () => {
     const { data, count, error } = await supabase
       .from("profiles")
       .select("country, tribe_id, tribe_color", { count: 'exact' })
-      .not("country", "is", null)
-      .limit(5000);
+      .not("country", "is", null);
     
     if (count) setTotalUsers(count);
 
@@ -141,7 +142,10 @@ const GlobalMap = () => {
       });
 
       const mapped = [];
-      for (const country in countryGroups) {
+      // Process all unique countries found in the data
+      const uniqueCountries = Object.keys(countryGroups);
+      
+      for (const country of uniqueCountries) {
         const coords = await resolveCoords(country);
         if (coords) {
           mapped.push({ 
@@ -158,8 +162,7 @@ const GlobalMap = () => {
     const { data: worldsData } = await supabase
       .from("profiles")
       .select("worlds")
-      .not("worlds", "is", null)
-      .limit(5000);
+      .not("worlds", "is", null);
     
     if (worldsData) {
       const worldsList = Array.from(new Set(worldsData.map(p => p.worlds))).filter(Boolean) as string[];
@@ -169,8 +172,7 @@ const GlobalMap = () => {
     const { data: tribesData } = await supabase
       .from("profiles")
       .select("tribe_id")
-      .not("tribe_id", "is", null)
-      .limit(5000);
+      .not("tribe_id", "is", null);
     
     if (tribesData) {
       const tribesList = Array.from(new Set(tribesData.map(p => p.tribe_id))).filter(Boolean) as string[];
@@ -184,8 +186,7 @@ const GlobalMap = () => {
       .from("profiles")
       .select("country, tribe_id, tribe_color")
       .eq("worlds", worldName)
-      .not("country", "is", null)
-      .limit(5000);
+      .not("country", "is", null);
     
     if (data) {
       const countryGroups: Record<string, any[]> = {};
@@ -215,8 +216,7 @@ const GlobalMap = () => {
       .from("profiles")
       .select("country, tribe_id, tribe_color")
       .eq("tribe_id", tribeId)
-      .not("country", "is", null)
-      .limit(5000);
+      .not("country", "is", null);
     
     if (data) {
       const countryGroups: Record<string, any[]> = {};
