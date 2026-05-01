@@ -47,6 +47,12 @@ const GlobalMap = () => {
   const [topPerformers, setTopPerformers] = useState<any[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
 
+  // Team Modal State
+  const [selectedUserForTeam, setSelectedUserForTeam] = useState<any>(null);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+
   const resolveCoords = async (countryName: string) => {
     if (!countryName) return null;
     const match = geoReference.find(l => 
@@ -69,7 +75,6 @@ const GlobalMap = () => {
   const processUserData = (user: any, totalCount: number) => {
     const followers = Number(user.facebook || 0);
     const team = Number(user.referral_count || 0);
-    // Formula from leaderboard: ((team + 5) * (followers + 100)) / totalUsers * 100
     const calculatedValue = totalCount > 0 
       ? ((team + 5) * (followers + 100)) / totalCount * 100
       : 0;
@@ -103,8 +108,6 @@ const GlobalMap = () => {
 
   const fetchTeamData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    // Get total count first for formula
     const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
     const totalCount = count || 0;
 
@@ -130,6 +133,24 @@ const GlobalMap = () => {
     if (topUsers) {
       setTopPerformers(topUsers.map(u => processUserData(u, totalCount)));
     }
+  };
+
+  const fetchUserTeam = async (user: any) => {
+    setLoadingTeam(true);
+    setSelectedUserForTeam(user);
+    setIsTeamModalOpen(true);
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("referred_by", user.id);
+
+    if (!error && data) {
+      setTeamMembers(data.map(u => processUserData(u, totalUsers)));
+    } else {
+      setTeamMembers([]);
+    }
+    setLoadingTeam(false);
   };
 
   useEffect(() => {
@@ -189,7 +210,6 @@ const GlobalMap = () => {
               <Link to={`/profile/${user.id}`} className="font-black text-sm uppercase italic tracking-tighter text-zinc-200 group-hover:text-orange-500 transition-colors">
                 {user.display_name}
               </Link>
-              {/* Performance color indicator synced with leaderboard */}
               <div className={`w-2.5 h-2.5 rounded-full ${
                 user.Performance === 'Green' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
                 user.Performance === 'Amber' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]' :
@@ -206,7 +226,14 @@ const GlobalMap = () => {
           </div>
         </div>
       </td>
-      <td className="p-5 font-black text-white text-sm">{(user.teamNum || 0).toLocaleString()}</td>
+      <td className="p-5 font-black text-white text-sm">
+        <button 
+          onClick={() => fetchUserTeam(user)}
+          className="hover:text-orange-500 transition-colors cursor-pointer"
+        >
+          {(user.teamNum || 0).toLocaleString()}
+        </button>
+      </td>
       <td className="p-5 font-black text-white text-sm">{(user.paidNum || 0).toLocaleString()}</td>
       <td className="p-5 font-black text-white text-sm">{(user.savedNum || 0).toLocaleString()}</td>
       <td className="p-5 font-black text-zinc-400 text-sm">{(user.followersNum || 0).toLocaleString()}</td>
@@ -244,7 +271,6 @@ const GlobalMap = () => {
 
         {/* Map + Action Buttons Row */}
         <div className="flex flex-col lg:flex-row gap-6 mb-12">
-          {/* Map Container */}
           <div className="flex-1 relative border border-border bg-white/5 shadow-2xl overflow-hidden rounded-xl">
             <div ref={mapRef} className="w-full h-[600px] cursor-crosshair filter dark:invert-[90%] dark:hue-rotate-180" />
             <div className="absolute top-4 right-4 z-[500] bg-background/90 backdrop-blur-md p-3 border border-border text-right">
@@ -252,7 +278,6 @@ const GlobalMap = () => {
             </div>
           </div>
 
-          {/* Buttons Container */}
           <div className="w-full lg:w-72 flex flex-col gap-3">
             <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Operation Console</h4>
             {[
@@ -297,7 +322,58 @@ const GlobalMap = () => {
           </div>
         </div>
 
-        {/* View Full Scoretable Link */}
+        {/* Team Modal (Score Table Style) */}
+        {isTeamModalOpen && (
+          <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsTeamModalOpen(false)} />
+            <div className="relative bg-zinc-950 w-full max-w-6xl rounded-2xl border border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+              <div className="p-6 border-b border-zinc-800 flex justify-between items-center bg-black/40">
+                <div>
+                  <h3 className="text-xl font-black uppercase italic text-orange-600">
+                    Team: <span className="text-white">{selectedUserForTeam?.display_name}</span>
+                  </h3>
+                  <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mt-1">Direct Recruits Found: {teamMembers.length}</p>
+                </div>
+                <button onClick={() => setIsTeamModalOpen(false)} className="text-zinc-500 hover:text-white transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto flex-1">
+                {loadingTeam ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-4">
+                    <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
+                    <p className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Scanning Network...</p>
+                  </div>
+                ) : teamMembers.length > 0 ? (
+                  <table className="w-full min-w-[900px] border-collapse">
+                    <thead>
+                      <tr className="bg-zinc-900/80 text-[10px] uppercase text-zinc-400 border-b border-zinc-800 text-left font-black tracking-widest sticky top-0 z-20 backdrop-blur-md">
+                        <th className="p-5">Recruits</th>
+                        <th className="p-5">Team</th>
+                        <th className="p-5">Invested</th>
+                        <th className="p-5">Saved</th>
+                        <th className="p-5">Followers</th>
+                        <th className="p-5">Engagement</th>
+                        <th className="p-5 text-right">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-900/50">
+                      {teamMembers.map((member) => (
+                        <UserRow key={member.id} user={member} />
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="py-20 text-center">
+                    <p className="text-zinc-500 font-black uppercase text-xs">No direct recruits found for this user.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-center mb-12">
           <Link 
             to="/scoretable" 
@@ -307,13 +383,11 @@ const GlobalMap = () => {
           </Link>
         </div>
 
-        {/* Search Modal Trigger (Find Friends) */}
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button onClick={() => setIsModalOpen(true)} className="bg-orange-600 text-white text-xs font-black uppercase px-8 py-4 rounded-lg shadow-lg">Find Friends</button>
           <Link to="/login" className="bg-zinc-900 dark:bg-white text-white dark:text-black text-xs font-black uppercase px-8 py-4 rounded-lg">Log In</Link>
         </div>
 
-        {/* Search Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
