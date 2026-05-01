@@ -59,9 +59,11 @@ const GlobalMap = () => {
   // Helper to determine the dominant color for a country based on highest count of tribe_id
   const getDominantColor = (rows: any[]) => {
     const counts: Record<string, { count: number; color: string }> = {};
+    
     rows.forEach(row => {
       const tribe = row.tribe_id || "None";
       const color = row.tribe_color || "#ea580c";
+      
       if (!counts[tribe]) {
         counts[tribe] = { count: 0, color };
       }
@@ -400,7 +402,7 @@ const GlobalMap = () => {
   );
 
   return (
-    <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-16">
+    <section id="presence" className="bg-background py-20 border-t border-border relative z-0 pt-[10vh]">
       <style>{`
         @keyframes heart-flicker {
           0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 2px var(--glow-color)); }
